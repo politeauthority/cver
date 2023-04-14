@@ -1,0 +1,4 @@
+#!/bin/sh -l
+set -e
+echo "Running Cver Migrate - Debug"
+cd /app/cver/migrate && python3 migrate.py
