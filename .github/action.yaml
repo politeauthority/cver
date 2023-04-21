@@ -1,0 +1,55 @@
+# Cver Api - Pr
+
+name: Cver-Api-PR
+
+on:
+  pull_request:
+    branches: "main"
+
+jobs:
+  build-docker:
+    runs-on: self-hosted
+    image: politeauthority/polite-cicd:0.0.1
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build Container
+        run: |
+          echo "ALIX-DEBUG"
+          echo "$(ls)"
+          echo "**Built Image:** politeauthority/pignus-api-dev:${{ github.sha }}" >> GITHUB_SUMMARY
+
+      # - name: Push Container
+      #   run: |
+      #     docker push politeauthority/pignus-api-dev:${{ github.sha }}
+
+  # deploy-test:
+  #   runs-on: self-hosted
+  #   needs: build-docker
+  #   container:
+  #     image: politeauthority/pignus-cicd:latest
+  #   strategy:
+  #     fail-fast: true
+  #   steps:
+  #     - uses: actions/checkout@v1
+  #     - run: |
+  #         cd helm/pigus-api
+  #         helm install --upgrade pignus-cicd -f values.yaml -f values-regression.yaml
+  #       env:
+  #         KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'
+
+  # run-regression:
+  #   runs-on: self-hosted
+  #   needs: deploy-test
+  #   container:
+  #     image: politeauthority/pignus-api-dev:${{ github.sha }}
+  #     env:
+  #       PIGNUS_API_URL: "${{ secrets.REGRESSION_PIGNUS_API_URL }}"
+  #       PIGNUS_API_CLIENT_ID: "${{ secrets.REGRESSION_PIGNUS_API_CLIENT_ID }}"
+  #       PIGNUS_API_KEY: "${{ secrets.REGRESSION_PIGNUS_API_KEY }}"
+  #   steps:
+  #     - name: Regression Pignus-Api
+  #       run: cd /tests/regression && pytest
+
+# End File: cver/.github/action.yaml
