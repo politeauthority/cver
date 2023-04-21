@@ -326,7 +326,7 @@ class Base:
         )
         return insert_sql
 
-    def _gen_iodku_sql(self, skip_fields: list = {"id": {"name": "id"}} ) -> str:
+    def _gen_iodku_sql(self, skip_fields: dict = {"id": {"name": "id"}}) -> str:
         """Generate the model values to send to the sql engine interpreter as a tuple.
         :unit-test: test___gen_iodku_sql
         """
