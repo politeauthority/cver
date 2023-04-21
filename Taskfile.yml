@@ -29,6 +29,9 @@ tasks:
   dev-stop:
     cmds:
       - docker rm -f cver
+  pre-commit-lint:
+    cmds: 
+      - cd ./src && flake8 cver --config=flake8 --count --show-source --statistics
+
   dev-test:
-    cmds:
-      - echo $CVER_API_URL
+  
