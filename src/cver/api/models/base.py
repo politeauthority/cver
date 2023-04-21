@@ -31,6 +31,7 @@ class Base:
         self.table_name = None
         self.entity_name = None
         self.field_map = {}
+        self.id = None
         self.setup()
 
     def __repr__(self):
@@ -217,7 +218,7 @@ class Base:
             return False
 
         count = 0
-        for field in self.total_map:
+        for field_name, field in self.total_map.items():
             field_name = field['name']
             field_value = raw[count]
 
@@ -281,7 +282,7 @@ class Base:
         :unit-test: test__json
         """
         json_out = {}
-        for field in self.total_map:
+        for field_name, field in self.total_map.items():
             value = getattr(self, field["name"])
             if field["type"] == "datetime":
                 value = date_utils.json_date(value)
@@ -325,7 +326,7 @@ class Base:
         )
         return insert_sql
 
-    def _gen_iodku_sql(self, skip_fields: list = ['id']) -> str:
+    def _gen_iodku_sql(self, skip_fields: list = {"id": {"name": "id"}} ) -> str:
         """Generate the model values to send to the sql engine interpreter as a tuple.
         :unit-test: test___gen_iodku_sql
         """
@@ -333,7 +334,6 @@ class Base:
             # @note: this is missing.
             return None
         elif self.backend == "mysql":
-
             sql_args = {
                 "table_name": self.table_name,
                 "fields": self._sql_fields_sanitized(skip_fields),
@@ -364,13 +364,13 @@ class Base:
             %(where)s;""" % sql_args
         return update_sql
 
-    def _sql_fields_sanitized(self, skip_fields: list) -> str:
+    def _sql_fields_sanitized(self, skip_fields: dict) -> str:
         """Get all class table column fields in a comma separated list for sql cmds. Returns a value
            like: `id`, `created_ts`, `update_ts`, `name`, `vendor`
-        :unit-test: test___sql_fields_sanitized
+        :unit-test: tests/unit/api/models/test_base.py:TestBase:test___sql_fields_sanitized
         """
         field_sql = ""
-        for field in self.total_map:
+        for field_name, field in self.total_map.items():
             # Skip fields we don't want included in db writes
             if field['name'] in skip_fields:
                 continue
@@ -383,19 +383,19 @@ class Base:
         :unit-test: test___sql_insert_values_santized
         """
         sql_values = ""
-        for field in self.total_map:
+        for field_name, field in self.total_map.items():
             if field["name"] in skip_fields:
                 continue
             value = self._get_sql_value_santized(field)
             sql_values += "%s, " % value
         return sql_values[:-2]
 
-    def _sql_update_fields_values_santized(self, skip_fields: list) -> str:
+    def _sql_update_fields_values_santized(self, skip_fields: dict) -> str:
         """Generate the models SET sql statements, ie: SET key = value, other_key = other_value.
         :unit-test: test___sql_update_fields_values_santized
         """
         set_sql = ""
-        for field in self.total_map:
+        for field_name, field in self.total_map.items():
             if field['name'] in skip_fields:
                 continue
 

@@ -43,7 +43,8 @@ def debug():
     data = {
         "debug": "Hello",
         "info": "Cver Api",
-        "version": "0.0.1"
+        "version": "0.0.1",
+        "build": "beta"
     }
     return jsonify(data)
 

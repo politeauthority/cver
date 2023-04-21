@@ -50,13 +50,7 @@ def post_model(model, entity_id: int = None):
     data = {
         "status": "Error"
     }
-    request_data = request.get_json()
-    print("\n\n")
-    print(request_data)
-    print("\n\n")
-
     entity = model()
-
     if entity_id:
         if not entity.get_by_id(entity_id):
             data["status"] = "Error"
@@ -65,12 +59,21 @@ def post_model(model, entity_id: int = None):
         else:
             log.info("POST - Found entity: %s" % entity)
 
+    request_data = request.get_json()
+
+    # import ipdb; ipdb.set_trace()
+    # print("\n\n")
+    # print(request_data)
+
+    # print(request_data)
+    # print("\n\n")
+
     # Check through the fields and see if they should be applied to the model.
     for field_name, field_value in request_data.items():
         print("%s\t%s" % (field_name, field_value))
         update_field = False
         # This could be optimized.``
-        for entity_field in entity.field_map:
+        for entity_name, entity_field in entity.field_map.items():
             if entity_field["name"] == field_name:
                 if field_name not in entity.api_writeable_fields:
                     data["status"] = "Error"

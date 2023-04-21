@@ -14,6 +14,7 @@ ctrl_software = Blueprint('app', __name__, url_prefix='/app')
 
 
 @ctrl_software.route("")
+@ctrl_software.route("/")
 @ctrl_software.route("/<software_id>")
 # @auth.auth_request
 def get_model(software_id: int = None) -> Response:
@@ -28,11 +29,12 @@ def get_model(software_id: int = None) -> Response:
 
 
 @ctrl_software.route("", methods=["POST"])
-@ctrl_software.route("<software_id>", methods=["POST"])
+@ctrl_software.route("/", methods=["POST"])
+@ctrl_software.route("/<software_id>", methods=["POST"])
 # @auth.auth_request,
 def post_model(software_id: int = None):
     """POST operation for a Software model. """
-    log.debug("software post")
+    print("software post")
     return ctrl_base.post_model(Software, software_id)
 
 

@@ -6,12 +6,15 @@
 """
 
 import os
+import json
+
 import requests
 
 CVER_API_URL = os.environ.get("CVER_API_URL")
 CVER_API_CLIENT_ID = os.environ.get("CVER_API_CLIENT_ID")
 CVER_API_KEY = os.environ.get("CVER_API_KEY")
 HEADERS = {
+    "content-type": "application/json",
     "client-id": CVER_API_CLIENT_ID,
     "x-api-key": CVER_API_KEY
 }
@@ -35,22 +38,23 @@ class TestApiSoftware:
         response = requests.request(**request_args)
         assert response.status_code == 400
 
-    # def test__app_post_200(self):
-    #     """Test Software POST new
-    #     POST /app
-    #     """
-    #     request_args = {
-    #         "headers": HEADERS,
-    #         "method": "POST",
-    #         "url": "%s%s" % (CVER_API_URL, URL_BASE),
-    #         "data": {
-    #             "name": "not-real",
-    #             "url_git": "https://github.com/example/example",
-    #             "url_marketing": "https://example.com/"
-    #         }
-    #     }
-    #     response = requests.request(**request_args)
-    #     assert response.status_code == 200
+    def test__app_post_200(self):
+        """Test Software POST
+        POST /app
+        """
+        request_args = {
+            "headers": HEADERS,
+            "method": "POST",
+            "url": "%s%s" % (CVER_API_URL, URL_BASE),
+            "data": {
+                "name": "not-real",
+                "url_git": "https://github.com/example/example",
+                "url_marketing": "https://example.com/"
+            }
+        }
+        request_args["data"] = json.dumps(request_args["data"])
+        response = requests.request(**request_args)
+        assert response.status_code == 200
 
     # def test__app_get_200(self):
     #     """Tests the Software collections through the Cver Api
