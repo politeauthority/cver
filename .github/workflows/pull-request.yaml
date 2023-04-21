@@ -33,7 +33,7 @@ jobs:
 
       - name: Linter
         run: |
-          task pre-commit-lint
+          cd ./src && flake8 cver --config=flake8 --count --show-source --statistics
 
       - name: Unit Tests
         run: pytest tests/unit
