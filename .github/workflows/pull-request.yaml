@@ -1,6 +1,6 @@
-# Cver Api - Pr
+# Cver Api - Pull Request
 
-name: Cver-Api-PR
+name: Cver-Api-Pull-Request
 
 on:
   pull_request:
@@ -20,9 +20,12 @@ jobs:
           echo "Run Task: Build"
           task build
 
-      # - name: Push Container
-      #   run: |
-      #     docker push politeauthority/pignus-api-dev:${{ github.sha }}
+      - uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+      - name: Push Container
+        run: docker push politeauthority/cver-api:${{ github.sha }}
 
   # deploy-test:
   #   runs-on: self-hosted
@@ -52,4 +55,4 @@ jobs:
   #     - name: Regression Pignus-Api
   #       run: cd /tests/regression && pytest
 
-# End File: cver/.github/action.yaml
+# End File: cver/.github/webserver/pull-request.yaml
