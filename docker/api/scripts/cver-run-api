@@ -1,0 +1,4 @@
+#!/bin/sh -l
+set -e
+echo "Running Cver Api - Debug"
+cd /app/cver/api/ && python3 app.py

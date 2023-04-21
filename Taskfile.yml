@@ -1,0 +1,34 @@
+version: '3'
+
+vars:
+  CVER_DIR: "/Users/alix/Programming/repos/cver"
+  CVER_TAG: "0.0.1"
+
+tasks:
+  dev-build:
+    cmds:
+      - cp -r {{.CVER_DIR}}/src {{.CVER_DIR}}/docker/api/
+      - cp -r {{.CVER_DIR}}/tests {{.CVER_DIR}}/docker/api/
+      - rm -rf {{.CVER_DIR}}/docker/api/src/build
+      - rm -rf {{.CVER_DIR}}/docker/api/src/dist
+      - rm -rf {{.CVER_DIR}}/docker/api/src/cver.egg-info
+      - docker build -t politeauthority/cver:{{.CVER_TAG}} {{.CVER_DIR}}/docker/api
+      - rm -rf {{.CVER_DIR}}/docker/api/src
+      - rm -rf {{.CVER_DIR}}/docker/api/tests
+      - echo "Completed build politeauthority/cver:{{.CVER_TAG}}"
+    silent: false
+  dev-run:
+    cmds:
+      - docker run --name="cver" -d -v {{.CVER_DIR}}/src:/app -v {{.CVER_DIR}}/tests:/tests -p 5001:5001 -e CVER_DB_PASS="${CVER_DB_PASS}" politeauthority/cver:{{.CVER_TAG}} tail -f /dev/null
+      - docker network connect cver cver
+      - echo "Success"
+    silent: false
+  dev-exec:
+    cmds:
+      - docker exec -it cver bash
+  dev-stop:
+    cmds:
+      - docker rm -f cver
+  dev-test:
+    cmds:
+      - echo $CVER_API_URL

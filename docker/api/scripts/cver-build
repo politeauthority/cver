@@ -1,0 +1,26 @@
+#!/bin/sh -l
+# Cver Build
+
+set -e
+echo "Running Cver Build"
+
+# echo "Removing Pignus"
+# rm -rf /usr/local/lib/python3.9/site-packages/pignus-0.0.*
+# rm -rf /app/build
+# rm -rf /app/dist
+# rm -rf /app/pignus.egg-info
+
+rm -rf /usr/local/lib/python3.10/site-packages/cver*
+rm -rf /app/build
+rm -rf /app/cver.egg-info
+
+cd /app
+pip install .
+
+# cd /app
+flake8
+number_errors=$(flake8 | wc -l)
+echo "Found ${number_errors} in src/"
+# echo "Running tests"
+# cd /tests/unit
+# pytest --cov=pignus_api --cov=pignus_client
