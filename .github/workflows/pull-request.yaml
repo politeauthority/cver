@@ -17,10 +17,8 @@ jobs:
       - uses: actions/checkout@v3
       - name: Build Container
         run: |
-          echo "ALIX-DEBUG"
-          echo "$(ls)"
-          echo "$(pwd)"
-          echo "**Built Image:** politeauthority/pignus-api-dev:${{ github.sha }}" >> GITHUB_SUMMARY
+          echo "Run Task: Build"
+          task build
 
       # - name: Push Container
       #   run: |

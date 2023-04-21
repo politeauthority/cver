@@ -1,11 +1,11 @@
 version: '3'
 
 vars:
-  CVER_DIR: "/Users/alix/Programming/repos/cver"
+  CVER_DIR: "."
   CVER_TAG: "0.0.1"
 
 tasks:
-  dev-build:
+  build:
     cmds:
       - cp -r {{.CVER_DIR}}/src {{.CVER_DIR}}/docker/api/
       - cp -r {{.CVER_DIR}}/tests {{.CVER_DIR}}/docker/api/
