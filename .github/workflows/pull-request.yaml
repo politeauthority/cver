@@ -7,6 +7,40 @@ on:
     branches: "main"
 
 jobs:
+  build-python:
+    runs-on: self-hosted
+    strategy:
+      fail-fast: true
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+
+      - name: Install Dependencies
+        run: |
+          cd src/cver
+          python3 -m pip install --upgrade pip
+          python3 -m pip install flake8 pytest
+          pip install -r src/requirements-debug.txt
+          pip install -r src/requirements.txt
+
+      - name: Build Packages
+        run: |
+          cd src/
+          python3 setup.py build
+          pip install .
+
+      - name: Linter
+        run: |
+          cd src/cver
+          flake8 . --count --show-source --statistics
+
+      - name: Unit Tests
+        run: pytest tests/unit
+
   build-docker:
     runs-on: self-hosted
     container:
@@ -20,12 +54,12 @@ jobs:
           echo "Run Task: Build"
           task build
 
-      - uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-      - name: Push Container
-        run: docker push politeauthority/cver-api:${{ github.sha }}
+      # - uses: docker/login-action@v2
+      #   with:
+      #     username: politeauthority
+      #     password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+      # - name: Push Container
+      #   run: docker push politeauthority/cver-api:${{ github.sha }}
 
   # deploy-test:
   #   runs-on: self-hosted

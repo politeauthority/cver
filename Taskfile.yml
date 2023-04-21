@@ -12,10 +12,10 @@ tasks:
       - rm -rf {{.CVER_DIR}}/docker/api/src/build
       - rm -rf {{.CVER_DIR}}/docker/api/src/dist
       - rm -rf {{.CVER_DIR}}/docker/api/src/cver.egg-info
-      - docker build -t politeauthority/cver:{{.CVER_TAG}} {{.CVER_DIR}}/docker/api
+      - docker build -t politeauthority/cver-api:{{.CVER_TAG}} {{.CVER_DIR}}/docker/api
       - rm -rf {{.CVER_DIR}}/docker/api/src
       - rm -rf {{.CVER_DIR}}/docker/api/tests
-      - echo "Completed build politeauthority/cver:{{.CVER_TAG}}"
+      - echo "Completed build politeauthority/cver-api:{{.CVER_TAG}}"
     silent: false
   dev-run:
     cmds:
