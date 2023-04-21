@@ -46,6 +46,7 @@ def set_db():
     glow.options = Options(conn, cursor).load_options()
     return True
 
+
 def pickle_in(data) -> str:
     """Takes a native Python object and pickles the data, then base64 encodes it to make it more
     portable.

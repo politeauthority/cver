@@ -16,7 +16,7 @@ class Cve(Base):
         self.table_name = "cves"
         self.field_map = FIELD_MAP
         self.setup()
-    
+
     def get_by_number(self, number: str):
         """Get a Cve model by it's cve number, like """
         sql = """

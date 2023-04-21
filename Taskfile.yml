@@ -1,21 +1,21 @@
 version: '3'
 
 vars:
-  CVER_DIR: "/Users/alix/Programming/repos/cver"
-  CVER_TAG: "0.0.1"
+  CVER_DIR: "."
+  CVER_API_TAG: "0.0.1"
 
 tasks:
-  dev-build:
+  build:
     cmds:
       - cp -r {{.CVER_DIR}}/src {{.CVER_DIR}}/docker/api/
       - cp -r {{.CVER_DIR}}/tests {{.CVER_DIR}}/docker/api/
       - rm -rf {{.CVER_DIR}}/docker/api/src/build
       - rm -rf {{.CVER_DIR}}/docker/api/src/dist
       - rm -rf {{.CVER_DIR}}/docker/api/src/cver.egg-info
-      - docker build -t politeauthority/cver:{{.CVER_TAG}} {{.CVER_DIR}}/docker/api
+      - docker build -t politeauthority/cver-api:${CVER_API_TAG} {{.CVER_DIR}}/docker/api
       - rm -rf {{.CVER_DIR}}/docker/api/src
       - rm -rf {{.CVER_DIR}}/docker/api/tests
-      - echo "Completed build politeauthority/cver:{{.CVER_TAG}}"
+      - echo "Completed build politeauthority/cver-api:${CVER_API_TAG}"
     silent: false
   dev-run:
     cmds:
@@ -29,6 +29,9 @@ tasks:
   dev-stop:
     cmds:
       - docker rm -f cver
+  pre-commit-lint:
+    cmds: 
+      - cd ./src && flake8 cver --config=flake8 --count --show-source --statistics
+
   dev-test:
-    cmds:
-      - echo $CVER_API_URL
+  

@@ -6,7 +6,6 @@ from flask import Flask, jsonify
 
 from cver.api.utils import db
 from cver.api.utils import glow
-from cver.api.controllers.ctrl_collections.ctrl_cves import ctrl_cves
 from cver.api.controllers.ctrl_collections.ctrl_options import ctrl_options
 from cver.api.controllers.ctrl_collections.ctrl_softwares import ctrl_softwares
 from cver.api.controllers.ctrl_models.ctrl_software import ctrl_software
