@@ -23,6 +23,7 @@ def get_model(software_id: int = None) -> Response:
     data = ctrl_base.get_model(Software, software_id)
     if not isinstance(data, dict):
         return data
+    
     return jsonify(data)
 
 

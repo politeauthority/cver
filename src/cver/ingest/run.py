@@ -21,7 +21,7 @@ class Ingest:
 
     def run(self):
         print("hello")
-        self.write_app()
+        self.get_app()
 
     def ingest_vendors(self):
         url = "https://cve.circl.lu/api/browse"
@@ -59,6 +59,16 @@ class Ingest:
         response = requests.get(url, params={"cveId": cve_number})
         cvss = Cvss()
         import ipdb; ipdb.set_trace()
+
+    def get_app(self):
+        url = "%s/app" % CVER_API_URL
+        data = {
+            "name": "emby",
+        }
+        data = json.dumps(data)
+        response = requests.get(url, data=data, headers=HEADERS)
+        print(response)
+
 
     def write_app(self):
         url = "%s/app" % CVER_API_URL

@@ -1,9 +1,8 @@
 """Model - Software
 
 """
-from cver.api.models.base import Base
-from cver.api.utils import xlate
 from cver.shared.models.software import FIELD_MAP
+from cver.api.models.base import Base
 
 
 class Software(Base):

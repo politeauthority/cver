@@ -18,8 +18,22 @@ def get_model(model, entity_id: int = None) -> dict:
         "object": {},
         "object_type": entity.model_name
     }
-    args = request.get_json()
+    r_args = request.get_json()
+
+    # Search for model base on searchable fields
+    search_fields = []
+    for r_arg_key, r_arg_value in r_args.items():
+        for field in entity.field_map:
+            if field["name"] != r_arg_key:
+                continue
+        if not "api_searchable" in entity.field_map[r_arg_key]:
+            continue
+        search_fields.append(r_arg_key)
+
+    print(search_fields)
+
     import ipdb; ipdb.set_trace()
+
     if not entity_id:
         data["message"] = "Missing entity ID"
         return make_response(jsonify(data), 401)

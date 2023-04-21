@@ -1,26 +1,9 @@
 """Cve Model
 
 """
+from cver.shared.models.cve import FIELD_MAP
 from cver.api.models.base import Base
 from cver.api.utils import xlate
-
-
-FIELD_MAP = [
-    {
-        "name": "number",
-        "type": "str",
-        "extra": "UNIQUE"
-    },
-    {
-        "name": 'published',
-        'type': 'datetime',
-        "default": None,
-    },
-    {
-        'name': 'modified',
-        'type': 'datetime',
-    },
-]
 
 
 class Cve(Base):

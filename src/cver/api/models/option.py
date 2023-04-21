@@ -1,6 +1,7 @@
 """Option Model
 
 """
+from cver.shared.models.option import FIELD_MAP
 from cver.api.models.base import Base
 
 
@@ -11,20 +12,7 @@ class Option(Base):
     def __init__(self, conn=None, cursor=None):
         super(Option, self).__init__(conn, cursor)
         self.table_name = 'options'
-        self.field_map = [
-            {
-                'name': 'name',
-                'type': 'str',
-            },
-            {
-                'name': 'type',
-                'type': 'str'
-            },
-            {
-                'name': 'value',
-                'type': 'str'
-            },
-        ]
+        self.field_map = FIELD_MAP
         self.setup()
 
     def __repr__(self):

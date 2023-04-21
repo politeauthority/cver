@@ -21,6 +21,7 @@ How to use:
             device.metas['notes'].value = request.form['device_notes']
 
 """
+from cver.shared.models.entity_meta import FIELD_MAP
 from cver.api.models.base import Base
 from cver.api.utils import date_utils
 from cver.api.utils import xlate
@@ -32,28 +33,7 @@ class EntityMeta(Base):
         super(EntityMeta, self).__init__(conn, cursor)
 
         self.table_name = 'entity_metas'
-        self.field_map = [
-            {
-                'name': 'entity_type',
-                'type': 'str',
-            },
-            {
-                'name': 'entity_id',
-                'type': 'int',
-            },
-            {
-                'name': 'name',
-                'type': 'str',
-            },
-            {
-                'name': 'type',
-                'type': 'str'
-            },
-            {
-                'name': 'value',
-                'type': 'str'
-            },
-        ]
+        self.field_map = FIELD_MAP
         self.setup()
 
     def __repr__(self):

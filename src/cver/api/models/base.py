@@ -1,4 +1,4 @@
-"""Base Model v. 0.1.0
+"""Base Model v. 0.2.0
 Parent class for all models to inherit, providing methods for creating tables, inserting, updating,
 selecting and deleting data.
 
@@ -30,23 +30,7 @@ class Base:
 
         self.table_name = None
         self.entity_name = None
-
-        self.base_map = [
-            {
-                'name': 'id',
-                'type': 'int',
-                'primary': True,
-            },
-            {
-                'name': 'created_ts',
-                'type': 'datetime',
-            },
-            {
-                'name': 'updated_ts',
-                'type': 'datetime',
-            }
-        ]
-        self.field_map = []
+        self.field_map = {}
         self.setup()
 
     def __repr__(self):
@@ -119,7 +103,7 @@ class Base:
 
     def get_field(self, field_name: str):
         """Get the details on a model field from the field map"""
-        for field in self.field_map:
+        for field_name, field in self.field_map.items():
             if field["name"] == field_name:
                 return field
         return None
@@ -153,7 +137,7 @@ class Base:
     def get_by_name(self, name: str) -> bool:
         """Get a model by name, if the model has a name field."""
         found_name_field = False
-        for field in self.field_map:
+        for field_name, field in self.field_map.items():
             if field["name"] == "name":
                 found_name_field = True
                 break
@@ -176,8 +160,8 @@ class Base:
     def get_by_field(self, field: str, value: str) -> bool:
         """Get a model by specific, if the model has a name field."""
         found_field = False
-        for model_field in self.field_map:
-            if model_field["name"] == field:
+        for field_name, field in self.field_map.items():
+            if field["name"] == field:
                 found_field = True
                 break
 
@@ -539,7 +523,7 @@ class Base:
         """Concatenate the base_map and models field_map together into self.total_map.
         :unit-test: test___create_total_map
         """
-        self.total_map = self.base_map + self.field_map
+        self.total_map = self.field_map
         return True
 
     def _set_defaults(self) -> bool:
@@ -548,7 +532,7 @@ class Base:
         :unit-test: test___set_defaults
         """
         self.field_list = []
-        for field in self.total_map:
+        for field_name, field in self.total_map.items():
             field_name = field['name']
             self.field_list.append(field_name)
 
@@ -577,7 +561,7 @@ class Base:
         """Set the types of class table field vars and corrects their types where possible
         :unit-test: test___set_types
         """
-        for field in self.total_map:
+        for field_name, field in self.total_map.items():
             class_var_name = field['name']
 
             class_var_value = getattr(self, class_var_name)
@@ -621,7 +605,7 @@ class Base:
         field_sql = ""
         field_num = len(self.total_map)
         c = 1
-        for field in self.total_map:
+        for field_name, field in self.total_map.items():
             if field["type"] == "unique_key":
                 continue
             primary_stmt = ''
@@ -652,13 +636,12 @@ class Base:
             }
             field_sql += field_line
 
-
             if c == field_num:
                 field_sql = field_sql[:-1]
             field_sql += "\n"
             c += 1
 
-        for field in self.total_map:
+        for field_name, field in self.total_map.items():
             if field["type"] == "unique_key":
                 field_sql += "UNIQUE KEY %s (%s)" % (field["name"], ",".join(field["fields"]))
         field_sql = field_sql[:-1]

@@ -1,11 +1,12 @@
-"""Regression Test CTRL Cves
-Checks that all routes on /cves are working properly.
+"""
+    Cver - Test - Regression
+    CTRL Model - Options
+        Checks that all routes on /options are working properly.
 
 """
 
 import os
 import requests
-
 
 CVER_API_URL = os.environ.get("CVER_API_URL")
 CVER_API_CLIENT_ID = os.environ.get("CVER_API_CLIENT_ID")
@@ -15,17 +16,20 @@ HEADERS = {
     "x-api-key": CVER_API_KEY
 }
 
+URL_BASE = "/options"
+URL_MODEL = "option"
 
-class TestApiCves:
 
-    def test__cves_get(self):
+class TestApiOptions:
+
+    def test__apps_get(self):
         """Tests the Cves collections through the Cver Api
-        GET /cves
+        GET /options
         """
         request_args = {
             "headers": HEADERS,
             "method": "GET",
-            "url": "%s/cves" % CVER_API_URL,
+            "url": "%s%s" % (CVER_API_URL, URL_BASE),
         }
 
         response = requests.request(**request_args)
@@ -47,10 +51,10 @@ class TestApiCves:
 
         assert "object_type" in response_json["info"]
         assert isinstance(response_json["info"]["object_type"], str)
-        assert response_json["info"]["object_type"] == "cve"
+        assert response_json["info"]["object_type"] == URL_MODEL
 
         assert "objects" in response_json
         assert isinstance(response_json["objects"], list)
 
 
-# End File: cver/tests/regression/api/test_ctrl_cves.py
+# End File: cver/tests/regression/api/test_ctrl_options.py

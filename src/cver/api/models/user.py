@@ -1,23 +1,9 @@
 """User - Model
 
 """
-from .base import Base
+from cver.shared.models.software import FIELD_MAP
+from cver.api.models.base import Base
 
-FIELD_MAP = [
-    {
-        'name': 'email',
-        'type': 'str',
-        "extra": "UNIQUE"
-    },
-    {
-        "name": "last_login",
-        "type": "datetime",
-    },
-    {
-        "name": "password",
-        "type": "str",
-    }
-]
 
 class User(Base):
 
