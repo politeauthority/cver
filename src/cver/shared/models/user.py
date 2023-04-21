@@ -1,5 +1,5 @@
-""" 
-    Cver Shared Model 
+"""
+    Cver Shared Model
     Fields User
 
 """

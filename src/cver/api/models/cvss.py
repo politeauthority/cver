@@ -64,6 +64,7 @@ FIELD_MAP = [
     }
 ]
 
+
 class Cvss(Base):
 
     model_name = "cvss"

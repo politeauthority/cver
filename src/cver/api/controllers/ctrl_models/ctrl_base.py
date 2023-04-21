@@ -26,13 +26,11 @@ def get_model(model, entity_id: int = None) -> dict:
         for field in entity.field_map:
             if field["name"] != r_arg_key:
                 continue
-        if not "api_searchable" in entity.field_map[r_arg_key]:
+        if "api_searchable" not in entity.field_map[r_arg_key]:
             continue
         search_fields.append(r_arg_key)
 
     print(search_fields)
-
-    import ipdb; ipdb.set_trace()
 
     if not entity_id:
         data["message"] = "Missing entity ID"

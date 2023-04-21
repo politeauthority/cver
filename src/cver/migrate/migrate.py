@@ -2,10 +2,9 @@
 """
 from cver.api.utils import db
 from cver.api.utils import glow
-from cver.api.utils import glow
 
-from cver.api.models.cve import Cve
-from cver.api.models.cvss import Cvss
+# from cver.api.models.cve import Cve
+# from cver.api.models.cvss import Cvss
 from cver.api.models.entity_meta import EntityMeta
 from cver.api.models.option import Option
 from cver.api.models.software import Software

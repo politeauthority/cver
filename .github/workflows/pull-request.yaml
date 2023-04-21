@@ -23,9 +23,6 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install flake8 pytest
-          echo "ALIX DEBUG"
-          echo "$(pwd)"
-          echo "END DEBUG"
           pip install -r src/requirements.txt
 
       - name: Build Packages

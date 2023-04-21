@@ -2,7 +2,6 @@
 Database handler.
 
 """
-import logging
 import os
 
 

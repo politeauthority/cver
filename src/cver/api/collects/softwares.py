@@ -2,7 +2,6 @@
 Gets collection of Cves
 
 """
-from cver.api.utils import xlate
 from cver.api.collects.base import Base
 from cver.api.models.software import Software
 

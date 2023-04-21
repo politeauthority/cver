@@ -1,4 +1,4 @@
-""" Cver Shared Model Fields Software
+""" Cver Shared -  Model Fields - Software
 
 """
 
@@ -29,10 +29,10 @@ FIELD_MAP = {
         "api_writeable": True
     },
     "url_git": {
-            "name": "url_git",
-            "type": "str",
-            "extra": "UNIQUE",
-            "api_writeable": True
+        "name": "url_git",
+        "type": "str",
+        "extra": "UNIQUE",
+        "api_writeable": True
     },
     "url_marketing": {
         "name": "url_marketing",
