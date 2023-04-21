@@ -9,7 +9,8 @@ on:
 jobs:
   build-docker:
     runs-on: self-hosted
-    image: politeauthority/polite-cicd:0.0.1
+    container:
+      image: politeauthority/polite-cicd:0.0.1
     strategy:
       fail-fast: true
     steps:
