@@ -50,6 +50,7 @@ jobs:
       - name: Build Container
         run: |
           echo "Run Task: Build"
+          export CVER_API_TAG="${{ github.sha }}"
           task build
 
       - uses: docker/login-action@v2
