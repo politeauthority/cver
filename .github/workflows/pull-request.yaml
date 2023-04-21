@@ -24,7 +24,6 @@ jobs:
           cd src/cver
           python3 -m pip install --upgrade pip
           python3 -m pip install flake8 pytest
-          pip install -r src/requirements-debug.txt
           pip install -r src/requirements.txt
 
       - name: Build Packages
@@ -43,6 +42,7 @@ jobs:
 
   build-docker:
     runs-on: self-hosted
+    needs: build-python
     container:
       image: politeauthority/polite-cicd:0.0.1
     strategy:
