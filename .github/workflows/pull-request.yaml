@@ -53,12 +53,12 @@ jobs:
           export CVER_API_TAG="${{ github.sha }}"
           task build
 
-      - uses: docker/login-action@v2
-        with:
-          username: politeauthority
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-      - name: Push Container
-        run: docker push politeauthority/cver-api:${{ github.sha }}
+      # - uses: docker/login-action@v2
+      #   with:
+      #     username: politeauthority
+      #     password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+      # - name: Push Container
+      #   run: docker push politeauthority/cver-api:${{ github.sha }}
 
   # deploy-test:
   #   runs-on: self-hosted
