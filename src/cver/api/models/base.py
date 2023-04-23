@@ -13,9 +13,9 @@ from datetime import datetime
 import arrow
 
 from cver.shared.utils import log
+from cver.shared.utils import xlate
 from cver.api.utils import date_utils
 from cver.api.utils import glow
-from cver.api.utils import xlate
 
 
 class Base:

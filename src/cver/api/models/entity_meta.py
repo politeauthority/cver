@@ -23,10 +23,10 @@ How to use:
             device.metas['notes'].value = request.form['device_notes']
 
 """
+from cver.shared.utils import xlate
 from cver.shared.models.entity_meta import FIELD_MAP
 from cver.api.models.base import Base
 from cver.api.utils import date_utils
-from cver.api.utils import xlate
 
 
 class EntityMeta(Base):

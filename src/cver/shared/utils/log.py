@@ -9,8 +9,8 @@ import sys
 
 from rich import print as pprint
 
+from cver.shared.utils import xlate
 from cver.api.utils import glow
-from cver.api.utils import xlate
 
 
 def debug(message: str, **kwargs):

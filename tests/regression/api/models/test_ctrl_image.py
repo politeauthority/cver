@@ -6,7 +6,6 @@
 """
 
 import os
-import json
 
 import requests
 
@@ -25,7 +24,7 @@ URL_MODEL = "/image"
 
 class TestRegressionApiImage:
 
-    def test__app_get_404(self):
+    def test__image_get_404(self):
         """
         GET /image
         """
