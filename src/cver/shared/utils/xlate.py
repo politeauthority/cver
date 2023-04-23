@@ -234,4 +234,4 @@ def comma_separate_list(the_list: list) -> str:
         ret_string = ret_string[:-1]
     return ret_string
 
-# End File: pignus/src/pignus_shared/utils/xlate.py
+# End File: cver/src/cver/shared/utils/xlate.py

@@ -1,4 +1,6 @@
-"""Entity Meta Model
+"""
+    Cver Api
+    Model - Image
 
 How to use:
     The Device model is a good example to follow.

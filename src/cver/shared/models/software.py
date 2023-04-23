@@ -2,7 +2,6 @@
 
 """
 
-
 FIELD_MAP = {
     "id": {
         'name': 'id',
@@ -27,6 +26,10 @@ FIELD_MAP = {
         "name": "slug_name",
         "type": "str",
         "api_writeable": True
+    },
+    "software_id": {
+        "name": "software_id",
+        "type": "int",
     },
     "url_git": {
         "name": "url_git",

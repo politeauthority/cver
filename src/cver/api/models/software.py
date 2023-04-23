@@ -1,4 +1,6 @@
-"""CVER API - Model - Software
+"""
+    CVER API
+    Model - Software
 
 """
 from cver.shared.models.software import FIELD_MAP

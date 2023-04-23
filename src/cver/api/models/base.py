@@ -42,11 +42,12 @@ class Base:
             return "<%s: %s>" % (self.__class__.__name__, self.id)
         return "<%s>" % self.__class__.__name__
 
-    def __desc__(self):
-        for field in self.total_map:
+    def __desc__(self) -> None:
+        """Describes the fields and values of class."""
+        for field_id, field in self.total_map.items():
             print("%s: %s" % (field["name"], getattr(self, field["name"])))
 
-    def connect(self, conn, cursor):
+    def connect(self, conn, cursor) -> bool:
         """Quick bootstrap method to connect the model to the database connection.
         :unit-test: test__connect
         """
@@ -377,11 +378,13 @@ class Base:
             field_sql += "`%s`, " % field['name']
         return field_sql[:-2]
 
-    def _sql_insert_values_santized(self, skip_fields: list) -> str:
+    def _sql_insert_values_santized(self, skip_fields: dict = None) -> str:
         """Creates the values portion of a query with the actual values sanitized.
         example: "2021-12-12", "a string", 1
-        :unit-test: test___sql_insert_values_santized
+        :unit-test: tests/unit/api/models/test_base.py:TestBase:test___sql_insert_values_santized
         """
+        if not skip_fields:
+            skip_fields = {}
         sql_values = ""
         for field_name, field in self.total_map.items():
             if field["name"] in skip_fields:
@@ -390,7 +393,7 @@ class Base:
             sql_values += "%s, " % value
         return sql_values[:-2]
 
-    def _sql_update_fields_values_santized(self, skip_fields: dict) -> str:
+    def _sql_update_fields_values_santized(self, skip_fields: dict = None) -> str:
         """Generate the models SET sql statements, ie: SET key = value, other_key = other_value.
         :unit-test: test___sql_update_fields_values_santized
         """

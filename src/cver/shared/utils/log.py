@@ -1,4 +1,5 @@
-"""Log
+"""
+Log
 As absurd as it sounds, this is the Pignus Log handler, which attempts to make logging more
 approachable for the many different interfaces of Pignus.
 
