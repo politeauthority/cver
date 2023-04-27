@@ -15,7 +15,8 @@ ADD src/ /app
 WORKDIR /app/cver
 
 # Prod-Build Pignus-Api
-RUN cd /app && pip3 install -r /app/requirements.txt
+RUN pip install --upgrade pip
+RUN cd /app && pip install -r /app/requirements.txt
 RUN cd /app && pip install .
 
 CMD cd /app/api && gunicorn app:app --bind 0.0.0.0:5001

@@ -7,8 +7,9 @@ import math
 import arrow
 
 from cver.shared.utils import log
+from cver.shared.utils import xlate
+
 from cver.api.utils import glow
-from cver.api.utils import xlate
 
 
 class Base:

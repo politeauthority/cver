@@ -1,4 +1,5 @@
-"""Log
+"""
+Log
 As absurd as it sounds, this is the Pignus Log handler, which attempts to make logging more
 approachable for the many different interfaces of Pignus.
 
@@ -8,8 +9,8 @@ import sys
 
 from rich import print as pprint
 
+from cver.shared.utils import xlate
 from cver.api.utils import glow
-from cver.api.utils import xlate
 
 
 def debug(message: str, **kwargs):

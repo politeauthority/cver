@@ -1,34 +1,34 @@
-""" Cver Shared Model
-    Fields EntityMeta
-
+"""
+    Cver Shared
+    Model - EntityMeta
 """
 
 
 FIELD_MAP = {
     "id": {
-        'name': 'id',
-        'type': 'int',
-        'primary': True,
+        "name": "id",
+        "type": "int",
+        "primary": True,
     },
     "created_ts": {
-        'name': 'created_ts',
-        'type': 'datetime',
+        "name": "created_ts",
+        "type": "datetime",
     },
     "updated_ts": {
-        'name': 'updated_ts',
-        'type': 'datetime',
+        "name": "updated_ts",
+        "type": "datetime",
     },
     "entity_type": {
-        'name': 'entity_type',
-        'type': 'str',
+        "name": "entity_type",
+        "type": "str",
     },
     "entity_id": {
-        'name': 'entity_id',
-        'type': 'int',
+        "name": "entity_id",
+        "type": "int",
     },
     "name": {
-        'name': 'name',
-        'type': 'str',
+        "name": "name",
+        "type": "str",
     },
     "type": {
         "name": "type",
@@ -40,4 +40,4 @@ FIELD_MAP = {
     },
 }
 
-# End File: cver/src/shared/modles/fields/entity_meta.py
+# End File: cver/src/shared/modles/entity_meta.py

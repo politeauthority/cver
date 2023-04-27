@@ -2,9 +2,10 @@
 Base model class for all models requiring meta storage.
 
 """
+from cver.shared.utils import xlate
+
 from cver.api.models.base import Base
 from cver.api.models.entity_meta import EntityMeta
-from cver.api.utils import xlate
 
 
 class BaseEntityMeta(Base):

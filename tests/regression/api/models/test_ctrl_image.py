@@ -1,30 +1,32 @@
 """
     Cver - Test - Regression
-    CTRL Model - Software
-        Checks that all routes on /app are working properly.
+    CTRL Model - Image
+    Checks that all routes on /images are working properly.
 
 """
 
 import os
+
 import requests
 
 CVER_API_URL = os.environ.get("CVER_API_URL")
 CVER_API_CLIENT_ID = os.environ.get("CVER_API_CLIENT_ID")
 CVER_API_KEY = os.environ.get("CVER_API_KEY")
 HEADERS = {
+    "content-type": "application/json",
     "client-id": CVER_API_CLIENT_ID,
     "x-api-key": CVER_API_KEY
 }
 
-URL_BASE = "/app"
-URL_MODEL = "app"
+URL_BASE = "/image"
+URL_MODEL = "/image"
 
 
-class TestApiSoftware:
+class TestRegressionApiImage:
 
-    def test__app_get_404(self):
-        """Tests the Software collections through the Cver Api
-        GET /app
+    def test__image_get_404(self):
+        """
+        GET /image
         """
         request_args = {
             "headers": HEADERS,
@@ -36,8 +38,8 @@ class TestApiSoftware:
         assert response.status_code == 400
 
     # def test__app_post_200(self):
-    #     """Test Software POST new
-    #     POST /app
+    #     """
+    #     POST /image
     #     """
     #     request_args = {
     #         "headers": HEADERS,
@@ -49,6 +51,7 @@ class TestApiSoftware:
     #             "url_marketing": "https://example.com/"
     #         }
     #     }
+    #     request_args["data"] = json.dumps(request_args["data"])
     #     response = requests.request(**request_args)
     #     assert response.status_code == 200
 
@@ -90,7 +93,6 @@ class TestApiSoftware:
     #     }
     #     response = requests.request(**request_args)
     #     assert response.status_code == 200
-
 
 
 # End File: cver/tests/regression/api/test_ctrl_software.py
