@@ -1,0 +1,31 @@
+# Cver Api - Merge Main
+
+name: Cver-Api-Merge-Main
+
+on:
+  merge:
+    branches: "main"
+
+jobs:
+  build-docker:
+    runs-on: self-hosted
+    needs: build-python
+    container:
+      image: politeauthority/polite-cicd:0.0.1
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build Container
+        run: |
+          echo "Run Task: Build"
+          export CVER_API_TAG="0.0.1"
+          task build
+      - uses: docker/login-action@v2
+        with:
+          username: politeauthority
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+      - name: Push Container
+        run: docker push politeauthority/cver-api:0.0.1
+
+# End File: cver/.github/webserver/merge-main.yaml
