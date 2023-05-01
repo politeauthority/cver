@@ -3,7 +3,7 @@
 name: Cver-Api-Merge-Main
 
 on:
-  merge:
+  push:
     branches: "main"
 
 jobs:
