@@ -68,17 +68,22 @@ jobs:
     strategy:
       fail-fast: true
     steps:
-      - uses: actions/checkout@v1
-      - run: |
-          echo $(kubectl config view)
-          helm upgrade --install \
-            --namespace=cver \
-            cver-api-test \
-            helm/cver-api/ \
-            -f helm/cver-api/quigley-test-values.yaml \
-            --set "image.tag=${{ github.sha }}"
-        env:
-          KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'
+    - name: 'Checkout'  # Checkout the repository code.
+      uses: 'actions/checkout@v1'
+    - name: 'Deploy'
+      with:
+        token: '${{ github.token }}'
+        run: |
+            echo $(kubectl config view)
+            helm upgrade --install \
+              --namespace=cver \
+              cver-api-test \
+              helm/cver-api/ \
+              -f helm/cver-api/quigley-test-values.yaml \
+              --set "image.tag=${{ github.sha }}"
+          env:
+            KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'
+
 
   # run-regression:
   #   runs-on: self-hosted
