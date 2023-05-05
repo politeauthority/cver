@@ -70,6 +70,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - run: |
+          echo $(kubectl config view)
           helm upgrade --install \
             --namespace=cver \
             cver-api-test \
