@@ -72,6 +72,8 @@ jobs:
             mkdir ~/.kube
             echo $KUBECONFIG_FILE > ~/.kube/config
             echo "wrote kube config"
+            echo "${KUBECONFIG}"
+            cat ~/.kube/config
             echo $(kubectl config view)
             helm upgrade --install \
               --namespace=cver \
