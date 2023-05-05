@@ -64,9 +64,7 @@ jobs:
     runs-on: self-hosted
     needs: build-docker
     container:
-      image: politeauthority/pignus-cicd:latest
-    strategy:
-      fail-fast: true
+      image: politeauthority/polite-cicd:0.0.1
     steps:
       - uses: actions/checkout@v3
       - name: 'Deploy'
@@ -78,21 +76,8 @@ jobs:
               helm/cver-api/ \
               -f helm/cver-api/quigley-test-values.yaml \
               --set "image.tag=${{ github.sha }}"
-          env:
-            KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'
+        env:
+          KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'
 
-
-  # run-regression:
-  #   runs-on: self-hosted
-  #   needs: deploy-test
-  #   container:
-  #     image: politeauthority/pignus-api-dev:${{ github.sha }}
-  #     env:
-  #       PIGNUS_API_URL: "${{ secrets.REGRESSION_PIGNUS_API_URL }}"
-  #       PIGNUS_API_CLIENT_ID: "${{ secrets.REGRESSION_PIGNUS_API_CLIENT_ID }}"
-  #       PIGNUS_API_KEY: "${{ secrets.REGRESSION_PIGNUS_API_KEY }}"
-  #   steps:
-  #     - name: Regression Pignus-Api
-  #       run: cd /tests/regression && pytest
 
 # End File: cver/.github/webserver/pull-request.yaml
