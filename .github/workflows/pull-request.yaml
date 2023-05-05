@@ -69,6 +69,9 @@ jobs:
       - uses: actions/checkout@v3
       - name: 'Deploy'
         run: |
+            mkdir ~/.kube
+            echo $KUBECONFIG_FILE > ~/.kube/config
+            echo "wrote kube config"
             echo $(kubectl config view)
             helm upgrade --install \
               --namespace=cver \
@@ -77,7 +80,8 @@ jobs:
               -f helm/cver-api/quigley-test-values.yaml \
               --set "image.tag=${{ github.sha }}"
         env:
-          KUBECONFIG: '${{ secrets.KUBECONFIG }}'
+          KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'
+          KUBECONFIG: '~/.kube/config'
 
 
 # End File: cver/.github/webserver/pull-request.yaml
