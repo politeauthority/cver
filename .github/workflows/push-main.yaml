@@ -18,7 +18,7 @@ jobs:
       - name: Build Container
         run: |
           echo "Run Task: Build"
-          export CVER_API_TAG="0.0.1"
+          export CVER_API_TAG="0.0.1b"
           task build
       - uses: docker/login-action@v2
         with:
