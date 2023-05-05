@@ -34,7 +34,7 @@ tasks:
   k8s-exec-stage:
     cmds:
       - |
-        POD=$(kubectl get pods -l app.kubernetes.io/name=cver-api --no-headers | cut -d' ' -f1)
+        POD=$(kubectl get pods -l app.kubernetes.io/name=stage --no-headers | cut -d' ' -f1)
         echo "Logging into $POD"
         kubectl exec -it ${POD} -- bash
     silent: true

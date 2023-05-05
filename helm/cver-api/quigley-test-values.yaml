@@ -1,0 +1,16 @@
+# Quigely test values for cver-api.
+
+replicaCount: 1
+
+nameOverride: "test"
+
+app:
+  dbName: "cver_test"
+  dbHost: "cver-mysql.cver.svc.cluster.local"
+  dbUser: "cver_user"
+  runMigrations: true
+
+image:
+  repository: politeauthority/cver-api
+  pullPolicy: IfNotPresent
+  tag: "0.0.1b"
