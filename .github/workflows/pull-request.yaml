@@ -53,27 +53,30 @@ jobs:
           export CVER_API_TAG="${{ github.sha }}"
           task build
 
-      # - uses: docker/login-action@v2
-      #   with:
-      #     username: politeauthority
-      #     password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-      # - name: Push Container
-      #   run: docker push politeauthority/cver-api:${{ github.sha }}
+      - uses: docker/login-action@v2
+        with:
+          username: politeauthority
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+      - name: Push Container
+        run: docker push politeauthority/cver-api:${{ github.sha }}
 
-  # deploy-test:
-  #   runs-on: self-hosted
-  #   needs: build-docker
-  #   container:
-  #     image: politeauthority/pignus-cicd:latest
-  #   strategy:
-  #     fail-fast: true
-  #   steps:
-  #     - uses: actions/checkout@v1
-  #     - run: |
-  #         cd helm/pigus-api
-  #         helm install --upgrade pignus-cicd -f values.yaml -f values-regression.yaml
-  #       env:
-  #         KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'
+  deploy-test:
+    runs-on: self-hosted
+    needs: build-docker
+    container:
+      image: politeauthority/pignus-cicd:latest
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v1
+      - run: |
+          helm upgrade --install \
+              cver-api-test \
+              helm/cver-api/ \
+              -f helm/cver-api/quigley-test-values.yaml \
+              --set "image.tag=${{ github.sha }}
+        env:
+          KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'
 
   # run-regression:
   #   runs-on: self-hosted
