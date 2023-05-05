@@ -84,7 +84,7 @@ jobs:
       #     KUBECONFIG_FILE: '${{ secrets.KUBECONFIG_FILE }}'
       #     KUBECONFIG: /github/home/.kube/config
       - name: 'Deploy'
-        uses: 'deliverybot/helm@v1'
+        uses: 'deliverybot/helm@v1.5'
         with:
           release: 'cver-api-test'
           namespace: 'cver'
