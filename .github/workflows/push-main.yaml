@@ -4,7 +4,7 @@ name: Cver-Api-Push-Main
 
 on:
   push:
-    branches: ["main", "cicd"]
+    branches: ["main"]
 
 jobs:
   build-docker:
