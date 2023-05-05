@@ -23,8 +23,7 @@ class Migrate:
         self.create_apps()
 
     def create_table(self):
-        """Create tables.
-        """
+        """Create tables."""
         log.info("Creating tables")
         EntityMeta().create_table()
         Image().create_table()

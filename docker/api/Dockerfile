@@ -19,9 +19,8 @@ RUN pip install --upgrade pip
 RUN cd /app && pip install -r /app/requirements.txt
 RUN cd /app && pip install .
 
-CMD cd /app/api && gunicorn app:app --bind 0.0.0.0:5001
+CMD cd /app/cver/api && gunicorn app:app --bind 0.0.0.0:5001
 
-# Dev-Build
 # Dev-Build
 RUN apk add bash curl vim mysql-client
 # Add Scripts
@@ -31,7 +30,7 @@ ADD scripts/cver-test-unit /bin
 ADD scripts/cver-test-regression /bin
 ADD scripts/cver-test-all /bin
 
-
-# Add Tests
-ADD tests/ /tests
+# Cver Tests
 ENV CVER_API_URL="http://localhost:5001"
+ENV CVER_DB_PASS=""
+ADD tests/ /tests
