@@ -70,10 +70,10 @@ jobs:
       - name: 'Deploy'
         run: |
             mkdir ~/.kube
-            echo $KUBECONFIG_FILE > ~/.kube/config
+            echo $KUBECONFIG_FILE > /github/home/.kube/config
             echo "wrote kube config"
             echo "${KUBECONFIG}"
-            cat ~/.kube/config
+            cat /github/home/.kube/config
             echo $(kubectl config view)
             helm upgrade --install \
               --namespace=cver \
@@ -82,8 +82,8 @@ jobs:
               -f helm/cver-api/quigley-test-values.yaml \
               --set "image.tag=${{ github.sha }}"
         env:
-          KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'
-          KUBECONFIG: '~/.kube/config'
+          KUBECONFIG_FILE: '${{ secrets.KUBECONFIG_FILE }}'
+          KUBECONFIG: /github/home/.kube/config
 
 
 # End File: cver/.github/webserver/pull-request.yaml
