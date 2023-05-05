@@ -92,11 +92,7 @@ jobs:
           token: '${{ github.token }}'
           values: |
             image.tag: ${{ github.sha }}
-          value-files: >-
-          [
-            "helm/cver-api/values.yaml", 
-            "helm/cver-api/quigley-test-values.yaml"
-          ]
+          value-files: ["helm/cver-api/values.yaml", "helm/cver-api/quigley-test-values.yaml"]
         env:
           KUBECONFIG_FILE: '${{ secrets.KUBECONFIG_FILE }}'
 
