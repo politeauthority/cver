@@ -68,8 +68,7 @@ jobs:
     strategy:
       fail-fast: true
     steps:
-    - name: 'Checkout'  # Checkout the repository code.
-      uses: 'actions/checkout@v1'
+    - uses: 'actions/checkout@v1'
     - name: 'Deploy'
       run: |
           echo $(kubectl config view)
