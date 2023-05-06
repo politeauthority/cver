@@ -62,7 +62,7 @@ jobs:
 
   deploy-test:
     runs-on: self-hosted
-    # needs: build-docker
+    needs: build-docker
     container:
       image: politeauthority/polite-cicd:0.0.1
     steps:
