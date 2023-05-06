@@ -71,6 +71,7 @@ jobs:
         run: |
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
+          export KUBECONFIG=~/.kube/config.yaml
           kubectl get pods -n cver
       # - name: 'Deploy'
       #   uses: Azure/k8s-set-context@v1
