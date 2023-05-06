@@ -67,9 +67,10 @@ jobs:
       image: politeauthority/polite-cicd:0.0.1
     steps:
       - uses: actions/checkout@v3
-
       - name: Get kubeconfig
-        run: echo "${{ secrets.KUBECONFIG_FILE }}" | base64 -d > kubeconfig.yaml
+        run: |
+          mkdir ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" >> | base64 -d > ~/.kube/config.yaml
       # - name: 'Deploy'
       #   uses: Azure/k8s-set-context@v1
       #   with:
