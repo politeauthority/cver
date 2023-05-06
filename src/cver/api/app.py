@@ -37,7 +37,6 @@ dictConfig({
 })
 
 app = Flask(__name__)
-app.config.update(DEBUG=True)
 
 
 def register_blueprints(app: Flask) -> bool:
@@ -65,26 +64,22 @@ def index():
     return jsonify(data)
 
 
-@app.route('/debug')
-def debug():
-    # loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
-    # print(loggers)
-    logging.info("hello world")
-    logging.debug("hello world")
-    # import ipdb; ipdb.set_trace()
-    data = {
-        "debug": "Hello",
-        "info": "Cver Api",
-        "version": "0.0.1",
-        "build": "beta"
-    }
-    return jsonify(data)
+app = Flask(__name__)
+app.config.update(DEBUG=True)
+register_blueprints(app)
+glow.db = db.connect()
+# glow.options = Options().load_options()
 
-
+# Development Runner
 if __name__ == "__main__":
-    glow.db = db.connect()
-    # glow.options = Options().load_options()
-    register_blueprints(app)
     app.run(host='0.0.0.0', port=5001)
+
+
+# Production Runner
+if __name__ != '__main__':
+    gunicorn_logger = logging.getLogger('gunicorn.error')
+    app.logger.handlers = gunicorn_logger.handlers
+    app.logger.setLevel(gunicorn_logger.level)
+
 
 # End File: cver/src/api/app.py
