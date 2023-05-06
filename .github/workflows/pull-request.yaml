@@ -68,7 +68,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: 'Deploy'
-        uses: dmitryint/k8s-actions/k8s-set-context@master
+        uses: Azure/k8s-set-context@v1
         with:
           kubeconfig: ${{ secrets.KUBECONFIG_FILE }}
           run: |
