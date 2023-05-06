@@ -7,81 +7,79 @@ on:
     branches: "main"
 
 jobs:
-  build-python:
-    runs-on: self-hosted
-    strategy:
-      fail-fast: true
+  # build-python:
+  #   runs-on: self-hosted
+  #   strategy:
+  #     fail-fast: true
 
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v3
-        with:
-          python-version: "3.10"
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Set up Python 3.10
+  #       uses: actions/setup-python@v3
+  #       with:
+  #         python-version: "3.10"
 
-      - name: Install Dependencies
-        run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install flake8 pytest
-          pip install -r src/requirements.txt
+  #     - name: Install Dependencies
+  #       run: |
+  #         python3 -m pip install --upgrade pip
+  #         python3 -m pip install flake8 pytest
+  #         pip install -r src/requirements.txt
 
-      - name: Build Packages
-        run: |
-          cd src/
-          python3 setup.py build
-          pip install .
+  #     - name: Build Packages
+  #       run: |
+  #         cd src/
+  #         python3 setup.py build
+  #         pip install .
 
-      - name: Linter
-        run: |
-          cd ./src && flake8 cver --config=flake8 --count --show-source --statistics
+  #     - name: Linter
+  #       run: |
+  #         cd ./src && flake8 cver --config=flake8 --count --show-source --statistics
 
-      - name: Unit Tests
-        run: pytest tests/unit
+  #     - name: Unit Tests
+  #       run: pytest tests/unit
 
-  build-docker:
-    runs-on: self-hosted
-    needs: build-python
-    container:
-      image: politeauthority/polite-cicd:0.0.1
-    strategy:
-      fail-fast: true
-    steps:
-      - uses: actions/checkout@v3
-      - name: Build Container
-        run: |
-          echo "Run Task: Build"
-          export CVER_API_TAG="${{ github.sha }}"
-          task build
+  # build-docker:
+  #   runs-on: self-hosted
+  #   needs: build-python
+  #   container:
+  #     image: politeauthority/polite-cicd:0.0.1
+  #   strategy:
+  #     fail-fast: true
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Build Container
+  #       run: |
+  #         echo "Run Task: Build"
+  #         export CVER_API_TAG="${{ github.sha }}"
+  #         task build
 
-      - uses: docker/login-action@v2
-        with:
-          username: politeauthority
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-      - name: Push Container
-        run: docker push politeauthority/cver-api:${{ github.sha }}
+  #     - uses: docker/login-action@v2
+  #       with:
+  #         username: politeauthority
+  #         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+  #     - name: Push Container
+  #       run: docker push politeauthority/cver-api:${{ github.sha }}
 
   deploy-test:
     runs-on: self-hosted
-    needs: build-docker
+    # needs: build-docker
     container:
       image: politeauthority/polite-cicd:0.0.1
     steps:
       - uses: actions/checkout@v3
-      - name: 'Deploy'
-        uses: Azure/k8s-set-context@v1
-        with:
-          kubeconfig: ${{ secrets.KUBECONFIG_FILE }}
-          run: |
-              mkdir ~/.kube
-              echo $KUBECONFIG_FILE > /github/home/.kube/config
-              echo "wrote kube config"
-              echo "${KUBECONFIG}"
-              cat /github/home/.kube/config
-              helm upgrade --install \
-                --namespace=cver \
-                cver-api-test \
-                helm/cver-api/ \
-                -f helm/cver-api/quigley-test-values.yaml \
-                --set "image.tag=${{ github.sha }}"
+
+      - name: Get kubeconfig
+        run: echo "${{ secrets.KUBECONFIG_FILE }}" | base64 -d > kubeconfig.yaml
+      # - name: 'Deploy'
+      #   uses: Azure/k8s-set-context@v1
+      #   with:
+      #     kubeconfig: ${{ secrets.KUBECONFIG_FILE }}
+      #     run: |
+      #         helm upgrade --install \
+      #           --namespace=cver \
+      #           cver-api-test \
+      #           helm/cver-api/ \
+      #           -f helm/cver-api/quigley-test-values.yaml \
+      #           --set "image.tag=${{ github.sha }}"
 
 # End File: cver/.github/webserver/pull-request.yaml
