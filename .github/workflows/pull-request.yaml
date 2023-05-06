@@ -67,33 +67,21 @@ jobs:
       image: politeauthority/polite-cicd:0.0.1
     steps:
       - uses: actions/checkout@v3
-      # - name: 'Deploy'
-      #   run: |
-      #       mkdir ~/.kube
-      #       echo $KUBECONFIG_FILE > /github/home/.kube/config
-      #       echo "wrote kube config"
-      #       echo "${KUBECONFIG}"
-      #       cat /github/home/.kube/config
-      #       helm upgrade --install \
-      #         --namespace=cver \
-      #         cver-api-test \
-      #         helm/cver-api/ \
-      #         -f helm/cver-api/quigley-test-values.yaml \
-      #         --set "image.tag=${{ github.sha }}"
-      #   env:
-      #     KUBECONFIG_FILE: '${{ secrets.KUBECONFIG_FILE }}'
-      #     KUBECONFIG: /github/home/.kube/config
       - name: 'Deploy'
-        uses: 'deliverybot/helm@v1.5'
+        uses: dmitryint/k8s-actions/k8s-set-context@master
         with:
-          release: 'cver-api-test'
-          namespace: 'cver'
-          chart: 'helm/cver-api'
-          token: '${{ github.token }}'
-          values: |
-            image.tag: ${{ github.sha }}
-          value-files: "helm/cver-api/quigley-test-values.yaml"
-        env:
-          KUBECONFIG_FILE: '${{ secrets.KUBECONFIG_FILE }}'
+          kubeconfig: ${{ secrets.KUBECONFIG_FILE }}
+          run: |
+              mkdir ~/.kube
+              echo $KUBECONFIG_FILE > /github/home/.kube/config
+              echo "wrote kube config"
+              echo "${KUBECONFIG}"
+              cat /github/home/.kube/config
+              helm upgrade --install \
+                --namespace=cver \
+                cver-api-test \
+                helm/cver-api/ \
+                -f helm/cver-api/quigley-test-values.yaml \
+                --set "image.tag=${{ github.sha }}"
 
 # End File: cver/.github/webserver/pull-request.yaml
