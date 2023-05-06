@@ -1,0 +1,6 @@
+#!/bin/sh -l
+# Cver DB Login
+
+set -e
+
+mysql -h ${CVER_DB_HOST} -u ${CVER_DB_USER} -p ${CVER_DB_NAME}

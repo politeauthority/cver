@@ -11,6 +11,7 @@ ENV CVER_DB_USER="user"
 ENV CVER_DB_PASS=""
 ENV CVER_VERSION="0.0.1"
 ENV CVER_BUILD=""
+ENV CVER_ENV=""
 
 ADD src/ /app
 
@@ -31,6 +32,7 @@ ADD scripts/cver-run-api /bin
 ADD scripts/cver-test-unit /bin
 ADD scripts/cver-test-regression /bin
 ADD scripts/cver-test-all /bin
+ADD scripts/cver-db-login /bin
 
 # Cver Tests
 ENV CVER_API_URL="http://localhost:5001"

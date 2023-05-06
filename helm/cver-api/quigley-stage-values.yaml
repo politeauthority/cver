@@ -9,6 +9,7 @@ app:
   dbHost: "cver-mysql.cver.svc.cluster.local"
   dbUser: "cver_user"
   runMigrations: false
+  envName: "stage"
 
 image:
   repository: politeauthority/cver-api
