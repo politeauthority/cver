@@ -67,22 +67,19 @@ jobs:
       image: politeauthority/polite-cicd:0.0.1
     steps:
       - uses: actions/checkout@v3
-      - name: Get kubeconfig
+      - name: Setup Kube Config
         run: |
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
           export KUBECONFIG=~/.kube/config.yaml
           kubectl get pods -n cver
-      # - name: 'Deploy'
-      #   uses: Azure/k8s-set-context@v1
-      #   with:
-      #     kubeconfig: ${{ secrets.KUBECONFIG_FILE }}
-      #     run: |
-      #         helm upgrade --install \
-      #           --namespace=cver \
-      #           cver-api-test \
-      #           helm/cver-api/ \
-      #           -f helm/cver-api/quigley-test-values.yaml \
-      #           --set "image.tag=${{ github.sha }}"
+      - name: Deploy
+        run: |
+          helm upgrade --install \
+            --namespace=cver \
+            cver-api-test \
+            helm/cver-api/ \
+            -f helm/cver-api/quigley-test-values.yaml \
+            --set "image.tag=${{ github.sha }}"
 
 # End File: cver/.github/webserver/pull-request.yaml
