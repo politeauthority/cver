@@ -13,8 +13,8 @@ ENV CVER_VERSION="0.0.1"
 ENV CVER_BUILD=""
 ENV CVER_ENV=""
 
+ADD scripts/entrypoint.sh /
 ADD src/ /app
-
 WORKDIR /app/cver
 
 # Prod-Build Pignus-Api
@@ -22,7 +22,7 @@ RUN pip install --upgrade pip
 RUN cd /app && pip install -r /app/requirements.txt
 RUN cd /app && pip install .
 
-CMD cd /app/cver/api && gunicorn app:app --bind 0.0.0.0:5001
+CMD entrypoint.sh
 
 # Dev-Build
 RUN apk add bash curl vim mysql-client
