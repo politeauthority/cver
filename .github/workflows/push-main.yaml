@@ -27,4 +27,25 @@ jobs:
       - name: Push Container
         run: docker push politeauthority/cver-api:0.0.1b
 
+  deploy-prod:
+    runs-on: self-hosted
+    needs: build-docker
+    container:
+      image: politeauthority/polite-cicd:0.0.1
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy
+        run: |
+          mkdir ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
+          export KUBECONFIG=~/.kube/config.yaml
+          kubectl get pods -n cver
+          helm upgrade --install \
+            --namespace=cver \
+            cver-api-prod \
+            helm/cver-api/ \
+            --wait \
+            -f helm/cver-api/quigley-prod-values.yaml \
+            --set "image.tag=0.0.1b
+
 # End File: cver/.github/webserver/push-main.yaml
