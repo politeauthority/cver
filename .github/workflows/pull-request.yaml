@@ -108,6 +108,6 @@ jobs:
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
           export KUBECONFIG=~/.kube/config.yaml
           TEST_POD=$(kubectl get pods -l app.kubernetes.io/name=test --no-headers | cut -d' ' -f1)
-          kubectl exec -it ${TEST_POD} -c cver-api -- bash
+          kubectl exec -it ${TEST_POD} -c cver-api -- pytest /tests/regression/ash
 
 # End File: cver/.github/webserver/pull-request.yaml
