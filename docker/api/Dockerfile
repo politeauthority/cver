@@ -22,7 +22,7 @@ RUN pip install --upgrade pip
 RUN cd /app && pip install -r /app/requirements.txt
 RUN cd /app && pip install .
 
-CMD entrypoint.sh
+CMD /entrypoint.sh
 
 # Dev-Build
 RUN apk add bash curl vim mysql-client
