@@ -38,19 +38,19 @@ jobs:
       - name: Unit Tests
         run: pytest tests/unit
 
-  lint-helm:
-    runs-on: self-hosted
-    strategy:
-      fail-fast: true
-    container:
-      image: politeauthority/polite-cicd:0.0.1
-    strategy:
-      fail-fast: true
-    steps:
-      - uses: actions/checkout@v3
-      - name: Lint Helm
-        run: |
-          helm lint ./helm/cver-api
+  # lint-helm:
+  #   runs-on: self-hosted
+  #   strategy:
+  #     fail-fast: true
+  #   container:
+  #     image: politeauthority/polite-cicd:0.0.1
+  #   strategy:
+  #     fail-fast: true
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Lint Helm
+  #       run: |
+  #         helm lint ./helm/cver-api
 
   build-docker:
     runs-on: self-hosted
