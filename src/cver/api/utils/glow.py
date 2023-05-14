@@ -11,11 +11,11 @@ global db
 db = {
     "conn": "",
     "cursor": "",
-    "HOST": "",
-    "PORT": "",
-    "USER": "",
-    "PASS": "",
-    "NAME": "",
+    "HOST": os.environ.get("CVER_DB_HOST"),
+    "PORT": os.environ.get("CVER_DB_PORT"),
+    "USER": os.environ.get("CVER_DB_USER"),
+    "PASS": os.environ.get("CVER_DB_PASS"),
+    "NAME": os.environ.get("CVER_DB_NAME"),
 }
 
 global options
