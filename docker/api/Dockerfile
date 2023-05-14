@@ -34,6 +34,7 @@ ADD scripts/cver-test-regression /bin
 ADD scripts/cver-test-all /bin
 ADD scripts/cver-db-login /bin
 
+
 # Cver Tests
 ENV CVER_API_URL="http://localhost:5001"
 ENV CVER_DB_PASS=""

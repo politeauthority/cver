@@ -9,10 +9,10 @@ The Base Model SQL driver can work with both SQLite3 and MySQL database.
 
 """
 from datetime import datetime
-import logging
 
 import arrow
 
+from cver.shared.utils import log
 from cver.shared.utils import xlate
 from cver.api.utils import date_utils
 from cver.api.utils import glow
@@ -65,7 +65,7 @@ class Base:
         sql = "CREATE TABLE IF NOT EXISTS %s \n(%s)" % (
             self.table_name,
             self._generate_create_table_feilds())
-        logging.info('Creating table: %s' % self.table_name)
+        log.info('Creating table: %s' % self.table_name)
         self.cursor.execute(sql)
         return True
 
@@ -87,7 +87,7 @@ class Base:
         if self.backed_iodku and not self.id:
             return self.iodku()
         if not self.id:
-            logging.error("Save failed, missing %s.id or where list" % __class__.__name_)
+            log.error("Save failed, missing %s.id or where list" % __class__.__name_)
             raise AttributeError("Save failed, missing %s.id or where list" % __class__.__name_)
         update_sql = self._gen_update_sql(["id", "created_ts"])
         self.cursor.execute(update_sql)
@@ -145,7 +145,7 @@ class Base:
                 break
 
         if not found_name_field:
-            logging.warning("Entity does not have a get by name method.")
+            log.warning("Entity does not have a get by name method.")
             return False
 
         sql = """
@@ -168,7 +168,7 @@ class Base:
                 break
 
         if not found_field:
-            logging.warning("Entity does not have a %s field." % field)
+            log.warning("Entity does not have a %s field." % field)
             return False
 
         sql = """
@@ -192,7 +192,7 @@ class Base:
         sql = """
             SELECT *
             FROM %s
-            ORDER BY `id` DESC
+            ORDER BY created_ts DESC
             LIMIT 1""" % (self.table_name)
 
         self.cursor.execute(sql)
@@ -215,7 +215,7 @@ class Base:
                 len(raw))
             msg += "Field Map: %s \n" % str(self.total_map)
             msg += "Raw Record: %s \n" % str(raw)
-            logging.error(msg, stacktrace=True)
+            log.error(msg, stacktrace=True)
             return False
 
         count = 0
@@ -595,7 +595,7 @@ class Base:
         if isinstance(value, int):
             return value
         if isinstance(value, str) and value.isdigit():
-            logging.warning('Class %s field %s value %s is not int, changed to int.' % (
+            log.warning('Class %s field %s value %s is not int, changed to int.' % (
                 __class__.__name__, name, value))
             return int(value)
         raise AttributeError('Class %s field %s value %s is not int.' % (
