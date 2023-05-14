@@ -22,7 +22,7 @@ URL_MODEL = "option"
 
 class TestApiOptions:
 
-    def test__apps_get(self):
+    def test__options_get(self):
         """Tests the Cves collections through the Cver Api
         GET /options
         """

@@ -2,6 +2,8 @@
     Cver Migrate
 
 """
+import os
+
 from cver.api.utils import db
 from cver.api.utils import glow
 from cver.shared.utils import log
@@ -9,6 +11,7 @@ from cver.shared.utils import log
 from cver.api.models.entity_meta import EntityMeta
 from cver.api.models.image import Image
 from cver.api.models.image_build import ImageBuild
+from cver.api.models.migration import Migration
 from cver.api.models.option import Option
 from cver.api.models.scan import Scan
 from cver.api.models.scanner import Scanner
@@ -16,15 +19,45 @@ from cver.api.models.software import Software
 from cver.api.models.user import User
 
 
+CVER_DB_NAME = os.environ.get("CVER_DB_NAME")
+CURRENT_MIGRATION = 1
+
+
 class Migrate:
 
     def run(self):
-        self.create_table()
-        self.create_apps()
+        log.info("Working with database %s" % CVER_DB_NAME)
+        self.last_migration = self.get_migration_info()
+        self.this_migration = Migration()
+        self.run_migrations()
+        self.create_data()
 
-    def create_table(self):
-        """Create tables.
-        """
+    def get_migration_info(self):
+        """Get the info from the last migration ran"""
+        Migration().create_table()
+        last = Migration()
+        last.get_last()
+        if not last.id:
+            return False
+        return last
+
+    def run_migrations(self):
+        if not self.last_migration:
+            print("First run of migrations.")
+            self.create_initial_tables()
+            self.this_migration.number = 1
+            self.this_migration.success = True
+            self.this_migration.save()
+            log.info("Migration %s Succeeded" % self.this_migration.number)
+            return True
+        elif CURRENT_MIGRATION == self.last_migration.number:
+            log.info("Migration: %s Caught Up" % CURRENT_MIGRATION)
+            return True
+        else:
+            log.warning("Not sure what to do here")
+
+    def create_initial_tables(self):
+        """Create tables."""
         log.info("Creating tables")
         EntityMeta().create_table()
         Image().create_table()
@@ -36,7 +69,7 @@ class Migrate:
         Software().create_table()
         User().create_table()
 
-    def create_apps(self):
+    def create_data(self):
         """Create already tracked apps."""
         log.info("Creating Software")
         softwares = ["emby"]

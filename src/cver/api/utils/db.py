@@ -2,8 +2,8 @@
 Database handler.
 
 """
+import logging
 import os
-
 
 import pymysql.cursors
 import mysql.connector
@@ -25,7 +25,7 @@ def connect():
         password=DB_PASS,
         database=DB_NAME)
 
-    print("Generating database connection")
+    logging.info("Generating database connection")
     return {
         "conn": connection,
         "cursor": connection.cursor()
@@ -58,9 +58,8 @@ def connect_no_db(server: dict):
 def create_mysql_database(conn, cursor):
     """Create the MySQL database."""
     sql = """CREATE DATABASE IF NOT EXISTS %s; """ % DB_NAME
-    print(sql)
     cursor.execute(sql)
-    print('Created database: %s' % DB_NAME)
+    logging.info('Created database: %s' % DB_NAME)
     return True
 
 # End File: cver/src/api/utils/db.py

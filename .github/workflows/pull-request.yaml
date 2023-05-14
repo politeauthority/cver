@@ -38,6 +38,20 @@ jobs:
       - name: Unit Tests
         run: pytest tests/unit
 
+  # lint-helm:
+  #   runs-on: self-hosted
+  #   strategy:
+  #     fail-fast: true
+  #   container:
+  #     image: politeauthority/polite-cicd:0.0.1
+  #   strategy:
+  #     fail-fast: true
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Lint Helm
+  #       run: |
+  #         helm lint ./helm/cver-api
+
   build-docker:
     runs-on: self-hosted
     needs: build-python
@@ -53,39 +67,47 @@ jobs:
           export CVER_API_TAG="${{ github.sha }}"
           task build
 
-      # - uses: docker/login-action@v2
-      #   with:
-      #     username: politeauthority
-      #     password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-      # - name: Push Container
-      #   run: docker push politeauthority/cver-api:${{ github.sha }}
+      - uses: docker/login-action@v2
+        with:
+          username: politeauthority
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+      - name: Push Container
+        run: docker push politeauthority/cver-api:${{ github.sha }}
 
-  # deploy-test:
-  #   runs-on: self-hosted
-  #   needs: build-docker
-  #   container:
-  #     image: politeauthority/pignus-cicd:latest
-  #   strategy:
-  #     fail-fast: true
-  #   steps:
-  #     - uses: actions/checkout@v1
-  #     - run: |
-  #         cd helm/pigus-api
-  #         helm install --upgrade pignus-cicd -f values.yaml -f values-regression.yaml
-  #       env:
-  #         KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'
+  deploy-test:
+    runs-on: self-hosted
+    needs: build-docker
+    container:
+      image: politeauthority/polite-cicd:0.0.1
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy
+        run: |
+          mkdir ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
+          export KUBECONFIG=~/.kube/config.yaml
+          kubectl get pods -n cver
+          helm upgrade --install \
+            --namespace=cver \
+            cver-api-test \
+            helm/cver-api/ \
+            --wait \
+            -f helm/cver-api/quigley-test-values.yaml \
+            --set "image.tag=${{ github.sha }}"
 
-  # run-regression:
-  #   runs-on: self-hosted
-  #   needs: deploy-test
-  #   container:
-  #     image: politeauthority/pignus-api-dev:${{ github.sha }}
-  #     env:
-  #       PIGNUS_API_URL: "${{ secrets.REGRESSION_PIGNUS_API_URL }}"
-  #       PIGNUS_API_CLIENT_ID: "${{ secrets.REGRESSION_PIGNUS_API_CLIENT_ID }}"
-  #       PIGNUS_API_KEY: "${{ secrets.REGRESSION_PIGNUS_API_KEY }}"
-  #   steps:
-  #     - name: Regression Pignus-Api
-  #       run: cd /tests/regression && pytest
+  run-test:
+    runs-on: self-hosted
+    needs: deploy-test
+    container:
+      image: politeauthority/polite-cicd:0.0.1
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy
+        run: |
+          mkdir ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
+          export KUBECONFIG=~/.kube/config.yaml
+          TEST_POD=$(kubectl get pods -l app.kubernetes.io/name=test --no-headers | cut -d' ' -f1)
+          kubectl exec -it ${TEST_POD} -c cver-api -- pytest /tests/regression
 
 # End File: cver/.github/webserver/pull-request.yaml
