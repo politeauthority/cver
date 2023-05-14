@@ -40,9 +40,9 @@ class Migrate:
         self.last_migration = self.get_migration_info()
         self.this_migration = Migration()
         self.run_migrations()
-        # self.create_data()
+        self.create_data()
 
-    def get_migration_info(self):
+    def get_migration_info(self) -> Migration:
         """Get the info from the last migration ran"""
         Migration().create_table()
         last = Migration()

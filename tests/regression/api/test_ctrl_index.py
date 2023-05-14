@@ -36,4 +36,4 @@ class TestApiIndex:
         response_json = response.json()
         assert "version" in response_json
 
-# End File: cver/tests/regression/api/index.py
+# End File: cver/tests/regression/api/test_ctrl_index.py
