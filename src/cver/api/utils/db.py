@@ -9,6 +9,8 @@ import pymysql.cursors
 import mysql.connector
 from mysql.connector import Error as MySqlError
 
+from cver.api.utils import glow
+
 DB_HOST = os.environ.get("CVER_DB_HOST")
 DB_PORT = int(os.environ.get("CVER_DB_PORT"))
 DB_NAME = os.environ.get("CVER_DB_NAME")
@@ -26,6 +28,8 @@ def connect():
         database=DB_NAME)
 
     logging.info("Generating database connection")
+    glow.db["conn"] = connection
+    glow.db["cursor"] = connection.cursor()
     return {
         "conn": connection,
         "cursor": connection.cursor()
@@ -59,7 +63,7 @@ def create_mysql_database(conn, cursor):
     """Create the MySQL database."""
     sql = """CREATE DATABASE IF NOT EXISTS %s; """ % DB_NAME
     cursor.execute(sql)
-    logging.info('Created database: %s' % DB_NAME)
+    logging.debug('Created database: %s' % DB_NAME)
     return True
 
 # End File: cver/src/api/utils/db.py

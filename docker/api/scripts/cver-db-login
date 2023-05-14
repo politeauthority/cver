@@ -3,4 +3,4 @@
 
 set -e
 
-mysql -h ${CVER_DB_HOST} -u ${CVER_DB_USER} -p ${CVER_DB_NAME}
+mysql -h ${CVER_DB_HOST} -u ${CVER_DB_USER} --password=${CVER_DB_PASS} ${CVER_DB_NAME}
