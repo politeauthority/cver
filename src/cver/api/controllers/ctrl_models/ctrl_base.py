@@ -1,15 +1,16 @@
 """Controller Model - Base
 
 """
-from flask import make_response, request, jsonify
+import logging
 
-from cver.shared.utils import log
+from flask import make_response, request, jsonify
 
 
 def get_model(model, entity_id: int = None) -> dict:
     """Base GET operation for a model.
     :unit-test: TestCtrlModelsBase::test__get_model
     """
+    print("NOW HERE")
     entity = model()
 
     data = {
@@ -18,29 +19,44 @@ def get_model(model, entity_id: int = None) -> dict:
         "object": {},
         "object_type": entity.model_name
     }
-    r_args = request.get_json()
+    r_args = request.args
 
     # Search for model base on searchable fields
     search_fields = []
     for r_arg_key, r_arg_value in r_args.items():
-        for field in entity.field_map:
+        for field_name, field in entity.field_map.items():
             if field["name"] != r_arg_key:
                 continue
         if "api_searchable" not in entity.field_map[r_arg_key]:
             continue
-        search_fields.append(r_arg_key)
+        search_field = {
+            "field": r_arg_key,
+            "value": r_arg_value,
+            "op": "eq"
+        }
+        search_fields.append(search_field)
 
-    print(search_fields)
-
-    if not entity_id:
-        data["message"] = "Missing entity ID"
+    # Missing data to retrieve the model.
+    if not entity_id and not search_fields:
+        data["message"] = "Missing required search ctriteria."
         return make_response(jsonify(data), 401)
 
-    if not entity.get_by_id(entity_id):
-        data["message"] = "Could not find Entity"
+    # Search for entity
+    entity_found = False
+    if search_fields:
+        entity_found = entity.get_by_fields(search_fields)
+    elif entity_id:
+        entity_found = entity.get_by_id(entity_id)
+    else:
+        print("Error")
+
+    # Entity not found
+    if not entity_found:
+        data["message"] = "Object not found"
         return make_response(jsonify(data), 404)
 
     data["status"] = "Success"
+    data["status"] = "Entity found"
     data["object"] = entity.json()
     return data
 
@@ -57,7 +73,7 @@ def post_model(model, entity_id: int = None):
             data["message"] = "Could not find %s ID: %s" % (entity.model_name, entity_id)
             return jsonify(data), 404
         else:
-            log.info("POST - Found entity: %s" % entity)
+            logging.info("POST - Found entity: %s" % entity)
 
     request_data = request.get_json()
 
@@ -100,20 +116,6 @@ def post_model(model, entity_id: int = None):
     return data
 
 
-# def search_id(entity_id_field: str, request_data: dict):
-#     """
-#     """
-#     # Search for the entity by it's ID.
-#     search_id = None
-#     if entity_id_field in request_data:
-#         search_id = None
-#         if entity_id:
-#             search_id = entity_id
-#         elif entity_id_field in request_data:
-#             search_id = request_data[entity_id_field]
-#     return search_id
-
-
 def delete_model(model, entity_id: int):
     """Base DELETE a model."""
     entity = model()
@@ -128,7 +130,7 @@ def delete_model(model, entity_id: int):
     entity.delete()
     data["message"] = "User deleted successfully"
     data["object"] = entity.json()
-    return data
+    return make_response(jsonify(data), 201)
 
 
 # End File: cver/src/api/controllers/ctrl_modles/ctrl_base.py
