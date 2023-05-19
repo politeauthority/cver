@@ -1,0 +1,51 @@
+# Cver Api - Push Stage
+
+name: Cver-Api-Push-Stage
+
+on:
+  push:
+    branches: ["staging"]
+
+jobs:
+  build-docker:
+    runs-on: self-hosted
+    container:
+      image: politeauthority/polite-cicd:0.0.1
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build Container
+        run: |
+          echo "Run Task: Build"
+          export CVER_API_TAG="0.0.1b"
+          task build
+      - uses: docker/login-action@v2
+        with:
+          username: politeauthority
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+      - name: Push Container
+        run: docker push politeauthority/cver-api:0.0.1b
+
+  deploy-prod:
+    runs-on: self-hosted
+    needs: build-docker
+    container:
+      image: politeauthority/polite-cicd:0.0.1
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy
+        run: |
+          mkdir ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
+          export KUBECONFIG=~/.kube/config.yaml
+          kubectl get pods -n cver
+          helm upgrade --install \
+            --namespace=cver \
+            cver-api-stage \
+            helm/cver-api/ \
+            --wait \
+            -f helm/cver-api/quigley-stage-values.yaml \
+            --set "image.tag=0.0.1b"
+
+# End File: cver/.github/webserver/push-stage.yaml
