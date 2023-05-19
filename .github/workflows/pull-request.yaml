@@ -94,6 +94,7 @@ jobs:
             --wait \
             -f helm/cver-api/quigley-test-values.yaml \
             --set "image.tag=${{ github.sha }}"
+          kubectl get pods -n cver | grep test
 
   run-test:
     runs-on: self-hosted
