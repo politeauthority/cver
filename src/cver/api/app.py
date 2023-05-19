@@ -16,6 +16,8 @@ from cver.api.utils import glow
 from cver.api.controllers.ctrl_index import ctrl_index
 from cver.api.controllers.ctrl_models.ctrl_image import ctrl_image
 from cver.api.controllers.ctrl_collections.ctrl_images import ctrl_images
+from cver.api.controllers.ctrl_models.ctrl_image_build import ctrl_image_build
+from cver.api.controllers.ctrl_collections.ctrl_image_builds import ctrl_image_builds
 from cver.api.controllers.ctrl_collections.ctrl_options import ctrl_options
 from cver.api.controllers.ctrl_collections.ctrl_softwares import ctrl_softwares
 from cver.api.controllers.ctrl_models.ctrl_software import ctrl_software
@@ -45,8 +47,10 @@ def register_blueprints(app: Flask) -> bool:
     """Register controller blueprints to flask."""
     # app.register_blueprint(ctrl_cves)
     app.register_blueprint(ctrl_index)
-    app.register_blueprint(ctrl_images)
     app.register_blueprint(ctrl_image)
+    app.register_blueprint(ctrl_images)
+    app.register_blueprint(ctrl_image_build)
+    app.register_blueprint(ctrl_image_builds)
     app.register_blueprint(ctrl_options)
     app.register_blueprint(ctrl_submit_report)
     app.register_blueprint(ctrl_software)

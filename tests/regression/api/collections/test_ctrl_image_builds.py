@@ -1,7 +1,7 @@
 """
     Cver - Test - Regression
-    CTRL Images
-        Checks that all routes on /apps are working properly.
+    CTRL ImageBuilds
+        Checks that all routes on /image-builds are working properly.
 
 """
 
@@ -17,15 +17,15 @@ HEADERS = {
     "x-api-key": CVER_API_KEY
 }
 
-URL_BASE = "/images"
-URL_MODEL = "image"
+URL_BASE = "/image-builds"
+URL_MODEL = "image-build"
 
 
 class TestApiImages:
 
     def test__images_get(self):
-        """Tests the Images collections through the Cver Api
-        GET /images
+        """Tests the ImageBuilds collections through the Cver Api
+        GET /image-builds
         """
         request_args = {
             "headers": HEADERS,
@@ -58,4 +58,4 @@ class TestApiImages:
         assert isinstance(response_json["objects"], list)
 
 
-# End File: cver/tests/regression/api/collections/test_ctrl_images.py
+# End File: cver/tests/regression/api/collections/test_ctrl_images_builds.py
