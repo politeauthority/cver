@@ -17,15 +17,15 @@ HEADERS = {
     "x-api-key": CVER_API_KEY
 }
 
-URL_BASE = "/apps"
-URL_MODEL = "app"
+URL_BASE = "/images"
+URL_MODEL = "image"
 
 
-class TestApiSoftwares:
+class TestApiImages:
 
-    def test__apps_get(self):
-        """Tests the Cves collections through the Cver Api
-        GET /apps
+    def test__images_get(self):
+        """Tests the Images collections through the Cver Api
+        GET /images
         """
         request_args = {
             "headers": HEADERS,
@@ -58,4 +58,4 @@ class TestApiSoftwares:
         assert isinstance(response_json["objects"], list)
 
 
-# End File: cver/tests/regression/api/collections/test_ctrl_softwares.py
+# End File: cver/tests/regression/api/collections/test_ctrl_images.py

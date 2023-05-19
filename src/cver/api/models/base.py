@@ -185,6 +185,38 @@ class Base:
         self.build_from_list(raw)
         return True
 
+    def get_by_fields(self, fields: list) -> bool:
+        """Get a model by a field, or fields.
+        :todo: Eventually this needs to support more operators than just eq
+        :param fields: list of dict
+            fields
+            [
+                {
+                    "field": "name",
+                    "value": "A Cool Name",
+                    "op": "eq"
+                }
+            ]
+        :unit-test: None
+        """
+        sql_fields = ""
+        for field in fields:
+            sql_fields += '`%s`="%s",' % (
+                xlate.sql_safe(field["field"]),
+                xlate.sql_safe(field["value"]))
+        sql_fields = sql_fields[:-1]
+        sql = """
+            SELECT *
+            FROM %s
+            WHERE %s
+            LIMIT 1;""" % (self.table_name, sql_fields)
+        self.cursor.execute(sql)
+        run_raw = self.cursor.fetchone()
+        if not run_raw:
+            return False
+        self.build_from_list(run_raw)
+        return True
+
     def get_last(self) -> bool:
         """Get the last created model.
         :unit-test: test__get_last

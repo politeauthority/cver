@@ -25,8 +25,8 @@ URL_MODEL = "app"
 
 class TestApiSoftware:
 
-    def test__app_get_404(self):
-        """Tests the Software collections through the Cver Api
+    def test__app_get_400(self):
+        """Tests a bad request on the Software model through the Cver Api.
         GET /app
         """
         request_args = {

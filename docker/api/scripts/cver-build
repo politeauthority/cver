@@ -22,5 +22,5 @@ flake8
 number_errors=$(flake8 | wc -l)
 echo "Found ${number_errors} in src/"
 # echo "Running tests"
-# cd /tests/unit
-# pytest --cov=pignus_api --cov=pignus_client
+cd /tests/unit
+pytest

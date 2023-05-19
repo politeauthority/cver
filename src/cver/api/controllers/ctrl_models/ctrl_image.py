@@ -24,7 +24,6 @@ def get_model(image_id: int = None) -> Response:
     data = ctrl_base.get_model(Image, image_id)
     if not isinstance(data, dict):
         return data
-
     return jsonify(data)
 
 
