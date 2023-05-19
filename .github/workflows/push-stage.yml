@@ -44,7 +44,6 @@ jobs:
             --namespace=cver \
             cver-api-stage \
             helm/cver-api/ \
-            --wait \
             -f helm/cver-api/quigley-stage-values.yaml \
             --set "image.tag=0.0.1b"
 
