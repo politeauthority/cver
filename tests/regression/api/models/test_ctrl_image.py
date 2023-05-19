@@ -5,6 +5,7 @@
 
 """
 import json
+import random
 import os
 
 import requests
@@ -33,11 +34,11 @@ class TestRegressionApiImage:
         """ Test that we get a 404 on an image that doesnt exist.
         GET /image
         """
-        random_id = rand
+        random_number = random.randint(100,1000)
         request_args = {
             "headers": HEADERS,
             "method": "GET",
-            "url": "%s%s%s" % (CVER_API_URL, URL_BASE),
+            "url": "%s%s/%s" % (CVER_API_URL, URL_BASE, random_number),
         }
 
         response = requests.request(**request_args)
@@ -102,6 +103,8 @@ class TestRegressionApiImage:
             "url": "%s%s/%s" % (CVER_API_URL, URL_BASE, image_id),
         }
         response_delete = requests.request(**request_args)
+
         assert response_delete.status_code == 201
+
 
 # End File: cver/tests/regression/api/test_ctrl_image.py
