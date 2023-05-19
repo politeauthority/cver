@@ -20,7 +20,7 @@ HEADERS = {
 }
 
 URL_BASE = "/image"
-URL_MODEL = "/image"
+URL_MODEL = "image"
 
 TEST_MODEL = {
     "name": "not-real",
@@ -34,7 +34,7 @@ class TestRegressionApiImage:
         """ Test that we get a 404 on an image that doesnt exist.
         GET /image
         """
-        random_number = random.randint(100,1000)
+        random_number = random.randint(100, 1000)
         request_args = {
             "headers": HEADERS,
             "method": "GET",
