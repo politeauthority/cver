@@ -39,7 +39,7 @@ def get_model(model, entity_id: int = None) -> dict:
     # Missing data to retrieve the model.
     if not entity_id and not search_fields:
         data["message"] = "Missing required search ctriteria."
-        return make_response(jsonify(data), 401)
+        return make_response(jsonify(data), 400)
 
     # Search for entity
     entity_found = False
