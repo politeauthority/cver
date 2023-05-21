@@ -119,7 +119,7 @@ class Migrate:
         if admin_users:
             logging.info("Not creating an admin, %s already exist" % len(admin_users))
             return True
-    
+
         user = User()
         user.email = "admin@example.com"
         user.name = "admin"

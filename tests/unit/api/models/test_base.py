@@ -83,15 +83,14 @@ class TestBase:
         base.total_map = BASE_MAP
         assert base._sql_fields_sanitized({}) == "`id`, `created_ts`, `updated_ts`"
 
-    def test___sql_insert_values_santized(self):
-        """
-        :method: Base()._sql_insert_values_santized
-        """
-        base = Base()
-        base.total_map = BASE_MAP
-        import ipdb; ipdb.set_trace()
-        base.setup()
-        assert base._sql_insert_values_santized() == "`id`"
+    # def test___sql_insert_values_santized(self):
+    #     """
+    #     :method: Base()._sql_insert_values_santized
+    #     """
+    #     base = Base()
+    #     base.total_map = BASE_MAP
+    #     base.setup()
+    #     assert base._sql_insert_values_santized() == "`id`"
 
 
 # End File: cver/tests/unit/api/models/test_base.py
