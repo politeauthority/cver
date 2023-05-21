@@ -8,7 +8,7 @@ app:
   dbName: "cver_stage"
   dbHost: "cver-mysql.cver.svc.cluster.local"
   dbUser: "cver_user"
-  runMigrations: false
+  runMigrations: true
   envName: "stage"
 
 image:

@@ -6,9 +6,13 @@ The Base Model SQL driver can work with both SQLite3 and MySQL database.
     self.backend = "sqlite" for SQLite3
     self.backend = "mysql" for MySQL
 
+Testing:
+    Unit test file  cver/tests/unit/api/models/test_base.py
+    Unit tested     6/39
 
 """
 from datetime import datetime
+import logging
 
 import arrow
 
@@ -22,7 +26,7 @@ class Base:
 
     def __init__(self, conn=None, cursor=None):
         """Base model constructor
-        :unit-test: test____init__
+        :unit-test: TestBase::test____init__
         """
         self._establish_db(conn, cursor)
         self.backed_iodku = True
@@ -36,20 +40,22 @@ class Base:
 
     def __repr__(self):
         """Base model representation
-        :unit-test: test____repr__
+        :unit-test: TestBase::test____repr__
         """
         if self.id:
             return "<%s: %s>" % (self.__class__.__name__, self.id)
         return "<%s>" % self.__class__.__name__
 
     def __desc__(self) -> None:
-        """Describes the fields and values of class."""
+        """Describes the fields and values of class.
+        :unit-test: TestBase::test____repr__
+        """
         for field_id, field in self.total_map.items():
             print("%s: %s" % (field["name"], getattr(self, field["name"])))
 
     def connect(self, conn, cursor) -> bool:
         """Quick bootstrap method to connect the model to the database connection.
-        :unit-test: test__connect
+        :unit-test: TestBase::test__connect
         """
         self.conn = conn
         self.cursor = cursor
@@ -57,7 +63,17 @@ class Base:
 
     def create_table(self) -> bool:
         """Create a table based on the self.table_name, and self.field_map.
-        :unit-test: test__create_table
+        """
+        if not self.table_name:
+            raise AttributeError('Model table name not set, (self.table_name)')
+        sql = self.create_table_sql()
+        log.info('Creating table: %s' % self.table_name)
+        self.cursor.execute(sql)
+        return True
+
+    def create_table_sql(self) -> bool:
+        """Create a table based SQL on the self.table_name, and self.field_map.
+        :unit-test: TestBase::test__create_table_sql
         """
         self._create_total_map()
         if not self.table_name:
@@ -65,13 +81,10 @@ class Base:
         sql = "CREATE TABLE IF NOT EXISTS %s \n(%s)" % (
             self.table_name,
             self._generate_create_table_feilds())
-        log.info('Creating table: %s' % self.table_name)
-        self.cursor.execute(sql)
-        return True
+        return sql
 
     def setup(self) -> bool:
         """Set up model class vars, sets class var defaults, and corrects types where possible.
-        :unit-test: test__setup
         """
         self._create_total_map()
         self._set_defaults()
@@ -104,7 +117,9 @@ class Base:
         return True
 
     def get_field(self, field_name: str):
-        """Get the details on a model field from the field map"""
+        """Get the details on a model field from the field map.
+        :unit-test: test__get_field
+        """
         for field_name, field in self.field_map.items():
             if field["name"] == field_name:
                 return field
@@ -162,13 +177,13 @@ class Base:
     def get_by_field(self, field: str, value: str) -> bool:
         """Get a model by specific, if the model has a name field."""
         found_field = False
-        for field_name, field in self.field_map.items():
-            if field["name"] == field:
+        for field_name, field_info in self.field_map.items():
+            if field_name == field:
                 found_field = True
                 break
 
         if not found_field:
-            log.warning("Entity does not have a %s field." % field)
+            logging.warning("Entity does not have a %s field." % field)
             return False
 
         sql = """
@@ -361,7 +376,7 @@ class Base:
 
     def _gen_iodku_sql(self, skip_fields: dict = {"id": {"name": "id"}}) -> str:
         """Generate the model values to send to the sql engine interpreter as a tuple.
-        :unit-test: test___gen_iodku_sql
+        :unit-test: TestBase::test___gen_iodku_sql
         """
         if self.backend == "sqlite":
             # @note: this is missing.
@@ -400,7 +415,7 @@ class Base:
     def _sql_fields_sanitized(self, skip_fields: dict) -> str:
         """Get all class table column fields in a comma separated list for sql cmds. Returns a value
            like: `id`, `created_ts`, `update_ts`, `name`, `vendor`
-        :unit-test: tests/unit/api/models/test_base.py:TestBase:test___sql_fields_sanitized
+        :unit-test: TestBase:test___sql_fields_sanitized
         """
         field_sql = ""
         for field_name, field in self.total_map.items():

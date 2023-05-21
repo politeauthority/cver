@@ -11,11 +11,17 @@ app:
   dbUser: "mysql-user"
   runMigrations: true
   debug: False
+  envName: "prod"
 
 image:
   repository: politeauthority/cver-api
   pullPolicy: IfNotPresent
   tag: "latest"
+
+test:
+  test: false
+  clientID: ""
+  apiKey: ""
 
 imagePullSecrets: []
 nameOverride: ""

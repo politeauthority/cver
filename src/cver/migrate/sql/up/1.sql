@@ -1,6 +1,19 @@
 --- Migration 1 SQL
 --- Create initial tables
 ---
+--- Create api_keys
+---
+CREATE TABLE IF NOT EXISTS api_keys (
+    `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
+    `created_ts` DATETIME,
+    `updated_ts` DATETIME,
+    `user_id` INTEGER,
+    `client_id` VARCHAR(200) UNIQUE,
+    `key` VARCHAR(200),
+    `last_login` DATETIME,
+    `last_ip` VARCHAR(200));
+
+---
 --- Create entity_metas
 ---
 CREATE TABLE IF NOT EXISTS entity_metas (
@@ -104,8 +117,8 @@ CREATE TABLE IF NOT EXISTS users (
     `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
     `created_ts` DATETIME,
     `updated_ts` DATETIME,
-    `name` VARCHAR(200),
-    `slug_name` VARCHAR(200),
-    `software_id` INTEGER,
-    `url_git` VARCHAR(200) UNIQUE,
-    `url_marketing` VARCHAR(200));
+    `name` VARCHAR(200) UNIQUE,
+    `email` VARCHAR(200) UNIQUE,
+    `role_id` INTEGER,
+    `last_login` DATETIME,
+    `password` VARCHAR(200));

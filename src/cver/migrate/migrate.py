@@ -13,8 +13,14 @@ from cver.api.utils import glow
 from cver.api.models.migration import Migration
 from cver.api.models.software import Software
 
+from cver.api.collects.users import Users
+from cver.api.models.api_key import ApiKey
+from cver.api.models.user import User
+from cver.api.utils import auth
+
 
 CURRENT_MIGRATION = 1
+db.connect()
 
 dictConfig({
     'version': 1,
@@ -36,11 +42,13 @@ dictConfig({
 class Migrate:
 
     def run(self):
+        """Primary entry point for migrations."""
         logging.info("Working with database %s" % glow.db["NAME"])
         self.last_migration = self.get_migration_info()
         self.this_migration = Migration()
         self.run_migrations()
-        self.create_data()
+        self.create_first_user()
+        # self.create_data()
 
     def get_migration_info(self) -> Migration:
         """Get the info from the last migration ran"""
@@ -53,7 +61,10 @@ class Migrate:
 
     def run_migrations(self) -> bool:
         """Run the SQL migrations needed to get the database up to speed."""
-        logging.info("Last migration ran: #%s" % self.last_migration)
+        if self.last_migration:
+            logging.info("Last migration ran: #%s" % self.last_migration.number)
+        else:
+            logging.info("Running first migration")
         if self.last_migration and CURRENT_MIGRATION == self.last_migration.number:
             logging.info("Migration: %s Caught Up" % CURRENT_MIGRATION)
             return True
@@ -98,6 +109,44 @@ class Migrate:
             m.save()
             exit(1)
 
+    def create_first_user(self):
+        """Create the first admin level user, but only if one doesn't already exist."""
+        logging.info("Creating first user")
+        if glow.general["CVER_ENV"] == "test":
+            self.make_test_user()
+            return True
+        admin_users = Users().get_admins()
+        if admin_users:
+            logging.info("Not creating an admin, %s already exist" % len(admin_users))
+            return True
+    
+        user = User()
+        user.email = "admin@example.com"
+        user.name = "admin"
+        user.role_id = 1
+        user.save()
+        print("Created: %s" % user)
+        client_id = auth.generate_client_id()
+        key = auth.generate_api_key()
+        api_key = ApiKey()
+        api_key.user_id = user.id
+        api_key.client_id = client_id
+        api_key.key = auth.generate_hash(key)
+
+        api_key.save()
+        print("Created")
+        print("\t%s" % user)
+        print("\t%s" % api_key)
+        print("\t Client ID: %s" % client_id)
+        print("\t Api Key: %s" % key)
+
+    def make_test_user(self):
+        user = User()
+        if user.get_by_email("test@example.com"):
+            logging.info("Test user already exists: %s" % user)
+            return False
+        user.email = "test@example.com"
+
     def create_data(self):
         """Create already tracked apps."""
         logging.info("Creating Software")
@@ -115,7 +164,6 @@ class Migrate:
 
 
 if __name__ == "__main__":
-    db.connect()
     Migrate().run()
 
 

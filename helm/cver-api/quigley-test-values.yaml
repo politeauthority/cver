@@ -11,6 +11,9 @@ app:
   runMigrations: true
   envName: "test"
 
+test:
+  test: true
+
 image:
   repository: politeauthority/cver-api
   pullPolicy: IfNotPresent

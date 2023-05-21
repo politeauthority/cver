@@ -18,10 +18,19 @@ FIELD_MAP = {
         'name': 'updated_ts',
         'type': 'datetime',
     },
+    "name": {
+        "name": "name",
+        "type": "str",
+        "extra": "UNIQUE",
+    },
     "email": {
         "name": "email",
         "type": "str",
         "extra": "UNIQUE",
+    },
+    "role_id": {
+        "name": "role_id",
+        "type": "int",
     },
     "last_login": {
         "name": "last_login",
