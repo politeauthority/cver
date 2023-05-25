@@ -95,7 +95,7 @@ jobs:
             -f helm/cver-api/quigley-test-values.yaml \
             --set "image.tag=${{ github.sha }}" \
             --set "app.dbName=cver_${{ github.sha }}" \
-          kubectl get pods -l app.kubernetes.io/instance=cver-api-test-${{ github.event.number }}
+          # kubectl get pods -l app.kubernetes.io/instance=cver-api-test-${{ github.event.number }}
 
   run-test:
     runs-on: self-hosted
