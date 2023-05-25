@@ -9,6 +9,7 @@ The Base Model SQL driver can work with both SQLite3 and MySQL database.
 
 """
 from datetime import datetime
+import logging
 
 import arrow
 
@@ -65,7 +66,7 @@ class Base:
         sql = "CREATE TABLE IF NOT EXISTS %s \n(%s)" % (
             self.table_name,
             self._generate_create_table_feilds())
-        log.info('Creating table: %s' % self.table_name)
+        logging.info('Creating table: %s' % self.table_name)
         self.cursor.execute(sql)
         return True
 

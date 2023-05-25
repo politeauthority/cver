@@ -32,15 +32,28 @@ dictConfig({
     }
 })
 
+db.connect()
+
 
 class Migrate:
 
     def run(self):
         logging.info("Working with database %s" % glow.db["NAME"])
+        self.create_database()
         self.last_migration = self.get_migration_info()
         self.this_migration = Migration()
         self.run_migrations()
         self.create_data()
+
+    def create_database(self) -> True:
+        """Create the database for CVER.
+        @todo: This could be done more securily by attempting to connect to the database first.
+        """
+        conn, cursor = db.connect_no_db(glow.db)
+        sql = "CREATE DATABASE  IF NOT EXISTS `%s_1`;" % glow.db["NAME"]
+        cursor.execute(sql)
+        logging.info("Created database: %s" % glow.db["NAME"])
+        return True
 
     def get_migration_info(self) -> Migration:
         """Get the info from the last migration ran"""
@@ -115,7 +128,6 @@ class Migrate:
 
 
 if __name__ == "__main__":
-    db.connect()
     Migrate().run()
 
 
