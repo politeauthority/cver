@@ -20,7 +20,7 @@ from cver.api.utils import auth
 
 
 CURRENT_MIGRATION = 1
-db.connect()
+
 
 dictConfig({
     'version': 1,
@@ -44,11 +44,25 @@ class Migrate:
     def run(self):
         """Primary entry point for migrations."""
         logging.info("Working with database %s" % glow.db["NAME"])
+        self.create_database()
+        db.connect()
         self.last_migration = self.get_migration_info()
         self.this_migration = Migration()
         self.run_migrations()
-        self.create_first_user()
+        self.create_users()
         # self.create_data()
+
+    def create_database(self) -> True:
+        """Create the database for CVER.
+        @todo: This could be done more securily by attempting to connect to the database first.
+        """
+        conn, cursor = db.connect_no_db(glow.db)
+        print("here")
+        sql = "CREATE DATABASE  IF NOT EXISTS `%s`;" % glow.db["NAME"]
+        cursor.execute(sql)
+        conn.commit()
+        logging.info("Created database: %s" % glow.db["NAME"])
+        return True
 
     def get_migration_info(self) -> Migration:
         """Get the info from the last migration ran"""
@@ -109,12 +123,15 @@ class Migrate:
             m.save()
             exit(1)
 
+    def create_users(self):
+        """Create the users and api keys.
+        """
+        self.create_first_user()
+        self.create_test_user()
+
     def create_first_user(self):
         """Create the first admin level user, but only if one doesn't already exist."""
         logging.info("Creating first user")
-        if glow.general["CVER_ENV"] == "test":
-            self.make_test_user()
-            return True
         admin_users = Users().get_admins()
         if admin_users:
             logging.info("Not creating an admin, %s already exist" % len(admin_users))
@@ -140,12 +157,38 @@ class Migrate:
         print("\t Client ID: %s" % client_id)
         print("\t Api Key: %s" % key)
 
-    def make_test_user(self):
+    def create_test_user(self):
+        """Create test Users, with given pre-known keys."""
+        if not glow.general["CVER_ENV"] == "test":
+            logging.info("Not creating test users")
+            return False
+
         user = User()
         if user.get_by_email("test@example.com"):
             logging.info("Test user already exists: %s" % user)
             return False
+        test_client_id = os.environ.get("CVER_TEST_CLIENT_ID")
+        if not test_client_id:
+            logging.error("Missing: CVER_TEST_CLIENT_ID")
+            return False
+        test_api_key = os.environ.get("CVER_TEST_API_KEY")
+        if not test_api_key:
+            logging.error("Missing: CVER_TEST_API_KEY")
+            return False
+
+        user = User()
         user.email = "test@example.com"
+        user.name = "test"
+        user.role_id = 1
+        user.save()
+        client_id = auth.generate_client_id()
+        api_key = ApiKey()
+        api_key.user_id = user.id
+        api_key.client_id = client_id
+        api_key.key = auth.generate_hash(test_api_key)
+        api_key.save()
+        print("Created: %s" % user)
+        return True
 
     def create_data(self):
         """Create already tracked apps."""

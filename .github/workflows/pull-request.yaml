@@ -4,7 +4,7 @@ name: Cver-Api-Pull-Request
 
 on:
   pull_request:
-    branches: ["main", "staging"]
+    branches: ["main", "staging", "jwt-auth"]
 
 jobs:
   build-python:
@@ -89,12 +89,12 @@ jobs:
           kubectl get pods -n cver
           helm upgrade --install \
             --namespace=cver \
-            cver-api-test \
+            cver-api-test-${{ github.event.number }} \
             helm/cver-api/ \
             --wait \
             -f helm/cver-api/quigley-test-values.yaml \
-            --set "image.tag=${{ github.sha }}"
-          kubectl get pods -n cver | grep test
+            --set "image.tag=${{ github.sha }}" \
+            --set "app.dbName=cver_${{ github.event.number }}"
 
   run-test:
     runs-on: self-hosted
@@ -108,7 +108,7 @@ jobs:
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
           export KUBECONFIG=~/.kube/config.yaml
-          TEST_POD=$(kubectl get pods -l app.kubernetes.io/name=test --no-headers | cut -d' ' -f1)
+          TEST_POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-api-test-${{ github.event.number }} --no-headers | cut -d' ' -f1)
           kubectl exec -it ${TEST_POD} -c cver-api -- pytest /tests/regression
 
 # End File: cver/.github/webserver/pull-request.yaml

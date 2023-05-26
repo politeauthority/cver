@@ -16,7 +16,6 @@ import logging
 
 import arrow
 
-from cver.shared.utils import log
 from cver.shared.utils import xlate
 from cver.api.utils import date_utils
 from cver.api.utils import glow
@@ -67,7 +66,7 @@ class Base:
         if not self.table_name:
             raise AttributeError('Model table name not set, (self.table_name)')
         sql = self.create_table_sql()
-        log.info('Creating table: %s' % self.table_name)
+        logging.info('Creating table: %s' % self.table_name)
         self.cursor.execute(sql)
         return True
 
@@ -100,7 +99,7 @@ class Base:
         if self.backed_iodku and not self.id:
             return self.iodku()
         if not self.id:
-            log.error("Save failed, missing %s.id or where list" % __class__.__name_)
+            logging.error("Save failed, missing %s.id or where list" % __class__.__name_)
             raise AttributeError("Save failed, missing %s.id or where list" % __class__.__name_)
         update_sql = self._gen_update_sql(["id", "created_ts"])
         self.cursor.execute(update_sql)
@@ -160,7 +159,7 @@ class Base:
                 break
 
         if not found_name_field:
-            log.warning("Entity does not have a get by name method.")
+            logging.warning("Entity does not have a get by name method.")
             return False
 
         sql = """
@@ -262,7 +261,7 @@ class Base:
                 len(raw))
             msg += "Field Map: %s \n" % str(self.total_map)
             msg += "Raw Record: %s \n" % str(raw)
-            log.error(msg, stacktrace=True)
+            logging.error(msg, stacktrace=True)
             return False
 
         count = 0
@@ -642,7 +641,7 @@ class Base:
         if isinstance(value, int):
             return value
         if isinstance(value, str) and value.isdigit():
-            log.warning('Class %s field %s value %s is not int, changed to int.' % (
+            logging.warning('Class %s field %s value %s is not int, changed to int.' % (
                 __class__.__name__, name, value))
             return int(value)
         raise AttributeError('Class %s field %s value %s is not int.' % (

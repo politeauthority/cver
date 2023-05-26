@@ -44,16 +44,11 @@ def connect_no_db(server: dict):
             user=DB_USER,
             password=DB_PASS)
         if connection.is_connected():
-            db_info = connection.get_server_info()
-            print(db_info)
+            connection.get_server_info()
             cursor = connection.cursor()
             cursor.execute("select database();")
-            record = cursor.fetchone()
-            print(record)
-        return {
-            "conn": connection,
-            "cursor": cursor,
-        }
+            cursor.fetchone()
+        return (connection, cursor)
     except MySqlError as e:
         print("Error while connecting to MySQL: %s" % e, exception=e)
         exit(1)
