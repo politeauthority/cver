@@ -159,7 +159,7 @@ class Migrate:
 
     def create_test_user(self):
         """Create test Users, with given pre-known keys."""
-        if not glow.general["CVER_ENV"] == "test":
+        if not glow.general["CVER_ENV"] in ["test", "stage"]:
             logging.info("Not creating test users")
             return False
 

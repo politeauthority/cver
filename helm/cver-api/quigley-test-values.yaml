@@ -16,5 +16,5 @@ test:
 
 image:
   repository: politeauthority/cver-api
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   tag: "0.0.1b"

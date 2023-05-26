@@ -11,7 +11,10 @@ app:
   runMigrations: true
   envName: "stage"
 
+test:
+  test: true
+
 image:
   repository: politeauthority/cver-api
-  pullPolicy: IfNotPresent
-  tag: "0.0.1b"
+  pullPolicy: Always
+  tag: "0.0.1"
