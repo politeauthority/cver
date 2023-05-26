@@ -32,6 +32,8 @@ spec:
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         command: ["python3", "/app/cver/migrate/migrate.py"]
         env:
+          - name: CVER_ENV
+            value: "{{ .Values.app.envName }}"
           - name: CVER_DB_HOST
             value: "{{ .Values.app.dbHost }}"
           - name: CVER_DB_PORT
@@ -45,6 +47,20 @@ spec:
               secretKeyRef:
                 key: mysql-password
                 name: cver-mysql
+          {{- if .Values.test.test }}
+          - name: CVER_TEST_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                key: client-id
+                name: cver-test-creds
+          - name: CVER_TEST_API_KEY
+            valueFrom:
+              secretKeyRef:
+                key: api-key
+                name: cver-test-creds
+          - name: CVER_TEST
+            value: "true"
+          {{- end }}
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
@@ -73,6 +89,20 @@ spec:
                 secretKeyRef:
                   key: mysql-password
                   name: cver-mysql
+            {{- if .Values.test.test }}
+            - name: CVER_TEST_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  key: client-id
+                  name: cver-test-creds
+            - name: CVER_TEST_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: api-key
+                  name: cver-test-creds
+            - name: CVER_TEST
+              value: "true"
+            {{- end }}
           ports:
             - name: http
               containerPort: 5001
