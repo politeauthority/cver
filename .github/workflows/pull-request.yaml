@@ -98,7 +98,7 @@ jobs:
 
   test-ephem:
     runs-on: self-hosted
-    needs: deploy-test
+    needs: deploy-ephem
     container:
       image: politeauthority/polite-cicd:0.0.1
     steps:
@@ -113,7 +113,7 @@ jobs:
 
   run-ephem:
     runs-on: self-hosted
-    needs: test-test
+    needs: test-ephem
     container:
       image: politeauthority/polite-cicd:0.0.1
     steps:
