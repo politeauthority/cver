@@ -181,7 +181,7 @@ class Migrate:
         user.name = "test"
         user.role_id = 1
         user.save()
-        client_id = auth.generate_client_id()
+        client_id = test_client_id
         api_key = ApiKey()
         api_key.user_id = user.id
         api_key.client_id = client_id
