@@ -9,10 +9,10 @@ import os
 import requests
 
 CVER_API_URL = os.environ.get("CVER_API_URL")
-CVER_API_CLIENT_ID = os.environ.get("CVER_API_CLIENT_ID")
-CVER_API_KEY = os.environ.get("CVER_API_KEY")
+CVER_CLIENT_ID = os.environ.get("CVER_TEST_CLIENT_ID")
+CVER_API_KEY = os.environ.get("CVER_TEST_API_KEY")
 HEADERS = {
-    "client-id": CVER_API_CLIENT_ID,
+    "client-id": CVER_CLIENT_ID,
     "x-api-key": CVER_API_KEY
 }
 

@@ -7,8 +7,10 @@ import logging
 
 from flask import Blueprint, jsonify, request
 
-from cver.api.utils import glow
+from cver.api.models.user import User
 from cver.api.utils import auth
+from cver.api.utils import date_utils
+from cver.api.utils import glow
 
 ctrl_index = Blueprint("index", __name__, url_prefix="/")
 
@@ -27,7 +29,8 @@ def index():
 @ctrl_index.route("/auth", methods=["POST"])
 def auth_request():
     data = {
-        "message": ""
+        "message": "Failed login",
+        "status": "Error"
     }
     if "X-Api-Key" not in request.headers or "Client-Id" not in request.headers:
         data["message"] = "No api key sent with request."
@@ -41,10 +44,18 @@ def auth_request():
     if not verified_key:
         logging.warning("Failed login attempt")
         return jsonify(data), 403
+    user_id = verified_key
+
+    # Update the User
+    user = User()
+    user.get_by_id(user_id)
+    user.last_login = date_utils.now()
+    user.save()
 
     # Mint the JWT
-    user_id = verified_key
     data["token"] = auth.mint_jwt(user_id)
+    data["message"] = "Authenticated and minted token"
+    data["status"] = "Success"
     return jsonify(data)
 
 

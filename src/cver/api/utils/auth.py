@@ -12,6 +12,7 @@ from jwt.exceptions import ExpiredSignatureError, InvalidSignatureError
 from werkzeug import security
 
 from cver.api.models.api_key import ApiKey
+from cver.api.utils import glow
 
 SECRET_KEY = "my-secret-key"
 
@@ -71,10 +72,13 @@ def validate_jwt(token) -> dict:
         return None
 
 
-def mint_jwt(user_id: int, expiration_minutes=60):
+def mint_jwt(user_id: int):
+    """Mint a JWT token for a User with the given expiration time.
+    """
+    expiration_minutes = glow.general["CVER_JWT_EXPIRE_MINUTES"]
     payload = {
         "user_id": user_id,
-        "iat": datetime.datetime.utcnow(),  # Issued At
+        "iat": datetime.datetime.utcnow(),
         "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=expiration_minutes)
     }
 

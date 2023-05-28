@@ -42,17 +42,6 @@ def get_as_utc(a_datetime: datetime):
     return a_utc_time.to('UTC')
 
 
-def get_aws_epoch(a_datetime: arrow.arrow.Arrow) -> int:
-    """Get AWS epoch, which is millis since Jan 1 1970. Kinda weird.
-    https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/logs.html#CloudWatchLogs.Client.get_log_events
-    :unit-test: TestDateUtils.test__get_aws_epoch
-    """
-    epoch_start = arrow.get(1970, 1, 1)
-    diff = a_datetime - epoch_start
-    diff_millis = diff.total_seconds() * 1000
-    return int(round(diff_millis, 0))
-
-
 def date_from_json(the_datetime: str, parse_fmt: str = None) -> datetime:
     """Convert a string into a python dative datetime object.
     :unit-test: TestDateUtils.test__date_from_json
@@ -97,4 +86,4 @@ def expire_date():
     future = now.shift(hours=8)
     return future
 
-# End File: pignus/src/pignus_api/utils/date_utils.py
+# End File: cver/src/api/utils/date_utils.py
