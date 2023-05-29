@@ -41,6 +41,7 @@ class TestApiIndex:
             exit(1)
         response_json = response.json()
         self.token = response_json["token"]
+        return True
 
     def test__index_get(self):
         """Tests the Cver index through the Cver Api

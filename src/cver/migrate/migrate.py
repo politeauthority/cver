@@ -187,7 +187,12 @@ class Migrate:
         api_key.client_id = client_id
         api_key.key = auth.generate_hash(test_api_key)
         api_key.save()
-        print("Created: %s" % user)
+        print("Created")
+        print("\t%s" % user)
+        print("\t%s" % api_key)
+        print("\t Client ID: %s" % client_id)
+        print("\t Api Key: %s" % key)
+
         return True
 
     def create_data(self):
