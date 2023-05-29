@@ -4,7 +4,7 @@
 
 """
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify
 
 from cver.api.utils import api_util
 from cver.api.collects.image_builds import ImageBuilds
