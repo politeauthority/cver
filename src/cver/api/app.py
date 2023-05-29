@@ -4,11 +4,13 @@
     App
 
 """
+import json
 import logging
 from logging.config import dictConfig
 
 
 from flask import Flask
+from werkzeug.exceptions import HTTPException
 
 from cver.api.utils import db
 from cver.api.utils import glow
@@ -59,6 +61,19 @@ def register_blueprints(app: Flask) -> bool:
     app.register_blueprint(ctrl_software)
     app.register_blueprint(ctrl_softwares)
     return True
+
+
+@app.errorhandler(HTTPException)
+def handle_exception(e):
+    """Return JSON instead of HTML for HTTP errors."""
+    response = e.get_response()
+    response.data = json.dumps({
+        "code": e.code,
+        "name": e.name,
+        "description": e.description,
+    })
+    response.content_type = "application/json"
+    return response
 
 
 app = Flask(__name__)
