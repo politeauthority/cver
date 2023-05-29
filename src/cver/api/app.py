@@ -7,8 +7,8 @@
 import logging
 from logging.config import dictConfig
 
-
-from flask import Flask
+from flask import Flask, jsonify
+from werkzeug.exceptions import HTTPException
 
 from cver.api.utils import db
 from cver.api.utils import glow
@@ -56,6 +56,22 @@ def register_blueprints(app: Flask) -> bool:
     app.register_blueprint(ctrl_software)
     app.register_blueprint(ctrl_softwares)
     return True
+
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    """Catch 500 errors, and pass through the exception
+    @todo: Remove the exception for non prod environments.
+    """
+    # pass through HTTP errors
+    if isinstance(e, HTTPException):
+        return e
+
+    data = {
+        "message": e,
+        "status": "Error: Unhandled Exception"
+    }
+    return jsonify(data), 500
 
 
 app = Flask(__name__)

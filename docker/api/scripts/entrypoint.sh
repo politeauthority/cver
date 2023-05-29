@@ -1,7 +1,7 @@
 #!/bin/sh -l
 # Cver Api Entry Point
 set -e
-echo "Pignus Api Starting"
+echo "Cver Api Starting"
 # python3 /app/cver/migrate/migrate.py
 # echo "Migrations Completed"
 cd /app/cver/api
