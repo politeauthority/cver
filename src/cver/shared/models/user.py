@@ -32,8 +32,8 @@ FIELD_MAP = {
         "name": "role_id",
         "type": "int",
     },
-    "last_login": {
-        "name": "last_login",
+    "last_access": {
+        "name": "last_access",
         "type": "datetime",
     },
     "password": {
