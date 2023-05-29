@@ -18,7 +18,9 @@ SECRET_KEY = "my-secret-key"
 
 
 def auth_request(f):
-    """Authentication decorator, used to validate user access via a JWT."""
+    """Authentication decorator, which gates HTTP routes. This method used to validate user access
+    via a JWT.
+    """
     @wraps(f)
     def decorator(*args, **kwargs):
         data = {
@@ -50,9 +52,11 @@ def verify_key(client_id: str, raw_api_key: str) -> bool:
 
     # Check that the Api Key matches
     if security.check_password_hash(api_key.key, raw_api_key):
-        logging.info("Authenticated user")
+        logging.info("Authenticated client_id: %s" % client_id)
         return api_key.user_id
-    return False
+    else:
+        logging.warning("Api key doesn't match client_id: %s" % client_id)
+        return False
 
 
 def validate_jwt(token) -> dict:
@@ -116,8 +120,5 @@ def generate_hash(password: str) -> str:
     """Generate a password hash from a string"""
     return security.generate_password_hash(password, method="pbkdf2:sha256")
 
-
-def check_password(user_password, submitted_password):
-    security.check_password_hash(user_password, submitted_password)
 
 # End File: cver/src/api/utils/auth.py
