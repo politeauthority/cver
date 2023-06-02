@@ -42,7 +42,6 @@ class TestApiIndex:
         """Tests the Cver index through the Cver Api
         GET /
         """
-        assert self.login()
         request_args = {
             "method": "GET",
             "url": "%s%s" % (CVER_API_URL, URL_BASE),
@@ -57,7 +56,7 @@ class TestApiIndex:
         """Tests the Cver info through the Cver Api
         GET /info
         """
-        self.login()
+        assert self.login()
         request_args = {
             "headers": {
                 "token": self.token,

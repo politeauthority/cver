@@ -81,9 +81,9 @@ def validate_jwt(token) -> dict:
 
 
 def mint_jwt(user_id: int):
-    """Mint a JWT token for a User with the given expiration time.
-    """
-    expiration_minutes = glow.general["CVER_JWT_EXPIRE_MINUTES"]
+    """Mint a JWT token for a User with the given expiration time."""
+    logging.info("Starting token mint process")
+    expiration_minutes = int(glow.general["CVER_JWT_EXPIRE_MINUTES"])
     payload = {
         "user_id": user_id,
         "iat": datetime.datetime.utcnow(),
@@ -92,6 +92,7 @@ def mint_jwt(user_id: int):
 
     # Create the JWT using the payload and secret key
     jwt_token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
+    logging.info("Minted JWT token")
 
     return jwt_token
 

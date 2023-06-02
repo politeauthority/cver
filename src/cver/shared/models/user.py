@@ -35,11 +35,7 @@ FIELD_MAP = {
     "last_access": {
         "name": "last_access",
         "type": "datetime",
-    },
-    "password": {
-        "name": "password",
-        "type": "str",
-    },
+    }
 }
 
 # End File: cver/src/shared/modles/fields/user.py

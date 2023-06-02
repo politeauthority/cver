@@ -130,7 +130,7 @@ class Migrate:
 
     def create_first_user(self):
         """Create the first admin level user, but only if one doesn't already exist."""
-        logging.info("Creating first user")
+        logging.info("Checking need for user creation")
         admin_users = Users().get_admins()
         if admin_users:
             logging.info("Not creating an admin, %s already exist" % len(admin_users))
