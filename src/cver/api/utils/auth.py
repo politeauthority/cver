@@ -80,7 +80,6 @@ def validate_jwt(token) -> dict:
         return None
 
 
-
 def mint_jwt(user_id: int):
     """Mint a JWT token for a User with the given expiration time.
     """
