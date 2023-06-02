@@ -16,7 +16,7 @@ URL_BASE = "/"
 
 class TestApiIndex:
 
-    def login(self):
+    def login(self) -> bool:
         """Tests the Cver index through the Cver Api
         GET /
         """
@@ -33,7 +33,7 @@ class TestApiIndex:
         response = requests.request(**request_args)
         if response.status_code != 200:
             print("ERROR: %s logging in" % response.status_code)
-            exit(1)
+            return False
         response_json = response.json()
         self.token = response_json["token"]
         return True
@@ -42,7 +42,7 @@ class TestApiIndex:
         """Tests the Cver index through the Cver Api
         GET /
         """
-        self.login()
+        assert self.login()
         request_args = {
             "method": "GET",
             "url": "%s%s" % (CVER_API_URL, URL_BASE),
