@@ -19,6 +19,7 @@ from cver.api.controllers.ctrl_models.ctrl_image import ctrl_image
 from cver.api.controllers.ctrl_collections.ctrl_images import ctrl_images
 from cver.api.controllers.ctrl_models.ctrl_image_build import ctrl_image_build
 from cver.api.controllers.ctrl_collections.ctrl_image_builds import ctrl_image_builds
+from cver.api.controllers.ctrl_models.ctrl_user import ctrl_user
 from cver.api.controllers.ctrl_collections.ctrl_users import ctrl_users
 from cver.api.controllers.ctrl_collections.ctrl_options import ctrl_options
 from cver.api.controllers.ctrl_collections.ctrl_softwares import ctrl_softwares
@@ -53,6 +54,7 @@ def register_blueprints(app: Flask) -> bool:
     app.register_blueprint(ctrl_images)
     app.register_blueprint(ctrl_image_build)
     app.register_blueprint(ctrl_image_builds)
+    app.register_blueprint(ctrl_user)
     app.register_blueprint(ctrl_users)
     app.register_blueprint(ctrl_options)
     app.register_blueprint(ctrl_submit_report)
