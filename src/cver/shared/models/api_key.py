@@ -32,8 +32,8 @@ FIELD_MAP = {
         "name": "key",
         "type": "str",
     },
-    "last_login": {
-        "name": "last_login",
+    "last_access": {
+        "name": "last_access",
         "type": "datetime",
     },
     "last_ip": {

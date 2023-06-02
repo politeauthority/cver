@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS api_keys (
     `user_id` INTEGER,
     `client_id` VARCHAR(200) UNIQUE,
     `key` VARCHAR(200),
-    `last_login` DATETIME,
+    `last_access` DATETIME,
     `last_ip` VARCHAR(200));
 
 ---
@@ -120,5 +120,5 @@ CREATE TABLE IF NOT EXISTS users (
     `name` VARCHAR(200) UNIQUE,
     `email` VARCHAR(200) UNIQUE,
     `role_id` INTEGER,
-    `last_login` DATETIME,
+    `last_access` DATETIME,
     `password` VARCHAR(200));
