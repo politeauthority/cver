@@ -48,7 +48,7 @@ def get_model(model, entity_id: int = None) -> dict:
     elif entity_id:
         entity_found = entity.get_by_id(entity_id)
     else:
-        print("Error")
+        logging.error("Unexpected endpoint")
 
     # Entity not found
     if not entity_found:

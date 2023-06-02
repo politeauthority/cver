@@ -6,15 +6,15 @@
 
 from flask import Blueprint, jsonify
 
-from cver.api.utils import api_util
 from cver.api.collects.image_builds import ImageBuilds
-
+from cver.api.utils import api_util
+from cver.api.utils import auth
 
 ctrl_image_builds = Blueprint("image-builds", __name__, url_prefix="/image-builds")
 
 
 @ctrl_image_builds.route("")
-# @auth.auth_request
+@auth.auth_request
 def index():
     args = api_util.get_params()
     data = ImageBuilds().get_paginated(**args)

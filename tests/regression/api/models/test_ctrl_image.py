@@ -10,15 +10,9 @@ import os
 
 import requests
 
-CVER_API_URL = os.environ.get("CVER_API_URL")
-CVER_API_CLIENT_ID = os.environ.get("CVER_API_CLIENT_ID")
-CVER_API_KEY = os.environ.get("CVER_API_KEY")
-HEADERS = {
-    "Content-Type": "application/json",
-    "client-id": CVER_API_CLIENT_ID,
-    "x-api-key": CVER_API_KEY
-}
+from .test_api_base import TestApiBase
 
+CVER_API_URL = os.environ.get("CVER_API_URL")
 URL_BASE = "/image"
 URL_MODEL = "image"
 
@@ -28,15 +22,16 @@ TEST_MODEL = {
 }
 
 
-class TestRegressionApiImage:
+class TestApiModelImage(TestApiBase):
 
     def test__image_get_404(self):
         """ Test that we get a 404 on an image that doesnt exist.
         GET /image
         """
+        assert self.login()
         random_number = random.randint(100, 1000)
         request_args = {
-            "headers": HEADERS,
+            "headers": self.get_headers(),
             "method": "GET",
             "url": "%s%s/%s" % (CVER_API_URL, URL_BASE, random_number),
         }
@@ -48,8 +43,9 @@ class TestRegressionApiImage:
         """ Test that we can create a new Image model.
         POST /image
         """
+        assert self.login()
         request_args = {
-            "headers": HEADERS,
+            "headers": self.get_headers(),
             "method": "POST",
             "url": "%s%s" % (CVER_API_URL, URL_BASE),
             "data": {
@@ -66,8 +62,9 @@ class TestRegressionApiImage:
         """Tests fetching a single Image through the Cver Api from its name.
         GET /image
         """
+        assert self.login()
         request_args = {
-            "headers": HEADERS,
+            "headers": self.get_headers(),
             "method": "GET",
             "url": "%s%s" % (CVER_API_URL, URL_BASE),
             "params": {
@@ -75,17 +72,20 @@ class TestRegressionApiImage:
             }
         }
         response = requests.request(**request_args)
-        response_json = response.json()
+ 
         assert response.status_code == 200
+        response_json = response.json()
         assert response_json
 
     def test__image_delete_200(self):
         """Test Software DELETE
         DELETE /image
+        assert self.login()
         """
+        assert self.login()
         # Get the image
         request_args = {
-            "headers": HEADERS,
+            "headers": self.get_headers(),
             "method": "GET",
             "url": "%s%s" % (CVER_API_URL, URL_BASE),
             "params": {
@@ -98,7 +98,7 @@ class TestRegressionApiImage:
         # Delete the Image by ID
         image_id = response_get_json["object"]["id"]
         request_args = {
-            "headers": HEADERS,
+            "headers": self.get_headers(),
             "method": "DELETE",
             "url": "%s%s/%s" % (CVER_API_URL, URL_BASE, image_id),
         }

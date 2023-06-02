@@ -14,7 +14,9 @@ from cver.api.utils import auth
 ctrl_user = Blueprint("user", __name__, url_prefix="/user")
 
 
-@ctrl_user.route("/<user_id>")
+@ctrl_user.route("")
+@ctrl_user.route("/")
+@ctrl_user.route("/<user_id>", methods=["GET"])
 @auth.auth_request
 def get_model(user_id: int = None) -> Response:
     """GET operation for a User.
