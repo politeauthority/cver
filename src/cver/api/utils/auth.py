@@ -34,7 +34,7 @@ def auth_request(f):
         jwt_value = validate_jwt(token)
         if jwt_value:
             logging.info("Authenticated User")
-            print(jwt_value)
+            logging.info(print(jwt_value))
             return f(*args, **kwargs)
         else:
             logging.warning("Can't verify token")
@@ -53,6 +53,7 @@ def verify_key(client_id: str, raw_api_key: str) -> bool:
     # Check that the Api Key matches
     if security.check_password_hash(api_key.key, raw_api_key):
         logging.info("Authenticated client_id: %s" % client_id)
+        logging.info("Api Key: %s" % api_key)
         return api_key.user_id
     else:
         logging.warning("Api key doesn't match client_id: %s" % client_id)
@@ -74,6 +75,10 @@ def validate_jwt(token) -> dict:
         # Handle invalid signature
         logging.error("Invalid token signature.")
         return None
+    except jwt.exceptions.DecodeError:
+        logging.error("Unable to decode token")
+        return None
+
 
 
 def mint_jwt(user_id: int):
