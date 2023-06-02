@@ -72,11 +72,15 @@ jobs:
           username: politeauthority
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
       - name: Push Container
-        run: docker push politeauthority/cver-api:${{ github.sha }}
+        run: |
+          docker push politeauthority/cver-api:${{ github.sha }}
+          echo "### Image Created" >> $GITHUB_STEP_SUMMARY
+          echo "politeauthority/cver-api:${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
 
   deploy-ephem:
     runs-on: self-hosted
     needs: build-docker
+    continue-on-error: true
     container:
       image: politeauthority/polite-cicd:0.0.1
     steps:
@@ -109,9 +113,9 @@ jobs:
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
           export KUBECONFIG=~/.kube/config.yaml
           TEST_POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-api-test-${{ github.event.number }} --no-headers | cut -d' ' -f1)
-          kubectl exec -it ${TEST_POD} -c cver-api -- pytest /tests/regression
+          (kubectl exec -it ${TEST_POD} -c cver-api -- pytest /tests/regression)
 
-  run-ephem:
+  remove-ephem:
     runs-on: self-hosted
     needs: test-ephem
     container:
@@ -126,5 +130,6 @@ jobs:
           helm uninstall \
             --namespace=cver \
             cver-api-test-${{ github.event.number }}
+
 
 # End File: cver/.github/webserver/pull-request.yaml

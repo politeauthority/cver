@@ -13,8 +13,6 @@ from cver.api.models.user import User
 ctrl_user = Blueprint("user", __name__, url_prefix="/user")
 
 
-@ctrl_user.route("")
-@ctrl_user.route("/")
 @ctrl_user.route("/<user_id>")
 # @auth.auth_request
 def get_model(user_id: int = None) -> Response:

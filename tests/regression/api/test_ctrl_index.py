@@ -53,7 +53,7 @@ class TestApiIndex:
         assert "version" in response_json
 
     def test__info_get(self):
-        """Tests the Cver info through the Cver Api
+        """Tests the Cver info through the Cver Api. This test requires a valid JWT.
         GET /info
         """
         assert self.login()
