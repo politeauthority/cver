@@ -7,9 +7,8 @@ import logging
 
 from flask import Blueprint, jsonify, request
 
-from cver.api.models.user import User
+
 from cver.api.utils import auth
-from cver.api.utils import date_utils
 from cver.api.utils import glow
 
 ctrl_index = Blueprint("index", __name__, url_prefix="/")
@@ -45,23 +44,15 @@ def authenticate():
 
     # Try to authenticate
     client_id = request.headers["Client-Id"]
-    api_key = request.headers["X-Api-Key"]
-    verified_key = auth.verify_key(client_id, api_key)
-    if not verified_key:
-        logging.warning("Failed login attempt")
+    api_key_raw = request.headers["X-Api-Key"]
+    authed_event = auth.verify_api_key(client_id, api_key_raw)
+    if not authed_event:
+        logging.warning("Failed login attempt, client_id: %s" % client_id)
         return jsonify(data), 403
     logging.info("Verified api key")
-    user_id = verified_key
+    user_id = authed_event["user_id"]
+    auth.record_last_access(user_id, authed_event["api_key"])
 
-    logging.info("User ID: %s" % user_id)
-    # Update the User
-    user = User()
-    user.get_by_id(user_id)
-    user.last_access = date_utils.now()
-    logging.info("Updating user last access.")
-    user.save()
-
-    logging.info("Updated %s" % user)
     # Mint the JWT
     data["token"] = auth.mint_jwt(user_id)
     data["message"] = "Authenticated user and minted token"
@@ -73,14 +64,12 @@ def authenticate():
 @ctrl_index.route("/info")
 @auth.auth_request
 def info():
-    logging.info("Begin Info Request")
     data = {
         "info": "Cver Api",
         "version": glow.general["VERSION"],
         "env": glow.general["CVER_ENV"],
         "build": glow.general["CVER_BUILD"]
     }
-    logging.info("Get ready to send data to client.")
     return jsonify(data)
 
 

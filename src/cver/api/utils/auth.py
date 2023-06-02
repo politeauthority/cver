@@ -12,6 +12,8 @@ from jwt.exceptions import ExpiredSignatureError, InvalidSignatureError
 from werkzeug import security
 
 from cver.api.models.api_key import ApiKey
+from cver.api.models.user import User
+from cver.api.utils import date_utils
 from cver.api.utils import glow
 
 SECRET_KEY = "my-secret-key"
@@ -42,7 +44,7 @@ def auth_request(f):
     return decorator
 
 
-def verify_key(client_id: str, raw_api_key: str) -> bool:
+def verify_api_key(client_id: str, raw_api_key: str) -> bool:
     """"Authenticate a login request, taking the client_id and api_key looking for a match."""
     api_key = ApiKey()
     # Check for a matching Client ID
@@ -52,9 +54,12 @@ def verify_key(client_id: str, raw_api_key: str) -> bool:
 
     # Check that the Api Key matches
     if security.check_password_hash(api_key.key, raw_api_key):
-        logging.info("Authenticated client_id: %s" % client_id)
-        logging.info("Api Key: %s" % api_key)
-        return api_key.user_id
+        logging.info("Verified Api Key: %s" % api_key)
+        data = {
+            "api_key": api_key,
+            "user_id": api_key.user_id
+        }
+        return data
     else:
         logging.warning("Api key doesn't match client_id: %s" % client_id)
         return False
@@ -82,7 +87,6 @@ def validate_jwt(token) -> dict:
 
 def mint_jwt(user_id: int):
     """Mint a JWT token for a User with the given expiration time."""
-    logging.info("Starting token mint process")
     expiration_minutes = int(glow.general["CVER_JWT_EXPIRE_MINUTES"])
     payload = {
         "user_id": user_id,
@@ -92,9 +96,25 @@ def mint_jwt(user_id: int):
 
     # Create the JWT using the payload and secret key
     jwt_token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
-    logging.info("Minted JWT token")
+    logging.info("Minted JWT token for user_id: %s" % user_id)
 
     return jwt_token
+
+
+def record_last_access(user_id, api_key):
+    logging.info("Recording User/ApiKey last access")
+
+    user = User()
+    user.get_by_id(user_id)
+    user.last_access = date_utils.now()
+    logging.debug("Updating user last access.")
+    user.save()
+
+    api_key.last_access = date_utils.now()
+    logging.debug("Updating apikey last access.")
+
+    api_key.save()
+    return True
 
 
 def generate_client_id():

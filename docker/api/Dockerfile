@@ -42,6 +42,7 @@ ADD scripts/cver-test-unit /bin
 ADD scripts/cver-test-regression /bin
 ADD scripts/cver-test-all /bin
 ADD scripts/cver-db-login /bin
+ADD scripts/cver-db-destroy /bin
 
 
 # Cver Tests

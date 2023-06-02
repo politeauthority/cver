@@ -7,7 +7,7 @@
 from flask import Blueprint, jsonify, request
 
 from cver.api.collects.users import Users
-
+from cver.api.utils import auth
 
 ctrl_users = Blueprint("users", __name__, url_prefix="/users")
 
@@ -25,7 +25,7 @@ def get_params() -> dict:
 
 
 @ctrl_users.route("")
-# @auth.auth_request
+@auth.auth_request
 def index():
     args = get_params()
     data = Users().get_paginated(**args)
