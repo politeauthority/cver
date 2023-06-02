@@ -12,12 +12,15 @@ from jwt.exceptions import ExpiredSignatureError, InvalidSignatureError
 from werkzeug import security
 
 from cver.api.models.api_key import ApiKey
+from cver.api.utils import glow
 
 SECRET_KEY = "my-secret-key"
 
 
 def auth_request(f):
-    """Authentication decorator, used to validate user access via a JWT."""
+    """Authentication decorator, which gates HTTP routes. This method used to validate user access
+    via a JWT.
+    """
     @wraps(f)
     def decorator(*args, **kwargs):
         data = {
@@ -31,7 +34,7 @@ def auth_request(f):
         jwt_value = validate_jwt(token)
         if jwt_value:
             logging.info("Authenticated User")
-            print(jwt_value)
+            logging.info(print(jwt_value))
             return f(*args, **kwargs)
         else:
             logging.warning("Can't verify token")
@@ -49,9 +52,12 @@ def verify_key(client_id: str, raw_api_key: str) -> bool:
 
     # Check that the Api Key matches
     if security.check_password_hash(api_key.key, raw_api_key):
-        logging.info("Authenticated user")
+        logging.info("Authenticated client_id: %s" % client_id)
+        logging.info("Api Key: %s" % api_key)
         return api_key.user_id
-    return False
+    else:
+        logging.warning("Api key doesn't match client_id: %s" % client_id)
+        return False
 
 
 def validate_jwt(token) -> dict:
@@ -69,17 +75,24 @@ def validate_jwt(token) -> dict:
         # Handle invalid signature
         logging.error("Invalid token signature.")
         return None
+    except jwt.exceptions.DecodeError:
+        logging.error("Unable to decode token")
+        return None
 
 
-def mint_jwt(user_id: int, expiration_minutes=60):
+def mint_jwt(user_id: int):
+    """Mint a JWT token for a User with the given expiration time."""
+    logging.info("Starting token mint process")
+    expiration_minutes = int(glow.general["CVER_JWT_EXPIRE_MINUTES"])
     payload = {
         "user_id": user_id,
-        "iat": datetime.datetime.utcnow(),  # Issued At
+        "iat": datetime.datetime.utcnow(),
         "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=expiration_minutes)
     }
 
     # Create the JWT using the payload and secret key
     jwt_token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
+    logging.info("Minted JWT token")
 
     return jwt_token
 
@@ -112,8 +125,5 @@ def generate_hash(password: str) -> str:
     """Generate a password hash from a string"""
     return security.generate_password_hash(password, method="pbkdf2:sha256")
 
-
-def check_password(user_password, submitted_password):
-    security.check_password_hash(user_password, submitted_password)
 
 # End File: cver/src/api/utils/auth.py

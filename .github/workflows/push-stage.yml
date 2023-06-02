@@ -18,14 +18,14 @@ jobs:
       - name: Build Container
         run: |
           echo "Run Task: Build"
-          export CVER_API_TAG="0.0.1"
+          export CVER_API_TAG="0.0.1-staging"
           task build
       - uses: docker/login-action@v2
         with:
           username: politeauthority
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
       - name: Push Container
-        run: docker push politeauthority/cver-api:0.0.1
+        run: docker push politeauthority/cver-api:0.0.1-staging
 
   deploy-stage:
     runs-on: self-hosted
@@ -45,6 +45,23 @@ jobs:
             cver-api-stage \
             helm/cver-api/ \
             -f helm/cver-api/quigley-stage-values.yaml \
-            --set "image.tag=0.0.1"
+            --set "image.tag=0.0.1-staging"
+
+  # test-stage:
+  #   runs-on: self-hosted
+  #   needs: deploy-stage
+  #   container:
+  #     image: politeauthority/polite-cicd:0.0.1
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Deploy
+  #       run: |
+  #         mkdir ~/.kube
+  #         echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
+  #         export KUBECONFIG=~/.kube/config.yaml
+  #         TEST_POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-api-test-${{ github.event.number }} --no-headers | cut -d' ' -f1)
+  #         (kubectl exec -it ${TEST_POD} -c cver-api -- pytest /tests/regression)
+
+
 
 # End File: cver/.github/webserver/push-stage.yaml

@@ -120,5 +120,4 @@ CREATE TABLE IF NOT EXISTS users (
     `name` VARCHAR(200) UNIQUE,
     `email` VARCHAR(200) UNIQUE,
     `role_id` INTEGER,
-    `last_access` DATETIME,
-    `password` VARCHAR(200));
+    `last_access` DATETIME);

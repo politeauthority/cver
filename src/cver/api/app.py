@@ -4,12 +4,10 @@
     App
 
 """
-import json
 import logging
 from logging.config import dictConfig
 
-
-from flask import Flask
+from flask import Flask, jsonify
 from werkzeug.exceptions import HTTPException
 
 from cver.api.utils import db
@@ -21,6 +19,7 @@ from cver.api.controllers.ctrl_models.ctrl_image import ctrl_image
 from cver.api.controllers.ctrl_collections.ctrl_images import ctrl_images
 from cver.api.controllers.ctrl_models.ctrl_image_build import ctrl_image_build
 from cver.api.controllers.ctrl_collections.ctrl_image_builds import ctrl_image_builds
+from cver.api.controllers.ctrl_models.ctrl_user import ctrl_user
 from cver.api.controllers.ctrl_collections.ctrl_users import ctrl_users
 from cver.api.controllers.ctrl_collections.ctrl_options import ctrl_options
 from cver.api.controllers.ctrl_collections.ctrl_softwares import ctrl_softwares
@@ -55,6 +54,7 @@ def register_blueprints(app: Flask) -> bool:
     app.register_blueprint(ctrl_images)
     app.register_blueprint(ctrl_image_build)
     app.register_blueprint(ctrl_image_builds)
+    app.register_blueprint(ctrl_user)
     app.register_blueprint(ctrl_users)
     app.register_blueprint(ctrl_options)
     app.register_blueprint(ctrl_submit_report)
@@ -63,17 +63,20 @@ def register_blueprints(app: Flask) -> bool:
     return True
 
 
-@app.errorhandler(HTTPException)
+@app.errorhandler(Exception)
 def handle_exception(e):
-    """Return JSON instead of HTML for HTTP errors."""
-    response = e.get_response()
-    response.data = json.dumps({
-        "code": e.code,
-        "name": e.name,
-        "description": e.description,
-    })
-    response.content_type = "application/json"
-    return response
+    """Catch 500 errors, and pass through the exception
+    @todo: Remove the exception for non prod environments.
+    """
+    # pass through HTTP errors
+    if isinstance(e, HTTPException):
+        return e
+
+    data = {
+        "message": e,
+        "status": "Error: Unhandled Exception"
+    }
+    return jsonify(data), 500
 
 
 app = Flask(__name__)
@@ -94,6 +97,8 @@ if __name__ != "__main__":
     logging.info("Starting production webserver")
     app.logger.handlers = gunicorn_logger.handlers
     app.logger.setLevel(gunicorn_logger.level)
+    app.config['DEBUG'] = True
+    logging.info("ALIX APP DEBUG LEVEL: %s" % app.config)
 
 
 # End File: cver/src/cver/api/app.py

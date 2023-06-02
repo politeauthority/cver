@@ -57,7 +57,6 @@ class Migrate:
         @todo: This could be done more securily by attempting to connect to the database first.
         """
         conn, cursor = db.connect_no_db(glow.db)
-        print("here")
         sql = "CREATE DATABASE  IF NOT EXISTS `%s`;" % glow.db["NAME"]
         cursor.execute(sql)
         conn.commit()
@@ -131,7 +130,7 @@ class Migrate:
 
     def create_first_user(self):
         """Create the first admin level user, but only if one doesn't already exist."""
-        logging.info("Creating first user")
+        logging.info("Checking need for user creation")
         admin_users = Users().get_admins()
         if admin_users:
             logging.info("Not creating an admin, %s already exist" % len(admin_users))
@@ -159,7 +158,7 @@ class Migrate:
 
     def create_test_user(self):
         """Create test Users, with given pre-known keys."""
-        if not glow.general["CVER_ENV"] in ["test", "stage"]:
+        if not glow.general["CVER_TEST"]:
             logging.info("Not creating test users")
             return False
 
@@ -181,13 +180,18 @@ class Migrate:
         user.name = "test"
         user.role_id = 1
         user.save()
-        client_id = auth.generate_client_id()
+        client_id = test_client_id
         api_key = ApiKey()
         api_key.user_id = user.id
         api_key.client_id = client_id
         api_key.key = auth.generate_hash(test_api_key)
         api_key.save()
-        print("Created: %s" % user)
+        print("Created")
+        print("\t%s" % user)
+        print("\t%s" % api_key)
+        print("\t Client ID: %s" % client_id)
+        print("\t Api Key: %s" % test_api_key)
+
         return True
 
     def create_data(self):

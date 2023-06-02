@@ -10,6 +10,7 @@ app:
   dbPort: 3306
   dbUser: "mysql-user"
   runMigrations: true
+  jwtExpireMinutes: 60
   debug: False
   envName: "prod"
 
@@ -21,7 +22,6 @@ image:
 test:
   test: false
   secretName: 
-
 
 imagePullSecrets: []
 nameOverride: ""
