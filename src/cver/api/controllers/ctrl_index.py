@@ -62,12 +62,14 @@ def auth_request():
 @ctrl_index.route("/info")
 @auth.auth_request
 def info():
+    logging.info("Begin Info Request")
     data = {
         "info": "Cver Api",
         "version": glow.general["VERSION"],
         "env": glow.general["CVER_ENV"],
         "build": glow.general["CVER_BUILD"]
     }
+    logging.info("Get ready to send data to client.")
     return jsonify(data)
 
 

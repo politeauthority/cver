@@ -57,7 +57,6 @@ class Migrate:
         @todo: This could be done more securily by attempting to connect to the database first.
         """
         conn, cursor = db.connect_no_db(glow.db)
-        print("here")
         sql = "CREATE DATABASE  IF NOT EXISTS `%s`;" % glow.db["NAME"]
         cursor.execute(sql)
         conn.commit()
