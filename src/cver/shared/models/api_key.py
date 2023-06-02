@@ -31,6 +31,7 @@ FIELD_MAP = {
     "key": {
         "name": "key",
         "type": "str",
+        "api_display": False
     },
     "last_access": {
         "name": "last_access",

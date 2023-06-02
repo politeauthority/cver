@@ -20,9 +20,7 @@ URL_MODEL = "user"
 class TestApiUsers:
 
     def login(self) -> bool:
-        """Tests the Cver index through the Cver Api
-        GET /
-        """
+        """Gets a JWT from the Cver api."""
         request_args = {
             "headers": {
                 "client-id": CVER_CLIENT_ID,
@@ -42,6 +40,7 @@ class TestApiUsers:
         return True
 
     def get_headers(self):
+        "Format headers for test requests with the current JWT."
         return {
             "token": self.token,
             "content-type": "application/json"
@@ -81,6 +80,8 @@ class TestApiUsers:
 
         assert "objects" in response_json
         assert isinstance(response_json["objects"], list)
+
+        assert len(response_json["objects"]) >= 2
 
 
 # End File: cver/tests/regression/api/collections/test_ctrl_users.py

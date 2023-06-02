@@ -1,7 +1,7 @@
 """
     Cver - Test - Regression
-    CTRL Users
-        Checks that all routes on /users are working properly.
+    CTRL ApiKeys
+        Checks that all routes on /api-keys are working properly.
 
 """
 
@@ -10,12 +10,8 @@ import requests
 
 
 CVER_API_URL = os.environ.get("CVER_API_URL")
-CVER_API_CLIENT_ID = os.environ.get("CVER_API_CLIENT_ID")
-CVER_API_KEY = os.environ.get("CVER_API_KEY")
-HEADERS = {
-    "client-id": CVER_API_CLIENT_ID,
-    "x-api-key": CVER_API_KEY
-}
+CVER_CLIENT_ID = os.environ.get("CVER_TEST_CLIENT_ID")
+CVER_API_KEY = os.environ.get("CVER_TEST_API_KEY")
 
 URL_BASE = "/api-keys"
 URL_MODEL = "api-key"
@@ -23,12 +19,40 @@ URL_MODEL = "api-key"
 
 class TestApiApiKeys:
 
+    def login(self) -> bool:
+        """Gets a JWT from the Cver api."""
+        request_args = {
+            "headers": {
+                "client-id": CVER_CLIENT_ID,
+                "x-api-key": CVER_API_KEY,
+                "content-type": "application/json"
+            },
+            "method": "POST",
+            "url": "%s/auth" % CVER_API_URL,
+        }
+
+        response = requests.request(**request_args)
+        if response.status_code != 200:
+            print("ERROR: %s logging in" % response.status_code)
+            return False
+        response_json = response.json()
+        self.token = response_json["token"]
+        return True
+
+    def get_headers(self):
+        "Format headers for test requests with the current JWT."
+        return {
+            "token": self.token,
+            "content-type": "application/json"
+        }
+
     def test__api_keys_get(self):
         """Tests the ApiKeys collections through the Cver Api
         GET /api-keys
         """
+        assert self.login()
         request_args = {
-            "headers": HEADERS,
+            "headers": self.get_headers(),
             "method": "GET",
             "url": "%s%s" % (CVER_API_URL, URL_BASE),
         }
@@ -56,6 +80,12 @@ class TestApiApiKeys:
 
         assert "objects" in response_json
         assert isinstance(response_json["objects"], list)
+        
+        assert len(response_json["objects"]) >= 2
+
+        for api_key in response_json["objects"]:
+            assert "key" not in api_key
+            assert "id" in api_key
 
 
 # End File: cver/tests/regression/api/collections/test_ctrl_api_keys.py

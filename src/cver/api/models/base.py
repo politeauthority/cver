@@ -307,7 +307,6 @@ class Base:
     def build_from_dict(self, raw: dict) -> bool:
         """Builds a model by a dictionary. This is expected to be used mostly from a client making
         a request from a web api.
-        :unit-test: TestBase.test__build_from_dict
         """
         for field, value in raw.items():
             if not hasattr(self, field):
@@ -324,12 +323,14 @@ class Base:
 
         return True
 
-    def json(self) -> dict:
-        """Create a JSON friendly output of the model, converting types to friendlies.
-        :unit-test: test__json
+    def json(self, get_api: bool = False) -> dict:
+        """Create a JSON friendly output of the model, converting types to friendlies. If get_api
+        is specified and a model doesnt have api_display=False, it will export in the output.
         """
         json_out = {}
         for field_name, field in self.total_map.items():
+            if get_api and "api_display" in field and not field["api_display"]:
+                continue
             value = getattr(self, field["name"])
             if field["type"] == "datetime":
                 value = date_utils.json_date(value)
@@ -344,7 +345,6 @@ class Base:
 
     def insert(self):
         """Insert a new record of the model.
-        :unit-test: test__insert
         """
         sql = self._gen_insert_sql()
         self.cursor.execute(sql)
@@ -364,7 +364,6 @@ class Base:
 
     def _gen_insert_sql(self, skip_fields: list = ["id"]) -> tuple:
         """Generate the insert SQL statement.
-        :unit-test: test__gen_insert_sql
         """
         insert_sql = "INSERT INTO `%s` (%s) VALUES (%s)" % (
             self.table_name,
@@ -374,9 +373,7 @@ class Base:
         return insert_sql
 
     def _gen_iodku_sql(self, skip_fields: dict = {"id": {"name": "id"}}) -> str:
-        """Generate the model values to send to the sql engine interpreter as a tuple.
-        :unit-test: TestBase::test___gen_iodku_sql
-        """
+        """Generate the model values to send to the sql engine interpreter as a tuple."""
         if self.backend == "sqlite":
             # @note: this is missing.
             return None
