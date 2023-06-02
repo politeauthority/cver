@@ -59,6 +59,18 @@ def auth_request():
     return jsonify(data)
 
 
+@ctrl_index.route("/info")
+@auth.auth_request
+def info():
+    data = {
+        "info": "Cver Api",
+        "version": glow.general["VERSION"],
+        "env": glow.general["CVER_ENV"],
+        "build": glow.general["CVER_BUILD"]
+    }
+    return jsonify(data)
+
+
 @ctrl_index.route("/debug")
 def debug():
     data = {
