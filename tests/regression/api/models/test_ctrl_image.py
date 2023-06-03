@@ -56,7 +56,7 @@ class TestApiModelImage(TestApiBase):
         }
         request_args["data"] = json.dumps(request_args["data"])
         response = requests.request(**request_args)
-        assert response.status_code == 200
+        assert response.status_code == 201
 
     def test__image_get_200(self):
         """Tests fetching a single Image through the Cver Api from its name.

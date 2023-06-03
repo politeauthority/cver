@@ -50,7 +50,7 @@ class TestApiSoftware(TestApiBase):
         }
         request_args["data"] = json.dumps(request_args["data"])
         response = requests.request(**request_args)
-        assert response.status_code == 200
+        assert response.status_code == 201
 
     def test__app_get_200(self):
         """Tests the Software collections through the Cver Api
