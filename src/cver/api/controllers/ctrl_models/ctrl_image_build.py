@@ -50,4 +50,13 @@ def delete_model(image_build_id: int = None):
     return ctrl_base.delete_model(ImageBuild, image_build_id)
 
 
+# @ctrl_image_build.route("/debug")
+# @auth.auth_request
+# def debug():
+#     image_build = ImageBuild()
+#     image_build.get_by_id(1)
+#     import ipdb; ipdb.set_trace()
+#     # return ctrl_base.delete_model(Image, image_id)
+
+
 # End File: cve/src/api/controllers/ctrl_modles/ctrl_image_build.py

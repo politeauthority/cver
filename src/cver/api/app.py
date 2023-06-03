@@ -100,7 +100,6 @@ if __name__ != "__main__":
     app.logger.handlers = gunicorn_logger.handlers
     app.logger.setLevel(gunicorn_logger.level)
     app.config['DEBUG'] = True
-    logging.info("ALIX APP DEBUG LEVEL: %s" % app.config)
 
 
 # End File: cver/src/cver/api/app.py
