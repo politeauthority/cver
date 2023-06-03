@@ -1,4 +1,6 @@
-"""Controller Model - Base
+"""
+    Cver Api - Controller Model
+    Base
 
 """
 import logging
@@ -48,7 +50,7 @@ def get_model(model, entity_id: int = None) -> dict:
     elif entity_id:
         entity_found = entity.get_by_id(entity_id)
     else:
-        print("Error")
+        logging.error("Unexpected endpoint")
 
     # Entity not found
     if not entity_found:
@@ -75,45 +77,33 @@ def post_model(model, entity_id: int = None):
         else:
             logging.info("POST - Found entity: %s" % entity)
 
-    request_data = request.get_json()
-
-    # import ipdb; ipdb.set_trace()
-    # print("\n\n")
-    # print(request_data)
-
-    # print(request_data)
-    # print("\n\n")
-
     # Check through the fields and see if they should be applied to the model.
+    request_data = request.get_json()
     for field_name, field_value in request_data.items():
-        print("%s\t%s" % (field_name, field_value))
         update_field = False
-        # This could be optimized.``
-        for entity_name, entity_field in entity.field_map.items():
+        for entity_field_name, entity_field in entity.field_map.items():
             if entity_field["name"] == field_name:
-                if field_name not in entity.api_writeable_fields:
+                if "api_writeable" not in entity_field:
+                    logging.warning("Entity: %s does not allow api writing of field: %s" % (
+                        entity,
+                        entity_field["name"]))
                     data["status"] = "Error"
                     data["message"] = "Cant modify field: %s" % field_name
-                    return jsonify(data, 400)
+                    return make_response(jsonify(data), 400)
                 else:
                     update_field = True
         if update_field:
+            logging.info("Entity: %s updating field: %s value: %s" % (
+                entity,
+                field_name,
+                field_value))
             setattr(entity, field_name, field_value)
 
     entity.save()
 
     data["object"] = entity.json()
     data["object_type"] = entity.model_name
-
-    # if "name" in request_data:
-    #     user.name = request_data["name"]
-
-    # if "role_id" in request_data:
-    #     user.role_id = request_data["role_id"]
-
-    # user.save()
-    # resp_data["object"] = user.json()
-    return data
+    return data, 201
 
 
 def delete_model(model, entity_id: int):

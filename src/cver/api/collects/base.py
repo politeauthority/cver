@@ -113,7 +113,8 @@ class Base:
         order_by: dict = {},
         where_and: list = [],
         per_page: int = 20,
-        get_json: bool = False
+        get_json: bool = False,
+        get_api: bool = False
     ) -> list:
         """
         Get paginated collection of models.
@@ -151,8 +152,9 @@ class Base:
         if get_json:
             json_prestines = []
             for prestine in prestines:
-                json_prestines.append(prestine.json())
+                json_prestines.append(prestine.json(get_api))
             prestines = json_prestines
+
         ret = {
             'objects': prestines,
             'info': self.get_pagination_info(sql, page, limit)

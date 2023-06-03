@@ -8,26 +8,23 @@
 import os
 import requests
 
+from .test_api_base import TestApiBase
+
 CVER_API_URL = os.environ.get("CVER_API_URL")
-CVER_API_CLIENT_ID = os.environ.get("CVER_API_CLIENT_ID")
-CVER_API_KEY = os.environ.get("CVER_API_KEY")
-HEADERS = {
-    "client-id": CVER_API_CLIENT_ID,
-    "x-api-key": CVER_API_KEY
-}
 
 URL_BASE = "/options"
 URL_MODEL = "option"
 
 
-class TestApiOptions:
+class TestApiOptions(TestApiBase):
 
     def test__options_get(self):
         """Tests the Cves collections through the Cver Api
         GET /options
         """
+        assert self.login()
         request_args = {
-            "headers": HEADERS,
+            "headers": self.get_headers(),
             "method": "GET",
             "url": "%s%s" % (CVER_API_URL, URL_BASE),
         }

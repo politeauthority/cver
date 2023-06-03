@@ -7,7 +7,7 @@
 from cver.shared.models.image_build import FIELD_MAP
 
 
-FIELD_DETAILS = ["name", "type", "primary", "default", "extra"]
+FIELD_DETAILS = ["name", "type", "primary", "default", "extra", "api_writeable", "api_searchable"]
 
 
 class TestSharedImageBuild:

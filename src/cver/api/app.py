@@ -13,6 +13,7 @@ from werkzeug.exceptions import HTTPException
 from cver.api.utils import db
 from cver.api.utils import glow
 
+from cver.api.controllers.ctrl_models.ctrl_api_key import ctrl_api_key
 from cver.api.controllers.ctrl_collections.ctrl_api_keys import ctrl_api_keys
 from cver.api.controllers.ctrl_index import ctrl_index
 from cver.api.controllers.ctrl_models.ctrl_image import ctrl_image
@@ -48,6 +49,7 @@ app = Flask(__name__)
 
 def register_blueprints(app: Flask) -> bool:
     """Register controller blueprints to flask."""
+    app.register_blueprint(ctrl_api_key)
     app.register_blueprint(ctrl_api_keys)
     app.register_blueprint(ctrl_index)
     app.register_blueprint(ctrl_image)
@@ -98,7 +100,6 @@ if __name__ != "__main__":
     app.logger.handlers = gunicorn_logger.handlers
     app.logger.setLevel(gunicorn_logger.level)
     app.config['DEBUG'] = True
-    logging.info("ALIX APP DEBUG LEVEL: %s" % app.config)
 
 
 # End File: cver/src/cver/api/app.py

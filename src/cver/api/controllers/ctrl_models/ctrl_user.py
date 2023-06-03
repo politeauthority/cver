@@ -9,12 +9,15 @@ from flask import Blueprint, jsonify, Response
 
 from cver.api.controllers.ctrl_models import ctrl_base
 from cver.api.models.user import User
+from cver.api.utils import auth
 
 ctrl_user = Blueprint("user", __name__, url_prefix="/user")
 
 
-@ctrl_user.route("/<user_id>")
-# @auth.auth_request
+@ctrl_user.route("")
+@ctrl_user.route("/")
+@ctrl_user.route("/<user_id>", methods=["GET"])
+@auth.auth_request
 def get_model(user_id: int = None) -> Response:
     """GET operation for a User.
     GET /user

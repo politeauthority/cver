@@ -9,6 +9,7 @@ from flask import Blueprint, jsonify, Response
 from cver.api.controllers.ctrl_models import ctrl_base
 from cver.api.models.software import Software
 from cver.shared.utils import log
+from cver.api.utils import auth
 
 ctrl_software = Blueprint('app', __name__, url_prefix='/app')
 
@@ -16,7 +17,7 @@ ctrl_software = Blueprint('app', __name__, url_prefix='/app')
 @ctrl_software.route("")
 @ctrl_software.route("/")
 @ctrl_software.route("/<software_id>")
-# @auth.auth_request
+@auth.auth_request
 def get_model(software_id: int = None) -> Response:
     """GET operation for a Software.
     GET /app
@@ -31,7 +32,7 @@ def get_model(software_id: int = None) -> Response:
 @ctrl_software.route("", methods=["POST"])
 @ctrl_software.route("/", methods=["POST"])
 @ctrl_software.route("/<software_id>", methods=["POST"])
-# @auth.auth_request,
+@auth.auth_request
 def post_model(software_id: int = None):
     """POST operation for a Software model. """
     print("software post")
@@ -39,7 +40,7 @@ def post_model(software_id: int = None):
 
 
 @ctrl_software.route("<software_id>", methods=["DELETE"])
-# @auth.auth_request,
+@auth.auth_request
 def delete_model(software_id: int = None):
     """DELETE operation for a Software model. """
     log.debug("software post")

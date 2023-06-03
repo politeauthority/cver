@@ -8,27 +8,25 @@
 import os
 import requests
 
+from .test_api_base import TestApiBase
 
 CVER_API_URL = os.environ.get("CVER_API_URL")
-CVER_API_CLIENT_ID = os.environ.get("CVER_API_CLIENT_ID")
-CVER_API_KEY = os.environ.get("CVER_API_KEY")
-HEADERS = {
-    "client-id": CVER_API_CLIENT_ID,
-    "x-api-key": CVER_API_KEY
-}
+CVER_CLIENT_ID = os.environ.get("CVER_TEST_CLIENT_ID")
+CVER_API_KEY = os.environ.get("CVER_TEST_API_KEY")
 
 URL_BASE = "/users"
 URL_MODEL = "user"
 
 
-class TestApiUsers:
+class TestApiUsers(TestApiBase):
 
     def test__users_get(self):
         """Tests the Users collections through the Cver Api
         GET /users
         """
+        assert self.login()
         request_args = {
-            "headers": HEADERS,
+            "headers": self.get_headers(),
             "method": "GET",
             "url": "%s%s" % (CVER_API_URL, URL_BASE),
         }
@@ -56,6 +54,8 @@ class TestApiUsers:
 
         assert "objects" in response_json
         assert isinstance(response_json["objects"], list)
+
+        assert len(response_json["objects"]) >= 2
 
 
 # End File: cver/tests/regression/api/collections/test_ctrl_users.py
