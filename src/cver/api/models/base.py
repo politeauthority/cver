@@ -399,7 +399,6 @@ class Base:
         }
         return sql
 
-
     def _sql_fields_sanitized(self, skip_fields: dict) -> str:
         """Get all class table column fields in a comma separated list for sql cmds. Returns a value
             like: `id`, `created_ts`, `update_ts`, `name`, `vendor`.
