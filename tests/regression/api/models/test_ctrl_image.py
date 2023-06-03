@@ -80,7 +80,6 @@ class TestApiModelImage(TestApiBase):
     def test__image_delete_200(self):
         """Test Software DELETE
         DELETE /image
-        assert self.login()
         """
         assert self.login()
         # Get the image
