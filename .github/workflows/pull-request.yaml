@@ -33,11 +33,11 @@ jobs:
 
       - name: Source Linter
         run: |
-          cd ./src && flake8 cver --config=flake8 --count --show-source --statistics
+          flake8 src/cver --config=src/flake8 --count --show-source --statistics
 
       - name: Tests Linter
         run: |
-          cd ./tests && flake8 cver --config=flake8 --count --show-source --statistics
+          flake8 tests --config=tests/flake8 --count --show-source --statistics
 
       - name: Unit Tests
         run: pytest tests/unit
