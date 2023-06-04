@@ -71,7 +71,7 @@ class TestApiModelApiKey(TestApiBase):
     #         }
     #     }
     #     response = requests.request(**request_args)
- 
+
     #     assert response.status_code == 200
     #     response_json = response.json()
     #     assert response_json

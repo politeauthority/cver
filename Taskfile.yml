@@ -12,11 +12,9 @@ tasks:
       - rm -rf {{.CVER_DIR}}/docker/api/src/dist
       - rm -rf {{.CVER_DIR}}/docker/api/src/cver.egg-info
       - |
-        CVER_BUILD=$(git rev-parse HEAD)
-        echo $CVER_BUILD
         docker build \
           -t politeauthority/cver-api:{{.CVER_API_TAG}} \
-          --build-arg CVER_BUILD="${CVER_BUILD}" \
+          --build-arg CVER_BUILD="{{CVER_API_TAG}}" \
           {{.CVER_DIR}}/docker/api
       - rm -rf {{.CVER_DIR}}/docker/api/src
       - rm -rf {{.CVER_DIR}}/docker/api/tests
@@ -47,9 +45,17 @@ tasks:
   dev-stop:
     cmds:
       - docker rm -f cver-api
-  pre-commit-lint:
+  pre-commit:
     cmds: 
-      - cd ./src && flake8 cver --config=flake8 --count --show-source --statistics
+      - |
+        echo "Pre Commit"
+        cd ./src
+        echo "src/"
+        flake8 cver --config=flake8 --count --show-source --statistics
+      - |
+        echo "tests/"
+        flake8 tests/ --config=tests/flake8 --count --show-source --statistics
+    silent: true
   k8s-exec-stage:
     cmds:
       - |
@@ -61,14 +67,4 @@ tasks:
     cmds:
       - |
         kubectl port-forward svc/cver-api-stage 5003:80
-    silent: true
-  k8s-exec-test:
-    cmds:
-      - |
-        POD=$(kubectl get pods -l app.kubernetes.io/name=test --no-headers | cut -d' ' -f1)
-        kubectl exec -it ${POD} -c  cver-api -- bash
-  k8s-pf-test:
-    cmds:
-      - |
-        kubectl port-forward svc/cver-api-test-16 5002:80
     silent: true

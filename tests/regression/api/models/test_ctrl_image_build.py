@@ -4,7 +4,6 @@
     Checks that all routes on /image-build are working properly.
 
 """
-import json
 import os
 import random
 
@@ -70,7 +69,7 @@ class TestApiModelImageBuild(TestApiBase):
     #         }
     #     }
     #     response = requests.request(**request_args)
- 
+
     #     assert response.status_code == 200
     #     response_json = response.json()
     #     assert response_json

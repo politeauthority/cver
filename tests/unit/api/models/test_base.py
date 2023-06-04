@@ -90,7 +90,7 @@ class TestBase:
         :method: Base()._gen_get_by_id_sql
         """
         base = Base()
-        base.table_name  = "base"
+        base.table_name = "base"
         base.field_map = BASE_MAP
         base.setup()
         base.id = 1
