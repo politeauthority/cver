@@ -103,12 +103,12 @@ jobs:
           kubectl get pods -n cver
           helm upgrade --install \
             --namespace=cver \
-            cver-api-test-${{ github.event.number }} \
+            cver-api-test-${{ github.run_number }} \
             helm/cver-api/ \
             --wait \
             -f helm/cver-api/quigley-test-values.yaml \
             --set "image.tag=${{ github.sha }}" \
-            --set "app.dbName=cver_${{ github.event.number }}"
+            --set "app.dbName=cver_${{ github.run_number }}"
 
   test-ephem:
     runs-on: self-hosted
@@ -122,7 +122,7 @@ jobs:
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
           export KUBECONFIG=~/.kube/config.yaml
-          TEST_POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-api-test-${{ github.event.number }} --no-headers | cut -d' ' -f1)
+          TEST_POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-api-test-${{ github.run_number }} --no-headers | cut -d' ' -f1)
           kubectl exec -it ${TEST_POD} -c cver-api -- pytest /tests/regression --md regression-report.md
           REPORT=$(kubectl exec -it ${TEST_POD} -c cver-api -- cat regression-report.md)
           echo $REPORT
@@ -142,11 +142,11 @@ jobs:
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
           export KUBECONFIG=~/.kube/config.yaml
           echo "Remove the database"
-          TEST_POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-api-test-${{ github.event.number }} --no-headers | cut -d' ' -f1)
+          TEST_POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-api-test-${{ github.run_number }} --no-headers | cut -d' ' -f1)
           kubectl exec -it ${TEST_POD} -c cver-api -- /bin/cver-db-destroy
           echo "Remove the helm installation"
           helm uninstall \
             --namespace=cver \
-            cver-api-test-${{ github.event.number }}
+            cver-api-test-${{ github.run_number }}
 
 # End File: cver/.github/webserver/pull-request.yaml
