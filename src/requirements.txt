@@ -1,4 +1,4 @@
-gi# Cver Api
+# Cver Api
 arrow==1.2.2
 Flask==2.3.2
 glom==20.11.0

@@ -140,10 +140,12 @@ jobs:
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
           export KUBECONFIG=~/.kube/config.yaml
+          echo "Remove the database"
+          kubectl exec -it ${TEST_POD} -c cver-api -- pytest /bin/cver-db-destroy
+          echo "Remove the helm installation"
           helm uninstall \
             --namespace=cver \
             cver-api-test-${{ github.event.number }}
             TEST_POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-api-test-${{ github.event.number }} --no-headers | cut -d' ' -f1)
-          kubectl exec -it ${TEST_POD} -c cver-api -- pytest /bin/cver-db-destroy
 
 # End File: cver/.github/webserver/pull-request.yaml
