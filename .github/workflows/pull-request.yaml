@@ -4,7 +4,7 @@ name: Cver-Api-Pull-Request
 
 on:
   pull_request:
-    branches: ["main", "staging", "jwt-auth"]
+    branches: ["staging"]
 
 jobs:
   build-python:
