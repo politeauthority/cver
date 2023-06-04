@@ -141,7 +141,7 @@ jobs:
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
           export KUBECONFIG=~/.kube/config.yaml
           echo "Remove the database"
-          kubectl exec -it ${TEST_POD} -c cver-api -- pytest /bin/cver-db-destroy
+          kubectl exec -it ${TEST_POD} -c cver-api -- /bin/cver-db-destroy
           echo "Remove the helm installation"
           helm uninstall \
             --namespace=cver \
