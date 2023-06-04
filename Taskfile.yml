@@ -12,6 +12,9 @@ tasks:
       - rm -rf {{.CVER_DIR}}/docker/api/src/dist
       - rm -rf {{.CVER_DIR}}/docker/api/src/cver.egg-info
       - |
+        if [ -z ${CVER_API_TAG} ]; then
+          CVER_API_TAG="dev"
+        fi
         docker build \
           -t politeauthority/cver-api:${CVER_API_TAG} \
           --build-arg CVER_BUILD="${CVER_API_TAG}" \

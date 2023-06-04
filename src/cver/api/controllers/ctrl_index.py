@@ -17,11 +17,15 @@ ctrl_index = Blueprint("index", __name__, url_prefix="/")
 @ctrl_index.route("/")
 def index():
     logging.info("Serving /")
+    build_short = ""
+    if glow.general["CVER_BUILD"]:
+        build_short = glow.general["CVER_BUILD"][:12]
     data = {
         "info": "Cver Api",
         "version": glow.general["VERSION"],
         "env": glow.general["CVER_ENV"],
-        "build": glow.general["CVER_BUILD"]
+        "build": glow.general["CVER_BUILD"],
+        "build_short": build_short,
     }
     return jsonify(data)
 
