@@ -31,9 +31,13 @@ jobs:
           python3 setup.py build
           pip install .
 
-      - name: Linter
+      - name: Source Linter
         run: |
           cd ./src && flake8 cver --config=flake8 --count --show-source --statistics
+
+      - name: Tests Linter
+        run: |
+          cd ./tests && flake8 cver --config=flake8 --count --show-source --statistics
 
       - name: Unit Tests
         run: pytest tests/unit
