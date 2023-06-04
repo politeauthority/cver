@@ -46,6 +46,6 @@ ADD scripts/cver-db-destroy /bin
 
 
 # Cver Tests
-ENV CVER_API_URL="http://localhost:5001"
+ENV CVER_API_URL="http://localhost:80"
 ENV CVER_DB_PASS=""
 ADD tests/ /tests
