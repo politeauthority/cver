@@ -18,17 +18,14 @@ jobs:
       - name: Build Container
         run: |
           echo "Run Task: Build"
-          export CVER_API_TAG_PRETTY="0.0.1-staging"
           export CVER_API_TAG="${{ github.sha }}"
           task build
-          docker tag politeauthority/cver-api:${{ github.sha }} politeauthority/cver-api:${CVER_API_TAG_PRETTY}
       - uses: docker/login-action@v2
         with:
           username: politeauthority
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
       - name: Push Container
         run: |
-          docker push politeauthority/cver-api:${CVER_API_TAG_PRETTY}
           docker push politeauthority/cver-api:${{ github.sha }}
 
   deploy-stage:
