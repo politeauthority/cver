@@ -34,7 +34,7 @@ jobs:
       - name: Source Linter
         run: |
           SRC_FLAKE8=$(flake8 src/cver --config=src/flake8 --count --show-source --statistics)
-          echo "##Python Build" >> $GITHUB_STEP_SUMMARY
+          echo "## Python Build" >> $GITHUB_STEP_SUMMARY
           echo "Source Lint Errors: $SRC_FLAKE8" >> $GITHUB_STEP_SUMMARY
 
       - name: Tests Linter
@@ -42,7 +42,9 @@ jobs:
           SRC_FLAKE8=$(flake8 tests --config=tests/flake8 --count --show-source --statistics)
           echo "Test Lint Errors: $SRC_FLAKE8" >> $GITHUB_STEP_SUMMARY
       - name: Unit Tests
-        run: pytest tests/unit
+        run: |
+          pytest tests/unit --md report.md
+          cat report.md >> $GITHUB_STEP_SUMMARY
 
   # lint-helm:
   #   runs-on: self-hosted
@@ -121,7 +123,10 @@ jobs:
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
           export KUBECONFIG=~/.kube/config.yaml
           TEST_POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-api-test-${{ github.event.number }} --no-headers | cut -d' ' -f1)
-          kubectl exec -it ${TEST_POD} -c cver-api -- pytest /tests/regression
+          kubectl exec -it ${TEST_POD} -c cver-api -- pytest /tests/regression --md regression-report.md
+          REPORT=$(kubectl exec -it ${TEST_POD} -c cver-api -- cat regression-report.md)
+          echo $REPORT >> $GITHUB_STEP_SUMMARY
+
 
   remove-ephem:
     runs-on: self-hosted
