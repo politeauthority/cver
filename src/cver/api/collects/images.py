@@ -1,5 +1,6 @@
-"""Images Collection.
-Gets collection of Images
+"""
+    Cver Api
+    Collects - Images
 
 """
 from cver.api.collects.base import Base
@@ -7,7 +8,6 @@ from cver.api.models.image import Image
 
 
 class Images(Base):
-    """Collection class for gathering groups of device macs."""
 
     collection_name = "images"
 

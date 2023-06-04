@@ -7,7 +7,7 @@ import logging
 
 from flask import Blueprint, jsonify, request
 
-
+from cver.api.stats import totals
 from cver.api.utils import auth
 from cver.api.utils import glow
 
@@ -17,15 +17,12 @@ ctrl_index = Blueprint("index", __name__, url_prefix="/")
 @ctrl_index.route("/")
 def index():
     logging.info("Serving /")
-    build_short = ""
-    if glow.general["CVER_BUILD"]:
-        build_short = glow.general["CVER_BUILD"][:12]
     data = {
         "info": "Cver Api",
         "version": glow.general["VERSION"],
         "env": glow.general["CVER_ENV"],
         "build": glow.general["CVER_BUILD"],
-        "build_short": build_short,
+        "build_short": glow.general["CVER_BUILD_SHORT"],
     }
     return jsonify(data)
 
@@ -68,11 +65,15 @@ def authenticate():
 @ctrl_index.route("/info")
 @auth.auth_request
 def info():
+    model_totals = totals.get_model_totals()
     data = {
         "info": "Cver Api",
         "version": glow.general["VERSION"],
         "env": glow.general["CVER_ENV"],
-        "build": glow.general["CVER_BUILD"]
+        "build": glow.general["CVER_BUILD"],
+        "build_short": glow.general["CVER_BUILD_SHORT"],
+        "migration": 0,
+        "model_totals": model_totals
     }
     return jsonify(data)
 
