@@ -33,7 +33,8 @@ jobs:
 
       - name: Source Linter
         run: |
-          flake8 src/cver --config=src/flake8 --count --show-source --statistics
+          SRC_FLAKE8=$(flake8 src/cver --config=src/flake8 --count --show-source --statistics)
+          echo "$SRC_FLAKE8" >> $GITHUB_STEP_SUMMARY
 
       - name: Tests Linter
         run: |
@@ -119,21 +120,21 @@ jobs:
           TEST_POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-api-test-${{ github.event.number }} --no-headers | cut -d' ' -f1)
           (kubectl exec -it ${TEST_POD} -c cver-api -- pytest /tests/regression)
 
-  remove-ephem:
-    runs-on: self-hosted
-    needs: test-ephem
-    container:
-      image: politeauthority/polite-cicd:0.0.1
-    steps:
-      - uses: actions/checkout@v3
-      - name: Deploy
-        run: |
-          mkdir ~/.kube
-          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
-          export KUBECONFIG=~/.kube/config.yaml
-          helm uninstall \
-            --namespace=cver \
-            cver-api-test-${{ github.event.number }}
+  # remove-ephem:
+  #   runs-on: self-hosted
+  #   needs: test-ephem
+  #   container:
+  #     image: politeauthority/polite-cicd:0.0.1
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Deploy
+  #       run: |
+  #         mkdir ~/.kube
+  #         echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
+  #         export KUBECONFIG=~/.kube/config.yaml
+  #         helm uninstall \
+  #           --namespace=cver \
+  #           cver-api-test-${{ github.event.number }}
 
 
 # End File: cver/.github/webserver/pull-request.yaml
