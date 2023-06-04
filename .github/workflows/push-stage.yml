@@ -20,12 +20,14 @@ jobs:
           echo "Run Task: Build"
           export CVER_API_TAG="0.0.1-staging"
           task build
+          docker tag politeauthority/cver-api:${CVER_API_TAG} politeauthority/cver-api:${{ github.sha }}
       - uses: docker/login-action@v2
         with:
           username: politeauthority
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
       - name: Push Container
-        run: docker push politeauthority/cver-api:0.0.1-staging
+        run: |
+          docker push politeauthority/cver-api:0.0.1-staging
 
   deploy-stage:
     runs-on: self-hosted
@@ -45,7 +47,7 @@ jobs:
             cver-api-stage \
             helm/cver-api/ \
             -f helm/cver-api/quigley-stage-values.yaml \
-            --set "image.tag=0.0.1-staging"
+            --set "image.tag=${{ github.sha }}"
 
   # test-stage:
   #   runs-on: self-hosted

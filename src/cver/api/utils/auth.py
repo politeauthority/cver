@@ -36,7 +36,6 @@ def auth_request(f):
         jwt_value = validate_jwt(token)
         if jwt_value:
             logging.info("Authenticated User")
-            logging.info(print(jwt_value))
             return f(*args, **kwargs)
         else:
             logging.warning("Can't verify token")

@@ -47,6 +47,11 @@ spec:
               secretKeyRef:
                 key: mysql-password
                 name: cver-mysql
+          - name: CVER_SECRET
+            valueFrom:
+              secretKeyRef:
+                key: mysql-password
+                name: cver-mysql
           {{- if .Values.test.test }}
           - name: CVER_TEST_CLIENT_ID
             valueFrom:
@@ -110,16 +115,16 @@ spec:
             {{- end }}
           ports:
             - name: http
-              containerPort: 5001
+              containerPort: 80
               protocol: TCP
-          # livenessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: http
-          # readinessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: http
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}

@@ -4,7 +4,7 @@ name: Cver-Api-Pull-Request
 
 on:
   pull_request:
-    branches: ["main", "staging", "jwt-auth"]
+    branches: ["staging"]
 
 jobs:
   build-python:
@@ -31,12 +31,20 @@ jobs:
           python3 setup.py build
           pip install .
 
-      - name: Linter
+      - name: Source Linter
         run: |
-          cd ./src && flake8 cver --config=flake8 --count --show-source --statistics
+          SRC_FLAKE8=$(flake8 src/cver --config=src/flake8 --count --show-source --statistics)
+          echo "# Python Build" >> $GITHUB_STEP_SUMMARY
+          echo "Source Lint Errors: $SRC_FLAKE8" >> $GITHUB_STEP_SUMMARY
 
+      - name: Tests Linter
+        run: |
+          SRC_FLAKE8=$(flake8 tests --config=tests/flake8 --count --show-source --statistics)
+          echo "Test Lint Errors: $SRC_FLAKE8" >> $GITHUB_STEP_SUMMARY
       - name: Unit Tests
-        run: pytest tests/unit
+        run: |
+          pytest -vvv tests/unit --md report.md
+          cat report.md >> $GITHUB_STEP_SUMMARY
 
   # lint-helm:
   #   runs-on: self-hosted
@@ -73,9 +81,11 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
       - name: Push Container
         run: |
+          DOCKER_IMAGES=$(docker images)
+          echo $DOCKER_IMAGES
           docker push politeauthority/cver-api:${{ github.sha }}
-          echo "### Image Created" >> $GITHUB_STEP_SUMMARY
-          echo "politeauthority/cver-api:${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "## Docker Build" >> $GITHUB_STEP_SUMMARY
+          echo "**Built:** politeauthority/cver-api:${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
 
   deploy-ephem:
     runs-on: self-hosted
@@ -93,12 +103,12 @@ jobs:
           kubectl get pods -n cver
           helm upgrade --install \
             --namespace=cver \
-            cver-api-test-${{ github.event.number }} \
+            cver-api-test-${{ github.run_number }} \
             helm/cver-api/ \
             --wait \
             -f helm/cver-api/quigley-test-values.yaml \
             --set "image.tag=${{ github.sha }}" \
-            --set "app.dbName=cver_${{ github.event.number }}"
+            --set "app.dbName=cver_${{ github.run_number }}"
 
   test-ephem:
     runs-on: self-hosted
@@ -107,13 +117,17 @@ jobs:
       image: politeauthority/polite-cicd:0.0.1
     steps:
       - uses: actions/checkout@v3
-      - name: Deploy
+      - name: Execute Tests
         run: |
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
           export KUBECONFIG=~/.kube/config.yaml
-          TEST_POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-api-test-${{ github.event.number }} --no-headers | cut -d' ' -f1)
-          (kubectl exec -it ${TEST_POD} -c cver-api -- pytest /tests/regression)
+          TEST_POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-api-test-${{ github.run_number }} --no-headers | cut -d' ' -f1)
+          kubectl exec -it ${TEST_POD} -c cver-api -- pytest -vvv /tests/regression --md regression-report.md
+          REPORT=$(kubectl exec -it ${TEST_POD} -c cver-api -- cat regression-report.md)
+          echo "$REPORT"
+          echo "${REPORT}" >> $GITHUB_STEP_SUMMARY
+
 
   remove-ephem:
     runs-on: self-hosted
@@ -122,14 +136,17 @@ jobs:
       image: politeauthority/polite-cicd:0.0.1
     steps:
       - uses: actions/checkout@v3
-      - name: Deploy
+      - name: Tear Down
         run: |
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
           export KUBECONFIG=~/.kube/config.yaml
+          echo "Remove the database"
+          TEST_POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-api-test-${{ github.run_number }} --no-headers | cut -d' ' -f1)
+          kubectl exec -it ${TEST_POD} -c cver-api -- /bin/cver-db-destroy
+          echo "Remove the helm installation"
           helm uninstall \
             --namespace=cver \
-            cver-api-test-${{ github.event.number }}
-
+            cver-api-test-${{ github.run_number }}
 
 # End File: cver/.github/webserver/pull-request.yaml
