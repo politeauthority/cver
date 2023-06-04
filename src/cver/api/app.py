@@ -8,7 +8,6 @@ import logging
 from logging.config import dictConfig
 
 from flask import Flask, jsonify
-from werkzeug.exceptions import HTTPException
 
 from cver.api.utils import db
 from cver.api.utils import glow
@@ -70,10 +69,6 @@ def handle_exception(e):
     """Catch 500 errors, and pass through the exception
     @todo: Remove the exception for non prod environments.
     """
-    # pass through HTTP errors
-    if isinstance(e, HTTPException):
-        return e
-
     data = {
         "message": e,
         "status": "Error: Unhandled Exception"
