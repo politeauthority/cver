@@ -53,6 +53,11 @@ ACL = {
         "POST": ["write-all"],
         "DELETE": ["write-all"],
     },
+    "/migrations": {
+        "GET": ["read-all"],
+        "POST": ["write-all"],
+        "DELETE": ["write-all"],
+    },
     "/option": {
         "GET": ["read-all"],
         "POST": ["write-all"],
