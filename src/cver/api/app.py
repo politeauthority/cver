@@ -19,6 +19,12 @@ from cver.api.controllers.ctrl_models.ctrl_image import ctrl_image
 from cver.api.controllers.ctrl_collections.ctrl_images import ctrl_images
 from cver.api.controllers.ctrl_models.ctrl_image_build import ctrl_image_build
 from cver.api.controllers.ctrl_collections.ctrl_image_builds import ctrl_image_builds
+from cver.api.controllers.ctrl_models.ctrl_role import ctrl_role
+from cver.api.controllers.ctrl_collections.ctrl_roles import ctrl_roles
+from cver.api.controllers.ctrl_models.ctrl_role_perm import ctrl_role_perm
+from cver.api.controllers.ctrl_collections.ctrl_role_perms import ctrl_role_perms
+from cver.api.controllers.ctrl_models.ctrl_perm import ctrl_perm
+from cver.api.controllers.ctrl_collections.ctrl_perms import ctrl_perms
 from cver.api.controllers.ctrl_models.ctrl_user import ctrl_user
 from cver.api.controllers.ctrl_collections.ctrl_users import ctrl_users
 from cver.api.controllers.ctrl_collections.ctrl_options import ctrl_options
@@ -55,6 +61,12 @@ def register_blueprints(app: Flask) -> bool:
     app.register_blueprint(ctrl_images)
     app.register_blueprint(ctrl_image_build)
     app.register_blueprint(ctrl_image_builds)
+    app.register_blueprint(ctrl_roles)
+    app.register_blueprint(ctrl_role)
+    app.register_blueprint(ctrl_role_perm)
+    app.register_blueprint(ctrl_role_perms)
+    app.register_blueprint(ctrl_perm)
+    app.register_blueprint(ctrl_perms)
     app.register_blueprint(ctrl_user)
     app.register_blueprint(ctrl_users)
     app.register_blueprint(ctrl_options)

@@ -18,6 +18,7 @@ setup(
         "cver.api.utils",
         "cver.api.stats",
         "cver.ingest",
+        "cver.migrate",
         "cver.shared",
         "cver.shared.models",
         "cver.shared.utils",

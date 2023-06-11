@@ -10,6 +10,7 @@ from flask import Blueprint, jsonify, request
 from cver.api.stats import totals
 from cver.api.utils import auth
 from cver.api.utils import glow
+from cver.migrate.migrate import CURRENT_MIGRATION
 
 ctrl_index = Blueprint("index", __name__, url_prefix="/")
 
@@ -72,7 +73,7 @@ def info():
         "env": glow.general["CVER_ENV"],
         "build": glow.general["CVER_BUILD"],
         "build_short": glow.general["CVER_BUILD_SHORT"],
-        "migration": 0,
+        "migration": CURRENT_MIGRATION,
         "model_totals": model_totals
     }
     return jsonify(data)

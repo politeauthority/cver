@@ -17,9 +17,11 @@ from cver.api.collects.users import Users
 from cver.api.models.api_key import ApiKey
 from cver.api.models.user import User
 from cver.api.utils import auth
+from cver.api.models.role import Role
+from cver.api.models.role_perm import RolePerm
+from cver.api.models.perm import Perm
 
-
-CURRENT_MIGRATION = 1
+CURRENT_MIGRATION = 2
 
 
 dictConfig({
@@ -41,6 +43,9 @@ dictConfig({
 
 class Migrate:
 
+    def __init__(self):
+        self.role_admin_id = None
+
     def run(self):
         """Primary entry point for migrations."""
         logging.info("Working with database %s" % glow.db["NAME"])
@@ -49,6 +54,7 @@ class Migrate:
         self.last_migration = self.get_migration_info()
         self.this_migration = Migration()
         self.run_migrations()
+        self.create_roles()
         self.create_users()
         # self.create_data()
 
@@ -122,9 +128,45 @@ class Migrate:
             m.save()
             exit(1)
 
+    def create_roles(self):
+        """Create the Rbac roles/role perms and perms."""
+        logging.info("Creating Roles")
+        self.create_role_admin()
+
+    def create_role_admin(self):
+        """Create the admin role with read/write all."""
+        logging.info("Creating Admin Role")
+        role = Role()
+        role.name = "Admin"
+        role.slug_name = "admin"
+        role.save()
+        self.role_admin_id = role.id
+
+        perm = Perm()
+        perm.name = "Read All"
+        perm.slug_name = "read-all"
+        perm.save()
+        perm_read_all_id = perm.id
+
+        perm = Perm()
+        perm.name = "Read All"
+        perm.slug_name = "read-all"
+        perm.save()
+        perm_read_all_id = perm.id
+
+        perm = Perm()
+        perm.name = "Write All"
+        perm.slug_name = "write-all"
+        perm.save()
+        perm_read_all_id = perm.id
+
+        role_perm = RolePerm()
+        role_perm.role_id = self.role_admin_id
+        role_perm.perm_id = perm_read_all_id
+        role_perm.save()
+
     def create_users(self):
-        """Create the users and api keys.
-        """
+        """Create the users and api keys."""
         self.create_first_user()
         self.create_test_user()
 
@@ -139,7 +181,7 @@ class Migrate:
         user = User()
         user.email = "admin@example.com"
         user.name = "admin"
-        user.role_id = 1
+        user.role_id = self.role_admin_id
         user.save()
         print("Created: %s" % user)
         client_id = auth.generate_client_id()
@@ -178,7 +220,7 @@ class Migrate:
         user = User()
         user.email = "test@example.com"
         user.name = "test"
-        user.role_id = 1
+        user.role_id = self.role_admin_id
         user.save()
         client_id = test_client_id
         api_key = ApiKey()
