@@ -3,7 +3,7 @@
     Model - RolePerm
 
 """
-from cver.shared.models.role import FIELD_MAP
+from cver.shared.models.role_perm import FIELD_MAP
 from cver.shared.utils import xlate
 from cver.api.models.base import Base
 

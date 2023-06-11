@@ -10,6 +10,7 @@ from flask import Blueprint, jsonify, request
 from cver.api.stats import totals
 from cver.api.utils import auth
 from cver.api.utils import glow
+from cver.api.models.user import User
 from cver.migrate.migrate import CURRENT_MIGRATION
 
 ctrl_index = Blueprint("index", __name__, url_prefix="/")
@@ -52,11 +53,14 @@ def authenticate():
         logging.warning("Failed login attempt, client_id: %s" % client_id)
         return jsonify(data), 403
     logging.info("Verified api key")
-    user_id = authed_event["user_id"]
-    auth.record_last_access(user_id, authed_event["api_key"])
+
+    user = User()
+    user.get_by_id(authed_event["user_id"])
+    glow.user = user
+    auth.record_last_access(authed_event["api_key"])
 
     # Mint the JWT
-    data["token"] = auth.mint_jwt(user_id)
+    data["token"] = auth.mint_jwt()
     data["message"] = "Authenticated user and minted token"
     data["status"] = "Success"
     logging.info("Sending back the token to the client")

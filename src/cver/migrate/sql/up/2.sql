@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS roles (
 ---
 --- Create role_perms
 ---
-CREATE TABLE IF NOT EXISTS role_perms (
+CREATE TABLE IF NOT EXISTS perms (
     `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
     `created_ts` DATETIME,
     `updated_ts` DATETIME,
@@ -23,11 +23,13 @@ CREATE TABLE IF NOT EXISTS role_perms (
 ---
 --- Create role_perm
 ---
-CREATE TABLE IF NOT EXISTS perms (
+CREATE TABLE IF NOT EXISTS role_perms (
     `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
     `created_ts` DATETIME,
     `updated_ts` DATETIME,
-    `name` VARCHAR(200),
-    `slug_name` VARCHAR(200));
+    `role_id` INTEGER,
+    `perm_id` INTEGER,
+    `enabled` TINYINT(1) DEFAULT True);
 
---- End File: cver/src/migrate/sql/up/1.sql
+--- End File: cver/src/migrate/sql/up/2.sql
+

@@ -72,6 +72,7 @@ class TestApiModelRole(TestApiBase):
         assert response.status_code == 200
         response_json = response.json()
         assert response_json
+        assert response_json["object"]["slug_name"] == TEST_MODEL["slug_name"]
 
     def test__role_delete_200(self):
         """Test Role DELETE
