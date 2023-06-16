@@ -2,20 +2,19 @@
     CverClient
 
 """
+import os
 import requests
 
 from cver.cver_client.models.image import Image
 from cver.cver_client.models.image_build import ImageBuild
 
-CVER_API_URL = "http://localhost:5001"
-CVER_CLIENT_ID = "nbmqr36ps3"
-CVER_API_KEY = "5nm9-y7ay-umg9-olzl"
-
 
 class CverClient:
 
     def __init__(self):
-        self.base_url = CVER_API_URL
+        self.base_url = os.environ.get("CVER_API_URL")
+        self.client_id = os.environ.get("CVER_CLIENT_ID")
+        self.api_key = os.environ.get("CVER_API_KEY")
         self.token = ""
         self.token_path = ""
 
@@ -23,14 +22,13 @@ class CverClient:
         """Login to the Cver API"""
         request_args = {
             "headers": {
-                "client-id": CVER_CLIENT_ID,
-                "x-api-key": CVER_API_KEY,
+                "client-id": self.client_id,
+                "x-api-key": self.api_key,
                 "content-type": "application/json"
             },
             "method": "POST",
-            "url": "%s/auth" % CVER_API_URL,
+            "url": f"{self.base_url}/auth",
         }
-
         response = requests.request(**request_args)
         if response.status_code != 200:
             print("ERROR: %s logging in" % response.status_code)
@@ -39,7 +37,8 @@ class CverClient:
         self.token = response_json["token"]
         return True
 
-    def get_image(self, image_id):
+    def get_image(self, image_id) -> dict:
+        """Get an Image from the Cver Api by an Image ID."""
         params = {
             "id": image_id
         }
@@ -51,6 +50,7 @@ class CverClient:
         return image_build_resp
 
     def make_request(self, url: str, method: str = "GET", args: dict = {}):
+        """Make a generic request to the Cver Api."""
         headers = {
             "token": self.token,
             "content-type": "application/json"
