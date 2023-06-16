@@ -1,21 +1,21 @@
 """
     Cver Test Unit
-    Shared Model: ImageBuild
+    Shared Model: Software
 
 """
 
-from cver.shared.models.api_key import FIELD_MAP
+from cver.shared.models.scanner import FIELD_MAP
 
 
 FIELD_DETAILS = ["name", "type", "primary", "default", "extra", "api_display", "api_writeable",
                  "api_searchable"]
 
 
-class TestSharedModelApiKey:
+class TestSharedModelSoftware:
 
     def test__FIELD_MAP(self):
-        """Test the ImageBuild model's initialization.
-        :data: image_build.FIELD_MAP
+        """Test the Software model's initialization.
+        :data: software.FIELD_MAP
         """
         assert isinstance(FIELD_MAP, dict)
         for field_name, field in FIELD_MAP.items():
@@ -25,4 +25,4 @@ class TestSharedModelApiKey:
                 assert field_detail in FIELD_DETAILS
 
 
-# End File: cver/tests/unit/shared/models/test_api_key.py
+# End File: cver/tests/unit/shared/models/test_software.py

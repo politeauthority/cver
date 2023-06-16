@@ -1,17 +1,17 @@
 """
     Cver Test Unit
-    Shared Model: ImageBuild
+    Shared Model: Perm
 
 """
 
-from cver.shared.models.api_key import FIELD_MAP
+from cver.shared.models.role_perm import FIELD_MAP
 
 
 FIELD_DETAILS = ["name", "type", "primary", "default", "extra", "api_display", "api_writeable",
                  "api_searchable"]
 
 
-class TestSharedModelApiKey:
+class TestSharedModelRolePerm:
 
     def test__FIELD_MAP(self):
         """Test the ImageBuild model's initialization.
@@ -25,4 +25,4 @@ class TestSharedModelApiKey:
                 assert field_detail in FIELD_DETAILS
 
 
-# End File: cver/tests/unit/shared/models/test_api_key.py
+# End File: cver/tests/unit/shared/models/test_role_perm.py
