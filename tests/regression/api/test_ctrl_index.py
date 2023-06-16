@@ -70,5 +70,10 @@ class TestApiIndex:
         assert response.status_code == 200
         response_json = response.json()
         assert "version" in response_json
+        assert "build" in response_json
+        assert "build_short" in response_json
+        assert "info" in response_json
+        assert "model_totals" in response_json
+        assert "migration" in response_json
 
 # End File: cver/tests/regression/api/test_ctrl_index.py

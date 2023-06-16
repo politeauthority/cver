@@ -1,17 +1,17 @@
 """
     Cver Test Unit
-    Shared Model: ImageBuild
+    Shared Model: Option
 
 """
 
-from cver.shared.models.image_build import FIELD_MAP
+from cver.shared.models.migrate import FIELD_MAP
 
 
 FIELD_DETAILS = ["name", "type", "primary", "default", "extra", "api_display", "api_writeable",
                  "api_searchable"]
 
 
-class TestSharedImageBuild:
+class TestSharedModelOption:
 
     def test__FIELD_MAP(self):
         """Test the ImageBuild model's initialization.
@@ -25,4 +25,4 @@ class TestSharedImageBuild:
                 assert field_detail in FIELD_DETAILS
 
 
-# End File: cver/tests/unit/shared/models/test_image_build.py
+# End File: cver/tests/unit/shared/models/test_option.py
