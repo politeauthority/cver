@@ -12,8 +12,8 @@ from jwt.exceptions import ExpiredSignatureError, InvalidSignatureError
 from werkzeug import security
 
 from cver.api.models.api_key import ApiKey
-from cver.api.models.user import User
 from cver.api.utils import date_utils
+from cver.api.utils import rbac
 from cver.api.utils import glow
 
 SECRET_KEY = "my-secret-key"
@@ -35,7 +35,12 @@ def auth_request(f):
         token = request.headers["Token"]
         jwt_value = validate_jwt(token)
         if jwt_value:
+            # User has valid JWT
             logging.info("Authenticated User")
+            # Check if user has access to this resource
+            if not rbac.check_role_uri_access(jwt_value["role_perms"], request):
+                data["message"] = "Access Forbidden"
+                return make_response(jsonify(data), 403)
             return f(*args, **kwargs)
         else:
             logging.warning("Can't verify token")
@@ -64,8 +69,9 @@ def verify_api_key(client_id: str, raw_api_key: str) -> bool:
         return False
 
 
-def validate_jwt(token) -> dict:
-    """
+def validate_jwt(token: str) -> dict:
+    """Check that the JWT is valid by checking the token.
+    @todo: Update secret-key to be updatable to invalidate tokens.
     """
     try:
         # Decode and verify the JWT using the secret key
@@ -84,30 +90,41 @@ def validate_jwt(token) -> dict:
         return None
 
 
-def mint_jwt(user_id: int):
+def mint_jwt():
     """Mint a JWT token for a User with the given expiration time."""
+    if not glow.user:
+        data = {
+            "status": "Error",
+            "message": "Couldnt find user"
+        }
+        return make_response(jsonify(data), 503)
+    role_perms = rbac.get_perms_by_role_id(glow.user.role_id)
     expiration_minutes = int(glow.general["CVER_JWT_EXPIRE_MINUTES"])
     payload = {
-        "user_id": user_id,
+        "user_id": glow.user.id,
+        "role_perms": role_perms,
         "iat": datetime.datetime.utcnow(),
         "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=expiration_minutes)
     }
 
     # Create the JWT using the payload and secret key
     jwt_token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
-    logging.info("Minted JWT token for user_id: %s" % user_id)
+    # logging.info("Minted JWT token for user_id: %s" % user_id)
 
     return jwt_token
 
 
-def record_last_access(user_id, api_key):
+def record_last_access(api_key: str) -> bool:
+    if not glow.user:
+        data = {
+            "status": "Error",
+            "message": "Couldnt find user"
+        }
+        return make_response(jsonify(data), 503)
     logging.info("Recording User/ApiKey last access")
 
-    user = User()
-    user.get_by_id(user_id)
-    user.last_access = date_utils.now()
-    logging.debug("Updating user last access.")
-    user.save()
+    glow.user.last_access = date_utils.now()
+    glow.user.save()
 
     api_key.last_access = date_utils.now()
     logging.debug("Updating apikey last access.")

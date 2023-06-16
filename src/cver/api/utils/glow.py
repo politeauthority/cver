@@ -18,9 +18,11 @@ db = {
     "NAME": os.environ.get("CVER_DB_NAME"),
 }
 
+# Load Cver Options
 global options
 options = {}
 
+# Collect General Details
 global general
 general = {
     "LOG_LEVEL": "INFO",
@@ -36,5 +38,9 @@ general["CVER_TEST"] = True
 if general["CVER_BUILD"]:
     general["CVER_BUILD_SHORT"] = general["CVER_BUILD"][:12]
 
+
+# Store Current User Info
+global user
+user = None
 
 # End File: cver/src/cver/api/utils/glow.py

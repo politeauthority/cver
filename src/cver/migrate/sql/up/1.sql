@@ -121,3 +121,5 @@ CREATE TABLE IF NOT EXISTS users (
     `email` VARCHAR(200) UNIQUE,
     `role_id` INTEGER,
     `last_access` DATETIME);
+
+--- End File: cver/src/migrate/sql/up/1.sql

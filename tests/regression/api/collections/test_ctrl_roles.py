@@ -1,7 +1,7 @@
 """
     Cver - Test - Regression
-    CTRL Collection - Options
-        Checks that all routes on /options are working properly.
+    CTRL Collection - Roles
+        Checks that all routes on /roles are working properly.
 
 """
 
@@ -12,15 +12,15 @@ from .test_api_base import TestApiBase
 
 CVER_API_URL = os.environ.get("CVER_API_URL")
 
-URL_BASE = "/options"
-URL_MODEL = "option"
+URL_BASE = "/roles"
+URL_MODEL = "role"
 
 
-class TestApiOptions(TestApiBase):
+class TestApiRoles(TestApiBase):
 
-    def test__options_get(self):
-        """Tests the Options collections through the Cver Api
-        GET /options
+    def test__roles_get(self):
+        """Tests the Roles collections through the Cver Api
+        GET /roles
         """
         assert self.login()
         request_args = {
@@ -54,4 +54,4 @@ class TestApiOptions(TestApiBase):
         assert isinstance(response_json["objects"], list)
 
 
-# End File: cver/tests/regression/api/test_ctrl_options.py
+# End File: cver/tests/regression/api/test_ctrl_roles.py
