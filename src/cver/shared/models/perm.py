@@ -22,12 +22,12 @@ FIELD_MAP = {
     "name": {
         "name": "name",
         "type": "str",
-        "api_writable": False
+        "api_writeable": False
     },
     "slug_name": {
         "name": "slug_name",
         "type": "str",
-        "api_writable": False
+        "api_writeable": False
     }
 }
 

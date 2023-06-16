@@ -21,7 +21,7 @@ class DataUsers:
     def create(self, rbac: dict):
         self.rbac = rbac
         self.create_first_user()
-        self.create_test_users()
+        self.create_test_user()
 
     def create_first_user(self):
         """Create the first admin level user, but only if one doesn't already exist."""
@@ -51,7 +51,7 @@ class DataUsers:
         print("\t Client ID: %s" % client_id)
         print("\t Api Key: %s" % key)
 
-    def create_test_users(self):
+    def create_test_user(self):
         """Create test Users, with given pre-known keys."""
         if not glow.general["CVER_TEST"]:
             logging.info("Not creating test users")
@@ -83,7 +83,6 @@ class DataUsers:
         api_key.save()
         print("Created")
         print("\t%s" % user)
-        print("\t%s" % api_key)
         print("\t Client ID: %s" % client_id)
         print("\t Api Key: %s" % test_api_key)
 
