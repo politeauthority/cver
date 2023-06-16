@@ -21,6 +21,7 @@ setup(
         "cver.cver_client.collections",
         "cver.cver_client.models",
         "cver.ingest",
+        "cver.ingest.utils",
         "cver.migrate",
         "cver.migrate.data",
         "cver.shared",

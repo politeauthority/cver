@@ -3,6 +3,7 @@
     Base
 
 """
+import json
 import logging
 
 from flask import make_response, request, jsonify
@@ -12,7 +13,6 @@ def get_model(model, entity_id: int = None) -> dict:
     """Base GET operation for a model.
     :unit-test: TestCtrlModelsBase::test__get_model
     """
-    print("NOW HERE")
     entity = model()
 
     data = {
@@ -77,8 +77,13 @@ def post_model(model, entity_id: int = None):
         else:
             logging.info("POST - Found entity: %s" % entity)
 
+    try:
+        request_data = request.get_json()
+    except json.decoder.JSONDecodeError as e:
+        logging.warning(f"Recieved data that cant be decoded to JSON: {e}")
+        return make_response("ERROR", 401)
+
     # Check through the fields and see if they should be applied to the model.
-    request_data = request.get_json()
     for field_name, field_value in request_data.items():
         update_field = False
         for entity_field_name, entity_field in entity.field_map.items():

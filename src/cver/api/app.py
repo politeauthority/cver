@@ -94,7 +94,6 @@ def handle_exception(e):
 
 @app.after_request
 def after_request(response):
-    print("After")
     logging.info(
         "path: %s | method: %s | status: %s | size: %s",
         request.path,

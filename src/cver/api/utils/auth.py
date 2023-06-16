@@ -38,6 +38,9 @@ def auth_request(f):
             # User has valid JWT
             logging.info("Authenticated User")
             # Check if user has access to this resource
+            if "role_perms" not in jwt_value:
+                data["message"] = "Invalid token"
+                return make_response(jsonify(data), 401)
             if not rbac.check_role_uri_access(jwt_value["role_perms"], request):
                 data["message"] = "Access Forbidden"
                 return make_response(jsonify(data), 403)
