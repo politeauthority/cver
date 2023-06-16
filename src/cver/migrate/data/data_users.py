@@ -18,8 +18,10 @@ class DataUsers:
     def __init__(self):
         self.rbac = None
 
-    def create(self, rbac: dict):
+    def create(self, rbac: dict) -> bool:
+        """Create the first user, and test users if this is a test environment."""
         self.rbac = rbac
+        self.role_admin_id = rbac["admin_role_id"]
         self.create_first_user()
         self.create_test_user()
 
