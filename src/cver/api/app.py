@@ -7,7 +7,7 @@
 import logging
 from logging.config import dictConfig
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 
 from cver.api.utils import db
 from cver.api.utils import glow
@@ -44,6 +44,8 @@ dictConfig({
 })
 
 app = Flask(__name__)
+app.config.update(DEBUG=True)
+glow.db = db.connect()
 
 
 def register_blueprints(app: Flask) -> bool:
@@ -76,11 +78,20 @@ def handle_exception(e):
     return jsonify(data), 500
 
 
-app = Flask(__name__)
-app.config.update(DEBUG=True)
+@app.after_request
+def after_request(response):
+    print("After")
+    logging.info(
+        "path: %s | method: %s | status: %s | size: %s",
+        request.path,
+        request.method,
+        response.status,
+        response.content_length
+    )
+    return response
+
+
 register_blueprints(app)
-glow.db = db.connect()
-# glow.options = Options().load_options()
 
 # Development Runner
 if __name__ == "__main__":
