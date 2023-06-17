@@ -50,7 +50,7 @@ class Migrate:
         self.create_rbac()
         self.create_users()
         self.create_misc()
-        self.create_table_sql()
+        # self.create_table_sql()
 
     def create_database(self) -> True:
         """Create the database for CVER.
@@ -136,21 +136,6 @@ class Migrate:
         """Create misc data."""
         logging.info("Creating misc data")
         DataMisc().create()
-
-    # def create_data(self):
-    #     """Create already tracked apps."""
-    #     logging.info("Creating Software")
-    #     softwares = ["emby"]
-    #     sotfware = Software()
-
-    #     for a_software_name in softwares:
-    #         software = Software()
-    #         if not software.get_by_name(a_software_name):
-    #             sotfware.name = a_software_name
-    #             sotfware.slug_name = a_software_name
-    #             sotfware.save()
-    #         logging.info("Wrote app %s" % a_software_name)
-    #     return
 
     # def create_table_sql(self):
     #     """Create table SQL for migrations."""

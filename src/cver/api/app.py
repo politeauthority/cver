@@ -29,9 +29,11 @@ from cver.api.controllers.ctrl_collections.ctrl_perms import ctrl_perms
 from cver.api.controllers.ctrl_models.ctrl_user import ctrl_user
 from cver.api.controllers.ctrl_collections.ctrl_users import ctrl_users
 from cver.api.controllers.ctrl_collections.ctrl_options import ctrl_options
-from cver.api.controllers.ctrl_collections.ctrl_softwares import ctrl_softwares
+from cver.api.controllers.ctrl_models.ctrl_scan import ctrl_scan
+from cver.api.controllers.ctrl_collections.ctrl_scans import ctrl_scans
 from cver.api.controllers.ctrl_models.ctrl_software import ctrl_software
-from cver.api.controllers.ctrl_submit_report import ctrl_submit_report
+from cver.api.controllers.ctrl_collections.ctrl_softwares import ctrl_softwares
+from cver.api.controllers.ctrl_submit_scan import ctrl_submit_scan
 
 
 dictConfig({
@@ -50,6 +52,8 @@ dictConfig({
     }
 })
 
+logger = logging.getLogger(__name__)
+logger.propagate = True
 app = Flask(__name__)
 app.config.update(DEBUG=True)
 glow.db = db.connect()
@@ -74,9 +78,12 @@ def register_blueprints(app: Flask) -> bool:
     app.register_blueprint(ctrl_user)
     app.register_blueprint(ctrl_users)
     app.register_blueprint(ctrl_options)
-    app.register_blueprint(ctrl_submit_report)
+    app.register_blueprint(ctrl_scan)
+    app.register_blueprint(ctrl_scans)
     app.register_blueprint(ctrl_software)
     app.register_blueprint(ctrl_softwares)
+    app.register_blueprint(ctrl_submit_scan)
+
     return True
 
 

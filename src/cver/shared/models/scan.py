@@ -74,6 +74,10 @@ FIELD_MAP = {
     "cve_unknown_nums": {
         "name": "cve_unknown_nums",
         "type": "list"
+    },
+    "pending_parse": {
+        "name": "pending_parse",
+        "type": "bool"
     }
 }
 

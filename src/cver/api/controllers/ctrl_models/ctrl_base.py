@@ -89,12 +89,7 @@ def post_model(model, entity_id: int = None):
         for entity_field_name, entity_field in entity.field_map.items():
             if entity_field["name"] == field_name:
                 if "api_writeable" not in entity_field:
-                    logging.warning("Entity: %s does not allow api writing of field: %s" % (
-                        entity,
-                        entity_field["name"]))
-                    data["status"] = "Error"
-                    data["message"] = "Cant modify field: %s" % field_name
-                    return make_response(jsonify(data), 400)
+                    continue
                 else:
                     update_field = True
         if update_field:

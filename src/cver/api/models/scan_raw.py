@@ -4,7 +4,7 @@
 
 """
 from cver.api.models.base_entity_meta import BaseEntityMeta
-from cver.shared.models.scan import FIELD_MAP
+from cver.shared.models.scan_raw import FIELD_MAP
 
 
 class ScanRaw(BaseEntityMeta):

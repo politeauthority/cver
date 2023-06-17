@@ -98,6 +98,19 @@ ACL = {
         "POST": ["write-all"],
         "DELETE": ["write-all"],
     },
+    "/scan": {
+        "GET": ["read-all"],
+        "POST": ["write-all"],
+        "DELETE": ["write-all"],
+    },
+    "/scans": {
+        "GET": ["read-all"],
+        "POST": ["write-all"],
+        "DELETE": ["write-all"],
+    },
+    "/submit-scan": {
+        "POST": ["write-all", "write-scan"],
+    },
     "/user": {
         "GET": ["read-all"],
         "POST": ["write-all"],

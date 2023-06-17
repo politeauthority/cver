@@ -86,7 +86,8 @@ CREATE TABLE IF NOT EXISTS scans (
     `cve_low_int` INTEGER,
     `cve_low_nums` TEXT,
     `cve_unknown_int` INTEGER,
-    `cve_unknown_nums` TEXT);
+    `cve_unknown_nums` TEXT,
+    `pending_parse` TINYINT(1) DEFAULT True);
 
 --- 
 --- Create scanners

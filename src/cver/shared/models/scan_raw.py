@@ -36,7 +36,7 @@ FIELD_MAP = {
     },
     "raw": {
         "name": "raw",
-        "type": "str"
+        "type": "json"
     }
 }
 

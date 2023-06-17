@@ -1,6 +1,7 @@
 """
     Cver Test Unit
     Api Model: Base
+    Tests File: cver/api/models/base.py
 
 """
 from datetime import datetime
@@ -26,7 +27,7 @@ BASE_MAP = {
 }
 
 
-class TestBase:
+class TestApiModelBase:
 
     def test____init__(self):
         """Test the Base Model's initialization.
