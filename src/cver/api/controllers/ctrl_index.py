@@ -83,6 +83,16 @@ def info():
     return jsonify(data)
 
 
+@ctrl_index.route("/healthz")
+def healthz():
+    data = {
+        "status": "Success",
+        "message": "Healthy"
+    }
+    logging.info("Helath check, reporting healthy")
+    return jsonify(data)
+
+
 @ctrl_index.route("/debug")
 def debug():
     data = {
