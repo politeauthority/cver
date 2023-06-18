@@ -33,14 +33,12 @@ jobs:
 
       - name: Source Linter
         run: |
-          SRC_FLAKE8=$(flake8 src/cver --config=src/flake8 --count --show-source --statistics)
-          echo "# Python Build" >> $GITHUB_STEP_SUMMARY
-          echo "Source Lint Errors: $SRC_FLAKE8" >> $GITHUB_STEP_SUMMARY
+          flake8 src/cver --config=src/flake8 --count --show-source --statistics
 
       - name: Tests Linter
         run: |
-          SRC_FLAKE8=$(flake8 tests --config=tests/flake8 --count --show-source --statistics)
-          echo "Test Lint Errors: $SRC_FLAKE8" >> $GITHUB_STEP_SUMMARY
+          flake8 tests --config=tests/flake8 --count --show-source --statistics
+
       - name: Unit Tests
         run: |
           pytest -vvv tests/unit --md report.md

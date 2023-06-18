@@ -42,11 +42,15 @@ FIELD_MAP = {
         "name": "last_ip",
         "type": "str",
     },
-    # "expiration_date": {
-    #     "name": "expiration_date",
-    #     "type": "datetime",
-    #     "api_writeable": True
-    # }
+    "expiration_date": {
+        "name": "expiration_date",
+        "type": "datetime",
+    },
+    "enabled": {
+        "name": "enabled",
+        "type": "bool",
+        "default": True,
+    }
 }
 
 # End File: cver/src/shared/models/api_key.py

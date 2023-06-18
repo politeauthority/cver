@@ -1,4 +1,6 @@
-"""User - Model
+"""
+    Cver Api
+    Model - User
 
 """
 from cver.shared.models.user import FIELD_MAP

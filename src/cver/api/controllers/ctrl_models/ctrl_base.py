@@ -3,6 +3,7 @@
     Base
 
 """
+import json
 import logging
 
 from flask import make_response, request, jsonify
@@ -12,7 +13,6 @@ def get_model(model, entity_id: int = None) -> dict:
     """Base GET operation for a model.
     :unit-test: TestCtrlModelsBase::test__get_model
     """
-    print("NOW HERE")
     entity = model()
 
     data = {
@@ -63,33 +63,41 @@ def get_model(model, entity_id: int = None) -> dict:
     return data
 
 
-def post_model(model, entity_id: int = None):
-    """Base POST operation for a model. Create or modify a entity."""
+def post_model(model, entity_id: int = None, generated_data: dict = {}):
+    """Base POST operation for a model. Create or modify a entity. If a model is immutabel then we
+    can skip looking for the entity in the database.
+    """
     data = {
         "status": "Error"
     }
     entity = model()
-    if entity_id:
-        if not entity.get_by_id(entity_id):
-            data["status"] = "Error"
-            data["message"] = "Could not find %s ID: %s" % (entity.model_name, entity_id)
-            return jsonify(data), 404
-        else:
-            logging.info("POST - Found entity: %s" % entity)
+    if not entity.immutable:
+        if entity_id:
+            if not entity.get_by_id(entity_id):
+                data["status"] = "Error"
+                data["message"] = "Could not find %s ID: %s" % (entity.model_name, entity_id)
+                return jsonify(data), 404
+            else:
+                logging.info("POST - Found entity: %s" % entity)
 
-    # Check through the fields and see if they should be applied to the model.
-    request_data = request.get_json()
+    # If we cant decode a JSON payload return an error.
+    try:
+        request_data = request.get_json()
+    except json.decoder.JSONDecodeError as e:
+        logging.warning(f"Recieved data that cant be decoded to JSON: {e}")
+        return make_response("ERROR", 401)
+
+    # If there's api generated data, override the request data with that info.
+    if generated_data:
+        request_data.update(generated_data)
+
+    # Check through the fields and see if they should be applied to the entity.
     for field_name, field_value in request_data.items():
         update_field = False
         for entity_field_name, entity_field in entity.field_map.items():
             if entity_field["name"] == field_name:
-                if "api_writeable" not in entity_field:
-                    logging.warning("Entity: %s does not allow api writing of field: %s" % (
-                        entity,
-                        entity_field["name"]))
-                    data["status"] = "Error"
-                    data["message"] = "Cant modify field: %s" % field_name
-                    return make_response(jsonify(data), 400)
+                if "api_writeable" not in entity_field and field_name not in generated_data:
+                    continue
                 else:
                     update_field = True
         if update_field:
@@ -100,7 +108,7 @@ def post_model(model, entity_id: int = None):
             setattr(entity, field_name, field_value)
 
     entity.save()
-
+    data["status"] = "Success"
     data["object"] = entity.json()
     data["object_type"] = entity.model_name
     return data, 201

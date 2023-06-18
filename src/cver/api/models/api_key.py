@@ -12,14 +12,15 @@ class ApiKey(BaseEntityMeta):
     model_name = "api_key"
 
     def __init__(self, conn=None, cursor=None):
-        """Create the Image instance."""
+        """Create the instance."""
         super(ApiKey, self).__init__(conn, cursor)
         self.table_name = "api_keys"
         self.field_map = FIELD_MAP
+        self.immutable = True
         self.setup()
 
     def __repr__(self):
-        """Api model representation. """
+        """ApiKey model representation. """
         if self.id and self.client_id:
             return "<%s: %s-%s>" % (self.__class__.__name__, self.id, self.client_id)
         elif self.id:

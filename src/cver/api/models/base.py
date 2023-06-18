@@ -12,9 +12,11 @@ Testing:
 
 """
 from datetime import datetime
+import json
 import logging
 
 import arrow
+from pymysql.err import ProgrammingError
 
 from cver.shared.utils import xlate
 from cver.api.utils import date_utils
@@ -34,6 +36,7 @@ class Base:
         self.table_name = None
         self.entity_name = None
         self.field_map = {}
+        self.immutable = False
         self.id = None
         self.setup()
 
@@ -242,8 +245,8 @@ class Base:
                 len(raw))
             msg += "Field Map: %s \n" % str(self.field_map)
             msg += "Raw Record: %s \n" % str(raw)
-            logging.error(msg, stacktrace=True)
-            return False
+            logging.error(msg)
+            raise AttributeError(msg)
 
         count = 0
         for field_name, field in self.field_map.items():
@@ -327,8 +330,13 @@ class Base:
     def insert(self):
         """Insert a new record of the model."""
         sql = self._gen_insert_sql()
-        self.cursor.execute(sql)
-        self.conn.commit()
+        try:
+            self.cursor.execute(sql)
+            self.conn.commit()
+        except ProgrammingError as e:
+            logging.critical(sql)
+            logging.critical("Caught ProgrammingError exception:", e)
+            exit(1)
         self.id = self.cursor.lastrowid
         return True
 
@@ -443,6 +451,8 @@ class Base:
         return set_sql[:-2]
 
     def _get_sql_value_santized(self, field: dict) -> str:
+        """Get the sanitized value of a given field.
+        """
         value = self.sql_value_override_for_model(field)
 
         if field["name"] == "created_ts" and not value:
@@ -455,15 +465,33 @@ class Base:
             value = "NULL"
             return value
 
-        if field["type"] in ["int"]:
+        value = self._get_sql_value_santized_typed(field, value)
+
+        return value
+
+    def _get_sql_value_santized_typed(self, field, value) -> str:
+        """Convert values to a safe santized value based on it's type."""
+        # Handle converting int value
+        if field["type"] == "int":
             value = xlate.sql_safe(value)
+
+        # Handle converting a list value
         elif field["type"] == "list":
             if not isinstance(value, list) and value.isdigit():
                 value = str(value)
             value = '"%s"' % xlate.sql_safe(xlate.convert_list_to_str(value))
 
+        # Handle converting a bool
         elif field["type"] == "bool":
             value = xlate.sql_safe(xlate.convert_bool_to_int(value))
+
+        # Handle converting a json value
+        elif field["type"] == "json":
+            logging.info("Creating JSON sql")
+            value = json.dumps(value)
+            value = f"'{value}'"
+
+        # Handle converting anything else
         else:
             value = '"%s"' % xlate.sql_safe(value)
 
@@ -631,6 +659,10 @@ class Base:
                 return 'DECIMAL(10, 5)'
             elif field_type == 'list':
                 return "TEXT"
+            elif field_type == "json":
+                return "JSON"
+            else:
+                raise AttributeError(f'Unknown data type: "{field_type}"')
 
     def _establish_db(self, conn, cursor) -> bool:
         self.conn = conn

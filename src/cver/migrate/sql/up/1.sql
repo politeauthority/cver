@@ -11,7 +11,10 @@ CREATE TABLE IF NOT EXISTS api_keys (
     `client_id` VARCHAR(200) UNIQUE,
     `key` VARCHAR(200),
     `last_access` DATETIME,
-    `last_ip` VARCHAR(200));
+    `last_ip` VARCHAR(200),
+    `expiration_date` DATETIME,
+    `enabled` TINYINT(1) DEFAULT True
+);
 
 ---
 --- Create entity_metas
@@ -36,7 +39,8 @@ CREATE TABLE IF NOT EXISTS images (
     `updated_ts` DATETIME,
     `name` VARCHAR(200) UNIQUE,
     `repository` VARCHAR(200) NOT NULL,
-    `maintained` TINYINT(1) DEFAULT True);
+    `maintained` TINYINT(1) DEFAULT True
+);
 
 --- 
 --- Create image_builds
@@ -55,7 +59,8 @@ CREATE TABLE IF NOT EXISTS image_builds (
     `scan_flag` TINYINT(1),
     `scan_enabled` TINYINT(1) DEFAULT True,
     `scan_last_ts` DATETIME,
-    `pending_operation` VARCHAR(200));
+    `pending_operation` VARCHAR(200)
+);
 
 --- 
 --- Create options
@@ -65,7 +70,42 @@ CREATE TABLE IF NOT EXISTS options (
     `created_ts` DATETIME,
     `updated_ts` DATETIME,
     `number` VARCHAR(200) UNIQUE,
-    `value` VARCHAR(200));
+    `value` VARCHAR(200))
+;
+
+---
+--- Create roles
+---
+CREATE TABLE IF NOT EXISTS roles (
+    `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
+    `created_ts` DATETIME,
+    `updated_ts` DATETIME,
+    `name` VARCHAR(200),
+    `slug_name` VARCHAR(200))
+;
+
+---
+--- Create role_perms
+---
+CREATE TABLE IF NOT EXISTS perms (
+    `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
+    `created_ts` DATETIME,
+    `updated_ts` DATETIME,
+    `name` VARCHAR(200),
+    `slug_name` VARCHAR(200))
+;
+
+---
+--- Create role_perm
+---
+CREATE TABLE IF NOT EXISTS role_perms (
+    `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
+    `created_ts` DATETIME,
+    `updated_ts` DATETIME,
+    `role_id` INTEGER,
+    `perm_id` INTEGER,
+    `enabled` TINYINT(1) DEFAULT True
+);
 
 --- 
 --- Create scans
@@ -74,6 +114,7 @@ CREATE TABLE IF NOT EXISTS scans (
     `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
     `created_ts` DATETIME,
     `updated_ts` DATETIME,
+    `user_id` INTEGER,
     `image_id` INTEGER,
     `image_build_id` INTEGER,
     `scanner_id` INTEGER,
@@ -86,7 +127,24 @@ CREATE TABLE IF NOT EXISTS scans (
     `cve_low_int` INTEGER,
     `cve_low_nums` TEXT,
     `cve_unknown_int` INTEGER,
-    `cve_unknown_nums` TEXT);
+    `cve_unknown_nums` TEXT,
+    `pending_parse` TINYINT(1) DEFAULT True
+);
+
+---
+--- Create scan_raws
+---
+CREATE TABLE IF NOT EXISTS scan_raws(
+    `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
+    `created_ts` DATETIME,
+    `updated_ts` DATETIME,
+    `user_id` INTEGER,
+    `image_id` INTEGER,
+    `image_build_id` INTEGER,
+    `scanner_id` INTEGER,
+    `scan_id` INTEGER,
+    `raw` JSON
+);
 
 --- 
 --- Create scanners
@@ -95,7 +153,8 @@ CREATE TABLE IF NOT EXISTS scanners (
     `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
     `created_ts` DATETIME,
     `updated_ts` DATETIME,
-    `name` VARCHAR(200));
+    `name` VARCHAR(200)
+);
 
 --- 
 --- Create softwares
@@ -108,7 +167,8 @@ CREATE TABLE IF NOT EXISTS softwares (
     `slug_name` VARCHAR(200),
     `software_id` INTEGER,
     `url_git` VARCHAR(200) UNIQUE,
-    `url_marketing` VARCHAR(200));
+    `url_marketing` VARCHAR(200)
+);
 
 --- 
 --- Create users
@@ -120,6 +180,7 @@ CREATE TABLE IF NOT EXISTS users (
     `name` VARCHAR(200) UNIQUE,
     `email` VARCHAR(200) UNIQUE,
     `role_id` INTEGER,
-    `last_access` DATETIME);
+    `last_access` DATETIME
+);
 
 --- End File: cver/src/migrate/sql/up/1.sql

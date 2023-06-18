@@ -10,13 +10,12 @@ import subprocess
 from cver.api.utils import db
 from cver.api.utils import glow
 from cver.api.models.migration import Migration
-from cver.api.models.software import Software
 from cver.migrate.data.data_rbac import DataRbac
 from cver.migrate.data.data_users import DataUsers
+from cver.migrate.data.data_misc import DataMisc
 
 
-CURRENT_MIGRATION = 2
-
+CURRENT_MIGRATION = 1
 
 dictConfig({
     'version': 1,
@@ -50,6 +49,7 @@ class Migrate:
         self.run_migrations()
         self.create_rbac()
         self.create_users()
+        self.create_misc()
         # self.create_table_sql()
 
     def create_database(self) -> True:
@@ -73,7 +73,7 @@ class Migrate:
         return last
 
     def run_migrations(self) -> bool:
-        """Run the SQL migrations needed to get the database up to speed."""
+        """Determine the migrations we need to run, and execute them."""
         if self.last_migration:
             logging.info("Last migration ran: #%s" % self.last_migration.number)
         else:
@@ -93,6 +93,7 @@ class Migrate:
         return True
 
     def run_migration(self, migration_no: int):
+        """Running a single migration."""
         logging.info("Running Migration #%s" % migration_no)
         m = Migration()
         m.number = migration_no
@@ -132,26 +133,14 @@ class Migrate:
         logging.info("Creating Users and Keys")
         DataUsers().create(self.rbac)
 
-    def create_data(self):
-        """Create already tracked apps."""
-        logging.info("Creating Software")
-        softwares = ["emby"]
-        sotfware = Software()
-
-        for a_software_name in softwares:
-            software = Software()
-            if not software.get_by_name(a_software_name):
-                sotfware.name = a_software_name
-                sotfware.slug_name = a_software_name
-                sotfware.save()
-            logging.info("Wrote app %s" % a_software_name)
-        return
+    def create_misc(self):
+        """Create misc data."""
+        logging.info("Creating misc data")
+        DataMisc().create()
 
     # def create_table_sql(self):
     #     """Create table SQL for migrations."""
-    #     print(Role().create_table_sql())
-    #     print(Perm().create_table_sql())
-    #     print(RolePerm().create_table_sql())
+    #     print(ScanRaw().create_table_sql())
 
 
 if __name__ == "__main__":

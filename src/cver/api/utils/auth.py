@@ -1,4 +1,6 @@
-"""Auth Utilities
+"""
+    Cver Api
+    Utility Auth
 
 """
 import datetime
@@ -38,6 +40,9 @@ def auth_request(f):
             # User has valid JWT
             logging.info("Authenticated User")
             # Check if user has access to this resource
+            if "role_perms" not in jwt_value:
+                data["message"] = "Invalid token"
+                return make_response(jsonify(data), 401)
             if not rbac.check_role_uri_access(jwt_value["role_perms"], request):
                 data["message"] = "Access Forbidden"
                 return make_response(jsonify(data), 403)
@@ -46,27 +51,6 @@ def auth_request(f):
             logging.warning("Can't verify token")
             return make_response(jsonify({"message": "Invalid token"}), 401)
     return decorator
-
-
-def verify_api_key(client_id: str, raw_api_key: str) -> bool:
-    """"Authenticate a login request, taking the client_id and api_key looking for a match."""
-    api_key = ApiKey()
-    # Check for a matching Client ID
-    if not api_key.get_by_client_id(client_id):
-        logging.info("Could not find an ApiKey with client_id: %s" % client_id)
-        return False
-
-    # Check that the Api Key matches
-    if security.check_password_hash(api_key.key, raw_api_key):
-        logging.info("Verified Api Key: %s" % api_key)
-        data = {
-            "api_key": api_key,
-            "user_id": api_key.user_id
-        }
-        return data
-    else:
-        logging.warning("Api key doesn't match client_id: %s" % client_id)
-        return False
 
 
 def validate_jwt(token: str) -> dict:
@@ -79,15 +63,18 @@ def validate_jwt(token: str) -> dict:
         return payload
     except ExpiredSignatureError:
         # Handle expired token
-        logging.warning("Token has expired.")
-        return None
+        data = {
+            "message": "Token has expired.",
+            "status": "Error"
+        }
+        return make_response(jsonify(data), 412)
     except InvalidSignatureError:
         # Handle invalid signature
         logging.error("Invalid token signature.")
-        return None
+        return False
     except jwt.exceptions.DecodeError:
         logging.error("Unable to decode token")
-        return None
+        return False
 
 
 def mint_jwt():
@@ -131,6 +118,31 @@ def record_last_access(api_key: str) -> bool:
 
     api_key.save()
     return True
+
+
+def verify_api_key(client_id: str, raw_api_key: str) -> bool:
+    """"Authenticate a login request, taking the client_id and api_key looking for a match."""
+    api_key = ApiKey()
+
+    if not client_id or not raw_api_key:
+        return False
+
+    # Check for a matching Client ID
+    if not api_key.get_by_client_id(client_id):
+        logging.info("Could not find an ApiKey with client_id: %s" % client_id)
+        return False
+
+    # Check that the Api Key matches
+    if security.check_password_hash(api_key.key, raw_api_key):
+        logging.info("Verified Api Key: %s" % api_key)
+        data = {
+            "api_key": api_key,
+            "user_id": api_key.user_id
+        }
+        return data
+    else:
+        logging.warning("Api key doesn't match client_id: %s" % client_id)
+        return False
 
 
 def generate_client_id():
