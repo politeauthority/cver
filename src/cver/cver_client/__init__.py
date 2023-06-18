@@ -51,18 +51,6 @@ class CverClient:
         self._save_token()
         return True
 
-    def get_image(self, image_id) -> dict:
-        """Get an Image from the Cver Api by an Image ID."""
-        params = {
-            "id": image_id
-        }
-        image_resp = self.make_request("image", payload=params)
-        return image_resp
-
-    def get_image_builds(self):
-        image_build_resp = self.make_request("image-builds")
-        return image_build_resp
-
     def make_request(self, url: str, method: str = "GET", payload: dict = {}):
         """Make a generic request to the Cver Api. If we don't have a token attempt to login."""
         if not self.token:
@@ -105,6 +93,12 @@ class CverClient:
         }
         response = self.make_request("submit-scan", "POST", payload)
         print(response)
+
+    def destroy_token(self):
+        """Delete a local token from temp space."""
+        os.remove(self.token_file)
+        logging.info("Deleted local Cver token.")
+        return True
 
     def _save_token(self):
         """Save a token to a local tempfile location."""

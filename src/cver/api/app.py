@@ -117,7 +117,7 @@ register_blueprints(app)
 # Development Runner
 if __name__ == "__main__":
     logging.info("Starting develop webserver")
-    app.run(host='0.0.0.0', port=5001)
+    app.run(host='0.0.0.0', port=80)
 
 
 # Production Runner

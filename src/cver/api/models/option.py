@@ -16,7 +16,7 @@ class Option(Base):
         self.setup()
 
     def __repr__(self):
-        if self.name:
+        if hasattr(self, "name") and self.name:
             return "<Option %s:%s>" % (self.name, self.value)
         else:
             return "<Option>"
