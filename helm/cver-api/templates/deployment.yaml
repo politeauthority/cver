@@ -122,8 +122,6 @@ spec:
               path: /healthz
               port: http
               initialDelaySeconds: 60
-              periodSeconds: 120
-              timeoutSeconds: 5
           readinessProbe:
             httpGet:
               path: /healthz
