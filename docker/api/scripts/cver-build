@@ -17,10 +17,12 @@ rm -rf /app/cver.egg-info
 cd /app
 pip install .
 
-# cd /app
-flake8
-number_errors=$(flake8 | wc -l)
-echo "Found ${number_errors} in src/"
+# Flake8 Source
+flake8 /app/cver --config=/app/flake8 --count --show-source --statistics
+
+# Flake8 Tests
+flake8 /tests --config=/tests/flake8 --count --show-source --statistics
+
 # echo "Running tests"
 cd /tests/unit
 pytest

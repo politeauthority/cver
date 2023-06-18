@@ -18,8 +18,6 @@ class TestClientModelBase:
         assert hasattr(base, "base_url")
         assert hasattr(base, "client_id")
 
-
-
     # def test____repr__(self):
     #     """Test the model's representation.
     #     :method: ImageBuild().__repr__
