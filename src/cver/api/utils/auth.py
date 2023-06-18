@@ -71,10 +71,10 @@ def validate_jwt(token: str) -> dict:
     except InvalidSignatureError:
         # Handle invalid signature
         logging.error("Invalid token signature.")
-        return None
+        return False
     except jwt.exceptions.DecodeError:
         logging.error("Unable to decode token")
-        return None
+        return False
 
 
 def mint_jwt():

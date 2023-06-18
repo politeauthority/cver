@@ -3,6 +3,8 @@
     Model - Base
 
 """
+import logging
+
 from cver.cver_client import CverClient
 
 
@@ -31,7 +33,7 @@ class Base(CverClient):
         for field_name, field_info in self.field_map.items():
             setattr(self, field_name, None)
 
-    def build(self, data):
+    def build(self, data: dict) -> bool:
         for key, value in data.items():
             setattr(self, key, value)
         return True
@@ -46,6 +48,7 @@ class Base(CverClient):
         entity = self.response["object"]
         for field_name, field_value in entity.items():
             setattr(self, field_name, field_value)
+        logging.info(f"Saved {entity} successfully")
         return self.id
 
     def _get_model_fields(self) -> dict:

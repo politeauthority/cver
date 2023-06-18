@@ -3,7 +3,7 @@
     Model - ImageBuild
 
 """
-from cver.shared.models.image import FIELD_MAP
+from cver.shared.models.image_build import FIELD_MAP
 from cver.cver_client.models.base import Base
 
 

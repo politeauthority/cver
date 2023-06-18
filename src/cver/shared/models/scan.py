@@ -18,6 +18,10 @@ FIELD_MAP = {
         "name": "updated_ts",
         "type": "datetime",
     },
+    "user_id": {
+        "name": "user_id",
+        "type": "int",
+    },
     "image_id": {
         "name": "image_id",
         "type": "int",
