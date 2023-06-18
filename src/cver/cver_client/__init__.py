@@ -1,12 +1,18 @@
 """
     CverClient
+    Python native interface to communicate with the Cver Api
 
 """
+import json
+import logging
 import os
+import tempfile
+
 import requests
 
-from cver.cver_client.models.image import Image
-from cver.cver_client.models.image_build import ImageBuild
+
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 
 class CverClient:
@@ -17,9 +23,15 @@ class CverClient:
         self.api_key = os.environ.get("CVER_API_KEY")
         self.token = ""
         self.token_path = ""
+        self.response = None
+        temp_dir = tempfile.gettempdir()
+        self.token_file = os.path.join(temp_dir, "cver-token")
+        self.login_attempts = 0
 
-    def login(self) -> bool:
-        """Login to the Cver API"""
+    def login(self, skip_local_token: bool = False) -> bool:
+        """Login to the Cver API."""
+        if not skip_local_token and self._open_valid_token():
+            return True
         request_args = {
             "headers": {
                 "client-id": self.client_id,
@@ -32,9 +44,11 @@ class CverClient:
         response = requests.request(**request_args)
         if response.status_code != 200:
             print("ERROR: %s logging in" % response.status_code)
+            self.login_attempts += 1
             return False
         response_json = response.json()
         self.token = response_json["token"]
+        self._save_token()
         return True
 
     def get_image(self, image_id) -> dict:
@@ -42,15 +56,17 @@ class CverClient:
         params = {
             "id": image_id
         }
-        image_resp = self.make_request("image", args=params)
+        image_resp = self.make_request("image", payload=params)
         return image_resp
 
     def get_image_builds(self):
         image_build_resp = self.make_request("image-builds")
         return image_build_resp
 
-    def make_request(self, url: str, method: str = "GET", args: dict = {}):
-        """Make a generic request to the Cver Api."""
+    def make_request(self, url: str, method: str = "GET", payload: dict = {}):
+        """Make a generic request to the Cver Api. If we don't have a token attempt to login."""
+        if not self.token:
+            self.login()
         headers = {
             "token": self.token,
             "content-type": "application/json"
@@ -61,42 +77,55 @@ class CverClient:
             "url": f"{self.base_url}/{url}"
         }
 
-        if request_args and method == "GET":
-            request_args["params"] = args
+        if request_args:
+            if method == "GET":
+                request_args["params"] = payload
+            elif method == "POST":
+                request_args["data"] = json.dumps(payload)
 
         response = requests.request(**request_args)
+
+        # If our token has expired, attempt to get a new one, skipping using the current one.
+        if response.status_code == 412:
+            self.login(skip_local_token=True)
+
         if response.status_code > 399 and response.status_code < 500:
-            print("WARNING: ISSUE WITH REQUEST")
+            logging.error(f"ISSUE WITH REQUEST: {response}")
 
         response_json = response.json()
         return response_json
 
-    def get_objects(self, objects_response):
-        if "objects" not in objects_response:
-            print("ERROR")
-            return []
+    def submit_scan(self, image_id: int, image_build_id: int, raw_scan: dict):
+        """Submit a scan to the Cver Api"""
+        payload = {
+            "image_id": image_id,
+            "image_build_id": image_build_id,
+            "scanner_id": 1,
+            "raw": raw_scan
+        }
+        response = self.make_request("submit-scan", "POST", payload)
+        print(response)
 
-        objz = []
-        for object_data in objects_response["objects"]:
-            if objects_response["info"]["object_type"] == "image-build":
-                entity = ImageBuild()
-            elif objects_response["info"]["object_type"] == "image":
-                entity = Image()
-            entity.build(object_data)
-            objz.append(entity)
-        return objz
+    def _save_token(self):
+        """Save a token to a local tempfile location."""
+        logging.info(f"Temp Dir is: {self.token_file}")
+        with open(self.token_file, "w") as temp_file:
+            temp_file.write(self.token)
+        logging.info(f"Wrote: {temp_file}")
+        temp_file.close()
+        return True
 
-    def get_object(self, object_response: dict):
-        if "object" not in object_response:
-            print("ERROR")
-            return {}
-
-        if object_response["object_type"] == "image-build":
-            entity = ImageBuild()
-        elif object_response["object_type"] == "image":
-            entity = Image()
-        entity.build(object_response["object"])
-        return entity
+    def _open_valid_token(self):
+        """"If we have an existing server token already on the system, lets use that.
+        @todo: Reade the token data to see if it has expired already or not.
+        """
+        if not os.path.exists(self.token_file):
+            return False
+        logging.info("Using token file")
+        with open(self.token_file, "r") as temp_file:
+            token_data = temp_file.read()
+        self.token = token_data
+        return True
 
 
 # End File: cver/src/shared/cver_client/__init__.py

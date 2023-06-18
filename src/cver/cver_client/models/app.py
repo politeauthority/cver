@@ -1,19 +1,19 @@
 """
     Cver Client
-    Model - Image
+    Model - App
 
 """
-from cver.shared.models.image import FIELD_MAP
+from cver.shared.models.app import FIELD_MAP
 from cver.cver_client.models.base import Base
 
 
-class Image(Base):
+class App(Base):
 
     def __init__(self, conn=None, cursor=None):
         """Create the instance."""
-        super(Image, self).__init__()
+        super(App, self).__init__()
         self.field_map = FIELD_MAP
-        self.model_name = "image"
+        self.model_name = "app"
         self.setup()
 
-# End File: cver/src/cver_client/models/image.py
+# End File: cver/src/cver_client/models/app.py

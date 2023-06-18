@@ -56,6 +56,7 @@ logger = logging.getLogger(__name__)
 logger.propagate = True
 app = Flask(__name__)
 app.config.update(DEBUG=True)
+app.debugger = False
 glow.db = db.connect()
 
 

@@ -36,6 +36,7 @@ class Base:
         self.table_name = None
         self.entity_name = None
         self.field_map = {}
+        self.immutable = False
         self.id = None
         self.setup()
 
@@ -244,8 +245,8 @@ class Base:
                 len(raw))
             msg += "Field Map: %s \n" % str(self.field_map)
             msg += "Raw Record: %s \n" % str(raw)
-            logging.error(msg, stacktrace=True)
-            return False
+            logging.error(msg)
+            raise AttributeError(msg)
 
         count = 0
         for field_name, field in self.field_map.items():

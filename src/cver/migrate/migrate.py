@@ -15,7 +15,7 @@ from cver.migrate.data.data_users import DataUsers
 from cver.migrate.data.data_misc import DataMisc
 
 
-CURRENT_MIGRATION = 3
+CURRENT_MIGRATION = 1
 
 dictConfig({
     'version': 1,
@@ -73,7 +73,7 @@ class Migrate:
         return last
 
     def run_migrations(self) -> bool:
-        """Run the SQL migrations needed to get the database up to speed."""
+        """Determine the migrations we need to run, and execute them."""
         if self.last_migration:
             logging.info("Last migration ran: #%s" % self.last_migration.number)
         else:
@@ -93,6 +93,7 @@ class Migrate:
         return True
 
     def run_migration(self, migration_no: int):
+        """Running a single migration."""
         logging.info("Running Migration #%s" % migration_no)
         m = Migration()
         m.number = migration_no

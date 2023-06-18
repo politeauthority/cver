@@ -1,20 +1,20 @@
 """
     Cver Client
-    Model - ImageBuild
+    Model - User
 
 """
 from cver.shared.models.image import FIELD_MAP
 from cver.cver_client.models.base import Base
 
 
-class ImageBuild(Base):
+class User(Base):
 
     def __init__(self, conn=None, cursor=None):
         """Create the instance."""
-        super(ImageBuild, self).__init__()
+        super(User, self).__init__()
         self.field_map = FIELD_MAP
-        self.model_name = "image-build"
+        self.model_name = "user"
         self.setup()
 
 
-# End File: cver/src/cver_client/models/image_build.py
+# End File: cver/src/cver_client/models/user.py
