@@ -67,7 +67,8 @@ def validate_jwt(token: str) -> dict:
             "message": "Token has expired.",
             "status": "Error"
         }
-        return make_response(jsonify(data), 412)
+        make_response(jsonify(data), 412)
+        return False
     except InvalidSignatureError:
         # Handle invalid signature
         logging.error("Invalid token signature.")
