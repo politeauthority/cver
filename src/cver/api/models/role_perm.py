@@ -22,7 +22,7 @@ class RolePerm(Base):
         if self.id:
             return "<RolePerm %s:(Role.ID %s, Perm.ID %s)>" % (self.id, self.role_id, self.perm_id)
         else:
-            return "<RolePerm %s>" % (self.id)
+            return "<RolePerm>"
 
     def get_by_role_perm(self, role_id: int, perm_id) -> bool:
         sql = """

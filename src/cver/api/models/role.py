@@ -21,6 +21,6 @@ class Role(Base):
         if self.id:
             return "<Role %s:%s>" % (self.id, self.slug_name)
         else:
-            return "<Role %s>" % (self.slug_name)
+            return "<Role>"
 
 # End File: cver/src/api/modles/role.py
