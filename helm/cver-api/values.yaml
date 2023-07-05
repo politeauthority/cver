@@ -10,12 +10,18 @@ app:
   dbPort: 3306
   dbUser: "mysql-user"
   runMigrations: true
+  jwtExpireMinutes: 60
   debug: False
+  envName: "prod"
 
 image:
   repository: politeauthority/cver-api
   pullPolicy: IfNotPresent
   tag: "latest"
+
+test:
+  test: false
+  secretName: 
 
 imagePullSecrets: []
 nameOverride: ""

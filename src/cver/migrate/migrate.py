@@ -2,37 +2,68 @@
     Cver Migrate
 
 """
+import logging
+from logging.config import dictConfig
 import os
+import subprocess
 
 from cver.api.utils import db
 from cver.api.utils import glow
-from cver.shared.utils import log
-
-from cver.api.models.entity_meta import EntityMeta
-from cver.api.models.image import Image
-from cver.api.models.image_build import ImageBuild
 from cver.api.models.migration import Migration
-from cver.api.models.option import Option
-from cver.api.models.scan import Scan
-from cver.api.models.scanner import Scanner
-from cver.api.models.software import Software
-from cver.api.models.user import User
+from cver.migrate.data.data_rbac import DataRbac
+from cver.migrate.data.data_users import DataUsers
+from cver.migrate.data.data_misc import DataMisc
 
 
-CVER_DB_NAME = os.environ.get("CVER_DB_NAME")
 CURRENT_MIGRATION = 1
+
+dictConfig({
+    'version': 1,
+    'formatters': {'default': {
+        'format': '[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
+    }},
+    'handlers': {'wsgi': {
+        'class': 'logging.StreamHandler',
+        'stream': 'ext://flask.logging.wsgi_errors_stream',
+        'formatter': 'default'
+    }},
+    'root': {
+        'level': 'INFO',
+        'handlers': ['wsgi']
+    }
+})
 
 
 class Migrate:
 
+    def __init__(self):
+        self.role_admin_id = None
+
     def run(self):
-        log.info("Working with database %s" % CVER_DB_NAME)
+        """Primary entry point for migrations."""
+        logging.info("Working with database %s" % glow.db["NAME"])
+        self.create_database()
+        db.connect()
         self.last_migration = self.get_migration_info()
         self.this_migration = Migration()
         self.run_migrations()
-        self.create_data()
+        self.create_rbac()
+        self.create_users()
+        self.create_misc()
+        # self.create_table_sql()
 
-    def get_migration_info(self):
+    def create_database(self) -> True:
+        """Create the database for CVER.
+        @todo: This could be done more securily by attempting to connect to the database first.
+        """
+        conn, cursor = db.connect_no_db(glow.db)
+        sql = "CREATE DATABASE  IF NOT EXISTS `%s`;" % glow.db["NAME"]
+        cursor.execute(sql)
+        conn.commit()
+        logging.info("Created database: %s" % glow.db["NAME"])
+        return True
+
+    def get_migration_info(self) -> Migration:
         """Get the info from the last migration ran"""
         Migration().create_table()
         last = Migration()
@@ -41,52 +72,78 @@ class Migrate:
             return False
         return last
 
-    def run_migrations(self):
-        if not self.last_migration:
-            print("First run of migrations.")
-            self.create_initial_tables()
-            self.this_migration.number = 1
-            self.this_migration.success = True
-            self.this_migration.save()
-            log.info("Migration %s Succeeded" % self.this_migration.number)
-            return True
-        elif CURRENT_MIGRATION == self.last_migration.number:
-            log.info("Migration: %s Caught Up" % CURRENT_MIGRATION)
-            return True
+    def run_migrations(self) -> bool:
+        """Determine the migrations we need to run, and execute them."""
+        if self.last_migration:
+            logging.info("Last migration ran: #%s" % self.last_migration.number)
         else:
-            log.warning("Not sure what to do here")
+            logging.info("Running first migration")
+        if self.last_migration and CURRENT_MIGRATION == self.last_migration.number:
+            logging.info("Migration: %s Caught Up" % CURRENT_MIGRATION)
+            return True
+        if self.last_migration:
+            migration_no = self.last_migration.number + 1
+        else:
+            migration_no = 1
 
-    def create_initial_tables(self):
-        """Create tables."""
-        log.info("Creating tables")
-        EntityMeta().create_table()
-        Image().create_table()
-        ImageBuild().create_table()
-        Option().create_table()
-        Scan().create_table()
-        Scanner().create_table()
-        Software().create_table()
-        Software().create_table()
-        User().create_table()
+        while migration_no <= CURRENT_MIGRATION:
+            self.run_migration(migration_no)
+            migration_no += 1
 
-    def create_data(self):
-        """Create already tracked apps."""
-        log.info("Creating Software")
-        softwares = ["emby"]
-        sotfware = Software()
+        return True
 
-        for a_software_name in softwares:
-            software = Software()
-            if not software.get_by_name(a_software_name):
-                sotfware.name = a_software_name
-                sotfware.slug_name = a_software_name
-                sotfware.save()
-            log.info("Wrote app %s" % a_software_name)
-        return
+    def run_migration(self, migration_no: int):
+        """Running a single migration."""
+        logging.info("Running Migration #%s" % migration_no)
+        m = Migration()
+        m.number = migration_no
+        migration_file = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            "sql/up/%s.sql" % migration_no)
+        cmd = "mysql -h %s --port %s -u %s --password=%s %s < %s" % (
+            glow.db["HOST"],
+            glow.db["PORT"],
+            glow.db["USER"],
+            glow.db["PASS"],
+            glow.db["NAME"],
+            migration_file
+        )
+        if not os.path.exists(migration_file):
+            logging.error("File doesnt exist")
+            exit(1)
+        try:
+            subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout.read()
+            db.connect()
+            m.success = True
+            m.save()
+            return True
+        except Exception as e:
+            logging.error("Failed to run migration: %s" % e)
+            m.success = False
+            m.save()
+            exit(1)
+
+    def create_rbac(self):
+        """Create the Rbac roles/role perms and perms."""
+        logging.info("Creating Roles")
+        self.rbac = DataRbac().create()
+
+    def create_users(self):
+        """Create the users and api keys."""
+        logging.info("Creating Users and Keys")
+        DataUsers().create(self.rbac)
+
+    def create_misc(self):
+        """Create misc data."""
+        logging.info("Creating misc data")
+        DataMisc().create()
+
+    # def create_table_sql(self):
+    #     """Create table SQL for migrations."""
+    #     print(ScanRaw().create_table_sql())
 
 
 if __name__ == "__main__":
-    glow.db = db.connect()
     Migrate().run()
 
 

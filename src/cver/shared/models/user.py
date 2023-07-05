@@ -18,19 +18,31 @@ FIELD_MAP = {
         'name': 'updated_ts',
         'type': 'datetime',
     },
+    "name": {
+        "name": "name",
+        "type": "str",
+        "extra": "UNIQUE",
+        "api_writeable": True,
+        "api_searchable": True
+    },
     "email": {
         "name": "email",
         "type": "str",
         "extra": "UNIQUE",
+        "api_writeable": True,
+        "api_searchable": True
     },
-    "last_login": {
-        "name": "last_login",
+    "role_id": {
+        "name": "role_id",
+        "type": "int",
+        "api_writeable": True,
+        "api_searchable": True
+    },
+    "last_access": {
+        "name": "last_access",
         "type": "datetime",
-    },
-    "password": {
-        "name": "password",
-        "type": "str",
-    },
+        "api_searchable": True
+    }
 }
 
 # End File: cver/src/shared/modles/fields/user.py

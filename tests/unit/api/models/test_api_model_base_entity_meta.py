@@ -33,8 +33,8 @@ class TestBaseEntityMeta:
         assert hasattr(base, "table_name")
         assert hasattr(base, "backend")
         assert hasattr(base, "field_map")
-        assert hasattr(base, "meta")
-        assert isinstance(base.meta, dict)
+        assert hasattr(base, "metas")
+        assert isinstance(base.metas, dict)
 
     # def test____repr__(self):
     #     """Test the Base Model's representation.

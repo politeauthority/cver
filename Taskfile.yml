@@ -11,30 +11,63 @@ tasks:
       - rm -rf {{.CVER_DIR}}/docker/api/src/build
       - rm -rf {{.CVER_DIR}}/docker/api/src/dist
       - rm -rf {{.CVER_DIR}}/docker/api/src/cver.egg-info
-      - docker build -t politeauthority/cver-api:{{.CVER_API_TAG}} {{.CVER_DIR}}/docker/api
+      - |
+        if [ -z ${CVER_API_TAG} ]; then
+          CVER_API_TAG="dev"
+        fi
+        docker build \
+          -t politeauthority/cver-api:${CVER_API_TAG} \
+          --build-arg CVER_BUILD="${CVER_API_TAG}" \
+          {{.CVER_DIR}}/docker/api
       - rm -rf {{.CVER_DIR}}/docker/api/src
       - rm -rf {{.CVER_DIR}}/docker/api/tests
-      - echo "Completed build politeauthority/cver-api:{{.CVER_API_TAG}}"
+      - echo "Completed build politeauthority/cver-api:${CVER_API_TAG}"
     silent: false
   dev-run:
     cmds:
-      - docker run --name="cver" -d -v {{.CVER_DIR}}/src:/app -v {{.CVER_DIR}}/tests:/tests -p 5001:5001 -e CVER_DB_PASS="${CVER_DB_PASS}" politeauthority/cver:{{.CVER_TAG}} tail -f /dev/null
-      - docker network connect cver cver
+      - |
+        docker run --name="cver-api" -d \
+          -v {{.CVER_DIR}}/src:/app \
+          -v {{.CVER_DIR}}/tests:/tests \
+          -p 5001:5001  \
+          -e CVER_DB_HOST="mysql" \
+          -e CVER_DB_PASS="${CVER_DB_PASS}" \
+          -e CVER_TEST_CLIENT_ID="${CVER_TEST_CLIENT_ID}" \
+          -e CVER_TEST_API_KEY="${CVER_TEST_API_KEY}" \
+          -e CVER_SECRET_KEY="${CVER_SECRET_KEY}" \
+          -e CVER_TEST="true" \
+          -e CVER_JWT_EXPIRE_MINUTES=1440 \
+          politeauthority/cver-api:0.0.1b \
+          tail -f /dev/null
+      - docker network connect cver cver-api
       - echo "Success"
     silent: false
   dev-exec:
     cmds:
-      - docker exec -it cver bash
+      - docker exec -it cver-api bash
   dev-stop:
     cmds:
-      - docker rm -f cver
-  pre-commit-lint:
+      - docker rm -f cver-api
+  pre-commit:
     cmds: 
-      - cd ./src && flake8 cver --config=flake8 --count --show-source --statistics
+      - |
+        echo "Pre Commit"
+        cd ./src
+        echo "src/"
+        flake8 cver --config=flake8 --count --show-source --statistics
+      - |
+        echo "tests/"
+        flake8 tests/ --config=tests/flake8 --count --show-source --statistics
+    silent: true
   k8s-exec-stage:
     cmds:
       - |
         POD=$(kubectl get pods -l app.kubernetes.io/name=stage --no-headers | cut -d' ' -f1)
         echo "Logging into $POD"
-        kubectl exec -it ${POD} -- bash
+        kubectl exec -it -c cver-api ${POD} -- bash
+    silent: true
+  k8s-pf-stage:
+    cmds:
+      - |
+        kubectl port-forward svc/cver-api-stage 5003:80
     silent: true

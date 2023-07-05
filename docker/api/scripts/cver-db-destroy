@@ -1,0 +1,12 @@
+#!/bin/sh -l
+# Cver DB Destroy
+# Used for clearing out ephemeral databases
+
+set -e
+
+mysql \
+    --host="${CVER_DB_HOST}" \
+    --user="${CVER_DB_USER}" \
+    --password="${CVER_DB_PASS}" \
+    --database="${CVER_DB_NAME}" \
+    --execute="DROP DATABASE ${CVER_DB_NAME};"

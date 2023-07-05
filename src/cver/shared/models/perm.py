@@ -1,6 +1,6 @@
 """
     Cver Shared
-    Model - Vulnerability
+    Model - Perm
 
 """
 
@@ -9,6 +9,7 @@ FIELD_MAP = {
         "name": "id",
         "type": "int",
         "primary": True,
+        "api_searchable": True,
     },
     "created_ts": {
         "name": "created_ts",
@@ -19,19 +20,15 @@ FIELD_MAP = {
         "type": "datetime",
     },
     "name": {
-        "name": "number",
+        "name": "name",
         "type": "str",
-        "extra": "UNIQUE"
+        "api_writeable": False
     },
-    "severity": {
-        "name": "severity",
+    "slug_name": {
+        "name": "slug_name",
         "type": "str",
-        "extra": "NOT NULL"
-    },
-    "cvss_score_nvd": {
-        "name": "cvss_score_nvd",
-        "type": "float",
+        "api_writeable": False
     }
 }
 
-# End File: cver/src/shared/models/vulnerability.py
+# End File: cver/src/shared/models/perm.py
