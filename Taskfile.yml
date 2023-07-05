@@ -29,7 +29,7 @@ tasks:
         docker run --name="cver-api" -d \
           -v {{.CVER_DIR}}/src:/app \
           -v {{.CVER_DIR}}/tests:/tests \
-          -p 5001:5001  \
+          -p 80:80 \
           -e CVER_DB_HOST="mysql" \
           -e CVER_DB_PASS="${CVER_DB_PASS}" \
           -e CVER_TEST_CLIENT_ID="${CVER_TEST_CLIENT_ID}" \
@@ -37,7 +37,7 @@ tasks:
           -e CVER_SECRET_KEY="${CVER_SECRET_KEY}" \
           -e CVER_TEST="true" \
           -e CVER_JWT_EXPIRE_MINUTES=1440 \
-          politeauthority/cver-api:0.0.1b \
+          politeauthority/cver-api:dev \
           tail -f /dev/null
       - docker network connect cver cver-api
       - echo "Success"
@@ -48,6 +48,12 @@ tasks:
   dev-stop:
     cmds:
       - docker rm -f cver-api
+  cver-build:
+    cmds:
+      - |
+        cd src
+        python3 setup.py build
+        python3 setup.py install
   pre-commit:
     cmds: 
       - |
