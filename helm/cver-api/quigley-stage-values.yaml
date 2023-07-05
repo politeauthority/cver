@@ -7,7 +7,7 @@ nameOverride: "stage"
 app:
   dbName: "cver_stage"
   dbHost: "cver-mysql.cver.svc.cluster.local"
-  dbUser: "cver_user"
+  dbUser: "cver"
   runMigrations: true
   envName: "stage"
 

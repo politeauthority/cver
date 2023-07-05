@@ -7,7 +7,7 @@ nameOverride: "prod"
 app:
   dbName: "cver_prod"
   dbHost: "cver-mysql.cver.svc.cluster.local"
-  dbUser: "cver_user"
+  dbUser: "cver"
   runMigrations: true
 
 image:
