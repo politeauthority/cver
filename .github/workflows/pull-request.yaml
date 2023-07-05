@@ -87,6 +87,7 @@ jobs:
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
           export KUBECONFIG=~/.kube/config.yaml
           kubectl get pods -n cver
+          helm dependency build
           helm upgrade --install \
             --namespace=cver \
             cver-api-test \
