@@ -70,3 +70,10 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+mysql:
+  enabled: false
+  nameOverride: cver-mysql
+  primary:
+    persistence:
+      storageClass: nfs-client

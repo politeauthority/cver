@@ -2,6 +2,8 @@
 docs/
 docker/api/src/
 cver.code-workspace
+charts/
+Chart.lock
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

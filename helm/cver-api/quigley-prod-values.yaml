@@ -15,3 +15,11 @@ image:
   repository: politeauthority/cver-api
   pullPolicy: IfNotPresent
   tag: "0.0.1b"
+
+mysql:
+  enabled: true
+  nameOverride: cver-mysql
+  fullnameOverride: cver-mysql
+  primary:
+    persistence:
+      storageClass: nfs-client

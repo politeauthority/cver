@@ -44,7 +44,7 @@ spec:
             valueFrom:
               secretKeyRef:
                 key: mysql-password
-                name: cver-mysql
+                name: cver-mysql-user
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
