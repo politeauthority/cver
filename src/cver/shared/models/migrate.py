@@ -22,14 +22,6 @@ FIELD_MAP = {
         "name": "number",
         "type": "int",
     },
-    "up_sql": {
-        "name": "up_sql",
-        "type": "str",
-    },
-    "down_sql": {
-        "name": "down_sql",
-        "type": "str",
-    },
     "success": {
         "name": "success",
         "type": "bool",

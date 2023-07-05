@@ -1,9 +1,12 @@
-"""Controller Model - Base
+"""
+    Cver Api - Controller Model
+    Base
 
 """
-from flask import make_response, request, jsonify
+import json
+import logging
 
-from cver.shared.utils import log
+from flask import make_response, request, jsonify
 
 
 def get_model(model, entity_id: int = None) -> dict:
@@ -18,100 +21,97 @@ def get_model(model, entity_id: int = None) -> dict:
         "object": {},
         "object_type": entity.model_name
     }
-    r_args = request.get_json()
+    r_args = request.args
 
     # Search for model base on searchable fields
     search_fields = []
     for r_arg_key, r_arg_value in r_args.items():
-        for field in entity.field_map:
+        for field_name, field in entity.field_map.items():
             if field["name"] != r_arg_key:
                 continue
         if "api_searchable" not in entity.field_map[r_arg_key]:
             continue
-        search_fields.append(r_arg_key)
+        search_field = {
+            "field": r_arg_key,
+            "value": r_arg_value,
+            "op": "eq"
+        }
+        search_fields.append(search_field)
 
-    print(search_fields)
+    # Missing data to retrieve the model.
+    if not entity_id and not search_fields:
+        data["message"] = "Missing required search ctriteria."
+        return make_response(jsonify(data), 400)
 
-    if not entity_id:
-        data["message"] = "Missing entity ID"
-        return make_response(jsonify(data), 401)
+    # Search for entity
+    entity_found = False
+    if search_fields:
+        entity_found = entity.get_by_fields(search_fields)
+    elif entity_id:
+        entity_found = entity.get_by_id(entity_id)
+    else:
+        logging.error("Unexpected endpoint")
 
-    if not entity.get_by_id(entity_id):
-        data["message"] = "Could not find Entity"
+    # Entity not found
+    if not entity_found:
+        data["message"] = "Object not found"
         return make_response(jsonify(data), 404)
 
     data["status"] = "Success"
+    data["status"] = "Entity found"
     data["object"] = entity.json()
     return data
 
 
-def post_model(model, entity_id: int = None):
-    """Base POST operation for a model. Create or modify a entity."""
+def post_model(model, entity_id: int = None, generated_data: dict = {}):
+    """Base POST operation for a model. Create or modify a entity. If a model is immutabel then we
+    can skip looking for the entity in the database.
+    """
     data = {
         "status": "Error"
     }
     entity = model()
-    if entity_id:
-        if not entity.get_by_id(entity_id):
-            data["status"] = "Error"
-            data["message"] = "Could not find %s ID: %s" % (entity.model_name, entity_id)
-            return jsonify(data), 404
-        else:
-            log.info("POST - Found entity: %s" % entity)
+    if not entity.immutable:
+        if entity_id:
+            if not entity.get_by_id(entity_id):
+                data["status"] = "Error"
+                data["message"] = "Could not find %s ID: %s" % (entity.model_name, entity_id)
+                return jsonify(data), 404
+            else:
+                logging.info("POST - Found entity: %s" % entity)
 
-    request_data = request.get_json()
+    # If we cant decode a JSON payload return an error.
+    try:
+        request_data = request.get_json()
+    except json.decoder.JSONDecodeError as e:
+        logging.warning(f"Recieved data that cant be decoded to JSON: {e}")
+        return make_response("ERROR", 401)
 
-    # import ipdb; ipdb.set_trace()
-    # print("\n\n")
-    # print(request_data)
+    # If there's api generated data, override the request data with that info.
+    if generated_data:
+        request_data.update(generated_data)
 
-    # print(request_data)
-    # print("\n\n")
-
-    # Check through the fields and see if they should be applied to the model.
+    # Check through the fields and see if they should be applied to the entity.
     for field_name, field_value in request_data.items():
-        print("%s\t%s" % (field_name, field_value))
         update_field = False
-        # This could be optimized.``
-        for entity_name, entity_field in entity.field_map.items():
+        for entity_field_name, entity_field in entity.field_map.items():
             if entity_field["name"] == field_name:
-                if field_name not in entity.api_writeable_fields:
-                    data["status"] = "Error"
-                    data["message"] = "Cant modify field: %s" % field_name
-                    return jsonify(data, 400)
+                if "api_writeable" not in entity_field and field_name not in generated_data:
+                    continue
                 else:
                     update_field = True
         if update_field:
+            logging.info("Entity: %s updating field: %s value: %s" % (
+                entity,
+                field_name,
+                field_value))
             setattr(entity, field_name, field_value)
 
     entity.save()
-
+    data["status"] = "Success"
     data["object"] = entity.json()
     data["object_type"] = entity.model_name
-
-    # if "name" in request_data:
-    #     user.name = request_data["name"]
-
-    # if "role_id" in request_data:
-    #     user.role_id = request_data["role_id"]
-
-    # user.save()
-    # resp_data["object"] = user.json()
-    return data
-
-
-# def search_id(entity_id_field: str, request_data: dict):
-#     """
-#     """
-#     # Search for the entity by it's ID.
-#     search_id = None
-#     if entity_id_field in request_data:
-#         search_id = None
-#         if entity_id:
-#             search_id = entity_id
-#         elif entity_id_field in request_data:
-#             search_id = request_data[entity_id_field]
-#     return search_id
+    return data, 201
 
 
 def delete_model(model, entity_id: int):
@@ -128,7 +128,7 @@ def delete_model(model, entity_id: int):
     entity.delete()
     data["message"] = "User deleted successfully"
     data["object"] = entity.json()
-    return data
+    return make_response(jsonify(data), 201)
 
 
 # End File: cver/src/api/controllers/ctrl_modles/ctrl_base.py

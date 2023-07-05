@@ -19,4 +19,4 @@ class Image(BaseEntityMeta):
         self.setup()
 
 
-# End File: cver/src/shared/modles/image.py
+# End File: cver/src/api/modles/image.py

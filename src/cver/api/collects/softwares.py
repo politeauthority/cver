@@ -7,7 +7,6 @@ from cver.api.models.software import Software
 
 
 class Softwares(Base):
-    """Collection class for gathering groups of device macs."""
 
     collection_name = "softwares"
 

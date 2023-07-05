@@ -8,10 +8,13 @@ app:
   dbName: "cver_stage"
   dbHost: "cver-mysql.cver.svc.cluster.local"
   dbUser: "cver_user"
-  runMigrations: false
+  runMigrations: true
   envName: "stage"
+
+test:
+  test: true
 
 image:
   repository: politeauthority/cver-api
-  pullPolicy: IfNotPresent
-  tag: "0.0.1b"
+  pullPolicy: Always
+  tag: "0.0.1"

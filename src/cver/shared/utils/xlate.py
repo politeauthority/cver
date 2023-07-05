@@ -3,12 +3,11 @@ A collection of misc trasnlation functions used all throuhout the Pignus platofr
 
 """
 from datetime import datetime
+import logging
 import json
 from urllib.parse import unquote, quote
 
 from sqlescapy import sqlescape
-
-from cver.shared.utils import log
 
 
 def url_decode(encoded_str: str) -> str:
@@ -37,7 +36,7 @@ def decode_post_data(post_data: str) -> dict:
         data = json.loads(post_data)
         return data
     except json.decoder.JSONDecodeError as e:
-        log.warning("Failed parsing decode post data: %s" % post_data, exception=e)
+        logging.warning("Failed parsing decode post data: %s" % post_data, exception=e)
         raise e
 
 
@@ -161,8 +160,9 @@ def sql_safe(query_item):
     elif isinstance(query_item, int):
         return query_item
     elif isinstance(query_item, dict):
-        log.error("sql_safe cannot translate dict objects")
-        raise AttributeError("sql_safe cannot translate dict objects")
+        logging.warning("sql_safe cannot translate dict objects")
+        query_item = json.dumps(query_item)
+        return query_item
     else:
         return sqlescape(query_item)
 

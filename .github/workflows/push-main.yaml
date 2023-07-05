@@ -46,6 +46,6 @@ jobs:
             helm/cver-api/ \
             --wait \
             -f helm/cver-api/quigley-prod-values.yaml \
-            --set "image.tag=0.0.1b
+            --set "image.tag=0.0.1b"
 
 # End File: cver/.github/webserver/push-main.yaml

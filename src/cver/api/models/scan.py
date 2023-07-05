@@ -5,7 +5,6 @@
 """
 from cver.api.models.base_entity_meta import BaseEntityMeta
 from cver.shared.models.scan import FIELD_MAP
-from cver.shared.utils import xlate
 
 
 class Scan(BaseEntityMeta):
@@ -29,27 +28,4 @@ class Scan(BaseEntityMeta):
         self.cve_low_int = len(self.cve_low_nums)
         return super(Scan, self).save()
 
-    def get_build_last(self, image_build_id: int, scanner_id=None) -> bool:
-        """Get the last Scan for container. """
-        if not scanner_id:
-            scanner_id = 1
-        sql = """
-            SELECT *
-            FROM `scans`
-            WHERE
-                `image_build_id` = %(image_build_id)s  AND
-                `scanner_id` = %(scanner_id)s
-            ORDER BY `end_ts` DESC
-            LIMIT 1;
-        """ % {
-            "image_build_id": xlate.sql_safe(image_build_id),
-            "scanner_id": xlate.sql_safe(scanner_id),
-        }
-        self.cursor.execute(sql)
-        raw = self.cursor.fetchone()
-        if not raw:
-            return False
-        self.build_from_list(raw)
-        return True
-
-# End File: pignus/src/pignus_api/modles/scan.py
+# End File: cver/src/api/models/scan.py

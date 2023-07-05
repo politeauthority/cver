@@ -6,13 +6,18 @@ The Base Model SQL driver can work with both SQLite3 and MySQL database.
     self.backend = "sqlite" for SQLite3
     self.backend = "mysql" for MySQL
 
+Testing:
+    Unit test file  cver/tests/unit/api/models/test_base.py
+    Unit tested     11/37
 
 """
 from datetime import datetime
+import json
+import logging
 
 import arrow
+from pymysql.err import ProgrammingError
 
-from cver.shared.utils import log
 from cver.shared.utils import xlate
 from cver.api.utils import date_utils
 from cver.api.utils import glow
@@ -22,7 +27,7 @@ class Base:
 
     def __init__(self, conn=None, cursor=None):
         """Base model constructor
-        :unit-test: test____init__
+        :unit-test: TestBase::test____init__
         """
         self._establish_db(conn, cursor)
         self.backed_iodku = True
@@ -31,63 +36,67 @@ class Base:
         self.table_name = None
         self.entity_name = None
         self.field_map = {}
+        self.immutable = False
         self.id = None
         self.setup()
 
     def __repr__(self):
         """Base model representation
-        :unit-test: test____repr__
+        :unit-test: TestBase::test____repr__
         """
         if self.id:
             return "<%s: %s>" % (self.__class__.__name__, self.id)
         return "<%s>" % self.__class__.__name__
 
     def __desc__(self) -> None:
-        """Describes the fields and values of class."""
-        for field_id, field in self.total_map.items():
+        """Describes the fields and values of class.
+        :unit-test: TestBase::test____repr__
+        """
+        for field_id, field in self.field_map.items():
             print("%s: %s" % (field["name"], getattr(self, field["name"])))
 
     def connect(self, conn, cursor) -> bool:
         """Quick bootstrap method to connect the model to the database connection.
-        :unit-test: test__connect
+        :unit-test: TestBase::test__connect
         """
         self.conn = conn
         self.cursor = cursor
         return True
 
     def create_table(self) -> bool:
-        """Create a table based on the self.table_name, and self.field_map.
-        :unit-test: test__create_table
-        """
-        self._create_total_map()
+        """Create a table based on the self.table_name, and self.field_map."""
+        if not self.table_name:
+            raise AttributeError('Model table name not set, (self.table_name)')
+        sql = self.create_table_sql()
+        logging.info('Creating table: %s' % self.table_name)
+        self.cursor.execute(sql)
+        return True
+
+    def create_table_sql(self) -> bool:
+        """Create a table based SQL on the self.table_name, and self.field_map."""
         if not self.table_name:
             raise AttributeError('Model table name not set, (self.table_name)')
         sql = "CREATE TABLE IF NOT EXISTS %s \n(%s)" % (
             self.table_name,
             self._generate_create_table_feilds())
-        log.info('Creating table: %s' % self.table_name)
-        self.cursor.execute(sql)
-        return True
+        return sql
 
     def setup(self) -> bool:
         """Set up model class vars, sets class var defaults, and corrects types where possible.
-        :unit-test: test__setup
+        :unit-test: TestBase::test__setup
         """
-        self._create_total_map()
         self._set_defaults()
         self._set_types()
         return True
 
     def save(self) -> bool:
-        """Saves a model instance in the model table.
-        :unit-test: test__save
-        """
+        """Saves a model instance in the model table."""
         self.setup()
         self.check_required_class_vars()
         if self.backed_iodku and not self.id:
             return self.iodku()
         if not self.id:
-            log.error("Save failed, missing %s.id or where list" % __class__.__name_)
+            logging.error("Save failed, missing %s.id or where list" % __class__.__name_)
             raise AttributeError("Save failed, missing %s.id or where list" % __class__.__name_)
         update_sql = self._gen_update_sql(["id", "created_ts"])
         self.cursor.execute(update_sql)
@@ -95,38 +104,30 @@ class Base:
         return True
 
     def delete(self) -> bool:
-        """Delete a model item.
-        :unit-test: test__delete
-        """
+        """Delete a model item."""
         sql = """DELETE FROM `%s` WHERE `id` = %s """ % (self.table_name, self.id)
         self.cursor.execute(sql)
         self.conn.commit()
         return True
 
     def get_field(self, field_name: str):
-        """Get the details on a model field from the field map"""
+        """Get the details on a model field from the field map.
+        :unit-test: test__get_field
+        """
         for field_name, field in self.field_map.items():
             if field["name"] == field_name:
                 return field
         return None
 
     def get_by_id(self, model_id: int = None) -> bool:
-        """Get a single model object from db based on an object ID
-        :unit-test: test__get_it
-        """
+        """Get a single model object from db based on an object ID."""
         if model_id:
             self.id = model_id
 
         if not self.id:
             raise AttributeError('%s is missing an ID attribute.' % __class__.__name__)
 
-        sql = """
-            SELECT *
-            FROM `%(table)s`
-            WHERE `id` = %(model_id)s;""" % {
-            "table": self.table_name,
-            "model_id": xlate.sql_safe(self.id)
-        }
+        sql = self._gen_get_by_id_sql()
         self.cursor.execute(sql)
         raw = self.cursor.fetchone()
         if not raw:
@@ -145,7 +146,7 @@ class Base:
                 break
 
         if not found_name_field:
-            log.warning("Entity does not have a get by name method.")
+            logging.warning("Entity does not have a get by name method.")
             return False
 
         sql = """
@@ -162,13 +163,13 @@ class Base:
     def get_by_field(self, field: str, value: str) -> bool:
         """Get a model by specific, if the model has a name field."""
         found_field = False
-        for field_name, field in self.field_map.items():
-            if field["name"] == field:
+        for field_name, field_info in self.field_map.items():
+            if field_name == field:
                 found_field = True
                 break
 
         if not found_field:
-            log.warning("Entity does not have a %s field." % field)
+            logging.warning("Entity does not have a %s field." % field)
             return False
 
         sql = """
@@ -185,10 +186,40 @@ class Base:
         self.build_from_list(raw)
         return True
 
-    def get_last(self) -> bool:
-        """Get the last created model.
-        :unit-test: test__get_last
+    def get_by_fields(self, fields: list) -> bool:
+        """Get a model by a field, or fields.
+        :todo: Eventually this needs to support more operators than just eq
+        :param fields: list of dict
+            fields
+            [
+                {
+                    "field": "name",
+                    "value": "A Cool Name",
+                    "op": "eq"
+                }
+            ]
+        :unit-test: None
         """
+        sql_fields = ""
+        for field in fields:
+            sql_fields += '`%s`="%s",' % (
+                xlate.sql_safe(field["field"]),
+                xlate.sql_safe(field["value"]))
+        sql_fields = sql_fields[:-1]
+        sql = """
+            SELECT *
+            FROM %s
+            WHERE %s
+            LIMIT 1;""" % (self.table_name, sql_fields)
+        self.cursor.execute(sql)
+        run_raw = self.cursor.fetchone()
+        if not run_raw:
+            return False
+        self.build_from_list(run_raw)
+        return True
+
+    def get_last(self) -> bool:
+        """Get the last created model."""
         sql = """
             SELECT *
             FROM %s
@@ -205,21 +236,20 @@ class Base:
     def build_from_list(self, raw: list) -> bool:
         """Build a model from an ordered list, converting data types to their desired type where
         possible.
-        :unit-test: test__build_from_list
         :param raw: The raw data from the database to be converted to model data.
         """
-        if len(self.total_map) != len(raw):
-            msg = "BUILD FROM LIST Model: %s total_map: %s, record: %s \n" % (
+        if len(self.field_map) != len(raw):
+            msg = "BUILD FROM LIST Model: %s field_map: %s, record: %s \n" % (
                 self,
-                len(self.total_map),
+                len(self.field_map),
                 len(raw))
-            msg += "Field Map: %s \n" % str(self.total_map)
+            msg += "Field Map: %s \n" % str(self.field_map)
             msg += "Raw Record: %s \n" % str(raw)
-            log.error(msg, stacktrace=True)
-            return False
+            logging.error(msg)
+            raise AttributeError(msg)
 
         count = 0
-        for field_name, field in self.total_map.items():
+        for field_name, field in self.field_map.items():
             field_name = field['name']
             field_value = raw[count]
 
@@ -261,12 +291,11 @@ class Base:
     def build_from_dict(self, raw: dict) -> bool:
         """Builds a model by a dictionary. This is expected to be used mostly from a client making
         a request from a web api.
-        :unit-test: TestBase.test__build_from_dict
         """
         for field, value in raw.items():
             if not hasattr(self, field):
                 continue
-            for field_map_field in self.total_map:
+            for field_map_field in self.field_map:
                 if field_map_field["name"] == field:
                     field_map = field_map_field
                     break
@@ -278,12 +307,14 @@ class Base:
 
         return True
 
-    def json(self) -> dict:
-        """Create a JSON friendly output of the model, converting types to friendlies.
-        :unit-test: test__json
+    def json(self, get_api: bool = False) -> dict:
+        """Create a JSON friendly output of the model, converting types to friendlies. If get_api
+        is specified and a model doesnt have api_display=False, it will export in the output.
         """
         json_out = {}
-        for field_name, field in self.total_map.items():
+        for field_name, field in self.field_map.items():
+            if get_api and "api_display" in field and not field["api_display"]:
+                continue
             value = getattr(self, field["name"])
             if field["type"] == "datetime":
                 value = date_utils.json_date(value)
@@ -292,17 +323,20 @@ class Base:
 
     def describe(self) -> bool:
         """Debug tool for describing an model instance, printing all its fields to the console."""
-        for field in self.total_map:
+        for field in self.field_map:
             print("%s\t\t\t%s" % (field["name"], getattr(self, field["name"])))
         return True
 
     def insert(self):
-        """Insert a new record of the model.
-        :unit-test: test__insert
-        """
+        """Insert a new record of the model."""
         sql = self._gen_insert_sql()
-        self.cursor.execute(sql)
-        self.conn.commit()
+        try:
+            self.cursor.execute(sql)
+            self.conn.commit()
+        except ProgrammingError as e:
+            logging.critical(sql)
+            logging.critical("Caught ProgrammingError exception:", e)
+            exit(1)
         self.id = self.cursor.lastrowid
         return True
 
@@ -317,9 +351,7 @@ class Base:
         return True
 
     def _gen_insert_sql(self, skip_fields: list = ["id"]) -> tuple:
-        """Generate the insert SQL statement.
-        :unit-test: test__gen_insert_sql
-        """
+        """Generate the insert SQL statement."""
         insert_sql = "INSERT INTO `%s` (%s) VALUES (%s)" % (
             self.table_name,
             self._sql_fields_sanitized(skip_fields=skip_fields),
@@ -328,9 +360,7 @@ class Base:
         return insert_sql
 
     def _gen_iodku_sql(self, skip_fields: dict = {"id": {"name": "id"}}) -> str:
-        """Generate the model values to send to the sql engine interpreter as a tuple.
-        :unit-test: test___gen_iodku_sql
-        """
+        """Generate the model values to send to the sql engine interpreter as a tuple."""
         if self.backend == "sqlite":
             # @note: this is missing.
             return None
@@ -356,7 +386,6 @@ class Base:
             "fields_values": self._sql_update_fields_values_santized(skip_fields),
             "where": "`id` = %s" % self.id
         }
-
         update_sql = """
             UPDATE `%(table_name)s`
             SET
@@ -365,13 +394,26 @@ class Base:
             %(where)s;""" % sql_args
         return update_sql
 
+    def _gen_get_by_id_sql(self) -> str:
+        """Generates the get by_id sql.
+        :unit-test: test___gen_get_by_id_sql
+        """
+        sql = """
+            SELECT *
+            FROM `%(table)s`
+            WHERE `id` = %(model_id)s;""" % {
+            "table": self.table_name,
+            "model_id": xlate.sql_safe(self.id)
+        }
+        return sql
+
     def _sql_fields_sanitized(self, skip_fields: dict) -> str:
         """Get all class table column fields in a comma separated list for sql cmds. Returns a value
-           like: `id`, `created_ts`, `update_ts`, `name`, `vendor`
-        :unit-test: tests/unit/api/models/test_base.py:TestBase:test___sql_fields_sanitized
+            like: `id`, `created_ts`, `update_ts`, `name`, `vendor`.
+        :unit-test: test___sql_fields_sanitized
         """
         field_sql = ""
-        for field_name, field in self.total_map.items():
+        for field_name, field in self.field_map.items():
             # Skip fields we don't want included in db writes
             if field['name'] in skip_fields:
                 continue
@@ -380,13 +422,13 @@ class Base:
 
     def _sql_insert_values_santized(self, skip_fields: dict = None) -> str:
         """Creates the values portion of a query with the actual values sanitized.
-        example: "2021-12-12", "a string", 1
-        :unit-test: tests/unit/api/models/test_base.py:TestBase:test___sql_insert_values_santized
+        example: "2021-12-12", "a string", 1.
+        :unit-test: test___sql_insert_values_santized
         """
         if not skip_fields:
             skip_fields = {}
         sql_values = ""
-        for field_name, field in self.total_map.items():
+        for field_name, field in self.field_map.items():
             if field["name"] in skip_fields:
                 continue
             value = self._get_sql_value_santized(field)
@@ -398,18 +440,18 @@ class Base:
         :unit-test: test___sql_update_fields_values_santized
         """
         set_sql = ""
-        for field_name, field in self.total_map.items():
+        for field_name, field in self.field_map.items():
             if field['name'] in skip_fields:
                 continue
 
             value = self._get_sql_value_santized(field)
             set_sql += "`%s`=%s, " % (xlate.sql_safe(field["name"]), value)
-
+        if not set_sql:
+            return ""
         return set_sql[:-2]
 
     def _get_sql_value_santized(self, field: dict) -> str:
-        """
-        unit-test: TestModelBase.test___get_sql_value_sanitized
+        """Get the sanitized value of a given field.
         """
         value = self.sql_value_override_for_model(field)
 
@@ -423,15 +465,33 @@ class Base:
             value = "NULL"
             return value
 
-        if field["type"] in ["int"]:
+        value = self._get_sql_value_santized_typed(field, value)
+
+        return value
+
+    def _get_sql_value_santized_typed(self, field, value) -> str:
+        """Convert values to a safe santized value based on it's type."""
+        # Handle converting int value
+        if field["type"] == "int":
             value = xlate.sql_safe(value)
+
+        # Handle converting a list value
         elif field["type"] == "list":
             if not isinstance(value, list) and value.isdigit():
                 value = str(value)
             value = '"%s"' % xlate.sql_safe(xlate.convert_list_to_str(value))
 
+        # Handle converting a bool
         elif field["type"] == "bool":
             value = xlate.sql_safe(xlate.convert_bool_to_int(value))
+
+        # Handle converting a json value
+        elif field["type"] == "json":
+            logging.info("Creating JSON sql")
+            value = json.dumps(value)
+            value = f"'{value}'"
+
+        # Handle converting anything else
         else:
             value = '"%s"' % xlate.sql_safe(value)
 
@@ -441,71 +501,10 @@ class Base:
         """Override the SQL value for a field before it's stored into the database."""
         return getattr(self, field["name"])
 
-    def _sql_values_paramatarized(self, skip_fields: list = ['id']) -> str:
-        """Generates the number of parameterized "?" / "%(field)s" for the sql engine parameterizer.
-        :unit-test: test__get_parmaterized_num
-        """
-        field_value_param_sql = ""
-        for field in self.total_map:
-
-            # Skip fields we don't want included in db writes
-            if field['name'] in skip_fields:
-                continue
-
-            # MySQL and SQLite has different substitution phrases for parameterized queries.
-            if self.backend == "mysql":
-                subsitution_phrase = "%%(%s)s" % field['name']
-            elif self.backend == "sqlite":
-                subsitution_phrase = "?"
-
-            field_value_param_sql += "%s, " % subsitution_phrase
-
-        field_value_param_sql = field_value_param_sql[:-2]
-        return field_value_param_sql
-
-    def _sql_values_for_paramatarizing(self, skip_fields: list = ['id', 'created_ts']) -> dict:
-        """Generate the model values to send to the sql engine interpreter as a tuple.
-        :unit-test: test__get_values_sql
-        """
-        if self.backend == "sqlite":
-            # @todo: this is missing.
-            return None
-        elif self.backend == "mysql":
-            return self._get_values_sql_mysql(skip_fields)
-
-    def _get_values_sql_mysql(self, skip_fields: list = ["id", "created_ts"]) -> dict:
-        """Generate the model values to send to the mysql engine interpreter as a dict.
-        :unit-test: test___get_values_sql_mysql
-        """
-        param_values = {}
-        for field in self.total_map:
-            # Skip fields we don't want included in db writes
-            if field['name'] in skip_fields:
-                continue
-
-            value = getattr(self, field['name'])
-
-            # Most SQL engines do not support bools, so we update them to ints before saving.
-            if field['type'] == 'bool':
-                value = xlate.convert_bool_to_int(value)
-
-            # Convert lists to str
-            elif field['type'] == 'list':
-                value = xlate.convert_list_to_str(value)
-
-            # Set the updated_ts
-            if field["name"] == "updated_ts":
-                value = date_utils.now()
-
-            value = xlate.sql_safe(value)
-
-            param_values[field["name"]] = value
-        return param_values
-
     def check_required_class_vars(self, extra_class_vars: list = []) -> bool:
         """Quick class var checks to make sure the required class vars are set before proceeding
            with an operation.
-        :unit-test: test__check_required_class_vars
+
         """
         if not self.conn:
             raise AttributeError('Missing self.conn')
@@ -513,20 +512,10 @@ class Base:
         if not self.cursor:
             raise AttributeError('Missing self.cursor')
 
-        if not self.total_map:
-            raise AttributeError('Missing self.total_map')
-
         for class_var in extra_class_vars:
             if not getattr(self, class_var):
                 raise AttributeError('Missing self.%s' % class_var)
 
-        return True
-
-    def _create_total_map(self) -> bool:
-        """Concatenate the base_map and models field_map together into self.total_map.
-        :unit-test: test___create_total_map
-        """
-        self.total_map = self.field_map
         return True
 
     def _set_defaults(self) -> bool:
@@ -535,7 +524,7 @@ class Base:
         :unit-test: test___set_defaults
         """
         self.field_list = []
-        for field_name, field in self.total_map.items():
+        for field_name, field in self.field_map.items():
             field_name = field['name']
             self.field_list.append(field_name)
 
@@ -564,7 +553,7 @@ class Base:
         """Set the types of class table field vars and corrects their types where possible
         :unit-test: test___set_types
         """
-        for field_name, field in self.total_map.items():
+        for field_name, field in self.field_map.items():
             class_var_name = field['name']
 
             class_var_value = getattr(self, class_var_name)
@@ -595,7 +584,7 @@ class Base:
         if isinstance(value, int):
             return value
         if isinstance(value, str) and value.isdigit():
-            log.warning('Class %s field %s value %s is not int, changed to int.' % (
+            logging.warning('Class %s field %s value %s is not int, changed to int.' % (
                 __class__.__name__, name, value))
             return int(value)
         raise AttributeError('Class %s field %s value %s is not int.' % (
@@ -606,9 +595,9 @@ class Base:
            :unit-test: test___generate_create_table_feilds
         """
         field_sql = ""
-        field_num = len(self.total_map)
+        field_num = len(self.field_map)
         c = 1
-        for field_name, field in self.total_map.items():
+        for field_name, field in self.field_map.items():
             if field["type"] == "unique_key":
                 continue
             primary_stmt = ''
@@ -644,7 +633,7 @@ class Base:
             field_sql += "\n"
             c += 1
 
-        for field_name, field in self.total_map.items():
+        for field_name, field in self.field_map.items():
             if field["type"] == "unique_key":
                 field_sql += "UNIQUE KEY %s (%s)" % (field["name"], ",".join(field["fields"]))
         field_sql = field_sql[:-1]
@@ -670,6 +659,10 @@ class Base:
                 return 'DECIMAL(10, 5)'
             elif field_type == 'list':
                 return "TEXT"
+            elif field_type == "json":
+                return "JSON"
+            else:
+                raise AttributeError(f'Unknown data type: "{field_type}"')
 
     def _establish_db(self, conn, cursor) -> bool:
         self.conn = conn
