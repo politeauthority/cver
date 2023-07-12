@@ -78,6 +78,6 @@ tasks:
       - |
         echo "Argument: {{ .CLI_ARGS }}"
         mkdir ~/.kube
-        echo "${{ .CLI_ARGS }}" | base64 -d > ~/.kube/config.yaml
+        echo "{{ .CLI_ARGS }}" | base64 -d > ~/.kube/config.yaml
         export KUBECONFIG=~/.kube/config.yaml
         chmod 600 ~/.kube/config.yaml
