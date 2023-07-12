@@ -1,0 +1,45 @@
+# Create a ephemeral deployment of Cver when the label "ephemeral" is added.
+name: Create-Ephemeral
+
+on:
+  label:
+    types: [ created ]
+
+jobs:
+
+  build-docker:
+    runs-on: self-hosted
+    container:
+      image: harbor.squid-ink.us/politeauthority/polite-cicd:0.0.1
+      credentials:
+        username: ${{ secrets.HARBOR_USER }}
+        password: ${{ secrets.HARBOR_PASSWORD }}
+    strategy:
+      fail-fast: true
+    if: ${{ github.event.label.name == 'ephemeral' }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: docker/login-action@v2
+        with:
+          registry: ${{ secrets.HARBOR_REGISTRY }}
+          username: ${{ secrets.HARBOR_USER }}
+          password: ${{ secrets.HARBOR_PASSWORD }}
+
+      - name: Check Build  
+        run: |
+          docker manifest inspect ${{ secrets.HARBOR_REGISTRY }}politeauthority/cver-api:${{ github.sha }}
+
+      - name: Build Container
+        run: |
+          echo "Run Task: Build"
+          export CVER_API_TAG="${{ github.sha }}"
+          task build
+
+      - name: Push Container
+        run: |
+          IMAGE_ID=$(docker images --filter "reference=politeauthority/cver-api" --format "{{.ID}}")
+          docker tag ${IMAGE_ID} ${{ secrets.HARBOR_REGISTRY }}politeauthority/cver-api:${{ github.sha }}
+          docker push ${{ secrets.HARBOR_REGISTRY }}politeauthority/cver-api:${{ github.sha }}
+          echo "## Docker Build" >> $GITHUB_STEP_SUMMARY
+          echo "**Built:** politeauthority/cver-api:${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
