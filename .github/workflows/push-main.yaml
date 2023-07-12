@@ -28,7 +28,7 @@ jobs:
           registry: ${{ secrets.HARBOR_REGISTRY }}
           username: ${{ secrets.HARBOR_USER }}
           password: ${{ secrets.HARBOR_PASSWORD }}
-      - name: Push Container
+      - name: Push Container Harbor
         run: docker push harbor.squid-ink.us/politeauthority/cver-api:0.0.1
 
   deploy-prod:
@@ -46,6 +46,7 @@ jobs:
           chmod 600 ~/.kube/config.yaml
           DEPLOYED_AT=$(date +"%Y-%m-%d %T")
           kubectl get pods -n cver
+          helm dependency build helm/cver-api
           helm upgrade --install \
             --namespace=cver \
             cver-api-prod \

@@ -1,9 +1,13 @@
 # Create a ephemeral deployment of Cver when the label "ephemeral" is added.
+#modified_string=$(echo "$string" | sed 's/\//-/g')
+
 name: Create-Ephemeral
 
 on:
-  label:
-    types: [ created ]
+    push:
+        branches: ["cicd"]
+#   label:
+#     types: [ created ]
 
 jobs:
 
@@ -28,6 +32,7 @@ jobs:
 
       - name: Check Build  
         run: |
+          echo "ALIX DEBUG: ${{ github.sha }}"
           docker manifest inspect ${{ secrets.HARBOR_REGISTRY }}politeauthority/cver-api:${{ github.sha }}
 
       - name: Build Container
