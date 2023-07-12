@@ -18,3 +18,6 @@ image:
   repository: harbor.squid-ink.us/politeauthority/cver-api
   pullPolicy: Always
   tag: "0.0.1"
+
+imagePullSecrets:
+  - name: harbor

@@ -15,6 +15,9 @@ image:
   pullPolicy: IfNotPresent
   tag: "0.0.1b"
 
+imagePullSecrets:
+  - name: harbor
+
 mysql:
   enabled: true
   nameOverride: cver-mysql
