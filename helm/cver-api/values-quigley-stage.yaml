@@ -1,0 +1,31 @@
+# Quigely staging values for cver-api.
+
+replicaCount: 1
+
+nameOverride: "stage"
+
+app:
+  dbName: "cver_stage"
+  dbHost: "cver-mysql.cver.svc.cluster.local"
+  dbUser: "cver"
+  runMigrations: true
+  envName: "stage"
+
+test:
+  test: true
+
+image:
+  repository: harbor.squid-ink.us/politeauthority/cver-api
+  pullPolicy: Always
+  tag: "stage"
+
+imagePullSecrets:
+  - name: harbor
+
+ingress:
+  enabled: true
+  className: nginx-private
+  hosts:
+    - host: stage.cver.colfax.int
+      paths:
+        - path: /

@@ -1,0 +1,27 @@
+# Quigely staging values for cver-api.
+
+replicaCount: 1
+
+nameOverride: "prod"
+
+app:
+  dbName: "cver_prod"
+  dbHost: "cver-mysql.cver.svc.cluster.local"
+  dbUser: "cver"
+  runMigrations: true
+
+image:
+  repository: harbor.squid-ink.us/politeauthority/cver-api
+  pullPolicy: IfNotPresent
+  tag: "5ebc0dd787b37b7ab7b4f34ab7a22246b72c6ae3"
+
+imagePullSecrets:
+  - name: harbor
+
+mysql:
+  enabled: true
+  nameOverride: cver-mysql
+  fullnameOverride: cver-mysql
+  primary:
+    persistence:
+      storageClass: nfs-client

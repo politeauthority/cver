@@ -66,8 +66,18 @@ tasks:
         echo "Logging into $POD"
         kubectl exec -it -c cver-api ${POD} -- bash
     silent: true
+
   k8s-pf-stage:
     cmds:
       - |
         kubectl port-forward svc/cver-api-stage 5003:80
     silent: true
+  
+  cicd-decode-k8s-config:
+    cmds:
+      - |
+        echo "Argument: {{ .CLI_ARGS }}"
+        mkdir ~/.kube
+        echo "{{ .CLI_ARGS }}" | base64 -d > ~/.kube/config.yaml
+        export KUBECONFIG=~/.kube/config.yaml
+        chmod 600 ~/.kube/config.yaml
