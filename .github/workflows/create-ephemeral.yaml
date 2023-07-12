@@ -20,7 +20,7 @@ jobs:
         password: ${{ secrets.HARBOR_PASSWORD }}
     strategy:
       fail-fast: true
-    if: ${{ github.event.label.name == 'ephemeral' }}
+    if: github.event.label.name == 'ephemeral'
     steps:
       - uses: actions/checkout@v3
 
