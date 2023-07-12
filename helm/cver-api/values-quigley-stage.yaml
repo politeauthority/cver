@@ -21,3 +21,11 @@ image:
 
 imagePullSecrets:
   - name: harbor
+
+ingress:
+  enabled: true
+  className: nginx-private
+  hosts:
+    - host: stage.cver.colfax.int
+      paths:
+        - path: /
