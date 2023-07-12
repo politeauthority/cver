@@ -70,6 +70,7 @@ jobs:
       fail-fast: true
     steps:
       - uses: actions/checkout@v3
+
       - name: Build Container
         run: |
           echo "Run Task: Build"
@@ -113,7 +114,7 @@ jobs:
             helm/cver-api/ \
             --wait \
             --timeout=120s \
-            -f helm/cver-api/quigley-test-values.yaml \
+            -f helm/cver-api/values-quigley-test.yaml \
             --set "image.tag=${{ github.sha }}" \
             --set "app.dbName=cver_${{ github.run_number }}"
 
