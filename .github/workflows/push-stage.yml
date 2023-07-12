@@ -44,10 +44,11 @@ jobs:
       - uses: actions/checkout@v3
       - name: Deploy
         run: |
-          task cicd-decode-k8s-config -- "${{ secrets.KUBECONFIG }}" 
+          # task cicd-decode-k8s-config -- "${{ secrets.KUBECONFIG }}" 
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
           export KUBECONFIG=~/.kube/config.yaml
+          chmod 600 ~/.kube/config
           kubectl get pods -n cver
           helm upgrade --install \
             --namespace=cver \
