@@ -13,7 +13,7 @@ app:
 image:
   repository: harbor.squid-ink.us/politeauthority/cver-api
   pullPolicy: IfNotPresent
-  tag: "5ebc0dd787b37b7ab7b4f34ab7a22246b72c6ae3"
+  tag: "0.0.1"
 
 imagePullSecrets:
   - name: harbor
