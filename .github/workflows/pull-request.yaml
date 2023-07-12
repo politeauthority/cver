@@ -107,6 +107,7 @@ jobs:
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
           export KUBECONFIG=~/.kube/config.yaml
           chmod 600 ~/.kube/config.yaml
+          DEPLOYED_AT=$(date +"%Y-%m-%d %T")
           kubectl get pods -n cver
           helm dependency build helm/cver-api
           helm upgrade --install \
@@ -117,7 +118,8 @@ jobs:
             --timeout=120s \
             -f helm/cver-api/values-quigley-test.yaml \
             --set "image.tag=${{ github.sha }}" \
-            --set "app.dbName=cver_${{ github.run_number }}"
+            --set "app.dbName=cver_${{ github.run_number }}" \
+            --set "app.deployedAt=${DEPLOYED_AT}"
 
   test-ephem:
     runs-on: self-hosted

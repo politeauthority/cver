@@ -20,6 +20,7 @@ metadata:
     {{- include "cver-api.labels" . | nindent 4 }}
   {{- with .Values.ingress.annotations }}
   annotations:
+    cver.deployed: "{{ .Values.app.deployedAt }}"
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:

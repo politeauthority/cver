@@ -13,6 +13,7 @@ app:
   jwtExpireMinutes: 60
   debug: False
   envName: "prod"
+  deployedAt: "unknown"
 
 image:
   repository: politeauthority/cver-api

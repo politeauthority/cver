@@ -49,12 +49,14 @@ jobs:
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
           export KUBECONFIG=~/.kube/config.yaml
           chmod 600 ~/.kube/config
+          DEPLOYED_AT=$(date +"%Y-%m-%d %T")
           kubectl get pods -n cver
           helm upgrade --install \
             --namespace=cver \
             cver-api-stage \
             helm/cver-api/ \
             -f helm/cver-api/values-quigley-stage.yaml \
+            --set "app.deployedAt=${DEPLOYED_AT}"
 
   # test-stage:
   #   runs-on: self-hosted
