@@ -9,7 +9,6 @@ jobs:
 
   build-docker:
     runs-on: self-hosted
-    needs: build-python
     container:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:0.0.1
       credentials:
