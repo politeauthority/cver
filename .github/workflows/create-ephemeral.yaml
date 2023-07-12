@@ -8,7 +8,7 @@ on:
         branches: ["cicd"]
 #   label:
 #     types: [ created ]
-
+#refs/pull/<pr_number>/merge
 jobs:
 
   build-docker:
@@ -20,7 +20,7 @@ jobs:
         password: ${{ secrets.HARBOR_PASSWORD }}
     strategy:
       fail-fast: true
-    if: github.event.label.name == 'ephemeral'
+    # if: github.event.label.name == 'ephemeral'
     steps:
       - uses: actions/checkout@v3
 
@@ -30,10 +30,16 @@ jobs:
           username: ${{ secrets.HARBOR_USER }}
           password: ${{ secrets.HARBOR_PASSWORD }}
 
-      - name: Check Build  
+      - name: Get Ephem Name
         run: |
-          echo "ALIX DEBUG: ${{ github.sha }}"
-          docker manifest inspect ${{ secrets.HARBOR_REGISTRY }}politeauthority/cver-api:${{ github.sha }}
+            GH_REF="${{ github.ref }}"
+            echo "ALIX DEBUG: GITHUB REF: $GH_REF"
+            # refs/heads/<branch_name>
+            echo "FOO=${FOO}" >> $GITHUB_ENV
+            exit 1
+            IMAGE="harbor.squid-ink.us/politeauthority/cver-api:${{ github.sha }}"
+            echo "ALIX DEBUG: ${{ github.sha }}"
+            docker manifest inspect $IMAGE
 
       - name: Build Container
         run: |
