@@ -15,6 +15,6 @@ test:
   test: true
 
 image:
-  repository: politeauthority/cver-api
+  repository: harbor.squid-ink.us/politeauthority/cver-api
   pullPolicy: Always
   tag: "0.0.1"

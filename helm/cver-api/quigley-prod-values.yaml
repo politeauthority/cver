@@ -11,7 +11,7 @@ app:
   runMigrations: true
 
 image:
-  repository: politeauthority/cver-api
+  repository: harbor.squid-ink.us/politeauthority/cver-api
   pullPolicy: IfNotPresent
   tag: "0.0.1b"
 
