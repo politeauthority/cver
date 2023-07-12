@@ -1,5 +1,6 @@
 # Create a ephemeral deployment of Cver when the label "ephemeral" is added.
 #modified_string=$(echo "$string" | sed 's/\//-/g')
+
 name: Create-Ephemeral
 
 on:
