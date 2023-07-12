@@ -111,7 +111,7 @@ jobs:
 
   deploy-ephem:
     runs-on: self-hosted
-    needs: build-docker
+    needs: [build-docker, lint-helm]
     continue-on-error: true
     container:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:0.0.1
