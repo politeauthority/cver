@@ -62,7 +62,7 @@ jobs:
     runs-on: self-hosted
     needs: build-python
     container:
-      image: ${{ secrets.HARBOR_REGISTRY }}politeauthority/polite-cicd:0.0.1
+      image: harbor.squid-ink.us/politeauthority/polite-cicd:0.0.1
       credentials:
         username: ${{ secrets.HARBOR_USER }}
         password: ${{ secrets.HARBOR_PASSWORD }}
@@ -94,7 +94,7 @@ jobs:
     needs: build-docker
     continue-on-error: true
     container:
-      image: ${{ secrets.HARBOR_REGISTRY }}politeauthority/polite-cicd:0.0.1
+      image: harbor.squid-ink.us/politeauthority/polite-cicd:0.0.1
       credentials:
         username: ${{ secrets.HARBOR_USER }}
         password: ${{ secrets.HARBOR_PASSWORD }}
@@ -120,7 +120,7 @@ jobs:
     runs-on: self-hosted
     needs: deploy-ephem
     container:
-      image: ${{ secrets.HARBOR_REGISTRY }}politeauthority/polite-cicd:0.0.1
+      image: harbor.squid-ink.us/politeauthority/polite-cicd:0.0.1
       credentials:
         username: ${{ secrets.HARBOR_USER }}
         password: ${{ secrets.HARBOR_PASSWORD }}
@@ -142,7 +142,7 @@ jobs:
     runs-on: self-hosted
     needs: test-ephem
     container:
-      image: ${{ secrets.HARBOR_REGISTRY }}politeauthority/polite-cicd:0.0.1
+      image: harbor.squid-ink.us/politeauthority/polite-cicd:0.0.1
       credentials:
         username: ${{ secrets.HARBOR_USER }}
         password: ${{ secrets.HARBOR_PASSWORD }}
