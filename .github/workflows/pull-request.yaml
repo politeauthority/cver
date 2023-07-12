@@ -112,6 +112,7 @@ jobs:
             cver-api-test-${{ github.run_number }} \
             helm/cver-api/ \
             --wait \
+            --timeout=120s \
             -f helm/cver-api/quigley-test-values.yaml \
             --set "image.tag=${{ github.sha }}" \
             --set "app.dbName=cver_${{ github.run_number }}"
