@@ -7,53 +7,56 @@ on:
     branches: ["main"]
 
 jobs:
-  build-docker:
-    runs-on: self-hosted
-    container:
-      image: harbor.squid-ink.us/politeauthority/polite-cicd:0.0.1
-      credentials:
-        username: ${{ secrets.HARBOR_USER }}
-        password: ${{ secrets.HARBOR_PASSWORD }}
-    strategy:
-      fail-fast: true
-    steps:
-      - uses: actions/checkout@v3
-      - name: Build Container
-        run: |
-          echo "Run Task: Build"
-          export CVER_API_TAG="0.0.1"
-          task build
-      - uses: docker/login-action@v2
-        with:
-          registry: ${{ secrets.HARBOR_REGISTRY }}
-          username: ${{ secrets.HARBOR_USER }}
-          password: ${{ secrets.HARBOR_PASSWORD }}
-      - name: Push Container Harbor
-        run: docker push harbor.squid-ink.us/politeauthority/cver-api:0.0.1
+    build-docker:
+        runs-on: self-hosted
+        container:
+            image: harbor.squid-ink.us/politeauthority/polite-cicd:0.0.1
+            credentials:
+                username: ${{ secrets.HARBOR_USER }}
+                password: ${{ secrets.HARBOR_PASSWORD }}
+        strategy:
+            fail-fast: true
+        steps:
+        - uses: actions/checkout@v3
+        - name: Build Container
+          run: |
+            echo "Run Task: Build"
+            export CVER_API_TAG="0.0.1"
+            task build
+        - uses: docker/login-action@v2
+          with:
+            registry: ${{ secrets.HARBOR_REGISTRY }}
+            username: ${{ secrets.HARBOR_USER }}
+            password: ${{ secrets.HARBOR_PASSWORD }}
+        - name: Push Container Harbor
+          run: |
+            IMAGE_ID=$(docker images --filter "reference=politeauthority/cver-api" --format "{{.ID}}")
+            docker tag ${IMAGE_ID} ${{ secrets.HARBOR_REGISTRY }}politeauthority/cver-api:${{ github.sha }}
+            docker push harbor.squid-ink.us/politeauthority/cver-api:0.0.1
 
-  deploy-prod:
-    runs-on: self-hosted
-    needs: build-docker
-    container:
-      image: politeauthority/polite-cicd:0.0.1
-    steps:
-      - uses: actions/checkout@v3
-      - name: Deploy
-        run: |
-          mkdir ~/.kube
-          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
-          export KUBECONFIG=~/.kube/config.yaml
-          chmod 600 ~/.kube/config.yaml
-          DEPLOYED_AT=$(date +"%Y-%m-%d %T")
-          kubectl get pods -n cver
-          helm dependency build helm/cver-api
-          helm upgrade --install \
-            --namespace=cver \
-            cver-api-prod \
-            helm/cver-api/ \
-            --wait \
-            --timeout=120s \
-            -f helm/cver-api/values-quigley-prod.yaml \
-            --set "app.deployedAt=${DEPLOYED_AT}"
+    deploy-prod:
+        runs-on: self-hosted
+        needs: build-docker
+        container:
+            image: politeauthority/polite-cicd:0.0.1
+        steps:
+        - uses: actions/checkout@v3
+        - name: Deploy
+          run: |
+            mkdir ~/.kube
+            echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
+            export KUBECONFIG=~/.kube/config.yaml
+            chmod 600 ~/.kube/config.yaml
+            DEPLOYED_AT=$(date +"%Y-%m-%d %T")
+            kubectl get pods -n cver
+            helm dependency build helm/cver-api
+            helm upgrade --install \
+                --namespace=cver \
+                cver-api-prod \
+                helm/cver-api/ \
+                --wait \
+                --timeout=120s \
+                -f helm/cver-api/values-quigley-prod.yaml \
+                --set "app.deployedAt=${DEPLOYED_AT}"
 
 # End File: cver/.github/webserver/push-main.yaml
