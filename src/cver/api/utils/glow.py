@@ -36,7 +36,6 @@ general = {
     "CVER_SECRET_KEY": os.environ.get("CVER_SECRET_KEY"),
     "CVER_TEST": os.environ.get("CVER_TEST", False),
 }
-general["CVER_TEST"] = True
 if general["CVER_BUILD"]:
     general["CVER_BUILD_SHORT"] = general["CVER_BUILD"][:12]
 

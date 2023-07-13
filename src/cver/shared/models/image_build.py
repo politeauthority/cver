@@ -75,6 +75,21 @@ FIELD_MAP = {
         "default": True,
         "api_writeable": True
     },
+    "sync_flag": {
+        "name": "sync_flag",
+        "type": "bool",
+        "api_writeable": True
+    },
+    "sync_enabled": {
+        "name": "sync_enabled",
+        "type": "bool",
+        "api_writeable": True
+    },
+    "sync_last_ts": {
+        "name": "sync_last_ts",
+        "type": "datetime",
+        "api_writeable": True
+    },
     "scan_flag": {
         "name": "scan_flag",
         "type": "bool",

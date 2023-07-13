@@ -7,7 +7,7 @@ on:
     branches: ["staging"]
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -84,4 +84,4 @@ jobs:
 
 
 
-# End File: cver/.github/webserver/push-stage.yaml
+# End File: cver/.github/workflows/push-stage.yaml

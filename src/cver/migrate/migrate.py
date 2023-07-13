@@ -16,7 +16,7 @@ from cver.migrate.data.data_users import DataUsers
 from cver.migrate.data.data_misc import DataMisc
 
 
-CURRENT_MIGRATION = 2
+CURRENT_MIGRATION = 1
 
 dictConfig({
     'version': 1,

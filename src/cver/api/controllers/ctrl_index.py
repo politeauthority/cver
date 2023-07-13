@@ -31,7 +31,7 @@ def index():
 
 @ctrl_index.route("/auth", methods=["POST"])
 def authenticate():
-    logging.info("Starting authentication flow")
+    logging.debug("Starting authentication flow")
     data = {
         "message": "Failed login",
         "status": "Error"
