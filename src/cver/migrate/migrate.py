@@ -15,7 +15,7 @@ from cver.migrate.data.data_users import DataUsers
 from cver.migrate.data.data_misc import DataMisc
 
 
-CURRENT_MIGRATION = 1
+CURRENT_MIGRATION = 2
 
 dictConfig({
     'version': 1,
@@ -50,6 +50,7 @@ class Migrate:
         self.create_rbac()
         self.create_users()
         self.create_misc()
+        logging.info("Migrations were successful")
         # self.create_table_sql()
 
     def create_database(self) -> True:
@@ -67,7 +68,7 @@ class Migrate:
         """Get the info from the last migration ran"""
         Migration().create_table()
         last = Migration()
-        last.get_last()
+        last.get_last_successful()
         if not last.id:
             return False
         return last
@@ -109,16 +110,24 @@ class Migrate:
             migration_file
         )
         if not os.path.exists(migration_file):
-            logging.error("File doesnt exist")
-            exit(1)
+            logging.critical("File doesnt exist")
+            return False
+
         try:
-            subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout.read()
+            child = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+            rc = child.returncode
             db.connect()
+            # If the command exits higher than 0 save that.
+            if rc and rc > 0:
+                logging.critical("Failed to run migration: %s")
+                m.success = False
+                m.save()
+                return False
             m.success = True
             m.save()
             return True
         except Exception as e:
-            logging.error("Failed to run migration: %s" % e)
+            logging.critical("Failed to run migration: %s" % e)
             m.success = False
             m.save()
             exit(1)

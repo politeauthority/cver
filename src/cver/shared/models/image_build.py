@@ -25,6 +25,13 @@ FIELD_MAP = {
         "api_writeable": True,
         "api_searchable": True,
     },
+    "sha_imported": {
+        "name": "sha_imported",
+        "type": "str",
+        "extra": "UNIQUE",
+        "api_writeable": True,
+        "api_searchable": True,
+    },
     "image_id": {
         "name": "image_id",
         "type": "int",
