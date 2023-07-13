@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS image_builds (
     `scan_flag` TINYINT(1),
     `scan_enabled` TINYINT(1) DEFAULT True,
     `scan_last_ts` DATETIME,
-    `pending_operation` VARCHAR(200),
+    `pending_operation` VARCHAR(200)
 );
 
 --- 

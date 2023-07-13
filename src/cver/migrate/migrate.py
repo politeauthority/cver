@@ -138,7 +138,7 @@ class Migrate:
         m.number = migration_no
         m.success = True
         m.save()
-        time.sleep(1)
+        time.sleep(2)
         return True
 
     def create_rbac(self):
