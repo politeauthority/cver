@@ -10,9 +10,9 @@ jobs:
     build-docker:
         runs-on: self-hosted
         container:
-            image: harbor.squid-ink.us/politeauthority/polite-cicd:0.0.1
+            image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
             credentials:
-                username: ${{ secrets.HARBOR_USER }}
+                username: ${{ vars.HARBOR_USER }}
                 password: ${{ secrets.HARBOR_PASSWORD }}
         strategy:
             fail-fast: true
@@ -21,7 +21,7 @@ jobs:
         - uses: docker/login-action@v2
           with:
             registry: harbor.squid-ink.us
-            username: ${{ secrets.HARBOR_USER }}
+            username: ${{ vars.HARBOR_USER }}
             password: ${{ secrets.HARBOR_PASSWORD }}
         - name: Build Container
           run: |
@@ -39,7 +39,7 @@ jobs:
         runs-on: self-hosted
         needs: build-docker
         container:
-            image: politeauthority/polite-cicd:0.0.1
+            image: politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
         steps:
         - uses: actions/checkout@v3
         - name: Deploy
