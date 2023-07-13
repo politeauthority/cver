@@ -46,6 +46,12 @@ FIELD_MAP = {
         "api_writeable": True,
         "api_searchable": True,
     },
+    "repository_imported": {
+        "name": "repository_imported",
+        "type": "str",
+        "api_writeable": True,
+        "api_searchable": True,
+    },
     "tags": {
         "name": "tags",
         "type": "list",
