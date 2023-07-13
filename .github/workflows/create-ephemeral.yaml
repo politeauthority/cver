@@ -68,10 +68,10 @@ jobs:
         - uses: actions/checkout@v3
         - name: Deploy
           run: |
-            EPEHM_NAME=env.EPHEM_NAME
-            EPHEM_NAME_K8s=$(echo "$original_var" | sed 's/-/_/')
-            echo "ALIX-DEBUG: EPHEM NAME: ${{ env.EPHEM_NAME }}"
-            echo "ALIX-DEBUG: EPHEM NAME K8s: ${{ env.EPHEM_NAME_K8s }}"
+            EPEHM_NAME="${{ env.EPHEM_NAME_K8s }}"
+            EPHEM_NAME_K8s=$(echo "$EPEHM_NAME" | sed 's/-/_/')
+            echo "ALIX-DEBUG: EPHEM NAME: ${EPEHM_NAME}"
+            echo "ALIX-DEBUG: EPHEM NAME K8s: ${EPHEM_NAME_K8s}"
             mkdir ~/.kube
             echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
             export KUBECONFIG=~/.kube/config.yaml
