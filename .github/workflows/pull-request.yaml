@@ -116,7 +116,7 @@ jobs:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:0.0.1
       credentials:
         username: ${{ secrets.HARBOR_USER }}
-        password: ${{ secrets.HARBOR_PASSWORD }
+        password: ${{ secrets.HARBOR_PASSWORD }}
     steps:
       - uses: actions/checkout@v3
       - name: Deploy
