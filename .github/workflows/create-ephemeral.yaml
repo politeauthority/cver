@@ -75,13 +75,14 @@ jobs:
             echo "ALIX DEBUG: PARSED: $PARSED"
             EPHEM_NAME=$(echo "$PARSED" | sed 's/\//-/g')
           
-            EPHEM_NAME_K8S=$(echo "$EPEHM_NAME" | sed 's/-/_/')
+            EPHEM_NAME_K8S=$(echo "$EPHEM_NAME" | sed 's/-/_/')
             echo "ALIX-DEBUG: EPHEM NAME: ${EPHEM_NAME}"
             echo "ALIX-DEBUG: EPHEM NAME K8s: ${EPHEM_NAME_K8S}"
             mkdir ~/.kube
             echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
             export KUBECONFIG=~/.kube/config.yaml
             chmod 600 ~/.kube/config.yaml
+            DEPLOY_URL="${EPEHM_NAME}.cver.colfax.int"
             DEPLOYED_AT=$(date +"%Y-%m-%d %T")
             helm dependency build helm/cver-api
             helm upgrade --install \
@@ -93,6 +94,6 @@ jobs:
                 -f helm/cver-api/values-quigley-test.yaml \
                 --set "image.tag=${{ github.sha }}" \
                 --set "app.dbName=cver_${EPHEM_NAME_K8S}" \
-                --set "ingress.hosts[0].host=${EPEHM_NAME}.cver.colfax.int" \
+                --set "ingress.hosts[0].host=${DEPLOY_URL}" \
                 --set "nameOverride=${EPEHM_NAME}" \
                 --set "app.deployedAt=${DEPLOYED_AT}"
