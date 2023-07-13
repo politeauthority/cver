@@ -81,19 +81,20 @@ jobs:
           username: ${{ secrets.HARBOR_USER }}
           password: ${{ secrets.HARBOR_PASSWORD }}
 
-      - name: Check Build  
-        continue-on-error: True
-        run: |
-          echo "ALIX DEBUG: ${{ github.sha }}"
-          MANIFEST=$(docker manifest inspect harbor.squid-ink.us/politeauthority/cver-api:${{ github.sha }})
-          # MANIFEST=$(docker manifest inspect harbor.squid-ink.us/politeauthority/cver-api:tag)
-          if [ $RETURN_CODE -eq 1  ]; then
-            echo "Docker image has not been built yet"
-            exit 0
-          else
-            echo "Docker already created"
-            exit 101
-          fi
+      # - name: Check Build  
+      #   continue-on-error: True
+      #   run: |
+      #     echo "ALIX DEBUG: ${{ github.sha }}"
+      #     MANIFEST=$(docker manifest inspect harbor.squid-ink.us/politeauthority/cver-api:${{ github.sha }})
+      #     # MANIFEST=$(docker manifest inspect harbor.squid-ink.us/politeauthority/cver-api:tag)
+      #     if [ $RETURN_CODE -eq 1  ]; then
+      #       echo "Docker image has not been built yet"
+      #       exit 0
+      #     else
+      #       echo "Docker already created"
+      #       exit 101
+      #     fi
+
       - name: Build Container
         run: |
           echo "Run Task: Build"

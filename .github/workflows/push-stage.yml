@@ -36,7 +36,7 @@ jobs:
         run: |
           IMAGE_ID=$(docker images --filter "reference=politeauthority/cver-api" --format "{{.ID}}")
           docker tag ${IMAGE_ID} ${{ secrets.HARBOR_REGISTRY }}politeauthority/cver-api:stage
-          docker push harbor.squid-ink.us/politeauthority/cver-api:stage
+          docker push harbor.squid-ink.us/politeauthority/cver-api:0.0.1-stage
 
   deploy-stage:
     runs-on: self-hosted
