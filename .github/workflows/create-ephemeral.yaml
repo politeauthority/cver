@@ -88,4 +88,5 @@ jobs:
                 --set "image.tag=${{ github.sha }}" \
                 --set "app.dbName=cver_${EPHEM_NAME_K8s}" \
                 --set "ingress.hosts[0].host=${EPEHM_NAME}.cver.colfax.int" \
+                --set "nameOverride=${EPEHM_NAME}" \
                 --set "app.deployedAt=${DEPLOYED_AT}"
