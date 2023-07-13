@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
 from setuptools import setup
+from cver.api.version import version
 
 setup(
     name="cver",
     description="Cver",
-    version="0.0.1",
+    version=version,
     author="Alix",
     author_email="alix@politeauthority.io",
     packages=[

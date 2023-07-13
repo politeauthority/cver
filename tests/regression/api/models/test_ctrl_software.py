@@ -92,7 +92,7 @@ class TestApiSoftware(TestApiBase):
             "url": "%s%s/%s" % (CVER_API_URL, URL_BASE, software_id),
         }
         response = requests.request(**request_args)
-        assert response.status_code == 201
+        assert response.status_code == 202
 
 
 # End File: cver/tests/regression/api/test_ctrl_software.py
