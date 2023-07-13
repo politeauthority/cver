@@ -92,8 +92,8 @@ jobs:
           IMAGE_ID=$(docker images --filter "reference=politeauthority/cver-api" --format "{{.ID}}")
           docker tag ${IMAGE_ID} harbor.squid-ink.us/politeauthority/cver-api:${{ github.sha }}
           docker push harbor.squid-ink.us/politeauthority/cver-api:${{ github.sha }}
-          echo "## Docker Build" >> $GITHUB_STEP_SUMMARY
-          echo "**Built:** politeauthority/cver-api:${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "# Docker Build" >> $GITHUB_STEP_SUMMARY
+          echo "**Built:** `harbor.squid-ink.us/politeauthority/cver-api:${{ github.sha }}`" >> $GITHUB_STEP_SUMMARY
 
   deploy-ephem:
     runs-on: self-hosted
@@ -125,7 +125,8 @@ jobs:
             --set "image.tag=${{ github.sha }}" \
             --set "app.dbName=cver_${{ github.run_number }}" \
             --set "app.deployedAt=${DEPLOYED_AT}"
-          echo "Created Helm deployment `cver-api-test-${{ github.run_number }}`" >> $GITHUB_STEP_SUMMARY
+          echo "# Deployed"
+          echo "Created Helm deployment: cver-api-test-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
 
   test-ephem:
     runs-on: self-hosted
@@ -171,6 +172,6 @@ jobs:
           helm uninstall \
             --namespace=cver \
             cver-api-test-${{ github.run_number }}
-          echo "Uninstalled Helm deployment `cver-api-test-${{ github.run_number }}`" >> $GITHUB_STEP_SUMMARY
+          echo "Uninstalled Helm deployment cver-api-test-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
 
 # End File: cver/.github/workflows/pull-request.yaml
