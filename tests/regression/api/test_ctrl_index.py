@@ -95,4 +95,5 @@ class TestApiIndex:
         assert "status" in response_json
         assert "message" in response_json
 
+
 # End File: cver/tests/regression/api/test_ctrl_index.py

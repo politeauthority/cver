@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: ["staging"]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-python:
     runs-on: self-hosted
@@ -44,53 +48,76 @@ jobs:
           pytest -vvv tests/unit --md report.md
           cat report.md >> $GITHUB_STEP_SUMMARY
 
-  # lint-helm:
-  #   runs-on: self-hosted
-  #   strategy:
-  #     fail-fast: true
-  #   container:
-  #     image: politeauthority/polite-cicd:0.0.1
-  #   strategy:
-  #     fail-fast: true
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Lint Helm
-  #       run: |
-  #         helm lint ./helm/cver-api
+  lint-helm:
+    runs-on: self-hosted
+    strategy:
+      fail-fast: true
+    container:
+      image: harbor.squid-ink.us/politeauthority/polite-cicd:0.0.1
+      credentials:
+        username: ${{ secrets.HARBOR_USER }}
+        password: ${{ secrets.HARBOR_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Lint Helm
+        run: |
+          helm lint ./helm/cver-api
 
   build-docker:
     runs-on: self-hosted
-    needs: build-python
     container:
-      image: politeauthority/polite-cicd:0.0.1
+      image: harbor.squid-ink.us/politeauthority/polite-cicd:0.0.1
+      credentials:
+        username: ${{ secrets.HARBOR_USER }}
+        password: ${{ secrets.HARBOR_PASSWORD }}
     strategy:
       fail-fast: true
     steps:
       - uses: actions/checkout@v3
+
+      - uses: docker/login-action@v2
+        with:
+          registry: harbor.squid-ink.us
+          username: ${{ secrets.HARBOR_USER }}
+          password: ${{ secrets.HARBOR_PASSWORD }}
+
+      # - name: Check Build  
+      #   continue-on-error: True
+      #   run: |
+      #     echo "ALIX DEBUG: ${{ github.sha }}"
+      #     MANIFEST=$(docker manifest inspect harbor.squid-ink.us/politeauthority/cver-api:${{ github.sha }})
+      #     # MANIFEST=$(docker manifest inspect harbor.squid-ink.us/politeauthority/cver-api:tag)
+      #     if [ $RETURN_CODE -eq 1  ]; then
+      #       echo "Docker image has not been built yet"
+      #       exit 0
+      #     else
+      #       echo "Docker already created"
+      #       exit 101
+      #     fi
+
       - name: Build Container
         run: |
           echo "Run Task: Build"
           export CVER_API_TAG="${{ github.sha }}"
           task build
 
-      - uses: docker/login-action@v2
-        with:
-          username: politeauthority
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
       - name: Push Container
         run: |
-          DOCKER_IMAGES=$(docker images)
-          echo $DOCKER_IMAGES
-          docker push politeauthority/cver-api:${{ github.sha }}
+          IMAGE_ID=$(docker images --filter "reference=politeauthority/cver-api" --format "{{.ID}}")
+          docker tag ${IMAGE_ID} harbor.squid-ink.us/politeauthority/cver-api:${{ github.sha }}
+          docker push harbor.squid-ink.us/politeauthority/cver-api:${{ github.sha }}
           echo "## Docker Build" >> $GITHUB_STEP_SUMMARY
           echo "**Built:** politeauthority/cver-api:${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
 
   deploy-ephem:
     runs-on: self-hosted
-    needs: build-docker
+    needs: [build-docker, build-python, lint-helm]
     continue-on-error: true
     container:
-      image: politeauthority/polite-cicd:0.0.1
+      image: harbor.squid-ink.us/politeauthority/polite-cicd:0.0.1
+      credentials:
+        username: ${{ secrets.HARBOR_USER }}
+        password: ${{ secrets.HARBOR_PASSWORD }}
     steps:
       - uses: actions/checkout@v3
       - name: Deploy
@@ -98,21 +125,29 @@ jobs:
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
           export KUBECONFIG=~/.kube/config.yaml
+          chmod 600 ~/.kube/config.yaml
+          DEPLOYED_AT=$(date +"%Y-%m-%d %T")
           kubectl get pods -n cver
+          helm dependency build helm/cver-api
           helm upgrade --install \
             --namespace=cver \
             cver-api-test-${{ github.run_number }} \
             helm/cver-api/ \
             --wait \
-            -f helm/cver-api/quigley-test-values.yaml \
+            --timeout=120s \
+            -f helm/cver-api/values-quigley-test.yaml \
             --set "image.tag=${{ github.sha }}" \
-            --set "app.dbName=cver_${{ github.run_number }}"
+            --set "app.dbName=cver_${{ github.run_number }}" \
+            --set "app.deployedAt=${DEPLOYED_AT}"
 
   test-ephem:
     runs-on: self-hosted
     needs: deploy-ephem
     container:
-      image: politeauthority/polite-cicd:0.0.1
+      image: harbor.squid-ink.us/politeauthority/polite-cicd:0.0.1
+      credentials:
+        username: ${{ secrets.HARBOR_USER }}
+        password: ${{ secrets.HARBOR_PASSWORD }}
     steps:
       - uses: actions/checkout@v3
       - name: Execute Tests
@@ -120,9 +155,9 @@ jobs:
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
           export KUBECONFIG=~/.kube/config.yaml
-          TEST_POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-api-test-${{ github.run_number }} --no-headers | cut -d' ' -f1)
-          kubectl exec -it ${TEST_POD} -c cver-api -- pytest -vvv /tests/regression --md regression-report.md
-          REPORT=$(kubectl exec -it ${TEST_POD} -c cver-api -- cat regression-report.md)
+          TEST_POD=$(kubectl get -n cver pods -l app.kubernetes.io/instance=cver-api-test-${{ github.run_number }} --no-headers | cut -d' ' -f1)
+          kubectl exec -n cver -it ${TEST_POD} -c cver-api -- pytest -vvv /tests/regression --md regression-report.md
+          REPORT=$(kubectl exec -n cver -it ${TEST_POD} -c cver-api -- cat /app/cver/regression-report.md)
           echo "$REPORT"
           echo "${REPORT}" >> $GITHUB_STEP_SUMMARY
 
@@ -131,7 +166,10 @@ jobs:
     runs-on: self-hosted
     needs: test-ephem
     container:
-      image: politeauthority/polite-cicd:0.0.1
+      image: harbor.squid-ink.us/politeauthority/polite-cicd:0.0.1
+      credentials:
+        username: ${{ secrets.HARBOR_USER }}
+        password: ${{ secrets.HARBOR_PASSWORD }}
     steps:
       - uses: actions/checkout@v3
       - name: Tear Down
@@ -140,8 +178,8 @@ jobs:
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
           export KUBECONFIG=~/.kube/config.yaml
           echo "Remove the database"
-          TEST_POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-api-test-${{ github.run_number }} --no-headers | cut -d' ' -f1)
-          kubectl exec -it ${TEST_POD} -c cver-api -- /bin/cver-db-destroy
+          TEST_POD=$(kubectl get pods -n cver -l app.kubernetes.io/instance=cver-api-test-${{ github.run_number }} --no-headers | cut -d' ' -f1)
+          # kubectl exec -n cver -it ${TEST_POD} -c cver-api -- /bin/cver-db-destroy
           echo "Remove the helm installation"
           helm uninstall \
             --namespace=cver \

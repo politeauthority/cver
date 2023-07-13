@@ -29,7 +29,7 @@ tasks:
         docker run --name="cver-api" -d \
           -v {{.CVER_DIR}}/src:/app \
           -v {{.CVER_DIR}}/tests:/tests \
-          -p 5001:5001  \
+          -p 80:80 \
           -e CVER_DB_HOST="mysql" \
           -e CVER_DB_PASS="${CVER_DB_PASS}" \
           -e CVER_TEST_CLIENT_ID="${CVER_TEST_CLIENT_ID}" \
@@ -37,7 +37,7 @@ tasks:
           -e CVER_SECRET_KEY="${CVER_SECRET_KEY}" \
           -e CVER_TEST="true" \
           -e CVER_JWT_EXPIRE_MINUTES=1440 \
-          politeauthority/cver-api:0.0.1b \
+          politeauthority/cver-api:dev \
           tail -f /dev/null
       - docker network connect cver cver-api
       - echo "Success"
@@ -48,6 +48,12 @@ tasks:
   dev-stop:
     cmds:
       - docker rm -f cver-api
+  cver-build:
+    cmds:
+      - |
+        cd src
+        python3 setup.py build
+        python3 setup.py install
   pre-commit:
     cmds: 
       - |
@@ -66,8 +72,26 @@ tasks:
         echo "Logging into $POD"
         kubectl exec -it -c cver-api ${POD} -- bash
     silent: true
+
   k8s-pf-stage:
     cmds:
       - |
         kubectl port-forward svc/cver-api-stage 5003:80
+    silent: true
+  
+  cicd-decode-k8s-config:
+    cmds:
+      - |
+        echo "Argument: {{ .CLI_ARGS }}"
+        mkdir ~/.kube
+        echo "{{ .CLI_ARGS }}" | base64 -d > ~/.kube/config.yaml
+        export KUBECONFIG=~/.kube/config.yaml
+        chmod 600 ~/.kube/config.yaml
+
+  cicd-version:
+    cmds:
+      - |
+        VERSION_FILE="src/cver/api/version.py"
+        VERSION=$(grep -o 'version = "[^"]*"' src/cver/api/version.py | cut -d '"' -f 2)
+        echo "$VERSION"
     silent: true

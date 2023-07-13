@@ -19,9 +19,11 @@ ENV CVER_TEST="false"
 ENV CVER_TEST_USER_CLIENT_ID=""
 ENV CVER_TEST_USER_API_KEY=""
 
+WORKDIR /app/cver
+
 ADD scripts/entrypoint.sh /
 ADD src/ /app
-WORKDIR /app/cver
+
 RUN apk add --update --no-cache --virtual .tmp-build-deps \
     gcc libc-dev linux-headers postgresql-dev \
     && apk add libffi-dev
