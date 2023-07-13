@@ -31,6 +31,7 @@ jobs:
             password: ${{ secrets.HARBOR_PASSWORD }}
 
         - name: Get Ephem Name
+          id: ephem_name
           run: |
             GH_REF="${{ github.ref }}"
             echo "ALIX DEBUG: GITHUB REF: $GH_REF"
@@ -39,7 +40,7 @@ jobs:
             CLEANED=$(echo "$PARSED" | sed 's/\//-/g')
             EPHEM_NAME=$CLEANED
             echo "ALIX DEBUG: EPEHM_NAME: $EPHEM_NAME"
-            echo "EPHEM_NAME=${EPEHM_NAME}" >> $GITHUB_ENV
+            echo "EPHEM_NAME=${EPEHM_NAME}" >> $GITHUB_OUTPUT
 
         - name: Build Container
           run: |
@@ -67,8 +68,9 @@ jobs:
         steps:
         - uses: actions/checkout@v3
         - name: Deploy
+          env:
+            EPEHM_NAME: ${{needs.ephem_name.outputs.EPHEM_NAME}}
           run: |
-            EPEHM_NAME="${{ env.EPEHM_NAME }}"
             EPHEM_NAME_K8s=$(echo "$EPEHM_NAME" | sed 's/-/_/')
             echo "ALIX-DEBUG: EPHEM NAME: ${EPEHM_NAME}"
             echo "ALIX-DEBUG: EPHEM NAME K8s: ${EPHEM_NAME_K8s}"
