@@ -25,13 +25,13 @@ jobs:
             task build
         - uses: docker/login-action@v2
           with:
-            registry: ${{ secrets.HARBOR_REGISTRY }}
+            registry: harbor.squid-ink.us
             username: ${{ secrets.HARBOR_USER }}
             password: ${{ secrets.HARBOR_PASSWORD }}
         - name: Push Container Harbor
           run: |
             IMAGE_ID=$(docker images --filter "reference=politeauthority/cver-api" --format "{{.ID}}")
-            docker tag ${IMAGE_ID} ${{ secrets.HARBOR_REGISTRY }}politeauthority/cver-api:${{ github.sha }}
+            docker tag ${IMAGE_ID} harbor.squid-ink.us/politeauthority/cver-api:${{ github.sha }}
             docker push harbor.squid-ink.us/politeauthority/cver-api:0.0.1
 
     deploy-prod:
