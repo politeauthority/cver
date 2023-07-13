@@ -17,7 +17,7 @@ test:
 image:
   repository: harbor.squid-ink.us/politeauthority/cver-api
   pullPolicy: Always
-  tag: "stage"
+  tag: "0.0.1-stage"
 
 imagePullSecrets:
   - name: harbor
