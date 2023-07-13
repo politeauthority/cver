@@ -11,46 +11,77 @@ on:
 #refs/pull/<pr_number>/merge
 jobs:
 
-  build-docker:
-    runs-on: self-hosted
-    container:
-      image: harbor.squid-ink.us/politeauthority/polite-cicd:0.0.1
-      credentials:
-        username: ${{ secrets.HARBOR_USER }}
-        password: ${{ secrets.HARBOR_PASSWORD }}
-    strategy:
-      fail-fast: true
-    # if: github.event.label.name == 'ephemeral'
-    steps:
-      - uses: actions/checkout@v3
+    build-docker:
+        runs-on: self-hosted
+        container:
+        image: harbor.squid-ink.us/politeauthority/polite-cicd:0.0.1
+        credentials:
+            username: ${{ secrets.HARBOR_USER }}
+            password: ${{ secrets.HARBOR_PASSWORD }}
+        strategy:
+        fail-fast: true
+        # if: github.event.label.name == 'ephemeral'
+        steps:
+        - uses: actions/checkout@v3
 
-      - uses: docker/login-action@v2
-        with:
-          registry: ${{ secrets.HARBOR_REGISTRY }}
-          username: ${{ secrets.HARBOR_USER }}
-          password: ${{ secrets.HARBOR_PASSWORD }}
+        - uses: docker/login-action@v2
+          with:
+            registry: ${{ secrets.HARBOR_REGISTRY }}
+            username: ${{ secrets.HARBOR_USER }}
+            password: ${{ secrets.HARBOR_PASSWORD }}
 
-      - name: Get Ephem Name
-        run: |
+        - name: Get Ephem Name
+          run: |
             GH_REF="${{ github.ref }}"
             echo "ALIX DEBUG: GITHUB REF: $GH_REF"
-            # refs/heads/<branch_name>
-            echo "FOO=${FOO}" >> $GITHUB_ENV
-            exit 1
-            IMAGE="harbor.squid-ink.us/politeauthority/cver-api:${{ github.sha }}"
-            echo "ALIX DEBUG: ${{ github.sha }}"
-            docker manifest inspect $IMAGE
+            PARSED=${GH_REF##*/}
+            echo "ALIX DEBUG: PARSED: $PARSED"
+            CLEANED=$(echo "$PARSED" | sed 's/\//-/g')
+            EPHEM_NAME=$CLEANED
+            echo "ALIX DEBUG: EPEHM_NAME: $EPHEM_NAME"
+            echo "EPHEM_NAME=${EPEHM_NAME}" >> $GITHUB_ENV
 
-      - name: Build Container
-        run: |
-          echo "Run Task: Build"
-          export CVER_API_TAG="${{ github.sha }}"
-          task build
+        - name: Build Container
+          run: |
+            echo "Run Task: Build"
+            export CVER_API_TAG="${{ github.sha }}"
+            task build
 
-      - name: Push Container
-        run: |
-          IMAGE_ID=$(docker images --filter "reference=politeauthority/cver-api" --format "{{.ID}}")
-          docker tag ${IMAGE_ID} ${{ secrets.HARBOR_REGISTRY }}politeauthority/cver-api:${{ github.sha }}
-          docker push ${{ secrets.HARBOR_REGISTRY }}politeauthority/cver-api:${{ github.sha }}
-          echo "## Docker Build" >> $GITHUB_STEP_SUMMARY
-          echo "**Built:** politeauthority/cver-api:${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+        - name: Push Container
+          run: |
+            IMAGE_ID=$(docker images --filter "reference=politeauthority/cver-api" --format "{{.ID}}")
+            docker tag ${IMAGE_ID} ${{ secrets.HARBOR_REGISTRY }}politeauthority/cver-api:${{ github.sha }}
+            docker push ${{ secrets.HARBOR_REGISTRY }}politeauthority/cver-api:${{ github.sha }}
+            echo "## Docker Build" >> $GITHUB_STEP_SUMMARY
+            echo "**Built:** politeauthority/cver-api:${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+
+    deploy-ephem:
+        runs-on: self-hosted
+        needs: [build-docker]
+        continue-on-error: true
+        container:
+            image: harbor.squid-ink.us/politeauthority/polite-cicd:0.0.1
+            credentials:
+                username: ${{ secrets.HARBOR_USER }}
+                password: ${{ secrets.HARBOR_PASSWORD }}
+        steps:
+        - uses: actions/checkout@v3
+        - name: Deploy
+          run: |
+            echo "ALIX-DEBUG: EPHEM NAME: ${{ env.EPHEM_NAME }}"
+            mkdir ~/.kube
+            echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
+            export KUBECONFIG=~/.kube/config.yaml
+            chmod 600 ~/.kube/config.yaml
+            DEPLOYED_AT=$(date +"%Y-%m-%d %T")
+            helm dependency build helm/cver-api
+            helm upgrade --install \
+                --namespace=cver \
+                cver-api-test-${{ github.run_number }} \
+                helm/cver-api/ \
+                --wait \
+                --timeout=120s \
+                -f helm/cver-api/values-quigley-test.yaml \
+                --set "image.tag=${{ github.sha }}" \
+                --set "app.dbName=cver_${{ github.run_number }}" \
+                --set "app.deployedAt=${DEPLOYED_AT}"
