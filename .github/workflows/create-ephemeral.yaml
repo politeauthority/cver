@@ -66,9 +66,15 @@ jobs:
         steps:
         - uses: actions/checkout@v3
         - name: Deploy
-          env:
-            EPHEM_NAME: ${{needs.build-docker.outputs.EPHEM_NAME}}
+        #   env:
+        #     EPHEM_NAME: ${{needs.build-docker.outputs.EPHEM_NAME}}
           run: |
+            GH_REF="${{ github.ref }}"
+            echo "ALIX DEBUG: GITHUB REF: $GH_REF"
+            PARSED=${GH_REF##*/}
+            echo "ALIX DEBUG: PARSED: $PARSED"
+            EPHEM_NAME=$(echo "$PARSED" | sed 's/\//-/g')
+          
             EPHEM_NAME_K8S=$(echo "$EPEHM_NAME" | sed 's/-/_/')
             echo "ALIX-DEBUG: EPHEM NAME: ${EPHEM_NAME}"
             echo "ALIX-DEBUG: EPHEM NAME K8s: ${EPHEM_NAME_K8S}"
