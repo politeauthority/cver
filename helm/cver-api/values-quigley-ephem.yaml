@@ -2,14 +2,13 @@
 
 replicaCount: 1
 
-nameOverride: "stage"
+nameOverride: "ephem"
 
 app:
-  dbName: "cver_stage"
   dbHost: "cver-mysql.cver.svc.cluster.local"
   dbUser: "cver"
   runMigrations: true
-  envName: "stage"
+  envName: "ephem"
 
 test:
   test: true
@@ -17,7 +16,7 @@ test:
 image:
   repository: harbor.squid-ink.us/politeauthority/cver-api
   pullPolicy: Always
-  tag: "0.0.1-stage"
+  tag: "ephem"
 
 imagePullSecrets:
   - name: harbor
