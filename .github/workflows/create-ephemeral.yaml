@@ -4,11 +4,8 @@
 name: Create-Ephemeral
 
 on:
-    push:
-        branches: ["cicd"]
-#   label:
-#     types: [ created ]
-#refs/pull/<pr_number>/merge
+  label:
+    types: [ created ]
 jobs:
 
     build-docker:
@@ -20,7 +17,7 @@ jobs:
                 password: ${{ secrets.HARBOR_PASSWORD }}
         strategy:
             fail-fast: true
-        # if: github.event.label.name == 'ephemeral'
+        if: github.event.label.name == 'ephemeral'
         steps:
         - uses: actions/checkout@v3
 
@@ -97,3 +94,6 @@ jobs:
                 --set "ingress.hosts[0].host=${DEPLOY_URL}" \
                 --set "nameOverride=${EPEHM_NAME}" \
                 --set "app.deployedAt=${DEPLOYED_AT}"
+            
+            echo "# Ephemeral Environment" >> $GITHUB_STEP_SUMMARY
+            echo "**URL:** (${DEPLOY_URL})[${DEPLOY_URL}]" >> $GITHUB_STEP_SUMMARY
