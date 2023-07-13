@@ -38,8 +38,8 @@ jobs:
             PARSED=${GH_REF##*/}
             echo "ALIX DEBUG: PARSED: $PARSED"
             EPHEM_NAME=$(echo "$PARSED" | sed 's/\//-/g')
-            echo "ALIX DEBUG: EPEHM_NAME: $EPHEM_NAME"
-            echo "EPHEM_NAME=${EPEHM_NAME}" >> "$GITHUB_OUTPUT"
+            echo "ALIX DEBUG: EPHEM_NAME: $EPHEM_NAME"
+            echo "EPHEM_NAME=${EPHEM_NAME}" >> "$GITHUB_OUTPUT"
 
         - name: Build Container
           run: |
@@ -67,16 +67,11 @@ jobs:
         - uses: actions/checkout@v3
         - name: Deploy
           env:
-            EPEHM_NAME: ${{needs.ephem_name.outputs.EPHEM_NAME}}
+            EPHEM_NAME: ${{needs.ephem_name.outputs.EPHEM_NAME}}
           run: |
-            # GH_REF="${{ github.ref }}"
-            # echo "ALIX DEBUG: GITHUB REF: $GH_REF"
-            # PARSED=${GH_REF##*/}
-            # echo "ALIX DEBUG: PARSED: $PARSED"
-            # EPHEM_NAME=$(echo "$PARSED" | sed 's/\//-/g')
-            EPHEM_NAME_K8s=$(echo "$EPEHM_NAME" | sed 's/-/_/')
-            echo "ALIX-DEBUG: EPHEM NAME: ${EPEHM_NAME}"
-            echo "ALIX-DEBUG: EPHEM NAME K8s: ${EPHEM_NAME_K8s}"
+            EPHEM_NAME_K8S=$(echo "$EPEHM_NAME" | sed 's/-/_/')
+            echo "ALIX-DEBUG: EPHEM NAME: ${EPHEM_NAME}"
+            echo "ALIX-DEBUG: EPHEM NAME K8s: ${EPHEM_NAME_K8S}"
             mkdir ~/.kube
             echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
             export KUBECONFIG=~/.kube/config.yaml
@@ -85,13 +80,13 @@ jobs:
             helm dependency build helm/cver-api
             helm upgrade --install \
                 --namespace=cver \
-                cver-api-ephem-${EPHEM_NAME_K8s} \
+                cver-api-ephem-${EPHEM_NAME_K8S} \
                 helm/cver-api/ \
                 --wait \
                 --timeout=120s \
                 -f helm/cver-api/values-quigley-test.yaml \
                 --set "image.tag=${{ github.sha }}" \
-                --set "app.dbName=cver_${EPHEM_NAME_K8s}" \
+                --set "app.dbName=cver_${EPHEM_NAME_K8S}" \
                 --set "ingress.hosts[0].host=${EPEHM_NAME}.cver.colfax.int" \
                 --set "nameOverride=${EPEHM_NAME}" \
                 --set "app.deployedAt=${DEPLOYED_AT}"
