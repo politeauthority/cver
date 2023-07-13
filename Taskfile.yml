@@ -87,3 +87,11 @@ tasks:
         echo "{{ .CLI_ARGS }}" | base64 -d > ~/.kube/config.yaml
         export KUBECONFIG=~/.kube/config.yaml
         chmod 600 ~/.kube/config.yaml
+
+  cicd-version:
+    cmds:
+      - |
+        VERSION_FILE="src/cver/api/version.py"
+        VERSION=$(grep -o 'version = "[^"]*"' src/cver/api/version.py | cut -d '"' -f 2)
+        echo "$VERSION"
+    silent: true

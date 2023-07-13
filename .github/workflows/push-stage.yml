@@ -34,9 +34,10 @@ jobs:
           password: ${{ secrets.HARBOR_PASSWORD }}
       - name: Push Container
         run: |
+          CVER_VERSION=$(task cicd-version)
           IMAGE_ID=$(docker images --filter "reference=politeauthority/cver-api" --format "{{.ID}}")
           docker tag ${IMAGE_ID} ${{ secrets.HARBOR_REGISTRY }}politeauthority/cver-api:stage
-          docker push harbor.squid-ink.us/politeauthority/cver-api:0.0.1-stage
+          docker push harbor.squid-ink.us/politeauthority/cver-api:${CVER_VERSION}-stage
 
   deploy-stage:
     runs-on: self-hosted
@@ -55,6 +56,7 @@ jobs:
           export KUBECONFIG=~/.kube/config.yaml
           chmod 600 ~/.kube/config.yaml
           DEPLOYED_AT=$(date +"%Y-%m-%d %T")
+          CVER_VERSION=$(task cicd-version)
           helm dependency build helm/cver-api
           kubectl get pods -n cver
           helm upgrade --install \
@@ -62,6 +64,7 @@ jobs:
             cver-api-stage \
             helm/cver-api/ \
             -f helm/cver-api/values-quigley-stage.yaml \
+            --set "image.tag=${DEPLOYED_AT}" \
             --set "app.deployedAt=${DEPLOYED_AT}"
 
   # test-stage:
