@@ -64,7 +64,7 @@ jobs:
             cver-api-stage \
             helm/cver-api/ \
             -f helm/cver-api/values-quigley-stage.yaml \
-            --set "image.tag=${DEPLOYED_AT}" \
+            --set "image.tag=${CVER_VERSION}" \
             --set "app.deployedAt=${DEPLOYED_AT}"
 
   # test-stage:
