@@ -7,6 +7,8 @@
 """
 import os
 
+from cver.api.version import version
+
 global db
 db = {
     "conn": "",
@@ -26,7 +28,7 @@ options = {}
 global general
 general = {
     "LOG_LEVEL": "INFO",
-    "VERSION": "0.0.1",
+    "VERSION": version,
     "CVER_BUILD": os.environ.get("CVER_BUILD"),
     "CVER_BUILD_SHORT": "",
     "CVER_ENV": os.environ.get("CVER_ENV"),

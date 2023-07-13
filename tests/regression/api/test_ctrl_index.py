@@ -76,4 +76,23 @@ class TestApiIndex:
         assert "model_totals" in response_json
         assert "migration" in response_json
 
+    # def test__healthz_get(self):
+    #     """Tests the Cver Api healthz endpoint that Kubernetes uses.
+    #     GET /healthz
+    #     """
+    #     assert self.login()
+    #     request_args = {
+    #         "headers": {
+    #             "content-type": "application/json"
+    #         },
+    #         "method": "GET",
+    #         "url": "%s%s/healthz" % (CVER_API_URL, URL_BASE),
+    #     }
+
+    #     response = requests.request(**request_args)
+    #     assert response.status_code == 200
+    #     response_json = response.json()
+    #     assert "status" in response_json
+    #     assert "message" in response_json
+
 # End File: cver/tests/regression/api/test_ctrl_index.py
