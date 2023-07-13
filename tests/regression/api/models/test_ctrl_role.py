@@ -100,7 +100,7 @@ class TestApiModelRole(TestApiBase):
         }
         response_delete = requests.request(**request_args)
 
-        assert response_delete.status_code == 201
+        assert response_delete.status_code == 202
 
 
 # End File: cver/tests/regression/api/models/test_ctrl_role.py

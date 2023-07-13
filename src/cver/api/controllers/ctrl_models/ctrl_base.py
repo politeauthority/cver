@@ -128,7 +128,7 @@ def delete_model(model, entity_id: int):
     entity.delete()
     data["message"] = "User deleted successfully"
     data["object"] = entity.json()
-    return make_response(jsonify(data), 201)
+    return make_response(jsonify(data), 202)
 
 
 # End File: cver/src/api/controllers/ctrl_modles/ctrl_base.py

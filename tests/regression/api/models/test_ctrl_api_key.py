@@ -38,9 +38,9 @@ class TestApiModelApiKey(TestApiBase):
         response = requests.request(**request_args)
         assert response.status_code == 404
 
-    # def test__image_post_200(self):
-    #     """ Test that we can create a new Image model.
-    #     POST /image
+    # def test__api_key_post_200(self):
+    #     """ Test that we can create a new ApiKey model.
+    #     POST /api-key
     #     """
     #     assert self.login()
     #     request_args = {
