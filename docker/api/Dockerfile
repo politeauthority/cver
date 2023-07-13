@@ -1,8 +1,8 @@
 # Cver-Api
 # This container runs the Cver api web app
 #
-
-FROM python:3.10-alpine3.16
+ARG DOCKER_REGISTRY=docker.io
+FROM ${DOCKER_REGISTRY}/python:3.10-alpine3.16
 ARG CVER_BUILD=""
 ENV CVER_DB_HOST="cver-mysql"
 ENV CVER_DB_PORT="3306"
