@@ -45,7 +45,7 @@ jobs:
 
       - name: Unit Tests
         run: |
-          pytest -vvv tests/unit --md report.md
+          pytest tests/unit --md report.md
           cat report.md >> $GITHUB_STEP_SUMMARY
 
   lint-helm:
@@ -80,20 +80,6 @@ jobs:
           registry: harbor.squid-ink.us
           username: ${{ vars.HARBOR_USER }}
           password: ${{ secrets.HARBOR_PASSWORD }}
-
-      # - name: Check Build  
-      #   continue-on-error: True
-      #   run: |
-      #     echo "ALIX DEBUG: ${{ github.sha }}"
-      #     MANIFEST=$(docker manifest inspect harbor.squid-ink.us/politeauthority/cver-api:${{ github.sha }})
-      #     # MANIFEST=$(docker manifest inspect harbor.squid-ink.us/politeauthority/cver-api:tag)
-      #     if [ $RETURN_CODE -eq 1  ]; then
-      #       echo "Docker image has not been built yet"
-      #       exit 0
-      #     else
-      #       echo "Docker already created"
-      #       exit 101
-      #     fi
 
       - name: Build Container
         run: |
@@ -139,6 +125,7 @@ jobs:
             --set "image.tag=${{ github.sha }}" \
             --set "app.dbName=cver_${{ github.run_number }}" \
             --set "app.deployedAt=${DEPLOYED_AT}"
+          echo "Created Helm deployment `cver-api-test-${{ github.run_number }}`" >> $GITHUB_STEP_SUMMARY
 
   test-ephem:
     runs-on: self-hosted
@@ -184,5 +171,6 @@ jobs:
           helm uninstall \
             --namespace=cver \
             cver-api-test-${{ github.run_number }}
+          echo "Uninstalled Helm deployment `cver-api-test-${{ github.run_number }}`" >> $GITHUB_STEP_SUMMARY
 
-# End File: cver/.github/webserver/pull-request.yaml
+# End File: cver/.github/workflows/pull-request.yaml
