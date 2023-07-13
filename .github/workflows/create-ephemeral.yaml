@@ -1,0 +1,99 @@
+# Create a ephemeral deployment of Cver when the label "ephemeral" is added.
+#modified_string=$(echo "$string" | sed 's/\//-/g')
+
+name: Create-Ephemeral
+
+on:
+  label:
+    types: [ created ]
+jobs:
+
+    build-docker:
+        runs-on: self-hosted
+        container:
+            image: harbor.squid-ink.us/politeauthority/polite-cicd:0.0.1
+            credentials:
+                username: ${{ secrets.HARBOR_USER }}
+                password: ${{ secrets.HARBOR_PASSWORD }}
+        strategy:
+            fail-fast: true
+        if: github.event.label.name == 'ephemeral'
+        steps:
+        - uses: actions/checkout@v3
+
+        - uses: docker/login-action@v2
+          with:
+            registry: ${{ secrets.HARBOR_REGISTRY }}
+            username: ${{ secrets.HARBOR_USER }}
+            password: ${{ secrets.HARBOR_PASSWORD }}
+
+        - name: Get Ephem Name
+          id: ephem_name
+          run: |
+            GH_REF="${{ github.ref }}"
+            echo "ALIX DEBUG: GITHUB REF: $GH_REF"
+            PARSED=${GH_REF##*/}
+            echo "ALIX DEBUG: PARSED: $PARSED"
+            EPHEM_NAME=$(echo "$PARSED" | sed 's/\//-/g')
+            echo "ALIX DEBUG: EPHEM_NAME: $EPHEM_NAME"
+            echo "EPHEM_NAME=${EPHEM_NAME}" >> "$GITHUB_OUTPUT"
+
+        - name: Build Container
+          run: |
+            echo "Run Task: Build"
+            export CVER_API_TAG="${{ github.sha }}"
+            task build
+
+        - name: Push Container
+          run: |
+            IMAGE_ID=$(docker images --filter "reference=politeauthority/cver-api" --format "{{.ID}}")
+            docker tag ${IMAGE_ID} ${{ secrets.HARBOR_REGISTRY }}politeauthority/cver-api:${{ github.sha }}
+            docker push ${{ secrets.HARBOR_REGISTRY }}politeauthority/cver-api:${{ github.sha }}
+            echo "## Docker Build" >> $GITHUB_STEP_SUMMARY
+            echo "**Built:** politeauthority/cver-api:${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+
+    deploy-ephem:
+        runs-on: self-hosted
+        needs: [build-docker]
+        container:
+            image: harbor.squid-ink.us/politeauthority/polite-cicd:0.0.1
+            credentials:
+                username: ${{ secrets.HARBOR_USER }}
+                password: ${{ secrets.HARBOR_PASSWORD }}
+        steps:
+        - uses: actions/checkout@v3
+        - name: Deploy
+        #   env:
+        #     EPHEM_NAME: ${{needs.build-docker.outputs.EPHEM_NAME}}
+          run: |
+            GH_REF="${{ github.ref }}"
+            echo "ALIX DEBUG: GITHUB REF: $GH_REF"
+            PARSED=${GH_REF##*/}
+            echo "ALIX DEBUG: PARSED: $PARSED"
+            EPHEM_NAME=$(echo "$PARSED" | sed 's/\//-/g')
+          
+            EPHEM_NAME_K8S=$(echo "$EPHEM_NAME" | sed 's/-/_/')
+            echo "ALIX-DEBUG: EPHEM NAME: ${EPHEM_NAME}"
+            echo "ALIX-DEBUG: EPHEM NAME K8s: ${EPHEM_NAME_K8S}"
+            mkdir ~/.kube
+            echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
+            export KUBECONFIG=~/.kube/config.yaml
+            chmod 600 ~/.kube/config.yaml
+            DEPLOY_URL="${EPEHM_NAME}.cver.colfax.int"
+            DEPLOYED_AT=$(date +"%Y-%m-%d %T")
+            helm dependency build helm/cver-api
+            helm upgrade --install \
+                --namespace=cver \
+                cver-api-ephem-${EPHEM_NAME_K8S} \
+                helm/cver-api/ \
+                --wait \
+                --timeout=120s \
+                -f helm/cver-api/values-quigley-test.yaml \
+                --set "image.tag=${{ github.sha }}" \
+                --set "app.dbName=cver_${EPHEM_NAME_K8S}" \
+                --set "ingress.hosts[0].host=${DEPLOY_URL}" \
+                --set "nameOverride=${EPEHM_NAME}" \
+                --set "app.deployedAt=${DEPLOYED_AT}"
+            
+            echo "# Ephemeral Environment" >> $GITHUB_STEP_SUMMARY
+            echo "**URL:** (${DEPLOY_URL})[${DEPLOY_URL}]" >> $GITHUB_STEP_SUMMARY
