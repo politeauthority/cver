@@ -13,6 +13,7 @@ spec:
     metadata:
       {{- with .Values.podAnnotations }}
       annotations:
+        cver.deployed: "{{ .Values.app.deployedAt }}"
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
@@ -32,6 +33,8 @@ spec:
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         command: ["python3", "/app/cver/migrate/migrate.py"]
         env:
+          - name: CVER_ENV
+            value: "{{ .Values.app.envName }}"
           - name: CVER_DB_HOST
             value: "{{ .Values.app.dbHost }}"
           - name: CVER_DB_PORT
@@ -44,7 +47,26 @@ spec:
             valueFrom:
               secretKeyRef:
                 key: mysql-password
+                name: cver-mysql-user
+          - name: CVER_SECRET
+            valueFrom:
+              secretKeyRef:
+                key: mysql-password
                 name: cver-mysql
+          {{- if .Values.test.test }}
+          - name: CVER_TEST_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                key: client-id
+                name: cver-test-creds
+          - name: CVER_TEST_API_KEY
+            valueFrom:
+              secretKeyRef:
+                key: api-key
+                name: cver-test-creds
+          - name: CVER_TEST
+            value: "true"
+          {{- end }}
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
@@ -58,8 +80,6 @@ spec:
           env:
             - name: CVER_ENV
               value: "{{ .Values.app.envName }}"
-            - name: CVER_BUILD
-              value: "{{ .Values.app.build }}"
             - name: CVER_DB_HOST
               value: "{{ .Values.app.dbHost }}"
             - name: CVER_DB_PORT
@@ -72,19 +92,43 @@ spec:
               valueFrom:
                 secretKeyRef:
                   key: mysql-password
-                  name: cver-mysql
+                  name: cver-mysql-user
+            - name: CVER_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: cver-secret-key
+                  name: cver-secrets-{{ .Values.app.envName }}
+            - name: CVER_JWT_EXPIRE_MINUTES
+              value: "{{ .Values.app.jwtExpireMinutes }}"
+            {{- if .Values.test.test }}
+            - name: CVER_TEST_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  key: client-id
+                  name: cver-test-creds
+            - name: CVER_TEST_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: api-key
+                  name: cver-test-creds
+            - name: CVER_TEST
+              value: "true"
+            {{- end }}
           ports:
             - name: http
-              containerPort: 5001
+              containerPort: 80
               protocol: TCP
-          # livenessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: http
-          # readinessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: http
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 60
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}

@@ -9,6 +9,7 @@ FIELD_MAP = {
         "name": "id",
         "type": "int",
         "primary": True,
+        "api_searchable": True,
     },
     "created_ts": {
         "name": "created_ts",
@@ -21,17 +22,21 @@ FIELD_MAP = {
     "name": {
         "name": "name",
         "type": "str",
-        "extra": "UNIQUE"
+        "extra": "UNIQUE",
+        "api_searchable": True,
+        "api_writeable": True
     },
     "repository": {
         "name": "repository",
         "type": "str",
-        "extra": "NOT NULL"
+        "extra": "NOT NULL",
+        "api_writeable": True
     },
     "maintained": {
         "name": "maintained",
         "type": "bool",
-        "default": True
+        "default": True,
+        "api_writeable": True
     }
 }
 

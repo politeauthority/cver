@@ -1,7 +1,12 @@
 # Cver
-docs/
-docker/api/src/
 cver.code-workspace
+charts/
+Chart.lock
+docs/not-ready
+docker/api/src/
+helpers/
+src/cver/cli_debug.py
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

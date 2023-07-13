@@ -7,14 +7,18 @@
 from flask import Blueprint, jsonify
 
 from cver.api.collects.options import Options
+from cver.api.utils import api_util
+from cver.api.utils import auth
 
 ctrl_options = Blueprint('options', __name__, url_prefix='/options')
 
 
 @ctrl_options.route('')
-# @auth.auth_request
+@auth.auth_request
 def index():
-    options_data = Options().get_paginated(get_json=True)
+    args = api_util.get_params()
+    options_data = Options().get_paginated(**args)
     return jsonify(options_data)
+
 
 # End File: cver/src/api/controllers/ctrl_collections/ctrl_options.py

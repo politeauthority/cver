@@ -14,7 +14,7 @@ class BaseEntityMeta(Base):
         super(BaseEntityMeta, self).__init__(conn, cursor)
         self.table_name = None
         self.table_name_meta = EntityMeta().table_name
-        self.meta = {}
+        self.metas = {}
 
     def __repr__(self):
         if self.id:

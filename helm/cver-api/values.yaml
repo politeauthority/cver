@@ -10,12 +10,19 @@ app:
   dbPort: 3306
   dbUser: "mysql-user"
   runMigrations: true
+  jwtExpireMinutes: 60
   debug: False
+  envName: "prod"
+  deployedAt: "unknown"
 
 image:
   repository: politeauthority/cver-api
   pullPolicy: IfNotPresent
   tag: "latest"
+
+test:
+  test: false
+  secretName: 
 
 imagePullSecrets: []
 nameOverride: ""
@@ -70,3 +77,10 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+mysql:
+  enabled: false
+  nameOverride: cver-mysql
+  primary:
+    persistence:
+      storageClass: nfs-client
