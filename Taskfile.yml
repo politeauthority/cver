@@ -18,7 +18,7 @@ tasks:
         docker build \
           -t politeauthority/cver-api:${CVER_API_TAG} \
           --build-arg CVER_BUILD="${CVER_API_TAG}" \
-          --build-arg DOCKER_REGISTRY="harbor.squid-ink.us/" \
+          --build-arg DOCKER_REGISTRY="harbor.squid-ink.us" \
           {{.CVER_DIR}}/docker/api
       - rm -rf {{.CVER_DIR}}/docker/api/src
       - rm -rf {{.CVER_DIR}}/docker/api/tests
