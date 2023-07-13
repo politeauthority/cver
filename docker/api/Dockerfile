@@ -1,8 +1,8 @@
 # Cver-Api
 # This container runs the Cver api web app
 #
-ARG DOCKER_REGISTRY=docker.io
-FROM harbor.squid-ink.us/cache/library/python:3.10-alpine3.16
+ARG DOCKER_REGISTRY="docker.io/library"
+FROM ${DOCKER_REGISTRY}/python:3.10-alpine3.16 as base
 ARG CVER_BUILD=""
 ENV CVER_DB_HOST="cver-mysql"
 ENV CVER_DB_PORT="3306"
@@ -28,12 +28,15 @@ RUN apk add --update --no-cache --virtual .tmp-build-deps \
     gcc libc-dev linux-headers postgresql-dev \
     && apk add libffi-dev
 
-# Prod-Build Cver
+# Install Cver
 RUN pip install --upgrade pip
 RUN cd /app && pip install -r /app/requirements.txt
 RUN cd /app && pip install .
 
 CMD /entrypoint.sh
+
+# --- Tests Node ---
+FROM base AS tests
 
 # Dev-Build
 RUN apk add bash curl vim mysql-client

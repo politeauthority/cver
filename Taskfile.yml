@@ -1,5 +1,4 @@
 version: '3'
-
 vars:
   CVER_DIR: "."
 
@@ -15,14 +14,22 @@ tasks:
         if [ -z ${CVER_API_TAG} ]; then
           CVER_API_TAG="dev"
         fi
+        CLI_ARGS="{{ .CLI_ARGS }}"
+        if [ -z ${CLI_ARGS} ]; then
+          TARGET="tests"
+        else
+          TARGET=$CLI_ARGS
+        fi
+        echo "Building Target: ${TARGET}"
         docker build \
           -t politeauthority/cver-api:${CVER_API_TAG} \
           --build-arg CVER_BUILD="${CVER_API_TAG}" \
-          --build-arg DOCKER_REGISTRY="harbor.squid-ink.us/" \
+          --build-arg DOCKER_REGISTRY="harbor.squid-ink.us/cache/library" \
+          --target ${TARGET} \
           {{.CVER_DIR}}/docker/api
       - rm -rf {{.CVER_DIR}}/docker/api/src
       - rm -rf {{.CVER_DIR}}/docker/api/tests
-      - echo "Completed build politeauthority/cver-api:${CVER_API_TAG}"
+      - echo "Completed build politeauthority/cver-api"
     silent: false
   dev-run:
     cmds:
