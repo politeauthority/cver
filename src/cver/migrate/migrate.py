@@ -6,6 +6,7 @@ import logging
 from logging.config import dictConfig
 import os
 import subprocess
+import time
 
 from cver.api.utils import db
 from cver.api.utils import glow
@@ -50,6 +51,7 @@ class Migrate:
         self.create_rbac()
         self.create_users()
         self.create_misc()
+        logging.info("Migrations were successful")
         # self.create_table_sql()
 
     def create_database(self) -> True:
@@ -67,7 +69,7 @@ class Migrate:
         """Get the info from the last migration ran"""
         Migration().create_table()
         last = Migration()
-        last.get_last()
+        last.get_last_successful()
         if not last.id:
             return False
         return last
@@ -89,14 +91,12 @@ class Migrate:
         while migration_no <= CURRENT_MIGRATION:
             self.run_migration(migration_no)
             migration_no += 1
-
         return True
 
     def run_migration(self, migration_no: int):
         """Running a single migration."""
         logging.info("Running Migration #%s" % migration_no)
-        m = Migration()
-        m.number = migration_no
+
         migration_file = os.path.join(
             os.path.dirname(os.path.realpath(__file__)),
             "sql/up/%s.sql" % migration_no)
@@ -109,23 +109,42 @@ class Migrate:
             migration_file
         )
         if not os.path.exists(migration_file):
-            logging.error("File doesnt exist")
-            exit(1)
+            logging.critical("File doesnt exist")
+            return False
+        db.close()
         try:
-            subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout.read()
-            db.connect()
-            m.success = True
-            m.save()
-            return True
+            child = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+            rc = child.returncode
+            # If the command exits higher than 0 save that.
+            if rc and rc > 0:
+                logging.critical("Failed to run migration: %s")
+                db.connect()
+                m = Migration()
+                m.number = migration_no
+                m.success = False
+                m.save()
+                return False
+            time.sleep(5)
         except Exception as e:
-            logging.error("Failed to run migration: %s" % e)
+            logging.critical("Failed to run migration: %s" % e)
+            db.connect()
+            m = Migration()
+            m.number = migration_no
             m.success = False
             m.save()
             exit(1)
+        db.connect()
+        m = Migration()
+        m.number = migration_no
+        m.success = True
+        m.save()
+        time.sleep(2)
+        return True
 
     def create_rbac(self):
         """Create the Rbac roles/role perms and perms."""
         logging.info("Creating Roles")
+        db.connect()
         self.rbac = DataRbac().create()
 
     def create_users(self):
@@ -136,6 +155,7 @@ class Migrate:
     def create_misc(self):
         """Create misc data."""
         logging.info("Creating misc data")
+        db.connect()
         DataMisc().create()
 
     # def create_table_sql(self):

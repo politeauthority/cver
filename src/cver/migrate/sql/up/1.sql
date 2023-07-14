@@ -49,17 +49,34 @@ CREATE TABLE IF NOT EXISTS image_builds (
     `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
     `created_ts` DATETIME,
     `updated_ts` DATETIME,
-    `sha` VARCHAR(200) UNIQUE,
+    `sha` VARCHAR(200),
+    `sha_imported` VARCHAR(200),
     `image_id` INTEGER NOT NULL,
     `repository` VARCHAR(200) NOT NULL,
+    `repository_imported` VARCHAR(200),
     `tags` TEXT,
-    `os_family` VARCHAR(200) UNIQUE,
-    `os_name` VARCHAR(200) UNIQUE,
+    `os_family` VARCHAR(200),
+    `os_name` VARCHAR(200),
     `maintained` TINYINT(1) DEFAULT True,
+    `sync_flag` TINYINT(1),
+    `sync_enabled` TINYINT(1) DEFAULT True,
+    `sync_last_ts` DATETIME,
     `scan_flag` TINYINT(1),
     `scan_enabled` TINYINT(1) DEFAULT True,
     `scan_last_ts` DATETIME,
     `pending_operation` VARCHAR(200)
+);
+
+--- 
+--- Create image_builds_waiting
+---
+CREATE TABLE IF NOT EXISTS image_build_waitings (
+    `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
+    `created_ts` DATETIME,
+    `updated_ts` DATETIME,
+    `image_id` INTEGER NOT NULL,
+    `tag` VARCHAR(200),
+    `waiting` TINYINT(1) DEFAULT True
 );
 
 --- 

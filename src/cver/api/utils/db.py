@@ -61,4 +61,10 @@ def create_mysql_database(conn, cursor):
     logging.debug('Created database: %s' % DB_NAME)
     return True
 
+
+def close() -> bool:
+    """Close the MySQL connection."""
+    glow.db["conn"].close()
+    return True
+
 # End File: cver/src/api/utils/db.py

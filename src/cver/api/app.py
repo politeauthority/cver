@@ -18,6 +18,10 @@ from cver.api.controllers.ctrl_index import ctrl_index
 from cver.api.controllers.ctrl_models.ctrl_image import ctrl_image
 from cver.api.controllers.ctrl_collections.ctrl_images import ctrl_images
 from cver.api.controllers.ctrl_models.ctrl_image_build import ctrl_image_build
+from cver.api.controllers.ctrl_collections.ctrl_image_build_waitings import (
+    ctrl_image_build_waitings)
+from cver.api.controllers.ctrl_models.ctrl_image_build_waiting import ctrl_image_build_waiting
+
 from cver.api.controllers.ctrl_collections.ctrl_image_builds import ctrl_image_builds
 from cver.api.controllers.ctrl_collections.ctrl_migrations import ctrl_migrations
 from cver.api.controllers.ctrl_models.ctrl_role import ctrl_role
@@ -69,6 +73,8 @@ def register_blueprints(app: Flask) -> bool:
     app.register_blueprint(ctrl_images)
     app.register_blueprint(ctrl_image_build)
     app.register_blueprint(ctrl_image_builds)
+    app.register_blueprint(ctrl_image_build_waiting)
+    app.register_blueprint(ctrl_image_build_waitings)
     app.register_blueprint(ctrl_migrations)
     app.register_blueprint(ctrl_roles)
     app.register_blueprint(ctrl_role)
@@ -93,11 +99,18 @@ def handle_exception(e):
     """Catch 500 errors, and pass through the exception
     @todo: Remove the exception for non prod environments.
     """
-    data = {
-        "message": e,
-        "status": "Error: Unhandled Exception"
-    }
-    return jsonify(data), 500
+    if glow.general["CVER_TEST"]:
+        data = {
+            "message": str(e),
+            "status": "Error: Unhandled Exception"
+        }
+        return jsonify(data), 500
+    else:
+        data = {
+            "message": "Unable to complete request.",
+            "status": "Error"
+        }
+        return jsonify(data), 400
 
 
 @app.after_request

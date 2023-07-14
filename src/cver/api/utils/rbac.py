@@ -53,6 +53,16 @@ ACL = {
         "POST": ["write-all"],
         "DELETE": ["write-all"],
     },
+    "/image-build-waiting": {
+        "GET": ["read-all"],
+        "POST": ["write-all"],
+        "DELETE": ["write-all"],
+    },
+    "/image-build-waitings": {
+        "GET": ["read-all"],
+        "POST": ["write-all"],
+        "DELETE": ["write-all"],
+    },
     "/migrations": {
         "GET": ["read-all"],
         "POST": ["write-all"],
@@ -143,8 +153,8 @@ def check_role_uri_access(user_role_perms: list, request) -> bool:
         logging.warning("Request method: %s not in ACL path: %s" % (rm, rp))
         return False
     acl_route_method = acl_route[rm]
-    # print("has %s:" % user_role_perms)
-    # print("needs %s:" % acl_route_method)
+    print("has %s:" % user_role_perms)
+    print("needs %s:" % acl_route_method)
     for perm in acl_route_method:
         if perm in user_role_perms:
             return True
