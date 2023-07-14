@@ -18,6 +18,19 @@ image:
 imagePullSecrets:
   - name: harbor
 
+ingress:
+  enabled: true
+  className: nginx-public
+  hosts:
+    - host: cver.squid-ink.us
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+  - hosts:
+    - cver.squid-ink.us
+    secretName: cver-prod-tls
+
 mysql:
   enabled: true
   nameOverride: cver-mysql
