@@ -86,9 +86,13 @@ CREATE TABLE IF NOT EXISTS options (
     `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
     `created_ts` DATETIME,
     `updated_ts` DATETIME,
-    `number` VARCHAR(200) UNIQUE,
-    `value` VARCHAR(200))
-;
+    `type` VARCHAR(200),
+    `name` VARCHAR(200) UNIQUE,
+    `value` VARCHAR(200),
+    `acl_write` TEXT,
+    `acl_read` TEXT,
+    `hide_value` TINYINT(1)
+);
 
 ---
 --- Create roles
@@ -98,8 +102,8 @@ CREATE TABLE IF NOT EXISTS roles (
     `created_ts` DATETIME,
     `updated_ts` DATETIME,
     `name` VARCHAR(200),
-    `slug_name` VARCHAR(200))
-;
+    `slug_name` VARCHAR(200)
+);
 
 ---
 --- Create role_perms

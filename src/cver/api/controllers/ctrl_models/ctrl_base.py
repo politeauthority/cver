@@ -16,7 +16,7 @@ def get_model(model, entity_id: int = None) -> dict:
     entity = model()
 
     data = {
-        "status": "Error",
+        "status": "error",
         "message": "",
         "object": {},
         "object_type": entity.model_name
@@ -57,8 +57,7 @@ def get_model(model, entity_id: int = None) -> dict:
         data["message"] = "Object not found"
         return make_response(jsonify(data), 404)
 
-    data["status"] = "Success"
-    data["status"] = "Entity found"
+    data["status"] = "success"
     data["object"] = entity.json()
     return data
 

@@ -616,6 +616,8 @@ class Base:
             if 'default' in field and field['default']:
                 if field['type'] == "str":
                     default_stmt = ' DEFAULT "%s"' % field['default']
+                elif field["type"] == "list":
+                    default_stmt = ' DEFAULT "%s"' % ",".join(field['default'])
                 else:
                     default_stmt = ' DEFAULT %s' % field['default']
 

@@ -1,4 +1,6 @@
-"""Option Model
+"""
+    Cver Api
+    Model - Option
 
 """
 from cver.shared.models.option import FIELD_MAP
@@ -43,8 +45,8 @@ class Option(Base):
         possible.
         """
         count = 0
-        for field in self.total_map:
-            setattr(self, field['name'], raw[count])
+        for field_name, field in self.field_map.items():
+            setattr(self, field_name, raw[count])
             count += 1
 
             if not self.value:

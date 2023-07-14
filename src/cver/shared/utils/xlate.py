@@ -101,6 +101,8 @@ def convert_list_to_str(value: list) -> str:
     """
     if not value:
         return None
+    if isinstance(value, str):
+        value = [value]
     if not isinstance(value, list):
         msg = "Cannot convert list to str: %s" % value
         raise AttributeError(msg)

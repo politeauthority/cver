@@ -76,7 +76,8 @@ class CverClient:
         return True
 
     def make_request(self, url: str, method: str = "GET", payload: dict = {}):
-        """Make a generic request to the Cver Api. If we don't have a token attempt to login."""
+        """Make a generic request to the Cver Api. If we don't have a token attempt to login. Return
+        the response json back."""
         if not self.token:
             self.login()
         headers = {

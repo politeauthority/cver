@@ -11,9 +11,11 @@ import time
 from cver.api.utils import db
 from cver.api.utils import glow
 from cver.api.models.migration import Migration
+from cver.migrate.data.data_options import DataOptions
 from cver.migrate.data.data_rbac import DataRbac
 from cver.migrate.data.data_users import DataUsers
 from cver.migrate.data.data_misc import DataMisc
+from cver.api.models.option import Option
 
 
 CURRENT_MIGRATION = 1
@@ -48,6 +50,7 @@ class Migrate:
         self.last_migration = self.get_migration_info()
         self.this_migration = Migration()
         self.run_migrations()
+        self.create_options()
         self.create_rbac()
         self.create_users()
         self.create_misc()
@@ -141,6 +144,11 @@ class Migrate:
         time.sleep(2)
         return True
 
+    def create_options(self):
+        """Create the Options and set their defaults."""
+        logging.info("Creating Options")
+        DataOptions().create()
+
     def create_rbac(self):
         """Create the Rbac roles/role perms and perms."""
         logging.info("Creating Roles")
@@ -158,9 +166,9 @@ class Migrate:
         db.connect()
         DataMisc().create()
 
-    # def create_table_sql(self):
-    #     """Create table SQL for migrations."""
-    #     print(ScanRaw().create_table_sql())
+    def create_table_sql(self):
+        """Create table SQL for migrations."""
+        print(Option().create_table_sql())
 
 
 if __name__ == "__main__":

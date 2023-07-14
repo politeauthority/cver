@@ -21,7 +21,6 @@ from cver.api.controllers.ctrl_models.ctrl_image_build import ctrl_image_build
 from cver.api.controllers.ctrl_collections.ctrl_image_build_waitings import (
     ctrl_image_build_waitings)
 from cver.api.controllers.ctrl_models.ctrl_image_build_waiting import ctrl_image_build_waiting
-
 from cver.api.controllers.ctrl_collections.ctrl_image_builds import ctrl_image_builds
 from cver.api.controllers.ctrl_collections.ctrl_migrations import ctrl_migrations
 from cver.api.controllers.ctrl_models.ctrl_role import ctrl_role
@@ -32,6 +31,7 @@ from cver.api.controllers.ctrl_models.ctrl_perm import ctrl_perm
 from cver.api.controllers.ctrl_collections.ctrl_perms import ctrl_perms
 from cver.api.controllers.ctrl_models.ctrl_user import ctrl_user
 from cver.api.controllers.ctrl_collections.ctrl_users import ctrl_users
+from cver.api.controllers.ctrl_models.ctrl_option import ctrl_option
 from cver.api.controllers.ctrl_collections.ctrl_options import ctrl_options
 from cver.api.controllers.ctrl_models.ctrl_scan import ctrl_scan
 from cver.api.controllers.ctrl_collections.ctrl_scans import ctrl_scans
@@ -84,6 +84,7 @@ def register_blueprints(app: Flask) -> bool:
     app.register_blueprint(ctrl_perms)
     app.register_blueprint(ctrl_user)
     app.register_blueprint(ctrl_users)
+    app.register_blueprint(ctrl_option)
     app.register_blueprint(ctrl_options)
     app.register_blueprint(ctrl_scan)
     app.register_blueprint(ctrl_scans)
@@ -99,13 +100,7 @@ def handle_exception(e):
     """Catch 500 errors, and pass through the exception
     @todo: Remove the exception for non prod environments.
     """
-    if glow.general["CVER_TEST"]:
-        data = {
-            "message": str(e),
-            "status": "Error: Unhandled Exception"
-        }
-        return jsonify(data), 500
-    else:
+    if not glow.general["CVER_TEST"]:
         data = {
             "message": "Unable to complete request.",
             "status": "Error"
