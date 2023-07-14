@@ -1,6 +1,6 @@
 # Cver Api - Push Stage
 
-name: Cver-Api-Push-Stage
+name: Push Stage
 
 on:
   push:
@@ -11,6 +11,59 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+
+  build-python:
+    runs-on: self-hosted
+    strategy:
+      fail-fast: true
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+
+      - name: Install Dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install flake8 pytest
+          pip install -r src/requirements.txt
+
+      - name: Build Packages
+        run: |
+          cd src/
+          python3 setup.py build
+          pip install .
+
+      - name: Source Linter
+        run: |
+          flake8 src/cver --config=src/flake8 --count --show-source --statistics
+
+      - name: Tests Linter
+        run: |
+          flake8 tests --config=tests/flake8 --count --show-source --statistics
+
+      - name: Unit Tests
+        run: |
+          pytest tests/unit --md report.md
+          cat report.md >> $GITHUB_STEP_SUMMARY
+
+  lint-helm:
+    runs-on: self-hosted
+    strategy:
+      fail-fast: true
+    container:
+      image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
+      credentials:
+        username: ${{ vars.HARBOR_USER }}
+        password: ${{ secrets.HARBOR_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Lint Helm
+        run: |
+          helm lint ./helm/cver-api
+
   build-docker:
     runs-on: self-hosted
     container:
@@ -41,7 +94,7 @@ jobs:
 
   deploy-stage:
     runs-on: self-hosted
-    needs: build-docker
+    needs: [build-docker, build-python, lint-helm]
     container:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
       credentials:
