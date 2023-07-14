@@ -2,7 +2,7 @@
 # Sometimes when CICD jobs fail really hard they dont cleanup properly
 #
 
-name: Cver-Api-Push-Main
+name: Helm Cleanup
 
 on:
   schedule:
