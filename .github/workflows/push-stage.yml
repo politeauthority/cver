@@ -4,7 +4,7 @@ name: Cver-Api-Push-Stage
 
 on:
   push:
-    branches: ["staging"]
+    branches: ["stage"]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -67,21 +67,25 @@ jobs:
             --set "image.tag=${CVER_VERSION}-stage" \
             --set "app.deployedAt=${DEPLOYED_AT}"
 
-  # test-stage:
-  #   runs-on: self-hosted
-  #   needs: deploy-stage
-  #   container:
-  #     image: politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Deploy
-  #       run: |
-  #         mkdir ~/.kube
-  #         echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
-  #         export KUBECONFIG=~/.kube/config.yaml
-  #         TEST_POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-api-test-${{ github.event.number }} --no-headers | cut -d' ' -f1)
-  #         (kubectl exec -it ${TEST_POD} -c cver-api -- pytest /tests/regression)
-
-
+  test-stage:
+    runs-on: self-hosted
+    needs: deploy-stage
+    container:
+      image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
+      credentials:
+        username: ${{ vars.HARBOR_USER }}
+        password: ${{ secrets.HARBOR_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Execute Tests
+        run: |
+          mkdir ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
+          export KUBECONFIG=~/.kube/config.yaml
+          TEST_POD=$(kubectl get -n cver pods -l app.kubernetes.io/instance=cver-api-stage --no-headers | cut -d' ' -f1)
+          kubectl exec -n cver -it ${TEST_POD} -c cver-api -- pytest -vvv /tests/regression --md regression-report.md
+          REPORT=$(kubectl exec -n cver -it ${TEST_POD} -c cver-api -- cat /app/cver/regression-report.md)
+          echo "$REPORT"
+          echo "${REPORT}" >> $GITHUB_STEP_SUMMARY
 
 # End File: cver/.github/workflows/push-stage.yaml
