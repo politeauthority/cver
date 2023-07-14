@@ -64,6 +64,8 @@ def get_model(model, entity_id: int = None) -> dict:
 
 def post_model(model, entity_id: int = None, generated_data: dict = {}):
     """Base POST operation for a model. Create or modify a entity.
+    To edit an entity it's strongly encouraged you pass the entity ID in the URL. Otherwise we rely
+    on database keys.
     If a model is immutabel then we can skip looking for the entity in the database.
     If a model is not createable, an model MUST be found in the database.
     @param entity_id: The ID of the entity. Used when UPDATING and entity.
@@ -82,7 +84,9 @@ def post_model(model, entity_id: int = None, generated_data: dict = {}):
                 return make_response(jsonify(data), 404)
             else:
                 logging.debug("POST - Found entity: %s" % entity)
-    if not entity.createable:
+
+    # Dont allow api creates on api uncreateble models
+    if not entity.id and not entity.createable:
         data["message"] = "Not allowed to create entity %s" % entity.model_name
         return make_response(jsonify(data), 400)
 
@@ -114,7 +118,7 @@ def post_model(model, entity_id: int = None, generated_data: dict = {}):
             setattr(entity, field_name, field_value)
 
     entity.save()
-    data["status"] = "Success"
+    data["status"] = "success"
     data["object"] = entity.json()
     data["object_type"] = entity.model_name
     return data, 201

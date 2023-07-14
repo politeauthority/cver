@@ -40,14 +40,4 @@ def post_model(option_id: int = None):
     return ctrl_base.post_model(Option, option_id)
 
 
-@ctrl_option.route("/<option_id>", methods=["DELETE"])
-@auth.auth_request
-def delete_model(option_id: int = None):
-    """DELETE operation for an Option model.
-    DELETE /option
-    """
-    logging.debug("DELETE Option")
-    return ctrl_base.delete_model(Option, option_id)
-
-
 # End File: cve/src/api/controllers/ctrl_modles/ctrl_option.py

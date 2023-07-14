@@ -102,16 +102,27 @@ def handle_exception(e):
     @todo: Remove the exception for non prod environments.
     """
     data = {
-        "message": e,
+        "message": str(e),
         "status": "Error: Unhandled Exception"
     }
-    return jsonify(data), 500
+    return jsonify(data), 405
+
+
+@app.before_request
+def before_request():
+    """Before we route the request log some info about the request"""
+    logging.info(
+        "Start Request - path: %s | method: %s",
+        request.path,
+        request.method,
+    )
+    return
 
 
 @app.after_request
 def after_request(response):
     logging.info(
-        "path: %s | method: %s | status: %s | size: %s",
+        "End Request - path: %s | method: %s | status: %s | size: %s",
         request.path,
         request.method,
         response.status,
