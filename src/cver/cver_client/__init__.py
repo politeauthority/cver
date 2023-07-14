@@ -1,5 +1,5 @@
 """
-    CverClient
+    Cver Client
     Python native interface to communicate with the Cver Api
 
 """
@@ -10,6 +10,8 @@ import tempfile
 
 import requests
 
+from cver.shared.utils import misc as s_misc
+
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -17,10 +19,28 @@ logger = logging.getLogger(__name__)
 
 class CverClient:
 
-    def __init__(self):
-        self.base_url = os.environ.get("CVER_API_URL")
-        self.client_id = os.environ.get("CVER_CLIENT_ID")
-        self.api_key = os.environ.get("CVER_API_KEY")
+    def __init__(self, client_id=None, api_key=None, api_url=None):
+        """Initialize the CverClient with the client_id, api_key and/or api_url. If not supplied
+        environmental vars will be attempted.
+        """
+        if client_id:
+            self.client_id = client_id
+        else:
+            self.client_id = os.environ.get("CVER_CLIENT_ID")
+
+        if api_key:
+            self.api_key = api_key
+        else:
+            self.api_key = os.environ.get("CVER_API_KEY")
+
+        if api_url:
+            self.base_url = api_url
+        else:
+            self.base_url = os.environ.get("CVER_API_URL")
+
+        self.base_url = s_misc.strip_trailing_slash(self.base_url)
+
+        print("API_KEY: %s" % self.api_key)
         self.token = ""
         self.token_path = ""
         self.response = None
@@ -32,6 +52,9 @@ class CverClient:
         """Login to the Cver API."""
         if not skip_local_token and self._open_valid_token():
             return True
+        if not self.client_id or not self.api_key:
+            logging.critical("No Client ID or ApiKey submitted, both are required.")
+            return False
         request_args = {
             "headers": {
                 "client-id": self.client_id,
@@ -49,6 +72,7 @@ class CverClient:
         response_json = response.json()
         self.token = response_json["token"]
         self._save_token()
+        logging.info("Successfully authenticated to Cver")
         return True
 
     def make_request(self, url: str, method: str = "GET", payload: dict = {}):

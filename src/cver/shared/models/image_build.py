@@ -25,6 +25,13 @@ FIELD_MAP = {
         "api_writeable": True,
         "api_searchable": True,
     },
+    "sha_imported": {
+        "name": "sha_imported",
+        "type": "str",
+        "extra": "UNIQUE",
+        "api_writeable": True,
+        "api_searchable": True,
+    },
     "image_id": {
         "name": "image_id",
         "type": "int",
@@ -36,6 +43,12 @@ FIELD_MAP = {
         "name": "repository",
         "type": "str",
         "extra": "NOT NULL",
+        "api_writeable": True,
+        "api_searchable": True,
+    },
+    "repository_imported": {
+        "name": "repository_imported",
+        "type": "str",
         "api_writeable": True,
         "api_searchable": True,
     },
@@ -60,6 +73,21 @@ FIELD_MAP = {
         "name": "maintained",
         "type": "bool",
         "default": True,
+        "api_writeable": True
+    },
+    "sync_flag": {
+        "name": "sync_flag",
+        "type": "bool",
+        "api_writeable": True
+    },
+    "sync_enabled": {
+        "name": "sync_enabled",
+        "type": "bool",
+        "api_writeable": True
+    },
+    "sync_last_ts": {
+        "name": "sync_last_ts",
+        "type": "datetime",
         "api_writeable": True
     },
     "scan_flag": {

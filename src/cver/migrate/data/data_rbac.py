@@ -5,6 +5,7 @@
 """
 import logging
 
+from cver.api.utils import db
 from cver.api.models.role import Role
 from cver.api.models.role_perm import RolePerm
 from cver.api.models.perm import Perm
@@ -13,6 +14,7 @@ from cver.api.models.perm import Perm
 class DataRbac:
 
     def create(self):
+        db.connect()
         admin_role_id = self.create_admin_rbac()
         reader_role_id = self.create_reader_rbac()
         contributor_role_id = self.create_contributor_rbac()

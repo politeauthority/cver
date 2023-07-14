@@ -18,4 +18,20 @@ class Migration(BaseEntityMeta):
         self.field_map = FIELD_MAP
         self.setup()
 
+    def get_last_successful(self) -> bool:
+        """Get the last successful Migration."""
+        sql = """
+            SELECT *
+            FROM %s
+            WHERE `success` = 1
+            ORDER BY `number` DESC
+            LIMIT 1""" % (self.table_name)
+
+        self.cursor.execute(sql)
+        run_raw = self.cursor.fetchone()
+        if not run_raw:
+            return False
+        self.build_from_list(run_raw)
+        return True
+
 # End File: cver/src/api/modles/migration.py
