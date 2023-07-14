@@ -21,6 +21,7 @@ from cver.api.controllers.ctrl_models.ctrl_image_build import ctrl_image_build
 from cver.api.controllers.ctrl_collections.ctrl_image_build_waitings import (
     ctrl_image_build_waitings)
 from cver.api.controllers.ctrl_models.ctrl_image_build_waiting import ctrl_image_build_waiting
+
 from cver.api.controllers.ctrl_collections.ctrl_image_builds import ctrl_image_builds
 from cver.api.controllers.ctrl_collections.ctrl_migrations import ctrl_migrations
 from cver.api.controllers.ctrl_models.ctrl_role import ctrl_role
@@ -100,12 +101,11 @@ def handle_exception(e):
     """Catch 500 errors, and pass through the exception
     @todo: Remove the exception for non prod environments.
     """
-    if not glow.general["CVER_TEST"]:
-        data = {
-            "message": "Unable to complete request.",
-            "status": "Error"
-        }
-        return jsonify(data), 400
+    data = {
+        "message": e,
+        "status": "Error: Unhandled Exception"
+    }
+    return jsonify(data), 500
 
 
 @app.after_request

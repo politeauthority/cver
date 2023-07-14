@@ -6,7 +6,11 @@ name: Helm Cleanup
 
 on:
   schedule:
+<<<<<<< HEAD
     - cron:  '35 * * * *'
+=======
+    - cron:  '15 * * * *'
+>>>>>>> stage
 
 jobs:
   build-python:
@@ -21,6 +25,13 @@ jobs:
     steps:
       - name: Remove Failed Helm Packages
         run: |
+<<<<<<< HEAD
+=======
+          mkdir ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
+          export KUBECONFIG=~/.kube/config.yaml
+          chmod 600 ~/.kube/config.yaml
+>>>>>>> stage
           RESULT=$(helm -n cver ls | grep cver | grep failed)
           if [ "$?" -eq 1 ]; then
               echo "Nothing to clean up, exiting."
