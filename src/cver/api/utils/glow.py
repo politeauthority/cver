@@ -38,7 +38,10 @@ general = {
 }
 if general["CVER_BUILD"]:
     general["CVER_BUILD_SHORT"] = general["CVER_BUILD"][:12]
-
+if general["CVER_TEST"] == "true":
+    general["CVER_TEST"] = True
+else:
+    general["CVER_TEST"] = False
 
 # Store Current User Info
 global user

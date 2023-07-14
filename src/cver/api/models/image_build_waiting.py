@@ -16,6 +16,7 @@ class ImageBuildWaiting(BaseEntityMeta):
         super(ImageBuildWaiting, self).__init__(conn, cursor)
         self.table_name = "image_build_waitings"
         self.field_map = FIELD_MAP
+        self.createable = True
         self.setup()
 
 

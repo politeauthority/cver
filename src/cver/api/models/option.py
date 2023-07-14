@@ -15,6 +15,7 @@ class Option(Base):
         super(Option, self).__init__(conn, cursor)
         self.table_name = 'options'
         self.field_map = FIELD_MAP
+        self.createable = False
         self.setup()
 
     def __repr__(self):

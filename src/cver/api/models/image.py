@@ -16,6 +16,7 @@ class Image(BaseEntityMeta):
         super(Image, self).__init__(conn, cursor)
         self.table_name = "images"
         self.field_map = FIELD_MAP
+        self.createable = True
         self.setup()
 
 

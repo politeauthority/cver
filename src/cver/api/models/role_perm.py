@@ -16,6 +16,7 @@ class RolePerm(Base):
         super(RolePerm, self).__init__(conn, cursor)
         self.table_name = "role_perms"
         self.field_map = FIELD_MAP
+        self.createable = True
         self.setup()
 
     def __repr__(self):

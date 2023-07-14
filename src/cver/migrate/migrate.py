@@ -14,6 +14,7 @@ from cver.api.models.migration import Migration
 from cver.migrate.data.data_options import DataOptions
 from cver.migrate.data.data_rbac import DataRbac
 from cver.migrate.data.data_users import DataUsers
+from cver.migrate.data.data_test_data import DataTestData
 from cver.migrate.data.data_misc import DataMisc
 from cver.api.models.option import Option
 
@@ -54,6 +55,7 @@ class Migrate:
         self.create_rbac()
         self.create_users()
         self.create_misc()
+        self.create_test_data()
         logging.info("Migrations were successful")
         # self.create_table_sql()
 
@@ -159,6 +161,14 @@ class Migrate:
         """Create the users and api keys."""
         logging.info("Creating Users and Keys")
         DataUsers().create(self.rbac)
+
+    def create_test_data(self) -> bool:
+        """Create the test data if we're in a test environment."""
+        if not glow.general["CVER_TEST"]:
+            return True
+        logging.info("Creating Test Data")
+        DataTestData().create()
+        return True
 
     def create_misc(self):
         """Create misc data."""

@@ -16,6 +16,7 @@ class ScanRaw(BaseEntityMeta):
         self.table_name = "scan_raws"
         self.metas = {}
         self.field_map = FIELD_MAP
+        self.createable = True
         self.setup()
 
 # End File: cver/src/api/models/scan_raw.py

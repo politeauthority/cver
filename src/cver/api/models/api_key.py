@@ -17,6 +17,7 @@ class ApiKey(BaseEntityMeta):
         self.table_name = "api_keys"
         self.field_map = FIELD_MAP
         self.immutable = True
+        self.createable = True
         self.setup()
 
     def __repr__(self):

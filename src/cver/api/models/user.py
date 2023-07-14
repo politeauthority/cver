@@ -17,6 +17,7 @@ class User(Base):
         super(User, self).__init__(conn, cursor)
         self.table_name = "users"
         self.field_map = FIELD_MAP
+        self.createable = True
         self.setup()
 
     def __repr__(self):

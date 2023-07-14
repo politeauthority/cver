@@ -63,11 +63,15 @@ def get_model(model, entity_id: int = None) -> dict:
 
 
 def post_model(model, entity_id: int = None, generated_data: dict = {}):
-    """Base POST operation for a model. Create or modify a entity. If a model is immutabel then we
-    can skip looking for the entity in the database.
+    """Base POST operation for a model. Create or modify a entity.
+    If a model is immutabel then we can skip looking for the entity in the database.
+    If a model is not createable, an model MUST be found in the database.
+    @param entity_id: The ID of the entity. Used when UPDATING and entity.
+    @param generated_data: This is used in instances like ApiKey generation, where fields are
+        determined server side.
     """
     data = {
-        "status": "Error"
+        "status": "error"
     }
     entity = model()
     if not entity.immutable:
@@ -75,9 +79,12 @@ def post_model(model, entity_id: int = None, generated_data: dict = {}):
             if not entity.get_by_id(entity_id):
                 data["status"] = "Error"
                 data["message"] = "Could not find %s ID: %s" % (entity.model_name, entity_id)
-                return jsonify(data), 404
+                return make_response(jsonify(data), 404)
             else:
-                logging.info("POST - Found entity: %s" % entity)
+                logging.debug("POST - Found entity: %s" % entity)
+    if not entity.createable:
+        data["message"] = "Not allowed to create entity %s" % entity.model_name
+        return make_response(jsonify(data), 400)
 
     # If we cant decode a JSON payload return an error.
     try:
