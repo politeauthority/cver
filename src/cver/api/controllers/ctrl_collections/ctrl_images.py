@@ -14,6 +14,7 @@ ctrl_images = Blueprint("images", __name__, url_prefix="/images")
 
 
 @ctrl_images.route("")
+@ctrl_images.route("/")
 @auth.auth_request
 def index():
     data = ctrl_collection_base.get(Images)
