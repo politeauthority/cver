@@ -6,8 +6,10 @@
 """
 import logging
 from logging.config import dictConfig
+import uuid
 
 from flask import Flask, jsonify, request
+from werkzeug.exceptions import HTTPException
 
 from cver.api.utils import db
 from cver.api.utils import glow
@@ -62,7 +64,6 @@ logger.propagate = True
 app = Flask(__name__)
 app.config.update(DEBUG=True)
 app.debugger = False
-glow.db = db.connect()
 
 
 def register_blueprints(app: Flask) -> bool:
@@ -101,33 +102,42 @@ def handle_exception(e):
     """Catch 500 errors, and pass through the exception
     @todo: Remove the exception for non prod environments.
     """
+    # pass through HTTP errors
+    if isinstance(e, HTTPException):
+        return e
     data = {
         "message": str(e),
         "status": "Error: Unhandled Exception"
     }
-    return jsonify(data), 405
+    return jsonify(data), 500
 
 
 @app.before_request
 def before_request():
     """Before we route the request log some info about the request"""
+    glow.session["uuid"] = str(uuid.uuid1())
     logging.info(
-        "Start Request - path: %s | method: %s",
-        request.path,
-        request.method,
-    )
+        "[Start Request] %s\tpath: %s | method: %s" % (
+            glow.session["uuid"][:8],
+            request.path,
+            request.method))
+    connect = db.connect()
+    glow.db["conn"] = connect["conn"]
+    glow.db["cursor"] = connect["cursor"]
     return
 
 
 @app.after_request
 def after_request(response):
     logging.info(
-        "End Request - path: %s | method: %s | status: %s | size: %s",
+        "[End Request] %s\tpath: %s | method: %s | status: %s | size: %s",
+        glow.session["uuid"][:8],
         request.path,
         request.method,
         response.status,
         response.content_length
     )
+    glow.db["conn"].close()
     return response
 
 

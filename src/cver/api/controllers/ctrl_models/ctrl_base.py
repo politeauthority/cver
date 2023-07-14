@@ -88,6 +88,7 @@ def post_model(model, entity_id: int = None, generated_data: dict = {}):
     # Dont allow api creates on api uncreateble models
     if not entity.id and not entity.createable:
         data["message"] = "Not allowed to create entity %s" % entity.model_name
+        logging.warning("Attempting to create an ID ")
         return make_response(jsonify(data), 400)
 
     # If we cant decode a JSON payload return an error.

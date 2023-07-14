@@ -3,7 +3,7 @@
     Model - ImageBuildWaiting
 
 """
-from cver.shared.models.image_build import FIELD_MAP
+from cver.shared.models.image_build_waiting import FIELD_MAP
 from cver.api.models.base_entity_meta import BaseEntityMeta
 
 
