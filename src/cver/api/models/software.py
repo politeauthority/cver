@@ -17,6 +17,7 @@ class Software(Base):
         self.table_name = "softwares"
         self.field_map = FIELD_MAP
         self.api_writeable_fields = ["name", "slug_name", "url_git", "url_marketing"]
+        self.createable = True
         self.setup()
 
 # End File: cver/src/shared/modles/software.py

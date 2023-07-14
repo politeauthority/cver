@@ -32,6 +32,7 @@ from cver.api.controllers.ctrl_models.ctrl_perm import ctrl_perm
 from cver.api.controllers.ctrl_collections.ctrl_perms import ctrl_perms
 from cver.api.controllers.ctrl_models.ctrl_user import ctrl_user
 from cver.api.controllers.ctrl_collections.ctrl_users import ctrl_users
+from cver.api.controllers.ctrl_models.ctrl_option import ctrl_option
 from cver.api.controllers.ctrl_collections.ctrl_options import ctrl_options
 from cver.api.controllers.ctrl_models.ctrl_scan import ctrl_scan
 from cver.api.controllers.ctrl_collections.ctrl_scans import ctrl_scans
@@ -84,6 +85,7 @@ def register_blueprints(app: Flask) -> bool:
     app.register_blueprint(ctrl_perms)
     app.register_blueprint(ctrl_user)
     app.register_blueprint(ctrl_users)
+    app.register_blueprint(ctrl_option)
     app.register_blueprint(ctrl_options)
     app.register_blueprint(ctrl_scan)
     app.register_blueprint(ctrl_scans)
@@ -99,24 +101,28 @@ def handle_exception(e):
     """Catch 500 errors, and pass through the exception
     @todo: Remove the exception for non prod environments.
     """
-    if glow.general["CVER_TEST"]:
-        data = {
-            "message": str(e),
-            "status": "Error: Unhandled Exception"
-        }
-        return jsonify(data), 500
-    else:
-        data = {
-            "message": "Unable to complete request.",
-            "status": "Error"
-        }
-        return jsonify(data), 400
+    data = {
+        "message": str(e),
+        "status": "Error: Unhandled Exception"
+    }
+    return jsonify(data), 405
+
+
+@app.before_request
+def before_request():
+    """Before we route the request log some info about the request"""
+    logging.info(
+        "Start Request - path: %s | method: %s",
+        request.path,
+        request.method,
+    )
+    return
 
 
 @app.after_request
 def after_request(response):
     logging.info(
-        "path: %s | method: %s | status: %s | size: %s",
+        "End Request - path: %s | method: %s | status: %s | size: %s",
         request.path,
         request.method,
         response.status,

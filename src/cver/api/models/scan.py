@@ -16,6 +16,7 @@ class Scan(BaseEntityMeta):
         self.table_name = "scans"
         self.metas = {}
         self.field_map = FIELD_MAP
+        self.createable = True
         self.setup()
 
     def save(self) -> int:

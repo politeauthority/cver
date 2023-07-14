@@ -16,6 +16,7 @@ class ImageBuild(BaseEntityMeta):
         super(ImageBuild, self).__init__(conn, cursor)
         self.table_name = "image_builds"
         self.field_map = FIELD_MAP
+        self.createable = True
         self.setup()
 
 

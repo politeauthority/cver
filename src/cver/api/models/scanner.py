@@ -13,6 +13,7 @@ class Scanner(BaseEntityMeta):
         super(Scanner, self).__init__(conn, cursor)
         self.table_name = 'scanners'
         self.field_map = FIELD_MAP
+        self.createable = True
         self.metas = {}
         self.setup()
 

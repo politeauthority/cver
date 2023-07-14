@@ -1,0 +1,87 @@
+# Cver Api - Push Stage
+
+name: Cver-Api-Push-Stage
+
+on:
+  push:
+    branches: ["staging"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-docker:
+    runs-on: self-hosted
+    container:
+      image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
+      credentials:
+        username: ${{ vars.HARBOR_USER }}
+        password: ${{ secrets.HARBOR_PASSWORD }}
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/login-action@v2
+        with:
+          registry: harbor.squid-ink.us
+          username: ${{ vars.HARBOR_USER }}
+          password: ${{ secrets.HARBOR_PASSWORD }}
+      - name: Build Container
+        run: |
+          echo "Run Task: Build"
+          export CVER_API_TAG="${{ github.sha }}"
+          task build
+      - name: Push Container
+        run: |
+          CVER_VERSION=$(task cicd-version)
+          IMAGE_ID=$(docker images --filter "reference=politeauthority/cver-api" --format "{{.ID}}")
+          docker tag ${IMAGE_ID} harbor.squid-ink.us/politeauthority/cver-api:${CVER_VERSION}-stage
+          docker push harbor.squid-ink.us/politeauthority/cver-api:${CVER_VERSION}-stage
+
+  deploy-stage:
+    runs-on: self-hosted
+    needs: build-docker
+    container:
+      image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
+      credentials:
+        username: ${{ vars.HARBOR_USER }}
+        password: ${{ secrets.HARBOR_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy
+        run: |
+          mkdir ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
+          export KUBECONFIG=~/.kube/config.yaml
+          chmod 600 ~/.kube/config.yaml
+          DEPLOYED_AT=$(date +"%Y-%m-%d %T")
+          CVER_VERSION=$(task cicd-version)
+          helm dependency build helm/cver-api
+          kubectl get pods -n cver
+          helm upgrade --install \
+            --namespace=cver \
+            cver-api-stage \
+            helm/cver-api/ \
+            -f helm/cver-api/values-quigley-stage.yaml \
+            --set "image.tag=${CVER_VERSION}-stage" \
+            --set "app.deployedAt=${DEPLOYED_AT}"
+
+  # test-stage:
+  #   runs-on: self-hosted
+  #   needs: deploy-stage
+  #   container:
+  #     image: politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Deploy
+  #       run: |
+  #         mkdir ~/.kube
+  #         echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
+  #         export KUBECONFIG=~/.kube/config.yaml
+  #         TEST_POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-api-test-${{ github.event.number }} --no-headers | cut -d' ' -f1)
+  #         (kubectl exec -it ${TEST_POD} -c cver-api -- pytest /tests/regression)
+
+
+
+# End File: cver/.github/workflows/push-stage.yaml

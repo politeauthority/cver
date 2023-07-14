@@ -16,7 +16,8 @@ class TestApiModelOption:
         :method: Option().__init__
         """
         model = Option()
-        assert hasattr(model, "number")
+        assert hasattr(model, "type")
+        assert hasattr(model, "name")
         assert hasattr(model, "value")
 
     def test____repr__(self):
