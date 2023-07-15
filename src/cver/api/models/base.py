@@ -376,7 +376,8 @@ class Base:
                 (%(fields)s)
                 VALUES (%(values)s)
                 ON DUPLICATE KEY UPDATE %(fields_values)s;""" % sql_args
-
+            # logging.info("IODKU")
+            # logging.info(iodku_sql)
         return iodku_sql
 
     def _gen_update_sql(self, skip_fields: list) -> tuple:

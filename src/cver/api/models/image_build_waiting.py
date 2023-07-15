@@ -3,13 +3,13 @@
     Model - ImageBuildWaiting
 
 """
-from cver.shared.models.image_build import FIELD_MAP
+from cver.shared.models.image_build_waiting import FIELD_MAP
 from cver.api.models.base_entity_meta import BaseEntityMeta
 
 
 class ImageBuildWaiting(BaseEntityMeta):
 
-    model_name = "image_build_waiting"
+    model_name = "image-build-waiting"
 
     def __init__(self, conn=None, cursor=None):
         """Create the ImageBuildWaiting instance."""

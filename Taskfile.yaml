@@ -38,6 +38,7 @@ tasks:
         docker run --name="cver-api" -d \
           -v {{.CVER_DIR}}/src:/app \
           -v {{.CVER_DIR}}/tests:/tests \
+          -v {{.CVER_DIR}}/examples:/examples \
           -p 80:80 \
           -e CVER_DB_HOST="mysql" \
           -e CVER_DB_PASS="${CVER_DB_PASS}" \

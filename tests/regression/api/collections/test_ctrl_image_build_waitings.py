@@ -1,7 +1,7 @@
 """
-    Cver - Test - Regression
-    CTRL Images
-        Checks that all routes on /apps are working properly.
+    Cver Test - Regression
+    CTRL ImageBuildWaitings
+    Checks that all routes on /image-build-waitings are working properly.
 
 """
 
@@ -12,15 +12,15 @@ from .test_api_base import TestApiBase
 
 
 CVER_API_URL = os.environ.get("CVER_API_URL")
-URL_BASE = "/images"
-URL_MODEL = "image"
+URL_BASE = "/image-build-waitings"
+URL_MODEL = "image-build-waiting"
 
 
 class TestApiImages(TestApiBase):
 
     def test__images_get(self):
-        """Tests the Images collections through the Cver Api
-        GET /images
+        """Tests the ImageBuildsWaiting collection through the Cver Api
+        GET /image-builds-waiting
         """
         assert self.login()
         request_args = {
@@ -54,4 +54,4 @@ class TestApiImages(TestApiBase):
         assert isinstance(response_json["objects"], list)
 
 
-# End File: cver/tests/regression/api/collections/test_ctrl_images.py
+# End File: cver/tests/regression/api/collections/test_ctrl_image_build_waitings.py

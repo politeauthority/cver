@@ -47,4 +47,9 @@ else:
 global user
 user = None
 
+global session
+session = {
+    "uuid": None
+}
+
 # End File: cver/src/cver/api/utils/glow.py

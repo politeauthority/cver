@@ -95,6 +95,8 @@ class CverClient:
                 request_args["params"] = payload
             elif method == "POST":
                 request_args["data"] = json.dumps(payload)
+                if "id" in payload:
+                    request_args["url"] += "/%s" % payload["id"]
 
         response = requests.request(**request_args)
 
