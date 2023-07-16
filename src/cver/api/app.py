@@ -16,6 +16,8 @@ from cver.api.utils import misc
 
 from cver.api.controllers.ctrl_models.ctrl_api_key import ctrl_api_key
 from cver.api.controllers.ctrl_collections.ctrl_api_keys import ctrl_api_keys
+from cver.api.controllers.ctrl_models.ctrl_cluster_image import ctrl_cluster_image
+from cver.api.controllers.ctrl_collections.ctrl_cluster_images import ctrl_cluster_images
 from cver.api.controllers.ctrl_index import ctrl_index
 from cver.api.controllers.ctrl_models.ctrl_image import ctrl_image
 from cver.api.controllers.ctrl_collections.ctrl_images import ctrl_images
@@ -69,6 +71,8 @@ def register_blueprints(app: Flask) -> bool:
     """Register controller blueprints to flask."""
     app.register_blueprint(ctrl_api_key)
     app.register_blueprint(ctrl_api_keys)
+    app.register_blueprint(ctrl_cluster_image)
+    app.register_blueprint(ctrl_cluster_images)
     app.register_blueprint(ctrl_index)
     app.register_blueprint(ctrl_image)
     app.register_blueprint(ctrl_images)
@@ -111,8 +115,11 @@ def handle_exception(e):
         data["message"] = e.description
         return jsonify(data), e.code
 
+    traceback = misc.full_traceback()
+    logging.error("Unhandled Exception")
+    print(traceback)
     if glow.general["CVER_TEST"]:
-        data["message"] = misc.full_traceback()
+        data["message"] = traceback
         return jsonify(data), 500
     else:
         return jsonify(data), e.code

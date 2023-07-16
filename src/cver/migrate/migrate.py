@@ -16,7 +16,6 @@ from cver.migrate.data.data_rbac import DataRbac
 from cver.migrate.data.data_users import DataUsers
 from cver.migrate.data.data_test_data import DataTestData
 from cver.migrate.data.data_misc import DataMisc
-from cver.api.models.option import Option
 
 
 CURRENT_MIGRATION = 1
@@ -45,6 +44,7 @@ class Migrate:
 
     def run(self):
         """Primary entry point for migrations."""
+        # self.create_table_sql()
         logging.info("Working with database %s" % glow.db["NAME"])
         self.create_database()
         db.connect()
@@ -57,7 +57,6 @@ class Migrate:
         self.create_misc()
         self.create_test_data()
         logging.info("Migrations were successful")
-        # self.create_table_sql()
 
     def create_database(self) -> True:
         """Create the database for CVER.
@@ -176,9 +175,9 @@ class Migrate:
         db.connect()
         DataMisc().create()
 
-    def create_table_sql(self):
-        """Create table SQL for migrations."""
-        print(Option().create_table_sql())
+    # def create_table_sql(self):
+    #     """Create table SQL for migrations."""
+    #     print(User().create_table_sql())
 
 
 if __name__ == "__main__":
