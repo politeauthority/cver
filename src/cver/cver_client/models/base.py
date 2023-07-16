@@ -59,6 +59,7 @@ class Base(CverClient):
             print("Warning: request error")
             return False
         entity = self.response["object"]
+
         for field_name, field_value in entity.items():
             setattr(self, field_name, field_value)
         logging.info(f"Saved {entity} successfully")
@@ -68,7 +69,7 @@ class Base(CverClient):
         """Get the class atribute keys and values that are model fields."""
         data = {}
         for field_name, field_info in self.field_map.items():
-            if not hasattr(self, field_name):
+            if not getattr(self, field_name):
                 continue
             data[field_name] = getattr(self, field_name)
         return data
