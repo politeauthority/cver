@@ -20,12 +20,17 @@ DB_PASS = os.environ.get("CVER_DB_PASS")
 
 def connect():
     # Connect to the database
-    connection = pymysql.connect(
-        host=DB_HOST,
-        port=DB_PORT,
-        user=DB_USER,
-        password=DB_PASS,
-        database=DB_NAME)
+    try:
+        connection = pymysql.connect(
+            host=DB_HOST,
+            port=DB_PORT,
+            user=DB_USER,
+            password=DB_PASS,
+            database=DB_NAME)
+    except pymysql.err.OperationalError as e:
+        message = "An error occurred while connecting to the MySQL server: %s" % e
+        logging.critical(message)
+        raise RuntimeError
 
     logging.info("Generating database connection")
     glow.db["conn"] = connection
@@ -64,6 +69,9 @@ def create_mysql_database(conn, cursor):
 
 def close() -> bool:
     """Close the MySQL connection."""
+    if isinstance(glow.db["conn"], str):
+        logging.error("Canot close database connection, it doesnt exist.")
+        return False
     glow.db["conn"].close()
     return True
 

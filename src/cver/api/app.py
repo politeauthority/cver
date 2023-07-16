@@ -6,13 +6,13 @@
 """
 import logging
 from logging.config import dictConfig
-import uuid
 
 from flask import Flask, jsonify, request
 from werkzeug.exceptions import HTTPException
 
 from cver.api.utils import db
 from cver.api.utils import glow
+from cver.api.utils import misc
 
 from cver.api.controllers.ctrl_models.ctrl_api_key import ctrl_api_key
 from cver.api.controllers.ctrl_collections.ctrl_api_keys import ctrl_api_keys
@@ -23,7 +23,6 @@ from cver.api.controllers.ctrl_models.ctrl_image_build import ctrl_image_build
 from cver.api.controllers.ctrl_collections.ctrl_image_build_waitings import (
     ctrl_image_build_waitings)
 from cver.api.controllers.ctrl_models.ctrl_image_build_waiting import ctrl_image_build_waiting
-
 from cver.api.controllers.ctrl_collections.ctrl_image_builds import ctrl_image_builds
 from cver.api.controllers.ctrl_collections.ctrl_migrations import ctrl_migrations
 from cver.api.controllers.ctrl_models.ctrl_role import ctrl_role
@@ -102,28 +101,33 @@ def handle_exception(e):
     """Catch 500 errors, and pass through the exception
     @todo: Remove the exception for non prod environments.
     """
+    data = {
+        "message": "Server error",
+        "request-id": glow.session["short_id"],
+        "status": "error"
+    }
     # pass through HTTP errors
     if isinstance(e, HTTPException):
-        return e
-    data = {
-        "message": str(e),
-        "status": "Error: Unhandled Exception"
-    }
-    return jsonify(data), 500
+        data["message"] = e.description
+        return jsonify(data), e.code
+
+    if glow.general["CVER_TEST"]:
+        data["message"] = misc.full_traceback()
+        return jsonify(data), 500
+    else:
+        return jsonify(data), e.code
 
 
 @app.before_request
 def before_request():
     """Before we route the request log some info about the request"""
-    glow.session["uuid"] = str(uuid.uuid1())
+    glow.start_session()
     logging.info(
         "[Start Request] %s\tpath: %s | method: %s" % (
-            glow.session["uuid"][:8],
+            glow.session["short_id"][:8],
             request.path,
             request.method))
-    connect = db.connect()
-    glow.db["conn"] = connect["conn"]
-    glow.db["cursor"] = connect["cursor"]
+    db.connect()
     return
 
 
@@ -131,13 +135,13 @@ def before_request():
 def after_request(response):
     logging.info(
         "[End Request] %s\tpath: %s | method: %s | status: %s | size: %s",
-        glow.session["uuid"][:8],
+        glow.session["short_id"],
         request.path,
         request.method,
         response.status,
         response.content_length
     )
-    glow.db["conn"].close()
+    db.close()
     return response
 
 

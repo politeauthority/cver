@@ -1,5 +1,6 @@
-"""Options Collection.
-Gets collection of Options
+"""
+    Cver Api
+    Collection - Options
 
 """
 from cver.api.collects.base import Base

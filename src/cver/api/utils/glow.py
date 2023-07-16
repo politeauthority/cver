@@ -6,6 +6,7 @@
 
 """
 import os
+import uuid
 
 from cver.api.version import version
 
@@ -49,7 +50,14 @@ user = None
 
 global session
 session = {
-    "uuid": None
+    "uuid": None,
+    "short-id": None
 }
+
+
+def start_session():
+    session["uuid"] = str(uuid.uuid1())
+    session["short_id"] = session["uuid"][:8]
+
 
 # End File: cver/src/cver/api/utils/glow.py
