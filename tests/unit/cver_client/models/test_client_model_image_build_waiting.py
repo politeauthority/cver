@@ -26,11 +26,11 @@ class TestClientModelImageBuildWaiting:
         """Test the model's representation.
         :method: User().__repr__
         """
-        model = User()
-        assert str(model) == "<User>"
+        model = ImageBuildWaiting()
+        assert str(model) == "<ImageBuildWaiting>"
 
         model.id = 1
-        assert str(model) == "<User: 1>"
+        assert str(model) == "<ImageBuildWaiting: 1>"
 
 
 # End File: cver/tests/cver_client/models/test_client_model_image_build_waiting.py

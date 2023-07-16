@@ -17,6 +17,31 @@ CREATE TABLE IF NOT EXISTS api_keys (
 );
 
 ---
+--- Create clusters
+---
+CREATE TABLE IF NOT EXISTS clusters (
+    `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
+    `created_ts` DATETIME,
+    `updated_ts` DATETIME,
+    `org_id` INTEGER NOT NULL,
+    `name` VARCHAR(200),
+    `maintained` TINYINT(1) DEFAULT True
+);
+
+---
+--- Create cluster_images
+---
+CREATE TABLE IF NOT EXISTS cluster_images (
+    `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
+    `created_ts` DATETIME,
+    `updated_ts` DATETIME,
+    `image_id` INTEGER NOT NULL,
+    `cluster_id` INTEGER NOT NULL,
+    `first_seen` DATETIME,
+    `last_seen` DATETIME
+);
+
+---
 --- Create entity_metas
 ---
 CREATE TABLE IF NOT EXISTS entity_metas (
@@ -92,6 +117,17 @@ CREATE TABLE IF NOT EXISTS options (
     `acl_write` TEXT,
     `acl_read` TEXT,
     `hide_value` TINYINT(1)
+);
+
+---
+--- Create orgs
+---
+CREATE TABLE IF NOT EXISTS orgs (
+    `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
+    `created_ts` DATETIME,
+    `updated_ts` DATETIME,
+    `name` VARCHAR(200) UNIQUE,
+    `maintained` TINYINT(1) DEFAULT True
 );
 
 ---
@@ -198,9 +234,10 @@ CREATE TABLE IF NOT EXISTS users (
     `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
     `created_ts` DATETIME,
     `updated_ts` DATETIME,
-    `name` VARCHAR(200) UNIQUE,
-    `email` VARCHAR(200) UNIQUE,
+    `name` VARCHAR(200),
+    `email` VARCHAR(200),
     `role_id` INTEGER,
+    `org_id` INTEGER,
     `last_access` DATETIME
 );
 

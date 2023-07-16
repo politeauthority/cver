@@ -10,6 +10,7 @@ from cver.api.utils import glow
 from cver.api.collects.users import Users
 from cver.api.models.api_key import ApiKey
 from cver.api.models.user import User
+from cver.api.models.org import Org
 from cver.api.utils import auth
 
 
@@ -17,13 +18,26 @@ class DataUsers:
 
     def __init__(self):
         self.rbac = None
+        self.org_id = None
 
     def create(self, rbac: dict) -> bool:
         """Create the first user, and test users if this is a test environment."""
         self.rbac = rbac
         self.role_admin_id = rbac["admin_role_id"]
+        self.create_first_org()
         self.create_first_user()
         self.create_test_user()
+
+    def create_first_org(self):
+        """Create the first Org.
+        @todo: This can be done better, with multiple orgs, for testing and regular use etc.
+        """
+        org = Org()
+        if not org.get_by_name("default"):
+            org.name = "default"
+            org.save()
+        self.org_id = org.id
+        return True
 
     def create_first_user(self):
         """Create the first admin level user, but only if one doesn't already exist."""
@@ -37,6 +51,7 @@ class DataUsers:
         user.email = "admin@example.com"
         user.name = "admin"
         user.role_id = self.role_admin_id
+        user.org_id = self.org_id
         user.save()
         print("Created: %s" % user)
         client_id = auth.generate_client_id()
@@ -75,6 +90,7 @@ class DataUsers:
         user.email = "test@example.com"
         user.name = "test"
         user.role_id = self.role_admin_id
+        user.org_id = self.org_id
         user.save()
         client_id = test_client_id
         api_key = ApiKey()

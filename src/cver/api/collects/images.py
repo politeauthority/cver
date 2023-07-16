@@ -20,4 +20,4 @@ class Images(Base):
         self.collect_model = Image
         self.per_page = 20
 
-# End File: cve/src/api/collects/images.py
+# End File: cver/src/api/collects/images.py

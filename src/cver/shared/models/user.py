@@ -21,7 +21,6 @@ FIELD_MAP = {
     "name": {
         "name": "name",
         "type": "str",
-        "extra": "UNIQUE",
         "api_writeable": True,
         "api_searchable": True
     },
@@ -34,6 +33,12 @@ FIELD_MAP = {
     },
     "role_id": {
         "name": "role_id",
+        "type": "int",
+        "api_writeable": True,
+        "api_searchable": True
+    },
+    "org_id": {
+        "name": "org_id",
         "type": "int",
         "api_writeable": True,
         "api_searchable": True

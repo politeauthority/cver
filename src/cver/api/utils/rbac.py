@@ -33,6 +33,26 @@ ACL = {
         "POST": ["write-all"],
         "DELETE": ["write-all"],
     },
+    "/cluster": {
+        "GET": ["read-all"],
+        "POST": ["write-all"],
+        "DELETE": ["write-all"],
+    },
+    "/clusters": {
+        "GET": ["read-all"],
+        "POST": ["write-all"],
+        "DELETE": ["write-all"],
+    },
+    "/cluster-image": {
+        "GET": ["read-all"],
+        "POST": ["write-all"],
+        "DELETE": ["write-all"],
+    },
+    "/cluster-images": {
+        "GET": ["read-all"],
+        "POST": ["write-all"],
+        "DELETE": ["write-all"],
+    },
     "/image": {
         "GET": ["read-all"],
         "POST": ["write-all"],
