@@ -8,7 +8,6 @@ FIELD_MAP = {
     "id": {
         'name': 'id',
         'type': 'int',
-        
         'primary': True,
     },
     "created_ts": {
