@@ -20,4 +20,4 @@ class Org(BaseEntityMeta):
         self.setup()
 
 
-# End File: cver/src/api/modles/orgs.py
+# End File: cver/src/api/modles/org.py
