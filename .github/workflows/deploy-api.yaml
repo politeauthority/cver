@@ -5,7 +5,7 @@ on:
     inputs:
       api-build:
         required: true
-        type: string
+        type: bool
       deployment-name:
         required: true
         type: string

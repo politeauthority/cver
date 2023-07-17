@@ -21,7 +21,7 @@ jobs:
 
   lint:
     uses: ./.github/workflows/lint.yaml
-    secrets: inherit 
+    secrets: inherit
     permissions:
       pull-requests: read
       contents: read
