@@ -51,7 +51,6 @@ jobs:
           export KUBECONFIG=~/.kube/config.yaml
           chmod 600 ~/.kube/config.yaml
           DEPLOYED_AT=$(date +"%Y-%m-%d %T")
-          kubectl get pods -n cver
           helm dependency build helm/cver-api
           helm upgrade --install \
             --namespace=cver \
