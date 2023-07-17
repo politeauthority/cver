@@ -16,6 +16,8 @@ on:
 jobs:
   build:
     runs-on: self-hosted
+    permissions:
+      pull-requests: read
     container:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ inputs.cicd-version }}
       credentials:
