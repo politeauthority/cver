@@ -1,0 +1,41 @@
+name: Reusable workflow example
+
+on:
+  workflow_call:
+    inputs:
+      tag-name:
+        required: true
+        type: string
+
+jobs:
+  build-docker-api:
+    runs-on: self-hosted
+    container:
+      image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
+      credentials:
+        username: ${{ vars.HARBOR_USER }}
+        password: ${{ secrets.HARBOR_PASSWORD }}
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: docker/login-action@v2
+        with:
+          registry: harbor.squid-ink.us
+          username: ${{ vars.HARBOR_USER }}
+          password: ${{ secrets.HARBOR_PASSWORD }}
+
+      - name: Build Container
+        run: |
+          echo "Run Task: Build"
+          export CVER_API_TAG="${{ github.event.inputs.tag-name }}"
+          task build-api
+
+      - name: Push Container
+        run: |
+          IMAGE_ID=$(docker images --filter "reference=politeauthority/cver-api" --format "{{.ID}}")
+          docker tag ${IMAGE_ID} harbor.squid-ink.us/politeauthority/cver-api:${{ github.event.inputs.tag-name }}
+          docker push harbor.squid-ink.us/politeauthority/cver-api:${{ github.event.inputs.tag-name }}
+          echo "# Docker Build" >> $GITHUB_STEP_SUMMARY
+          echo "**Built:** `harbor.squid-ink.us/politeauthority/cver-api:${{ github.event.inputs.tag-name }}`" >> $GITHUB_STEP_SUMMARY
