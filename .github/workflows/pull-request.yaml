@@ -63,7 +63,7 @@ jobs:
         run: |
           helm lint ./helm/cver-api
 
-  build-docker:
+  build-docker-api:
     runs-on: self-hosted
     container:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
@@ -95,9 +95,41 @@ jobs:
           echo "# Docker Build" >> $GITHUB_STEP_SUMMARY
           echo "**Built:** `harbor.squid-ink.us/politeauthority/cver-api:${{ github.sha }}`" >> $GITHUB_STEP_SUMMARY
 
+  build-docker-engine:
+    runs-on: self-hosted
+    container:
+      image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
+      credentials:
+        username: ${{ vars.HARBOR_USER }}
+        password: ${{ secrets.HARBOR_PASSWORD }}
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: docker/login-action@v2
+        with:
+          registry: harbor.squid-ink.us
+          username: ${{ vars.HARBOR_USER }}
+          password: ${{ secrets.HARBOR_PASSWORD }}
+
+      - name: Build Container
+        run: |
+          echo "Run Task: Build"
+          export CVER_ENGINE_TAG="${{ github.sha }}"
+          task build-engine
+
+      - name: Push Container
+        run: |
+          IMAGE_ID=$(docker images --filter "reference=politeauthority/cver-engine" --format "{{.ID}}")
+          docker tag ${IMAGE_ID} harbor.squid-ink.us/politeauthority/cver-egnine:${{ github.sha }}
+          docker push harbor.squid-ink.us/politeauthority/cver-engine:${{ github.sha }}
+          echo "# Docker Build" >> $GITHUB_STEP_SUMMARY
+          echo "**Built:** `harbor.squid-ink.us/politeauthority/cver-engine:${{ github.sha }}`" >> $GITHUB_STEP_SUMMARY
+
   deploy-ephem:
     runs-on: self-hosted
-    needs: [build-docker, build-python, lint-helm]
+    needs: [build-docker-api, build-python, lint-helm]
     continue-on-error: true
     container:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}

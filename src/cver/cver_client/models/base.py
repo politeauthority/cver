@@ -38,7 +38,18 @@ class Base(CverClient):
             setattr(self, key, value)
         return True
 
-    def get_by_name(self, name: str):
+    def get_by_id(self, entity_id: int) -> bool:
+        """Get an entity by ID."""
+        data = {
+            "id": entity_id
+        }
+        response = self.make_request(self.model_name, payload=data)
+        if response["status"] == "success":
+            return self.build(response["object"])
+        else:
+            return False
+
+    def get_by_name(self, name: str) -> bool:
         """Get an entity by name.
         @todo: Not all entities have names, this should be restricted to just those entities.
         """

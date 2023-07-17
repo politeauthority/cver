@@ -4,15 +4,15 @@
 ARG DOCKER_REGISTRY="docker.io/library"
 FROM ${DOCKER_REGISTRY}/python:3.10-alpine3.16 as base
 ARG CVER_BUILD=""
+ENV CVER_VERSION="0.0.0"
+ENV CVER_SECRET="secret"
+ENV CVER_BUILD="${CVER_BUILD}"
+ENV CVER_ENV=""
 ENV CVER_DB_HOST="cver-mysql"
 ENV CVER_DB_PORT="3306"
 ENV CVER_DB_NAME="cver"
 ENV CVER_DB_USER="user"
 ENV CVER_DB_PASS=""
-ENV CVER_VERSION="0.0.0"
-ENV CVER_SECRET="secret"
-ENV CVER_BUILD="${CVER_BUILD}"
-ENV CVER_ENV=""
 
 # TEST vars
 ENV CVER_TEST="false"
@@ -25,11 +25,11 @@ ADD scripts/entrypoint.sh /
 ADD src/ /app
 
 RUN apk add --update --no-cache --virtual .tmp-build-deps \
-    gcc libc-dev linux-headers postgresql-dev \
+    gcc libc-dev linux-headers \
     && apk add libffi-dev
 
 # Install Cver
-RUN pip install --upgrade pip
+RUN pip install --upgrade pip 
 RUN cd /app && pip install -r /app/requirements.txt
 RUN cd /app && pip install .
 
