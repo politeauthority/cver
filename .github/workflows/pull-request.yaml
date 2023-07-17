@@ -51,6 +51,9 @@ jobs:
   lint:
     uses: ./.github/workflows/lint.yaml
     secrets: inherit 
+    permissions:
+      pull-requests: read
+      contents: read
     with:
       cicd-version: "${{ vars.CICD_VERSION }}"
 
