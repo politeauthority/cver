@@ -38,7 +38,8 @@ CREATE TABLE IF NOT EXISTS cluster_images (
     `image_id` INTEGER NOT NULL,
     `cluster_id` INTEGER NOT NULL,
     `first_seen` DATETIME,
-    `last_seen` DATETIME
+    `last_seen` DATETIME,
+    UNIQUE KEY `ux_cluster_image` (`image_id`, `cluster_id`)
 );
 
 ---
@@ -62,9 +63,10 @@ CREATE TABLE IF NOT EXISTS images (
     `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
     `created_ts` DATETIME,
     `updated_ts` DATETIME,
-    `name` VARCHAR(200) UNIQUE,
+    `name` VARCHAR(200) NOT NULL,
     `repository` VARCHAR(200) NOT NULL,
-    `maintained` TINYINT(1) DEFAULT True
+    `maintained` TINYINT(1) DEFAULT True,
+    UNIQUE KEY `ux_repository_image` (`name`, `repository`)
 );
 
 --- 

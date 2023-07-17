@@ -19,7 +19,7 @@ ctrl_cluster_image = Blueprint("cluster-image", __name__, url_prefix="/cluster-i
 @ctrl_cluster_image.route("/<cluster_image_id>")
 @auth.auth_request
 def get_model(cluster_image_id: int = None) -> Response:
-    """GET operation for a Image.
+    """GET operation for an entity.
     GET /cluster-image
     """
     image = ctrl_base.get_model(ClusterImage, cluster_image_id)
@@ -33,7 +33,7 @@ def get_model(cluster_image_id: int = None) -> Response:
 @ctrl_cluster_image.route("/<cluster_image_id>", methods=["POST"])
 @auth.auth_request
 def post_model(cluster_image_id: int = None):
-    """POST operation for a Image model.
+    """POST operation for an entity.
     POST /cluster-image
     """
     logging.info("POST ClusterImage")

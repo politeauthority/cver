@@ -3,7 +3,7 @@ vars:
   CVER_DIR: "."
 
 tasks:
-  build:
+  build-api:
     cmds:
       - cp -r {{.CVER_DIR}}/src {{.CVER_DIR}}/docker/api/
       - cp -r {{.CVER_DIR}}/tests {{.CVER_DIR}}/docker/api/
@@ -31,7 +31,35 @@ tasks:
       - rm -rf {{.CVER_DIR}}/docker/api/tests
       - echo "Completed build politeauthority/cver-api"
     silent: false
-  dev-run:
+  build-engine:
+    cmds:
+      - cp -r {{.CVER_DIR}}/src {{.CVER_DIR}}/docker/engine/
+      - cp -r {{.CVER_DIR}}/tests {{.CVER_DIR}}/docker/engine/
+      - rm -rf {{.CVER_DIR}}/docker/engine/src/build
+      - rm -rf {{.CVER_DIR}}/docker/engine/src/dist
+      - rm -rf {{.CVER_DIR}}/docker/engine/src/cver.egg-info
+      - |
+        if [ -z ${CVER_ENGINE_TAG} ]; then
+          CVER_ENGINE_TAG="dev"
+        fi
+        CLI_ARGS="{{ .CLI_ARGS }}"
+        if [ -z ${CLI_ARGS} ]; then
+          TARGET="tests"
+        else
+          TARGET=$CLI_ARGS
+        fi
+        echo "Building Target: ${TARGET}"
+        docker build \
+          -t politeauthority/cver-engine:${CVER_ENGINE_TAG} \
+          --build-arg CVER_BUILD="${CVER_ENGINE_TAG}" \
+          --build-arg DOCKER_REGISTRY="harbor.squid-ink.us/cache/library" \
+          --target ${TARGET} \
+          {{.CVER_DIR}}/docker/engine
+      - rm -rf {{.CVER_DIR}}/docker/engine/src
+      - rm -rf {{.CVER_DIR}}/docker/engine/tests
+      - echo "Completed build politeauthority/cver-engine"
+    silent: false
+  dev-run-api:
     cmds:
       - |
         docker rm -f cver-api
@@ -39,6 +67,7 @@ tasks:
           -v {{.CVER_DIR}}/src:/app \
           -v {{.CVER_DIR}}/tests:/tests \
           -v {{.CVER_DIR}}/examples:/examples \
+          -v ~/.kube:/root/.kube \
           -p 80:80 \
           -e CVER_DB_HOST="mysql" \
           -e CVER_DB_PASS="${CVER_DB_PASS}" \
@@ -55,10 +84,10 @@ tasks:
       - docker network connect cver cver-api
       - echo "Success"
     silent: false
-  dev-exec:
+  dev-exec-api:
     cmds:
       - docker exec -it cver-api bash
-  dev-stop:
+  dev-stop-api:
     cmds:
       - docker rm -f cver-api
   cver-build:

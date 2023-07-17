@@ -4,6 +4,7 @@
 
 """
 from cver.shared.models.image import FIELD_MAP
+from cver.shared.utils import xlate
 from cver.api.models.base_entity_meta import BaseEntityMeta
 
 
@@ -19,5 +20,23 @@ class Image(BaseEntityMeta):
         self.createable = True
         self.setup()
 
+    def get_by_repo_and_name(self, registry: str, name: str):
+        """Get an Image entity by repo and image name."""
+        sql = """
+            SELECT *
+            FROM `%s`
+            WHERE
+                `repository` = "%s" AND
+                `name` = "%s";
+        """ % (
+            self.table_name,
+            xlate.sql_safe(registry),
+            xlate.sql_safe(name))
+        self.cursor.execute(sql)
+        raw = self.cursor.fetchone()
+        if not raw:
+            return False
+        self.build_from_list(raw)
+        return True
 
 # End File: cver/src/api/modles/image.py

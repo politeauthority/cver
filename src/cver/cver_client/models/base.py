@@ -38,7 +38,18 @@ class Base(CverClient):
             setattr(self, key, value)
         return True
 
-    def get_by_name(self, name: str):
+    def get_by_id(self, entity_id: int) -> bool:
+        """Get an entity by ID."""
+        data = {
+            "id": entity_id
+        }
+        response = self.make_request(self.model_name, payload=data)
+        if response["status"] == "success":
+            return self.build(response["object"])
+        else:
+            return False
+
+    def get_by_name(self, name: str) -> bool:
         """Get an entity by name.
         @todo: Not all entities have names, this should be restricted to just those entities.
         """
@@ -59,6 +70,7 @@ class Base(CverClient):
             print("Warning: request error")
             return False
         entity = self.response["object"]
+
         for field_name, field_value in entity.items():
             setattr(self, field_name, field_value)
         logging.info(f"Saved {entity} successfully")
@@ -68,7 +80,7 @@ class Base(CverClient):
         """Get the class atribute keys and values that are model fields."""
         data = {}
         for field_name, field_info in self.field_map.items():
-            if not hasattr(self, field_name):
+            if not getattr(self, field_name):
                 continue
             data[field_name] = getattr(self, field_name)
         return data

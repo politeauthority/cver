@@ -18,6 +18,8 @@ from cver.api.controllers.ctrl_models.ctrl_api_key import ctrl_api_key
 from cver.api.controllers.ctrl_collections.ctrl_api_keys import ctrl_api_keys
 from cver.api.controllers.ctrl_models.ctrl_cluster_image import ctrl_cluster_image
 from cver.api.controllers.ctrl_collections.ctrl_cluster_images import ctrl_cluster_images
+from cver.api.controllers.ctrl_models.ctrl_cluster import ctrl_cluster
+from cver.api.controllers.ctrl_collections.ctrl_clusters import ctrl_clusters
 from cver.api.controllers.ctrl_index import ctrl_index
 from cver.api.controllers.ctrl_models.ctrl_image import ctrl_image
 from cver.api.controllers.ctrl_collections.ctrl_images import ctrl_images
@@ -42,6 +44,7 @@ from cver.api.controllers.ctrl_collections.ctrl_scans import ctrl_scans
 from cver.api.controllers.ctrl_models.ctrl_software import ctrl_software
 from cver.api.controllers.ctrl_collections.ctrl_softwares import ctrl_softwares
 from cver.api.controllers.ctrl_submit_scan import ctrl_submit_scan
+from cver.api.controllers.ctrl_ingest_k8s import ctrl_ingest_k8s
 
 
 dictConfig({
@@ -71,6 +74,8 @@ def register_blueprints(app: Flask) -> bool:
     """Register controller blueprints to flask."""
     app.register_blueprint(ctrl_api_key)
     app.register_blueprint(ctrl_api_keys)
+    app.register_blueprint(ctrl_cluster)
+    app.register_blueprint(ctrl_clusters)
     app.register_blueprint(ctrl_cluster_image)
     app.register_blueprint(ctrl_cluster_images)
     app.register_blueprint(ctrl_index)
@@ -96,7 +101,7 @@ def register_blueprints(app: Flask) -> bool:
     app.register_blueprint(ctrl_software)
     app.register_blueprint(ctrl_softwares)
     app.register_blueprint(ctrl_submit_scan)
-
+    app.register_blueprint(ctrl_ingest_k8s)
     return True
 
 

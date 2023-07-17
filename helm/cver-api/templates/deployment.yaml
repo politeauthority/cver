@@ -47,12 +47,12 @@ spec:
             valueFrom:
               secretKeyRef:
                 key: mysql-password
-                name: cver-mysql-user
+                name: cver-secrets-{{ .Values.app.envName }}
           - name: CVER_SECRET
             valueFrom:
               secretKeyRef:
-                key: mysql-password
-                name: cver-mysql
+                key: cver-secret-key
+                name: cver-secrets-{{ .Values.app.envName }}
           {{- if .Values.test.test }}
           - name: CVER_TEST_CLIENT_ID
             valueFrom:
@@ -92,7 +92,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   key: mysql-password
-                  name: cver-mysql-user
+                  name: cver-secrets-{{ .Values.app.envName }}
             - name: CVER_SECRET_KEY
               valueFrom:
                 secretKeyRef:
