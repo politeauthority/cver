@@ -51,8 +51,8 @@ jobs:
           task build-engine
 
       - name: Push Container
+        if: steps.changes.outputs.src == 'true'
         run: |
-          if: steps.changes.outputs.src == 'true'
           IMAGE_ID=$(docker images --filter "reference=politeauthority/cver-engine" --format "{{.ID}}")
           docker tag ${IMAGE_ID} harbor.squid-ink.us/politeauthority/cver-engine:${{ inputs.tag-name }}
           docker push harbor.squid-ink.us/politeauthority/cver-engine:${{ inputs.tag-name }}
