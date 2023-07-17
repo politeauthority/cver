@@ -13,41 +13,11 @@ concurrency:
 jobs:
   
   build-python:
-    runs-on: self-hosted
-    strategy:
-      fail-fast: true
-
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v3
-        with:
-          python-version: "3.10"
-
-      - name: Install Dependencies
-        run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install flake8 pytest
-          pip install -r src/requirements.txt
-
-      - name: Build Packages
-        run: |
-          cd src/
-          python3 setup.py build
-          pip install .
-
-      - name: Source Linter
-        run: |
-          flake8 src/cver --config=src/flake8 --count --show-source --statistics
-
-      - name: Tests Linter
-        run: |
-          flake8 tests --config=tests/flake8 --count --show-source --statistics
-
-      - name: Unit Tests
-        run: |
-          pytest tests/unit --md report.md
-          cat report.md >> $GITHUB_STEP_SUMMARY
+    uses: ./.github/workflows/lint.yaml
+    secrets: inherit 
+    permissions:
+      pull-requests: read
+      contents: read
 
   lint:
     uses: ./.github/workflows/lint.yaml
