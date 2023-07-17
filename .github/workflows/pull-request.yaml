@@ -74,6 +74,9 @@ jobs:
   engine:
     uses: ./.github/workflows/build-container-engine.yaml
     secrets: inherit 
+    permissions:
+      pull-requests: read
+      contents: read
     with:
       tag-name: "${{ github.sha }}"
       cicd-version: "${{ vars.CICD_VERSION }}"
