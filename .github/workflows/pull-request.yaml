@@ -56,6 +56,7 @@ jobs:
       contents: read
     with:
       cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
 
   api:
     uses: ./.github/workflows/build-container-api.yaml
