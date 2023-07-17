@@ -1,6 +1,6 @@
 # Cver Api - Pull Request
 
-name: Cver-Api-Pull-Request
+name: Pull Request
 
 on:
   pull_request:
@@ -73,6 +73,7 @@ jobs:
       pull-requests: read
       contents: read
     with:
+      tag-prefix: "dev"
       tag-name: "${{ github.sha }}"
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
