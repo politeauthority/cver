@@ -3,6 +3,9 @@ name: Deploy Api
 on:
   workflow_call:
     inputs:
+      api-build:
+        required: true
+        type: string
       deployment-name:
         required: true
         type: string
@@ -32,6 +35,14 @@ jobs:
       - uses: actions/checkout@v3
       - name: Deploy
         run: |
+          API_BUILD="${{ inputs.api-build }}""
+          if [ "$API_BUILD" = "false" ]; then
+            IMAGE_TAG="${{ inputs.deployment-name }}-latest"
+            echo "ALIX DEBUG- DIDNT BUILD API USING DEV-LATEST"
+          else
+            IMAGE_TAG="${{ inputs.tag-name }}"
+          fi
+      
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
           export KUBECONFIG=~/.kube/config.yaml
@@ -46,7 +57,7 @@ jobs:
             --wait \
             --timeout=120s \
             -f helm/cver-api/values-quigley-${{ inputs.deployment-name }}.yaml \
-            --set "image.tag=${{ inputs.tag-name }}" \
+            --set "image.tag=${IMAGE_TAG}" \
             --set "app.dbName=cver_${{ inputs.run-number }}" \
             --set "app.deployedAt=${DEPLOYED_AT}"
           echo "# Deployed"
