@@ -1,0 +1,39 @@
+name: Linter
+
+on:
+  workflow_call:
+    inputs:
+      cicd-version:
+        required: true
+        type: string
+      harbor-user:
+        required: true
+        type: string
+
+jobs:
+  helm:
+    runs-on: self-hosted
+    strategy:
+      fail-fast: true
+    permissions:
+      pull-requests: read
+    container:
+      image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ inputs.cicd-version }}
+      credentials:
+        username: ${{ inputs.harbor-user }}
+        password: ${{ secrets.HARBOR_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.PAT }}
+      - uses: dorny/paths-filter@v2
+        id: changes
+        with:
+            token: ${{ secrets.PAT }}
+            filters: |
+              src:
+              - 'helm/**'
+      - name: Lint Helm
+        if: steps.changes.outputs.src == 'true'
+        run: |
+          helm lint ./helm/cver-api

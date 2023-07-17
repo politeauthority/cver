@@ -1,6 +1,6 @@
 # Cver Api - Pull Request
 
-name: Cver-Api-Pull-Request
+name: Pull Request
 
 on:
   pull_request:
@@ -11,62 +11,32 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  
   build-python:
-    runs-on: self-hosted
-    strategy:
-      fail-fast: true
+    uses: ./.github/workflows/build-python.yaml
+    secrets: inherit 
+    permissions:
+      pull-requests: read
+      contents: read
 
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v3
-        with:
-          python-version: "3.10"
-
-      - name: Install Dependencies
-        run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install flake8 pytest
-          pip install -r src/requirements.txt
-
-      - name: Build Packages
-        run: |
-          cd src/
-          python3 setup.py build
-          pip install .
-
-      - name: Source Linter
-        run: |
-          flake8 src/cver --config=src/flake8 --count --show-source --statistics
-
-      - name: Tests Linter
-        run: |
-          flake8 tests --config=tests/flake8 --count --show-source --statistics
-
-      - name: Unit Tests
-        run: |
-          pytest tests/unit --md report.md
-          cat report.md >> $GITHUB_STEP_SUMMARY
-
-  lint-helm:
-    runs-on: self-hosted
-    strategy:
-      fail-fast: true
-    container:
-      image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
-      credentials:
-        username: ${{ vars.HARBOR_USER }}
-        password: ${{ secrets.HARBOR_PASSWORD }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Lint Helm
-        run: |
-          helm lint ./helm/cver-api
+  lint:
+    uses: ./.github/workflows/lint.yaml
+    secrets: inherit
+    permissions:
+      pull-requests: read
+      contents: read
+    with:
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
 
   api:
     uses: ./.github/workflows/build-container-api.yaml
-    secrets: inherit 
+    secrets: inherit
+    permissions:
+      pull-requests: read
+      contents: read
     with:
+      tag-prefix: "dev"
       tag-name: "${{ github.sha }}"
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
@@ -78,15 +48,17 @@ jobs:
       pull-requests: read
       contents: read
     with:
+      tag-prefix: "dev"
       tag-name: "${{ github.sha }}"
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   ephem:
-    needs: [api, build-python, lint-helm]
+    needs: [api, build-python, lint]
     uses: ./.github/workflows/deploy-api.yaml
     secrets: inherit 
     with:
+      api-build: "${{ needs.api.outputs.src }}"
       deployment-name: "test"
       run-number: ${{ github.run_number }}
       tag-name: "${{ github.sha }}"
@@ -95,6 +67,7 @@ jobs:
 
   test-ephem:
     needs: [ephem, engine]
+    if: ${{ needs.ephem.result == 'success' }}
     uses: ./.github/workflows/regression.yaml
     secrets: inherit 
     with:
@@ -105,7 +78,8 @@ jobs:
 
   remove-ephem:
     runs-on: self-hosted
-    needs: test-ephem
+    needs: [test-ephem, ephem]
+    if: ${{ needs.ephem.result == 'success' }}
     container:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
       credentials:
