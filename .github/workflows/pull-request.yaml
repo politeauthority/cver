@@ -64,7 +64,7 @@ jobs:
           helm lint ./helm/cver-api
 
   build-docker-api:
-    uses: ./.github/workflows/docker-build.yaml
+    uses: ./.github/workflows//build-cver-api-container.yaml
     with:
       tag-name: "${{ github.sha }}"
 
@@ -153,7 +153,6 @@ jobs:
           REPORT=$(kubectl exec -n cver -it ${TEST_POD} -c cver-api -- cat /app/cver/regression-report.md)
           echo "$REPORT"
           echo "${REPORT}" >> $GITHUB_STEP_SUMMARY
-
 
   remove-ephem:
     runs-on: self-hosted

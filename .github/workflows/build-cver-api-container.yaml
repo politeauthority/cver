@@ -1,4 +1,4 @@
-name: Reusable workflow example
+name: Build Cver Api Container
 
 on:
   workflow_call:
