@@ -1,0 +1,5 @@
+#!/bin/sh -l
+# Start the Cver Api development webserver
+# Cver Api
+
+python3 /app/cver/api/app.py

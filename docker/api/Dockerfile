@@ -41,6 +41,7 @@ FROM base AS tests
 # Dev-Build
 RUN apk add bash curl vim mysql-client
 # Add Scripts
+ADD scripts/cver-api /bin
 ADD scripts/cver-build /bin
 ADD scripts/cver-run-api /bin
 ADD scripts/cver-test-unit /bin

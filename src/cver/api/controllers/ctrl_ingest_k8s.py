@@ -1,21 +1,22 @@
 """
     Cver Api - Controller
     Ingest Kubernetes
+    These routes serve to take input from the Kubernetes ingestion scripts.
 
 """
 import json
 import logging
 
-from flask import Blueprint, request, make_response
+from flask import Blueprint, request, make_response, jsonify
 
 from cver.api.utils import auth
 from cver.api.models.cluster import Cluster
+from cver.api.models.cluster_image import ClusterImage
+from cver.api.models.image_build import ImageBuild
+from cver.api.models.image_build_waiting import ImageBuildWaiting
 from cver.api.models.image import Image
-# from cver.api.models.image_build import ImageBuild
-# from cver.api.models.scan import Scan
-# # from cver.api.models.scan_raw import ScanRaw
-# from cver.api.utils import date_utils
-# from cver.api.utils import parse_trivy
+from cver.shared.utils import misc
+from cver.api.utils import date_utils
 
 
 ctrl_ingest_k8s = Blueprint("ingest-k8s", __name__, url_prefix="/ingest-k8s")
@@ -30,7 +31,8 @@ def post_submit_image():
 
     data = {
         "message": "",
-        "status": "Success"
+        "wrote": {},
+        "status": "success"
     }
     required_keys = ["cluster_id", "image"]
     request_json = request.get_json()
@@ -40,18 +42,68 @@ def post_submit_image():
             data["status"] = "error"
             return make_response(json.dumps(data), 401)
 
+    # Make sure we have our Cluster
     cluster_id = request_json["cluster_id"]
     cluster = Cluster()
     if not cluster.get_by_id(cluster_id):
-        data["message"] = f'Invalid Cluster ID: {cluster_id}'
+        data["message"] = f"Invalid Cluster ID: {cluster_id}"
         data["status"] = "error"
-        return make_response(json.dumps(data), 401)
+        return make_response(json.dumps(data), 400)
 
-    image_name = request_json["image"]
+    # Handle Image
+    image_map = misc.container_url(request_json["image"])
     image = Image()
-    if not image.get_by_name(image_name):
-        image.name = image_name
-    # print(image_data)
+    if not image.get_by_repo_and_name(image_map["repository"], image_map["image"]):
+        image.repository = image_map["repository"]
+        image.name = image_map["image"]
+        image.save()
+        data["wrote"]["image"] = image.json()
 
+    ibx = _handle_image_build(image, image_map)
+    if ibx:
+        if isinstance(ibx, ImageBuild):
+            data["wrote"]["image-build"] = ibx.json()
+        elif isinstance(ibx, ImageBuildWaiting):
+            data["wrote"]["image-build-waiting"] = ibx.json()
+
+    # Handle Cluster Image
+    ic = _handle_cluster_image(cluster_id, image.id)
+    if ic:
+        data["wrote"]["image-cluster"] = ic.json()
+
+    return jsonify(data), 201
+
+
+def _handle_image_build(image: Image, image_map: dict) -> bool:
+    if "sha" in image_map and image_map["sha"]:
+        ib = ImageBuild()
+        ib.sha = image_map["sha"]
+        ib.image_id = image.id
+        ib.repository = image_map["repository"]
+        if "tag" in image_map and image_map["tag"]:
+            ib.tags = [image_map["tag"]]
+        ib.save()
+        return ib
+    else:
+        ibw = ImageBuildWaiting()
+        ibw.image_id = image.id
+        if "tag" in image_map and image_map["tag"]:
+            ibw.tag = image_map["tag"]
+        ibw.save()
+        return ibw
+
+
+def _handle_cluster_image(cluster_id: int, image_id: int) -> bool:
+    """Check if the Cluster Image relationship already exists, if not create it, then update the
+    last seen date.
+    """
+    cluster_image = ClusterImage()
+    if not cluster_image.get_by_cluster_and_image_id(cluster_id, image_id):
+        cluster_image.cluster_id = cluster_id
+        cluster_image.image_id = image_id
+        cluster_image.first_seen = date_utils.now()
+    cluster_image.last_seen = date_utils.now()
+    cluster_image.save()
+    return cluster_image
 
 # End File: cve/src/api/controllers/ctrl_ingest_k8s.py

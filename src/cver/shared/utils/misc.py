@@ -14,16 +14,15 @@ def container_url(the_string: str):
     :unit-test: test__container_url
     """
     ret = {
-        "registry": _get_registry(the_string),
+        "repository": _get_repository(the_string),
         "image": None,
         "tag": _get_tag(the_string),
         "sha": _get_sha(the_string),
         "full": None,
         "og": the_string
     }
-    ret["image"] = _get_image(the_string, ret["registry"])
+    ret["image"] = _get_image(the_string, ret["repository"])
     ret["full"] = _get_full(ret)
-    # default_registry = "docker.io"
     return ret
 
 
@@ -76,11 +75,12 @@ def _get_image(the_string: str, registry: str = None) -> str:
     return the_string
 
 
-def _get_registry(the_string: str) -> str:
+def _get_repository(the_string: str) -> str:
+    """Get the repository from the container url.
+    :unit-test: test___get_repository
     """
-    """
-    default_registry = "docker.io"
-    registry = ""
+    default_repository = "docker.io"
+    repository = ""
     num_slashes = the_string.count("/")
     if num_slashes > 2:
         print("error")
@@ -90,10 +90,10 @@ def _get_registry(the_string: str) -> str:
         first_slash = the_string.find("/")
         pot_fqdn = the_string[:first_slash]
         if is_fqdn(pot_fqdn):
-            registry = pot_fqdn
-    if not registry:
-        registry = default_registry
-    return registry
+            repository = pot_fqdn
+    if not repository:
+        repository = default_repository
+    return repository
 
 
 def _get_tag(the_string: str) -> str:
@@ -133,7 +133,7 @@ def _get_full(the_image_url: dict):
     """Get a full docker image url from its pieces.
     :unit-test: test__get_full
     """
-    the_url = the_image_url["registry"]
+    the_url = the_image_url["repository"]
     the_url += "/" + the_image_url["image"]
     if the_image_url["tag"] or the_image_url["sha"]:
         the_url += ":"

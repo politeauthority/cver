@@ -19,7 +19,6 @@ class IngestK8s(CverClient):
             "image": image
         }
         response = self.make_request("/ingest-k8s/image", method="POST", payload=data)
-        print(response)
-
+        return response
 
 # End File: cver/src/cver_client/ingest/k8s.py
