@@ -32,7 +32,10 @@ jobs:
             token: ${{ secrets.PAT }}
             filters: |
               src:
-              - 'helm/**'
+                - 'helm/**'
+      - name: Decieder
+        run: |
+          echo "ALIX DEBUG: CHANGES-OUTPUT: ${{steps.changes.outputs.src}}"
       - name: Lint Helm
         if: steps.changes.outputs.src == 'true'
         run: |
