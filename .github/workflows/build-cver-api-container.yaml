@@ -18,9 +18,9 @@ jobs:
   build-docker-api:
     runs-on: self-hosted
     container:
-      image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ github.event.inputs.cicd-version }}
+      image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ inputs.cicd-version }}
       credentials:
-        username: ${{ github.event.inputs.harbor-user }}
+        username: ${{ inputs.harbor-user }}
         password: ${{ secrets.HARBOR_PASSWORD }}
     strategy:
       fail-fast: true
@@ -30,19 +30,19 @@ jobs:
       - uses: docker/login-action@v2
         with:
           registry: harbor.squid-ink.us
-          username: ${{ github.event.inputs.harbor-user }}
+          username: ${{ inputs.harbor-user }}
           password: ${{ secrets.HARBOR_PASSWORD }}
 
       - name: Build Container
         run: |
           echo "Run Task: Build"
-          export CVER_API_TAG="${{ github.event.inputs.tag-name }}"
+          export CVER_API_TAG="${{ inputs.tag-name }}"
           task build-api
 
       - name: Push Container
         run: |
           IMAGE_ID=$(docker images --filter "reference=politeauthority/cver-api" --format "{{.ID}}")
-          docker tag ${IMAGE_ID} harbor.squid-ink.us/politeauthority/cver-api:${{ github.event.inputs.tag-name }}
-          docker push harbor.squid-ink.us/politeauthority/cver-api:${{ github.event.inputs.tag-name }}
+          docker tag ${IMAGE_ID} harbor.squid-ink.us/politeauthority/cver-api:${{ inputs.tag-name }}
+          docker push harbor.squid-ink.us/politeauthority/cver-api:${{ inputs.tag-name }}
           echo "# Docker Build" >> $GITHUB_STEP_SUMMARY
-          echo "**Built:** `harbor.squid-ink.us/politeauthority/cver-api:${{ github.event.inputs.tag-name }}`" >> $GITHUB_STEP_SUMMARY
+          echo "**Built:** `harbor.squid-ink.us/politeauthority/cver-api:${{ inputs.tag-name }}`" >> $GITHUB_STEP_SUMMARY
