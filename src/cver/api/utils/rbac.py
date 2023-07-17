@@ -141,6 +141,12 @@ ACL = {
     "/submit-scan": {
         "POST": ["write-all", "write-scan"],
     },
+    "/ingest-k8s/image": {
+        "POST": ["write-all", "write-scan"],
+    },
+    "/ingest-k8s": {
+        "POST": ["write-all", "write-scan"],
+    },
     "/user": {
         "GET": ["read-all"],
         "POST": ["write-all"],

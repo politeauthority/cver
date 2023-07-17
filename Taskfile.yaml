@@ -39,6 +39,7 @@ tasks:
           -v {{.CVER_DIR}}/src:/app \
           -v {{.CVER_DIR}}/tests:/tests \
           -v {{.CVER_DIR}}/examples:/examples \
+          -v ~/.kube:/root/.kube \
           -p 80:80 \
           -e CVER_DB_HOST="mysql" \
           -e CVER_DB_PASS="${CVER_DB_PASS}" \
