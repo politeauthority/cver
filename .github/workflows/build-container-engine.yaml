@@ -38,19 +38,15 @@ jobs:
           token: ${{ secrets.PAT }}
           filters: |
             src:
-            - 'docker/engine/**'
-            - 'src/**'
+              - 'docker/engine/**'
+              - 'src/**'
 
       - uses: docker/login-action@v2
+        if: steps.changes.outputs.src == 'true'
         with:
           registry: harbor.squid-ink.us
           username: ${{ inputs.harbor-user }}
           password: ${{ secrets.HARBOR_PASSWORD }}
-
-      # - name: Check Diff
-      #   run: |
-      #     echo "Run Task: Build"
-
 
       - name: Build Container
         if: steps.changes.outputs.src == 'true'

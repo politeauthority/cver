@@ -11,6 +11,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  
   build-python:
     runs-on: self-hosted
     strategy:
@@ -60,8 +61,12 @@ jobs:
 
   api:
     uses: ./.github/workflows/build-container-api.yaml
-    secrets: inherit 
+    secrets: inherit
+    permissions:
+      pull-requests: read
+      contents: read
     with:
+      tag-prefix: "dev"
       tag-name: "${{ github.sha }}"
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
@@ -83,6 +88,7 @@ jobs:
     uses: ./.github/workflows/deploy-api.yaml
     secrets: inherit 
     with:
+      engine-build: ${{ needs.api.outputs.src }}
       deployment-name: "test"
       run-number: ${{ github.run_number }}
       tag-name: "${{ github.sha }}"
