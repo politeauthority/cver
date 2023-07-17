@@ -13,7 +13,7 @@ concurrency:
 jobs:
   
   build-python:
-    uses: ./.github/workflows/lint.yaml
+    uses: ./.github/workflows/build-python.yaml
     secrets: inherit 
     permissions:
       pull-requests: read
