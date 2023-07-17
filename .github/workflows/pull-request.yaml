@@ -64,7 +64,7 @@ jobs:
           helm lint ./helm/cver-api
 
   build-docker-api:
-    uses: ./.github/workflows//build-cver-api-container.yaml
+    uses: ./.github/workflows/build-cver-api-container.yaml
     with:
       tag-name: "${{ github.sha }}"
 
