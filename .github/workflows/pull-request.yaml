@@ -63,78 +63,32 @@ jobs:
         run: |
           helm lint ./helm/cver-api
 
-  build-docker-api:
-    uses: ./.github/workflows/build-cver-api-container.yaml
+  build-api:
+    uses: ./.github/workflows/build-container-api.yaml
     secrets: inherit 
     with:
       tag-name: "${{ github.sha }}"
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
-  build-docker-engine:
-    runs-on: self-hosted
-    container:
-      image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
-      credentials:
-        username: ${{ vars.HARBOR_USER }}
-        password: ${{ secrets.HARBOR_PASSWORD }}
-    strategy:
-      fail-fast: true
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: docker/login-action@v2
-        with:
-          registry: harbor.squid-ink.us
-          username: ${{ vars.HARBOR_USER }}
-          password: ${{ secrets.HARBOR_PASSWORD }}
-
-      - name: Build Container
-        run: |
-          echo "Run Task: Build"
-          export CVER_ENGINE_TAG="${{ github.sha }}"
-          task build-engine
-
-      - name: Push Container
-        run: |
-          IMAGE_ID=$(docker images --filter "reference=politeauthority/cver-engine" --format "{{.ID}}")
-          docker tag ${IMAGE_ID} harbor.squid-ink.us/politeauthority/cver-engine:${{ github.sha }}
-          docker push harbor.squid-ink.us/politeauthority/cver-engine:${{ github.sha }}
-          echo "# Docker Build" >> $GITHUB_STEP_SUMMARY
-          echo "**Built:** `harbor.squid-ink.us/politeauthority/cver-engine:${{ github.sha }}`" >> $GITHUB_STEP_SUMMARY
+  build-engine:
+    uses: ./.github/workflows/build-container-engine.yaml
+    secrets: inherit 
+    with:
+      tag-name: "${{ github.sha }}"
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
 
   deploy-ephem:
-    runs-on: self-hosted
-    needs: [build-docker-api, build-python, lint-helm]
-    continue-on-error: true
-    container:
-      image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
-      credentials:
-        username: ${{ vars.HARBOR_USER }}
-        password: ${{ secrets.HARBOR_PASSWORD }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Deploy
-        run: |
-          mkdir ~/.kube
-          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
-          export KUBECONFIG=~/.kube/config.yaml
-          chmod 600 ~/.kube/config.yaml
-          DEPLOYED_AT=$(date +"%Y-%m-%d %T")
-          kubectl get pods -n cver
-          helm dependency build helm/cver-api
-          helm upgrade --install \
-            --namespace=cver \
-            cver-api-test-${{ github.run_number }} \
-            helm/cver-api/ \
-            --wait \
-            --timeout=120s \
-            -f helm/cver-api/values-quigley-test.yaml \
-            --set "image.tag=${{ github.sha }}" \
-            --set "app.dbName=cver_${{ github.run_number }}" \
-            --set "app.deployedAt=${DEPLOYED_AT}"
-          echo "# Deployed"
-          echo "Created Helm deployment: cver-api-test-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+    needs: [build-api, build-python, lint-helm]
+    uses: ./.github/workflows/deploy-api.yaml
+    secrets: inherit 
+    with:
+      deployment-name: "test"
+      run-number: ${{ github.run_number }}
+      tag-name: "${{ github.sha }}"
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
 
   test-ephem:
     runs-on: self-hosted
