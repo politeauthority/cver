@@ -122,7 +122,7 @@ jobs:
       - name: Push Container
         run: |
           IMAGE_ID=$(docker images --filter "reference=politeauthority/cver-engine" --format "{{.ID}}")
-          docker tag ${IMAGE_ID} harbor.squid-ink.us/politeauthority/cver-egnine:${{ github.sha }}
+          docker tag ${IMAGE_ID} harbor.squid-ink.us/politeauthority/cver-engine:${{ github.sha }}
           docker push harbor.squid-ink.us/politeauthority/cver-engine:${{ github.sha }}
           echo "# Docker Build" >> $GITHUB_STEP_SUMMARY
           echo "**Built:** `harbor.squid-ink.us/politeauthority/cver-engine:${{ github.sha }}`" >> $GITHUB_STEP_SUMMARY
