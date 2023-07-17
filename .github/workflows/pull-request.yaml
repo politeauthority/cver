@@ -67,6 +67,7 @@ jobs:
 
   test-ephem:
     needs: [ephem, engine]
+    if: ${{ needs.ephem.result == 'success' }}
     uses: ./.github/workflows/regression.yaml
     secrets: inherit 
     with:
@@ -77,7 +78,8 @@ jobs:
 
   remove-ephem:
     runs-on: self-hosted
-    needs: test-ephem
+    needs: [test-ephem, ephem]
+    if: ${{ needs.ephem.result == 'success' }}
     container:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
       credentials:
