@@ -25,7 +25,7 @@ ADD scripts/entrypoint.sh /
 ADD src/ /app
 
 RUN apk add --update --no-cache --virtual .tmp-build-deps \
-    gcc libc-dev linux-headers \
+    gcc libc-dev linux-headers postgresql-dev \
     && apk add libffi-dev
 
 # Install Cver
