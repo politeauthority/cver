@@ -6,9 +6,9 @@ on:
       cicd-version:
         required: true
         type: string
-        harbor-user:
-          required: true
-          type: string
+      harbor-user:
+        required: true
+        type: string
 
 jobs:
   helm:
