@@ -47,12 +47,12 @@ spec:
             valueFrom:
               secretKeyRef:
                 key: mysql-password
-                name: cver-secrets
+                name: cver-secrets-{{ .Values.app.envName }}
           - name: CVER_SECRET
             valueFrom:
               secretKeyRef:
-                key: flask-session
-                name: cver-secrets
+                key: cver-secret-key
+                name: cver-secrets-{{ .Values.app.envName }}
           {{- if .Values.test.test }}
           - name: CVER_TEST_CLIENT_ID
             valueFrom:
@@ -92,12 +92,12 @@ spec:
               valueFrom:
                 secretKeyRef:
                   key: mysql-password
-                  name: cver-secrets
+                  name: cver-secrets-{{ .Values.app.envName }}
             - name: CVER_SECRET_KEY
               valueFrom:
                 secretKeyRef:
-                  key: flask-session
-                  name: cver-secrets
+                  key: cver-secret-key
+                  name: cver-secrets-{{ .Values.app.envName }}
             - name: CVER_JWT_EXPIRE_MINUTES
               value: "{{ .Values.app.jwtExpireMinutes }}"
             {{- if .Values.test.test }}
