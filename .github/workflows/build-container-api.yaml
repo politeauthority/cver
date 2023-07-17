@@ -14,7 +14,7 @@ on:
         type: string
 
 jobs:
-  build-api:
+  build:
     runs-on: self-hosted
     container:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ inputs.cicd-version }}

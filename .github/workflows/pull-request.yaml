@@ -63,7 +63,7 @@ jobs:
         run: |
           helm lint ./helm/cver-api
 
-  build-api:
+  api:
     uses: ./.github/workflows/build-container-api.yaml
     secrets: inherit 
     with:
@@ -71,7 +71,7 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
-  build-engine:
+  engine:
     uses: ./.github/workflows/build-container-engine.yaml
     secrets: inherit 
     with:
@@ -79,8 +79,8 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
-  deploy-ephem:
-    needs: [build-api, build-python, lint-helm]
+  ephem:
+    needs: [api, build-python, lint-helm]
     uses: ./.github/workflows/deploy-api.yaml
     secrets: inherit 
     with:
@@ -91,25 +91,13 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   test-ephem:
-    runs-on: self-hosted
-    needs: deploy-ephem
-    container:
-      image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
-      credentials:
-        username: ${{ vars.HARBOR_USER }}
-        password: ${{ secrets.HARBOR_PASSWORD }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Execute Tests
-        run: |
-          mkdir ~/.kube
-          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
-          export KUBECONFIG=~/.kube/config.yaml
-          TEST_POD=$(kubectl get -n cver pods -l app.kubernetes.io/instance=cver-api-test-${{ github.run_number }} --no-headers | cut -d' ' -f1)
-          kubectl exec -n cver -it ${TEST_POD} -c cver-api -- pytest -vvv /tests/regression --md regression-report.md
-          REPORT=$(kubectl exec -n cver -it ${TEST_POD} -c cver-api -- cat /app/cver/regression-report.md)
-          echo "$REPORT"
-          echo "${REPORT}" >> $GITHUB_STEP_SUMMARY
+    uses: ./.github/workflows/regression.yaml
+    secrets: inherit 
+    with:
+      deployment-name: "test"
+      run-number: ${{ github.run_number }}
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
 
   remove-ephem:
     runs-on: self-hosted
