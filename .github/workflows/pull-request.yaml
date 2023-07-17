@@ -48,20 +48,11 @@ jobs:
           pytest tests/unit --md report.md
           cat report.md >> $GITHUB_STEP_SUMMARY
 
-  lint-helm:
-    runs-on: self-hosted
-    strategy:
-      fail-fast: true
-    container:
-      image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
-      credentials:
-        username: ${{ vars.HARBOR_USER }}
-        password: ${{ secrets.HARBOR_PASSWORD }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Lint Helm
-        run: |
-          helm lint ./helm/cver-api
+  lint:
+    uses: ./.github/workflows/lint.yaml
+    secrets: inherit 
+    with:
+      cicd-version: "${{ vars.CICD_VERSION }}"
 
   api:
     uses: ./.github/workflows/build-container-api.yaml
@@ -83,7 +74,7 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   ephem:
-    needs: [api, build-python, lint-helm]
+    needs: [api, build-python, lint]
     uses: ./.github/workflows/deploy-api.yaml
     secrets: inherit 
     with:
