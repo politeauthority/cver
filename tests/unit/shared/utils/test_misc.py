@@ -70,6 +70,7 @@ class TestSharedUtilMisc:
         """
         assert misc.strip_trailing_slash("google.com") == "google.com"
         assert misc.strip_trailing_slash("google.com/") == "google.com"
+        assert misc.strip_trailing_slash("http://localhost/") == "http://localhost"
 
     def test___get_repository(self):
         """Test that we get a repository domain from a docker image url string.
