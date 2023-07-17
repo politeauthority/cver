@@ -91,6 +91,7 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   test-ephem:
+    needs: [ephem, engine]
     uses: ./.github/workflows/regression.yaml
     secrets: inherit 
     with:
