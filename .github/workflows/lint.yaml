@@ -33,7 +33,7 @@ jobs:
             filters: |
               src:
                 - 'helm/**'
-      - name: Decieder
+      - name: Decider
         run: |
           echo "ALIX DEBUG: CHANGES-OUTPUT: ${{steps.changes.outputs.src}}"
           if [ "${{steps.changes.outputs.src}}" = "false" ]; then
@@ -41,7 +41,6 @@ jobs:
           else
             echo "Running Lint Helm. Changes detected." >> $GITHUB_STEP_SUMMARY
           fi
-          echo "# Docker Build" >> $GITHUB_STEP_SUMMARY
       - name: Lint Helm
         if: steps.changes.outputs.src == 'true'
         run: |

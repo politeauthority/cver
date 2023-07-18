@@ -47,6 +47,14 @@ jobs:
           registry: harbor.squid-ink.us
           username: ${{ inputs.harbor-user }}
           password: ${{ secrets.HARBOR_PASSWORD }}
+      - name: Decider
+        run: |
+          echo "ALIX DEBUG: CHANGES-OUTPUT: ${{steps.changes.outputs.src}}"
+          if [ "${{steps.changes.outputs.src}}" = "false" ]; then
+            echo "Skipping Api Build. No changes detected." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Running Api Build" >> $GITHUB_STEP_SUMMARY
+          fi
 
       - name: Build Container
         if: steps.changes.outputs.src == 'true'

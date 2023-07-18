@@ -29,17 +29,17 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
-  # api:
-  #   uses: ./.github/workflows/build-container-api.yaml
-  #   secrets: inherit
-  #   permissions:
-  #     pull-requests: read
-  #     contents: read
-  #   with:
-  #     tag-prefix: "dev"
-  #     tag-name: "${{ github.sha }}"
-  #     cicd-version: "${{ vars.CICD_VERSION }}"
-  #     harbor-user: "${{ vars.HARBOR_USER }}"
+  api:
+    uses: ./.github/workflows/build-container-api.yaml
+    secrets: inherit
+    permissions:
+      pull-requests: read
+      contents: read
+    with:
+      tag-prefix: "dev"
+      tag-name: "${{ github.sha }}"
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
 
   # engine:
   #   uses: ./.github/workflows/build-container-engine.yaml
