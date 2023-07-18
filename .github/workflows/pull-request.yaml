@@ -41,64 +41,64 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
-  # engine:
-  #   uses: ./.github/workflows/build-container-engine.yaml
-  #   secrets: inherit 
-  #   permissions:
-  #     pull-requests: read
-  #     contents: read
-  #   with:
-  #     tag-prefix: "dev"
-  #     tag-name: "${{ github.sha }}"
-  #     cicd-version: "${{ vars.CICD_VERSION }}"
-  #     harbor-user: "${{ vars.HARBOR_USER }}"
+  engine:
+    uses: ./.github/workflows/build-container-engine.yaml
+    secrets: inherit 
+    permissions:
+      pull-requests: read
+      contents: read
+    with:
+      tag-prefix: "dev"
+      tag-name: "${{ github.sha }}"
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
 
-  # ephem:
-  #   needs: [api, build-python, lint]
-  #   uses: ./.github/workflows/deploy-api.yaml
-  #   secrets: inherit 
-  #   with:
-  #     api-build: "${{ needs.api.outputs.src }}"
-  #     deployment-name: "test"
-  #     run-number: ${{ github.run_number }}
-  #     tag-name: "${{ github.sha }}"
-  #     cicd-version: "${{ vars.CICD_VERSION }}"
-  #     harbor-user: "${{ vars.HARBOR_USER }}"
+  ephem:
+    needs: [api, build-python, lint]
+    uses: ./.github/workflows/deploy-api.yaml
+    secrets: inherit 
+    with:
+      api-build: "${{ needs.api.outputs.src }}"
+      deployment-name: "test"
+      run-number: ${{ github.run_number }}
+      tag-name: "${{ github.sha }}"
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
 
-  # test-ephem:
-  #   needs: [ephem, engine]
-  #   if: ${{ needs.ephem.result == 'success' }}
-  #   uses: ./.github/workflows/regression.yaml
-  #   secrets: inherit 
-  #   with:
-  #     deployment-name: "test"
-  #     run-number: ${{ github.run_number }}
-  #     cicd-version: "${{ vars.CICD_VERSION }}"
-  #     harbor-user: "${{ vars.HARBOR_USER }}"
+  test-ephem:
+    needs: [ephem, engine]
+    if: ${{ needs.ephem.result == 'success' }}
+    uses: ./.github/workflows/regression.yaml
+    secrets: inherit 
+    with:
+      deployment-name: "test"
+      run-number: ${{ github.run_number }}
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
 
-  # remove-ephem:
-  #   runs-on: self-hosted
-  #   needs: [test-ephem, ephem]
-  #   if: ${{ needs.ephem.result == 'success' }}
-  #   container:
-  #     image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
-  #     credentials:
-  #       username: ${{ vars.HARBOR_USER }}
-  #       password: ${{ secrets.HARBOR_PASSWORD }}
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Tear Down
-  #       run: |
-  #         mkdir ~/.kube
-  #         echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
-  #         export KUBECONFIG=~/.kube/config.yaml
-  #         echo "Remove the database"
-  #         TEST_POD=$(kubectl get pods -n cver -l app.kubernetes.io/instance=cver-api-test-${{ github.run_number }} --no-headers | cut -d' ' -f1)
-  #         # kubectl exec -n cver -it ${TEST_POD} -c cver-api -- /bin/cver-db-destroy
-  #         echo "Remove the helm installation"
-  #         helm uninstall \
-  #           --namespace=cver \
-  #           cver-api-test-${{ github.run_number }}
-  #         echo "Uninstalled Helm deployment cver-api-test-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+  remove-ephem:
+    runs-on: self-hosted
+    needs: [test-ephem, ephem]
+    if: ${{ needs.ephem.result == 'success' }}
+    container:
+      image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
+      credentials:
+        username: ${{ vars.HARBOR_USER }}
+        password: ${{ secrets.HARBOR_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Tear Down
+        run: |
+          mkdir ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
+          export KUBECONFIG=~/.kube/config.yaml
+          echo "Remove the database"
+          TEST_POD=$(kubectl get pods -n cver -l app.kubernetes.io/instance=cver-api-test-${{ github.run_number }} --no-headers | cut -d' ' -f1)
+          # kubectl exec -n cver -it ${TEST_POD} -c cver-api -- /bin/cver-db-destroy
+          echo "Remove the helm installation"
+          helm uninstall \
+            --namespace=cver \
+            cver-api-test-${{ github.run_number }}
+          echo "Uninstalled Helm deployment cver-api-test-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
 
 # End File: cver/.github/workflows/pull-request.yaml

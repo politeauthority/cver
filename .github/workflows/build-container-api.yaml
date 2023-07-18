@@ -47,6 +47,7 @@ jobs:
           registry: harbor.squid-ink.us
           username: ${{ inputs.harbor-user }}
           password: ${{ secrets.HARBOR_PASSWORD }}
+
       - name: Decider
         run: |
           echo "ALIX DEBUG: CHANGES-OUTPUT: ${{steps.changes.outputs.src}}"
