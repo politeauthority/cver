@@ -22,7 +22,7 @@ on:
 jobs:
   deploy:
     runs-on: self-hosted
-    continue-on-error: true
+    continue-on-error: false
     container:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ inputs.cicd-version }}
       credentials:
@@ -47,16 +47,6 @@ jobs:
           fi
       - name: Deploy
         run: |
-          API_BUILD="${{ inputs.api-build }}"
-          if [ "$API_BUILD" = "false" ]; then
-            if ["${{ inputs.deployment-name }}" == "test"]; then
-              
-            fi
-            IMAGE_TAG="${{ inputs.deployment-name }}-latest"
-            echo "ALIX DEBUG- DIDNT BUILD API USING DEV-LATEST"
-          else
-            IMAGE_TAG="${{ inputs.tag-name }}"
-          fi
           IMAGE_TAG="dev-latest"
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
