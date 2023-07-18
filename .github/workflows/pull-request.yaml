@@ -58,7 +58,6 @@ jobs:
     uses: ./.github/workflows/deploy-api.yaml
     secrets: inherit 
     with:
-      api-build: "${{ needs.api.outputs.src }}"
       deployment-name: "test"
       run-number: ${{ github.run_number }}
       tag-name: "${{ github.sha }}"
