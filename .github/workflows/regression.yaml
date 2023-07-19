@@ -20,7 +20,7 @@ jobs:
   regression:
     runs-on: self-hosted
     container:
-      image: harbor.squid-ink.us/politeauthority/polite-cicd:{{ inputs.cicd-version }}
+      image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ inputs.cicd-version }}
       credentials:
         username: ${{ inputs.harbor-user }}
         password: ${{ secrets.HARBOR_PASSWORD }}
