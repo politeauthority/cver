@@ -51,6 +51,7 @@ jobs:
           if [ "${{ inputs.deployment-name }}}" = "test" ]; then
             RELEASE_NAME="cver-api-test-${{ inputs.run-number }}"
             DB_NAME="cver_${{ inputs.run-number }}"
+            IMAGE_TAG="dev-latest"
           else
             RELEASE_NAME="cver-api-${{ inputs.deployment-name}}"
             DB_NAME="cver_${{ inputs.deployment-name}}"
