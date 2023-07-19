@@ -30,6 +30,7 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   api:
+    needs: [build-python, lint]
     uses: ./.github/workflows/build-container-api.yaml
     secrets: inherit
     permissions:
@@ -42,6 +43,7 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   engine:
+    needs: [build-python, lint]
     uses: ./.github/workflows/build-container-engine.yaml
     secrets: inherit 
     permissions:
@@ -65,8 +67,8 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   test-stage:
-    runs-on: self-hosted
     needs: deploy
+    runs-on: self-hosted
     container:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
       credentials:
