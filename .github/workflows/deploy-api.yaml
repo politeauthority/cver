@@ -30,21 +30,6 @@ jobs:
         password: ${{ secrets.HARBOR_PASSWORD }}
     steps:
       - uses: actions/checkout@v3
-      - uses: dorny/paths-filter@v2
-        id: changes
-        with:
-            token: ${{ secrets.PAT }}
-            filters: |
-              src:
-                - 'helm/**'
-      - name: Decider
-        run: |
-          echo "ALIX DEBUG: CHANGES-OUTPUT: ${{steps.changes.outputs.src}}"
-          if [ "${{steps.changes.outputs.src}}" = "false" ]; then
-            echo "Skipping Cver-Api tag update. No changes detected." >> $GITHUB_STEP_SUMMARY
-          else
-            echo "Running Cver-Api tag update changes detected." >> $GITHUB_STEP_SUMMARY
-          fi
       - name: Deploy
         run: |
           IMAGE_TAG="${{ inputs.deployment-name }}-latest"
