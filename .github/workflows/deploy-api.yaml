@@ -47,7 +47,15 @@ jobs:
           fi
       - name: Deploy
         run: |
-          IMAGE_TAG="dev-latest"
+          IMAGE_TAG="${{ inputs.deployment-name }}-latest"
+          if [ "${{ inputs.deployment-name }}" = "test" ]; then
+            RELEASE_NAME="cver-api-test-${{ inputs.run-number }}"
+            DB_NAME="cver_${{ inputs.run-number }}"
+            IMAGE_TAG="dev-latest"
+          else
+            RELEASE_NAME="cver-api-${{ inputs.deployment-name}}"
+            DB_NAME="cver_${{ inputs.deployment-name}}"
+          fi
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
           export KUBECONFIG=~/.kube/config.yaml
@@ -56,13 +64,13 @@ jobs:
           helm dependency build helm/cver-api
           helm upgrade --install \
             --namespace=cver \
-            cver-api-test-${{ github.run_number }} \
+            ${RELEASE_NAME} \
             helm/cver-api/ \
             --wait \
             --timeout=120s \
             -f helm/cver-api/values-quigley-${{ inputs.deployment-name }}.yaml \
             --set "image.tag=${IMAGE_TAG}" \
-            --set "app.dbName=cver_${{ inputs.run-number }}" \
+            --set "app.dbName=${DB_NAME}" \
             --set "app.deployedAt=${DEPLOYED_AT}"
           echo "# Deployed"
-          echo "Created Helm deployment: cver-api-${{ inputs.deployment-name }}-${{ inputs.run-number }}" >> $GITHUB_STEP_SUMMARY
+          echo "Created Helm deployment: cver-api-${RELEASE_NAME}" >> $GITHUB_STEP_SUMMARY
