@@ -30,6 +30,7 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   api:
+    needs: [build-python, lint]
     uses: ./.github/workflows/build-container-api.yaml
     secrets: inherit
     permissions:
@@ -42,6 +43,7 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   engine:
+    needs: [build-python, lint]
     uses: ./.github/workflows/build-container-engine.yaml
     secrets: inherit 
     permissions:
@@ -58,7 +60,6 @@ jobs:
     uses: ./.github/workflows/deploy-api.yaml
     secrets: inherit 
     with:
-      api-build: "${{ needs.api.outputs.src }}"
       deployment-name: "test"
       run-number: ${{ github.run_number }}
       tag-name: "${{ github.sha }}"
