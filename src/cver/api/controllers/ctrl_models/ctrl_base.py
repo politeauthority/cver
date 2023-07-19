@@ -16,7 +16,7 @@ def get_model(model, entity_id: int = None) -> dict:
     entity = model()
 
     data = {
-        "status": "Error",
+        "status": "error",
         "message": "",
         "object": {},
         "object_type": entity.model_name
@@ -57,18 +57,23 @@ def get_model(model, entity_id: int = None) -> dict:
         data["message"] = "Object not found"
         return make_response(jsonify(data), 404)
 
-    data["status"] = "Success"
-    data["status"] = "Entity found"
+    data["status"] = "success"
     data["object"] = entity.json()
     return data
 
 
 def post_model(model, entity_id: int = None, generated_data: dict = {}):
-    """Base POST operation for a model. Create or modify a entity. If a model is immutabel then we
-    can skip looking for the entity in the database.
+    """Base POST operation for a model. Create or modify a entity.
+    To edit an entity it's strongly encouraged you pass the entity ID in the URL. Otherwise we rely
+    on database keys.
+    If a model is immutabel then we can skip looking for the entity in the database.
+    If a model is not createable, an model MUST be found in the database.
+    @param entity_id: The ID of the entity. Used when UPDATING and entity.
+    @param generated_data: This is used in instances like ApiKey generation, where fields are
+        determined server side.
     """
     data = {
-        "status": "Error"
+        "status": "error"
     }
     entity = model()
     if not entity.immutable:
@@ -76,9 +81,15 @@ def post_model(model, entity_id: int = None, generated_data: dict = {}):
             if not entity.get_by_id(entity_id):
                 data["status"] = "Error"
                 data["message"] = "Could not find %s ID: %s" % (entity.model_name, entity_id)
-                return jsonify(data), 404
+                return make_response(jsonify(data), 404)
             else:
-                logging.info("POST - Found entity: %s" % entity)
+                logging.debug("POST - Found entity: %s" % entity)
+
+    # Dont allow api creates on api uncreateble models
+    if not entity.id and not entity.createable:
+        data["message"] = "Not allowed to create entity %s" % entity.model_name
+        logging.warning("Attempting to create an ID ")
+        return make_response(jsonify(data), 400)
 
     # If we cant decode a JSON payload return an error.
     try:
@@ -108,7 +119,7 @@ def post_model(model, entity_id: int = None, generated_data: dict = {}):
             setattr(entity, field_name, field_value)
 
     entity.save()
-    data["status"] = "Success"
+    data["status"] = "success"
     data["object"] = entity.json()
     data["object_type"] = entity.model_name
     return data, 201

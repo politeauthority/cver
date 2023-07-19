@@ -10,7 +10,7 @@ from cver.api.models.image_build_waiting import ImageBuildWaiting
 class ImageBuildWaitings(Base):
     """Collection class for gathering groups of ImageBuildWaitings"""
 
-    collection_name = "image-build_waitings"
+    collection_name = "image-build-waitings"
 
     def __init__(self, conn=None, cursor=None):
         """Store database conn/connection and model table_name as well as the model obj for the

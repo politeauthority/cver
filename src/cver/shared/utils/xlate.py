@@ -101,6 +101,8 @@ def convert_list_to_str(value: list) -> str:
     """
     if not value:
         return None
+    if isinstance(value, str):
+        value = [value]
     if not isinstance(value, list):
         msg = "Cannot convert list to str: %s" % value
         raise AttributeError(msg)
@@ -233,5 +235,50 @@ def comma_separate_list(the_list: list) -> str:
     if ret_string:
         ret_string = ret_string[:-1]
     return ret_string
+
+
+def rest_to_snake_case(rest: str) -> str:
+    """Convert rest case to snake case, ie - to _
+    Centralizing this as it's a common operatorion.
+    :unit-test: test__rest_to_snake_case
+    """
+    return rest.replace("-", "_")
+
+
+def snake_to_camel_case(snake: str) -> str:
+    """Turn snake case into camel case.
+    example in: some_thing_long
+    example out: SomeThingLong
+    :unit-test: test__snake_to_camel_case
+    """
+    if not snake:
+        return ""
+    if "_" not in snake:
+        camel = "%s%s" % (snake[0].upper(), snake[1:])
+        return camel
+
+    indices = []
+    index = snake.find("_")
+    while index != -1:
+        indices.append(index)
+        index = snake.find("_", index + 1)
+    camel = snake
+    camel = ""
+    last_indi = 0
+    for indi in indices:
+        capitol = last_indi
+        if capitol == 0:
+            capitol = 0
+        else:
+            capitol = last_indi + 1
+        camel += "%s%s" % (snake[capitol].upper(), snake[capitol + 1:indi])
+        last_indi = indi
+
+    camel += snake[last_indi:]
+    if "_" in camel:
+        pos = camel.find("_")
+        camel = camel.replace("_", "")
+        camel = camel[:pos] + camel[pos].upper() + camel[pos + 1:]
+    return camel
 
 # End File: cver/src/cver/shared/utils/xlate.py

@@ -11,8 +11,10 @@ import time
 from cver.api.utils import db
 from cver.api.utils import glow
 from cver.api.models.migration import Migration
+from cver.migrate.data.data_options import DataOptions
 from cver.migrate.data.data_rbac import DataRbac
 from cver.migrate.data.data_users import DataUsers
+from cver.migrate.data.data_test_data import DataTestData
 from cver.migrate.data.data_misc import DataMisc
 
 
@@ -42,17 +44,19 @@ class Migrate:
 
     def run(self):
         """Primary entry point for migrations."""
+        # self.create_table_sql()
         logging.info("Working with database %s" % glow.db["NAME"])
         self.create_database()
         db.connect()
         self.last_migration = self.get_migration_info()
         self.this_migration = Migration()
         self.run_migrations()
+        self.create_options()
         self.create_rbac()
         self.create_users()
         self.create_misc()
+        self.create_test_data()
         logging.info("Migrations were successful")
-        # self.create_table_sql()
 
     def create_database(self) -> True:
         """Create the database for CVER.
@@ -141,6 +145,11 @@ class Migrate:
         time.sleep(2)
         return True
 
+    def create_options(self):
+        """Create the Options and set their defaults."""
+        logging.info("Creating Options")
+        DataOptions().create()
+
     def create_rbac(self):
         """Create the Rbac roles/role perms and perms."""
         logging.info("Creating Roles")
@@ -152,6 +161,14 @@ class Migrate:
         logging.info("Creating Users and Keys")
         DataUsers().create(self.rbac)
 
+    def create_test_data(self) -> bool:
+        """Create the test data if we're in a test environment."""
+        if not glow.general["CVER_TEST"]:
+            return True
+        logging.info("Creating Test Data")
+        DataTestData().create()
+        return True
+
     def create_misc(self):
         """Create misc data."""
         logging.info("Creating misc data")
@@ -160,7 +177,7 @@ class Migrate:
 
     # def create_table_sql(self):
     #     """Create table SQL for migrations."""
-    #     print(ScanRaw().create_table_sql())
+    #     print(User().create_table_sql())
 
 
 if __name__ == "__main__":

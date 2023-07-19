@@ -1,158 +1,86 @@
 # Cver Api - Pull Request
 
-name: Cver-Api-Pull-Request
+name: Pull Request
 
 on:
   pull_request:
-    branches: ["staging"]
+    branches: ["stage"]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
+  
   build-python:
-    runs-on: self-hosted
-    strategy:
-      fail-fast: true
+    uses: ./.github/workflows/build-python.yaml
+    secrets: inherit 
+    permissions:
+      pull-requests: read
+      contents: read
 
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v3
-        with:
-          python-version: "3.10"
+  lint:
+    uses: ./.github/workflows/lint.yaml
+    secrets: inherit
+    permissions:
+      pull-requests: read
+      contents: read
+    with:
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
 
-      - name: Install Dependencies
-        run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install flake8 pytest
-          pip install -r src/requirements.txt
+  api:
+    needs: [build-python, lint]
+    uses: ./.github/workflows/build-container-api.yaml
+    secrets: inherit
+    permissions:
+      pull-requests: read
+      contents: read
+    with:
+      tag-prefix: "dev"
+      tag-name: "${{ github.sha }}"
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
 
-      - name: Build Packages
-        run: |
-          cd src/
-          python3 setup.py build
-          pip install .
+  engine:
+    needs: [build-python, lint]
+    uses: ./.github/workflows/build-container-engine.yaml
+    secrets: inherit 
+    permissions:
+      pull-requests: read
+      contents: read
+    with:
+      tag-prefix: "dev"
+      tag-name: "${{ github.sha }}"
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
 
-      - name: Source Linter
-        run: |
-          flake8 src/cver --config=src/flake8 --count --show-source --statistics
-
-      - name: Tests Linter
-        run: |
-          flake8 tests --config=tests/flake8 --count --show-source --statistics
-
-      - name: Unit Tests
-        run: |
-          pytest tests/unit --md report.md
-          cat report.md >> $GITHUB_STEP_SUMMARY
-
-  lint-helm:
-    runs-on: self-hosted
-    strategy:
-      fail-fast: true
-    container:
-      image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
-      credentials:
-        username: ${{ vars.HARBOR_USER }}
-        password: ${{ secrets.HARBOR_PASSWORD }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Lint Helm
-        run: |
-          helm lint ./helm/cver-api
-
-  build-docker:
-    runs-on: self-hosted
-    container:
-      image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
-      credentials:
-        username: ${{ vars.HARBOR_USER }}
-        password: ${{ secrets.HARBOR_PASSWORD }}
-    strategy:
-      fail-fast: true
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: docker/login-action@v2
-        with:
-          registry: harbor.squid-ink.us
-          username: ${{ vars.HARBOR_USER }}
-          password: ${{ secrets.HARBOR_PASSWORD }}
-
-      - name: Build Container
-        run: |
-          echo "Run Task: Build"
-          export CVER_API_TAG="${{ github.sha }}"
-          task build
-
-      - name: Push Container
-        run: |
-          IMAGE_ID=$(docker images --filter "reference=politeauthority/cver-api" --format "{{.ID}}")
-          docker tag ${IMAGE_ID} harbor.squid-ink.us/politeauthority/cver-api:${{ github.sha }}
-          docker push harbor.squid-ink.us/politeauthority/cver-api:${{ github.sha }}
-          echo "# Docker Build" >> $GITHUB_STEP_SUMMARY
-          echo "**Built:** `harbor.squid-ink.us/politeauthority/cver-api:${{ github.sha }}`" >> $GITHUB_STEP_SUMMARY
-
-  deploy-ephem:
-    runs-on: self-hosted
-    needs: [build-docker, build-python, lint-helm]
-    continue-on-error: true
-    container:
-      image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
-      credentials:
-        username: ${{ vars.HARBOR_USER }}
-        password: ${{ secrets.HARBOR_PASSWORD }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Deploy
-        run: |
-          mkdir ~/.kube
-          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
-          export KUBECONFIG=~/.kube/config.yaml
-          chmod 600 ~/.kube/config.yaml
-          DEPLOYED_AT=$(date +"%Y-%m-%d %T")
-          kubectl get pods -n cver
-          helm dependency build helm/cver-api
-          helm upgrade --install \
-            --namespace=cver \
-            cver-api-test-${{ github.run_number }} \
-            helm/cver-api/ \
-            --wait \
-            --timeout=120s \
-            -f helm/cver-api/values-quigley-test.yaml \
-            --set "image.tag=${{ github.sha }}" \
-            --set "app.dbName=cver_${{ github.run_number }}" \
-            --set "app.deployedAt=${DEPLOYED_AT}"
-          echo "# Deployed"
-          echo "Created Helm deployment: cver-api-test-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+  ephem:
+    needs: [api, build-python, lint]
+    uses: ./.github/workflows/deploy-api.yaml
+    secrets: inherit 
+    with:
+      deployment-name: "test"
+      run-number: ${{ github.run_number }}
+      tag-name: "${{ github.sha }}"
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
 
   test-ephem:
-    runs-on: self-hosted
-    needs: deploy-ephem
-    container:
-      image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
-      credentials:
-        username: ${{ vars.HARBOR_USER }}
-        password: ${{ secrets.HARBOR_PASSWORD }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Execute Tests
-        run: |
-          mkdir ~/.kube
-          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
-          export KUBECONFIG=~/.kube/config.yaml
-          TEST_POD=$(kubectl get -n cver pods -l app.kubernetes.io/instance=cver-api-test-${{ github.run_number }} --no-headers | cut -d' ' -f1)
-          kubectl exec -n cver -it ${TEST_POD} -c cver-api -- pytest -vvv /tests/regression --md regression-report.md
-          REPORT=$(kubectl exec -n cver -it ${TEST_POD} -c cver-api -- cat /app/cver/regression-report.md)
-          echo "$REPORT"
-          echo "${REPORT}" >> $GITHUB_STEP_SUMMARY
-
+    needs: [ephem, engine]
+    if: ${{ needs.ephem.result == 'success' }}
+    uses: ./.github/workflows/regression.yaml
+    secrets: inherit 
+    with:
+      deployment-name: "test"
+      run-number: ${{ github.run_number }}
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
 
   remove-ephem:
     runs-on: self-hosted
-    needs: test-ephem
+    needs: [test-ephem, ephem]
+    if: ${{ needs.ephem.result == 'success' }}
     container:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
       credentials:

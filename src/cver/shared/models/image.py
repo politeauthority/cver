@@ -22,7 +22,7 @@ FIELD_MAP = {
     "name": {
         "name": "name",
         "type": "str",
-        "extra": "UNIQUE",
+        "extra": "NOT NULL",
         "api_searchable": True,
         "api_writeable": True
     },

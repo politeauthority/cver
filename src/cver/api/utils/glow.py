@@ -6,6 +6,7 @@
 
 """
 import os
+import uuid
 
 from cver.api.version import version
 
@@ -38,10 +39,25 @@ general = {
 }
 if general["CVER_BUILD"]:
     general["CVER_BUILD_SHORT"] = general["CVER_BUILD"][:12]
-
+if general["CVER_TEST"] == "true":
+    general["CVER_TEST"] = True
+else:
+    general["CVER_TEST"] = False
 
 # Store Current User Info
 global user
 user = None
+
+global session
+session = {
+    "uuid": None,
+    "short-id": None
+}
+
+
+def start_session():
+    session["uuid"] = str(uuid.uuid1())
+    session["short_id"] = session["uuid"][:8]
+
 
 # End File: cver/src/cver/api/utils/glow.py

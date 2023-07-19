@@ -9,6 +9,10 @@ from cver.api.collects.images import Images
 from cver.api.collects.image_builds import ImageBuilds
 from cver.api.collects.migrations import Migrations
 from cver.api.collects.options import Options
+from cver.api.collects.perms import Perms
+from cver.api.collects.role_perms import RolePerms
+from cver.api.collects.roles import Roles
+from cver.api.collects.users import Users
 from cver.api.collects.scans import Scans
 from cver.api.collects.scanners import Scanners
 
@@ -21,7 +25,12 @@ def get_model_totals():
         "images-builds": ImageBuilds().get_count_total(),
         "migrations": Migrations().get_count_total(),
         "options": Options().get_count_total(),
+        "perms": Perms().get_count_total(),
+        "role_perms": RolePerms().get_count_total(),
+        "roles": Roles().get_count_total(),
+        "users": Users().get_count_total(),
         "scans": Scans().get_count_total(),
+        "scan_raw": Scans().get_count_total(),
         "scanners": Scanners().get_count_total(),
     }
     return ret

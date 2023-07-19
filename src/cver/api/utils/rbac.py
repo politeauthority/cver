@@ -33,6 +33,26 @@ ACL = {
         "POST": ["write-all"],
         "DELETE": ["write-all"],
     },
+    "/cluster": {
+        "GET": ["read-all"],
+        "POST": ["write-all"],
+        "DELETE": ["write-all"],
+    },
+    "/clusters": {
+        "GET": ["read-all"],
+        "POST": ["write-all"],
+        "DELETE": ["write-all"],
+    },
+    "/cluster-image": {
+        "GET": ["read-all"],
+        "POST": ["write-all"],
+        "DELETE": ["write-all"],
+    },
+    "/cluster-images": {
+        "GET": ["read-all"],
+        "POST": ["write-all"],
+        "DELETE": ["write-all"],
+    },
     "/image": {
         "GET": ["read-all"],
         "POST": ["write-all"],
@@ -119,6 +139,12 @@ ACL = {
         "DELETE": ["write-all"],
     },
     "/submit-scan": {
+        "POST": ["write-all", "write-scan"],
+    },
+    "/ingest-k8s/image": {
+        "POST": ["write-all", "write-scan"],
+    },
+    "/ingest-k8s": {
         "POST": ["write-all", "write-scan"],
     },
     "/user": {

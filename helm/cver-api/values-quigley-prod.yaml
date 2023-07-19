@@ -9,11 +9,12 @@ app:
   dbHost: "cver-mysql.cver.svc.cluster.local"
   dbUser: "cver"
   runMigrations: true
+  envName: "prod"
 
 image:
   repository: harbor.squid-ink.us/politeauthority/cver-api
   pullPolicy: IfNotPresent
-  tag: "0.0.1"
+  tag: "0.0.2"
 
 imagePullSecrets:
   - name: harbor

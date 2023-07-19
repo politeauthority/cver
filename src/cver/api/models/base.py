@@ -376,7 +376,8 @@ class Base:
                 (%(fields)s)
                 VALUES (%(values)s)
                 ON DUPLICATE KEY UPDATE %(fields_values)s;""" % sql_args
-
+            # logging.info("IODKU")
+            # logging.info(iodku_sql)
         return iodku_sql
 
     def _gen_update_sql(self, skip_fields: list) -> tuple:
@@ -616,6 +617,8 @@ class Base:
             if 'default' in field and field['default']:
                 if field['type'] == "str":
                     default_stmt = ' DEFAULT "%s"' % field['default']
+                elif field["type"] == "list":
+                    default_stmt = ' DEFAULT "%s"' % ",".join(field['default'])
                 else:
                     default_stmt = ' DEFAULT %s' % field['default']
 

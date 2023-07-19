@@ -4,15 +4,15 @@
 ARG DOCKER_REGISTRY="docker.io/library"
 FROM ${DOCKER_REGISTRY}/python:3.10-alpine3.16 as base
 ARG CVER_BUILD=""
+ENV CVER_VERSION="0.0.0"
+ENV CVER_SECRET="secret"
+ENV CVER_BUILD="${CVER_BUILD}"
+ENV CVER_ENV=""
 ENV CVER_DB_HOST="cver-mysql"
 ENV CVER_DB_PORT="3306"
 ENV CVER_DB_NAME="cver"
 ENV CVER_DB_USER="user"
 ENV CVER_DB_PASS=""
-ENV CVER_VERSION="0.0.0"
-ENV CVER_SECRET="secret"
-ENV CVER_BUILD="${CVER_BUILD}"
-ENV CVER_ENV=""
 
 # TEST vars
 ENV CVER_TEST="false"
@@ -29,7 +29,7 @@ RUN apk add --update --no-cache --virtual .tmp-build-deps \
     && apk add libffi-dev
 
 # Install Cver
-RUN pip install --upgrade pip
+RUN pip install --upgrade pip 
 RUN cd /app && pip install -r /app/requirements.txt
 RUN cd /app && pip install .
 
@@ -41,6 +41,7 @@ FROM base AS tests
 # Dev-Build
 RUN apk add bash curl vim mysql-client
 # Add Scripts
+ADD scripts/cver-api /bin
 ADD scripts/cver-build /bin
 ADD scripts/cver-run-api /bin
 ADD scripts/cver-test-unit /bin
@@ -51,6 +52,6 @@ ADD scripts/cver-db-destroy /bin
 
 
 # Cver Tests
-ENV CVER_API_URL="http://localhost:80"
+ENV CVER_API_URL="http://localhost/"
 ENV CVER_DB_PASS=""
 ADD tests/ /tests
