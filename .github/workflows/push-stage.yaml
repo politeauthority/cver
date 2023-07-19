@@ -36,7 +36,7 @@ jobs:
       pull-requests: read
       contents: read
     with:
-      tag-prefix: "dev"
+      tag-prefix: "stage"
       tag-name: "${{ github.sha }}"
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
@@ -59,7 +59,6 @@ jobs:
     secrets: inherit 
     with:
       deployment-name: "stage"
-      api-build: "${{ needs.api.outputs.src }}"
       run-number: ${{ github.run_number }}
       tag-name: "${{ github.sha }}"
       cicd-version: "${{ vars.CICD_VERSION }}"
