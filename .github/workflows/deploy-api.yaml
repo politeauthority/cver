@@ -48,7 +48,7 @@ jobs:
       - name: Deploy
         run: |
           IMAGE_TAG="${{ inputs.deployment-name }}-latest"
-          if [ "${{ inputs.deployment-name }}}" = "test" ]; then
+          if [ "${{ inputs.deployment-name }}" = "test" ]; then
             RELEASE_NAME="cver-api-test-${{ inputs.run-number }}"
             DB_NAME="cver_${{ inputs.run-number }}"
             IMAGE_TAG="dev-latest"
