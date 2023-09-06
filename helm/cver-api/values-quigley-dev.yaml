@@ -1,16 +1,16 @@
-# Quigely staging values for cver-api.
+# Quigely dev values for cver-api.
 
 replicaCount: 1
 
-nameOverride: "stage"
+nameOverride: "dev"
 
 app:
-  dbName: "cver_stage"
+  dbName: "cver_dev"
   dbHost: "cver-mysql.cver.svc.cluster.local"
   dbUser: "cver"
   runMigrations: true
-  envName: "stage"
-  logHealthChecks: false
+  envName: "dev"
+  debug: true
 
 test:
   test: true
@@ -18,7 +18,7 @@ test:
 image:
   repository: harbor.squid-ink.us/politeauthority/cver-api
   pullPolicy: Always
-  tag: "0.0.1-stage"
+  tag: "dev-latest"
 
 imagePullSecrets:
   - name: harbor
@@ -27,7 +27,7 @@ ingress:
   enabled: true
   className: nginx-private
   hosts:
-    - host: stage.cver.colfax.int
+    - host: dev.cver.colfax.int
       paths:
         - path: /
           pathType: Prefix

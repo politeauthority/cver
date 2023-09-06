@@ -10,11 +10,12 @@ app:
   dbUser: "cver"
   runMigrations: true
   envName: "prod"
+  logHealthChecks: false
 
 image:
   repository: harbor.squid-ink.us/politeauthority/cver-api
   pullPolicy: IfNotPresent
-  tag: "0.0.2"
+  tag: "133c11ae4dd81c1daeb240749e28c58a0adcbaac"
 
 imagePullSecrets:
   - name: harbor
