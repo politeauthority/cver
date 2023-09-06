@@ -128,7 +128,7 @@ spec:
               path: /healthz
               port: http
             initialDelaySeconds: 10
-            periodSeconds: 10
+            periodSeconds: 30
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
