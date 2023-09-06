@@ -84,10 +84,30 @@ tasks:
       - docker network connect cver cver-api
       - echo "Success"
     silent: false
+  dev-cp-api:
+    cmds:
+      - |
+        POD=$(kubectl get pods -l app.kubernetes.io/name=dev --no-headers | cut -d' ' -f1)
+        kubectl cp {{ .CVER_DIR }}/src/cver/ ${POD}:/app/ -c cver-api
+        kubectl exec -it ${POD} -c cver-api -- cver-build
+      - echo "Copied and Built!"
   dev-exec-api:
     cmds:
+      - |
+        POD=$(kubectl get pods -l app.kubernetes.io/name=dev --no-headers | cut -d' ' -f1)
+        echo "Logging into to pod: ${POD}"
+        kubectl exec -it ${POD} -c cver-api -- bash
+  dev-helm-api:
+    cmds:
+      - |
+        helm upgrade --install \
+            cver-api-dev \
+            helm/cver-api \
+            -f helm/cver-api/values-quigley-dev.yaml
+  dev-docker-exec-api:
+    cmds:
       - docker exec -it cver-api bash
-  dev-stop-api:
+  dev-docker-stop-api:
     cmds:
       - docker rm -f cver-api
   cver-build:
