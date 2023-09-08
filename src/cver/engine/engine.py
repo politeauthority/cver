@@ -28,7 +28,6 @@ class DownloadImages:
             logging.critical("Pre flight checks failed.")
             exit(1)
         ibws = self.get_image_build_waitings()
-        import ipdb; ipdb.set_trace()
         for ibw in ibws:
             self.download_image(ibw)
 
