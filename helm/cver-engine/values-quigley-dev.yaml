@@ -1,0 +1,20 @@
+# Quigely dev values for cver-engine
+
+replicaCount: 1
+
+nameOverride: "dev"
+
+app:
+  envName: "dev"
+  debug: true
+
+test:
+  test: true
+
+image:
+  repository: harbor.squid-ink.us/politeauthority/cver-engine
+  pullPolicy: Always
+  tag: "stage-latest"
+
+imagePullSecrets:
+  - name: harbor

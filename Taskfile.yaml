@@ -87,9 +87,16 @@ tasks:
   dev-cp-api:
     cmds:
       - |
-        POD=$(kubectl get pods -l app.kubernetes.io/name=dev --no-headers | cut -d' ' -f1)
+        POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-api-dev --no-headers | cut -d' ' -f1)
         kubectl cp {{ .CVER_DIR }}/src/cver/ ${POD}:/app/ -c cver-api
         kubectl exec -it ${POD} -c cver-api -- cver-build
+      - echo "Copied and Built!"
+  dev-cp-engine:
+    cmds:
+      - |
+        POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-engine-dev --no-headers | cut -d' ' -f1)
+        kubectl cp {{ .CVER_DIR }}/src/cver/ ${POD}:/app/
+        kubectl exec -it ${POD} -- cver-build
       - echo "Copied and Built!"
   dev-exec-api:
     cmds:
@@ -97,6 +104,12 @@ tasks:
         POD=$(kubectl get pods -l app.kubernetes.io/name=dev --no-headers | cut -d' ' -f1)
         echo "Logging into to pod: ${POD}"
         kubectl exec -it ${POD} -c cver-api -- bash
+  dev-exec-engine:
+    cmds:
+      - |
+        POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-engine-dev --no-headers | cut -d' ' -f1)
+        echo "Logging into to pod: ${POD}"
+        kubectl exec -it ${POD} -- bash
   dev-helm-api:
     cmds:
       - |
@@ -104,6 +117,14 @@ tasks:
             cver-api-dev \
             helm/cver-api \
             -f helm/cver-api/values-quigley-dev.yaml
+  dev-helm-engine:
+    cmds:
+      - |
+        helm upgrade --install \
+            cver-engine-dev \
+            helm/cver-engine \
+            -f helm/cver-engine/values.yaml \
+            -f helm/cver-engine/values-quigley-dev.yaml
   dev-docker-exec-api:
     cmds:
       - docker exec -it cver-api bash
