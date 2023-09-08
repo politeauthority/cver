@@ -60,6 +60,7 @@ class DownloadImages:
         return True
 
     def get_image_build_waitings(self):
+        """Get the ImageBuildsWaiting for some sort of processing."""
         ibws = ImageBuildWaitings().get()
         return ibws
 
