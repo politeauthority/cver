@@ -57,6 +57,8 @@ jobs:
             --set "image.tag=${IMAGE_TAG}" \
             --set "app.dbName=${DB_NAME}" \
             --set "app.deployedAt=${DEPLOYED_AT}"
-          kubectl rollout restart deployment/${RELEASE_NAME}
+          if [ "${{ inputs.deployment-name }}" != "test" ]; then
+            kubectl rollout restart deployment/${RELEASE_NAME}
+          fi
           echo "# Deployed" >> $GITHUB_STEP_SUMMARY
           echo "Created Helm deployment: cver-api-${RELEASE_NAME}" >> $GITHUB_STEP_SUMMARY
