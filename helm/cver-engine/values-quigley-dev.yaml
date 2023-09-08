@@ -14,7 +14,7 @@ test:
 image:
   repository: harbor.squid-ink.us/politeauthority/cver-engine
   pullPolicy: Always
-  tag: "1e7432a88b54e03f83a3b684f44f2f0ed25c11af"
+  tag: "dev-latest"
 
 imagePullSecrets:
   - name: harbor
