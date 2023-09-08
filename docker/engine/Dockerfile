@@ -34,7 +34,7 @@ RUN cd /app && pip install --break-system-packages .
 FROM base AS tests
 
 # Dev-Build
+ADD scripts/cver-build /bin
 
 # Cver Tests
-ENV CVER_API_URL="http://localhost:80"
 ADD tests/ /tests

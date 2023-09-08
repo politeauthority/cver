@@ -48,7 +48,6 @@ Selector labels
 {{- define "cver-engine.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "cver-engine.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/id: 
 {{- end }}
 
 {{/*
