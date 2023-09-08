@@ -21,7 +21,7 @@ imagePullSecrets:
   - name: harbor
 
 ingress:
-  enabled: true
+  enabled: false
   className: nginx-public
   hosts:
     - host: cver.squid-ink.us
