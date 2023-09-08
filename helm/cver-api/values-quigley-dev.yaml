@@ -11,6 +11,7 @@ app:
   runMigrations: true
   envName: "dev"
   debug: true
+  runApiOnStart: true
 
 test:
   test: true

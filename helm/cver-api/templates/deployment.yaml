@@ -74,7 +74,7 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          {{- if .Values.app.debug }}
+          {{- if not .Values.app.runApiOnStart }}
           command: ["tail", "-f", "/dev/null"]
           {{- end }}
           env:

@@ -104,19 +104,24 @@ tasks:
         POD=$(kubectl get pods -l app.kubernetes.io/name=dev --no-headers | cut -d' ' -f1)
         echo "Logging into to pod: ${POD}"
         kubectl exec -it ${POD} -c cver-api -- bash
+
   dev-exec-engine:
     cmds:
       - |
         POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-engine-dev --no-headers | cut -d' ' -f1)
         echo "Logging into to pod: ${POD}"
         kubectl exec -it ${POD} -- bash
+
   dev-helm-api:
     cmds:
       - |
         helm upgrade --install \
             cver-api-dev \
             helm/cver-api \
+            -f helm/cver-engine/values.yaml \
             -f helm/cver-api/values-quigley-dev.yaml
+      - kubectl rollout restart deployment/cver-api-dev
+
   dev-helm-engine:
     cmds:
       - |
@@ -125,18 +130,18 @@ tasks:
             helm/cver-engine \
             -f helm/cver-engine/values.yaml \
             -f helm/cver-engine/values-quigley-dev.yaml
-  dev-docker-exec-api:
+      - kubectl rollout restart deployment/cver-api-dev
+  dev-mysql:
     cmds:
-      - docker exec -it cver-api bash
-  dev-docker-stop-api:
-    cmds:
-      - docker rm -f cver-api
+      - |
+        mysql -h 127.0.0.1 -u root -p
   cver-build:
     cmds:
       - |
         cd src
         python3 setup.py build
         python3 setup.py install
+
   pre-commit:
     cmds: 
       - |
@@ -148,6 +153,7 @@ tasks:
         echo "tests/"
         flake8 tests/ --config=tests/flake8 --count --show-source --statistics
     silent: true
+
   k8s-exec-stage:
     cmds:
       - |

@@ -9,8 +9,8 @@ rm -rf /app/build
 rm -rf /app/cver.egg-info
 
 cd /app
-pip install .
-
+python3 setup.py build
+python3 setup.py install
 # Flake8 Source
 flake8 /app/cver --config=/app/flake8 --count --show-source --statistics
 
