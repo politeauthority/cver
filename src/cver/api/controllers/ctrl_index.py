@@ -89,7 +89,7 @@ def healthz():
         "status": "Success",
         "message": "Healthy"
     }
-    if glow["CVER_LOG_HEALTH_CHECKS"]:
+    if glow.general["CVER_LOG_HEALTH_CHECKS"]:
         logging.info("Helath check, reporting healthy")
     return jsonify(data)
 
