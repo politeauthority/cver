@@ -132,7 +132,7 @@ def handle_exception(e):
 
 @app.before_request
 def before_request():
-    """Before we route the request log some info about the request"""
+    """Before we route the request log some info about the request."""
     glow.start_session()
     logging.info(
         "[Start Request] %s\tpath: %s | method: %s" % (

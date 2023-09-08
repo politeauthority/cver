@@ -100,6 +100,8 @@ spec:
                   name: cver-secrets-{{ .Values.app.envName }}
             - name: CVER_JWT_EXPIRE_MINUTES
               value: "{{ .Values.app.jwtExpireMinutes }}"
+            - name: CVER_LOG_HEALTH_CHECKS
+              value: "{{ .Values.app.logHealthChecks }}"
             {{- if .Values.test.test }}
             - name: CVER_TEST_CLIENT_ID
               valueFrom:
@@ -118,6 +120,7 @@ spec:
             - name: http
               containerPort: 80
               protocol: TCP
+          {{- if not .Values.app.debug }}
           livenessProbe:
             httpGet:
               path: /healthz
@@ -128,7 +131,8 @@ spec:
               path: /healthz
               port: http
             initialDelaySeconds: 10
-            periodSeconds: 10
+            periodSeconds: 30
+          {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
