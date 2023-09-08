@@ -42,8 +42,11 @@ jobs:
           filters: |
             src:
               - 'docker/api/**'
-              - 'src/**'
-
+              - 'src/setup.py'
+              - 'src/api/**'
+              - 'src/migrate/**'
+              - 'src/shared/**'
+              - 'src/cver_client/**'
       - uses: docker/login-action@v2
         if: steps.changes.outputs.src == 'true'
         with:

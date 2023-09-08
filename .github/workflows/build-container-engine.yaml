@@ -42,8 +42,10 @@ jobs:
           filters: |
             src:
               - 'docker/engine/**'
-              - 'src/**'
-
+              - 'src/setup.py'
+              - 'src/shared/**'
+              - 'src/cver_client/**'
+              - 'src/engine/**'
       - uses: docker/login-action@v2
         if: steps.changes.outputs.src == 'true'
         with:
