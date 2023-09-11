@@ -1,0 +1,1 @@
+flake8 src/cver --config=src/flake8 --count --show-source --statistics
