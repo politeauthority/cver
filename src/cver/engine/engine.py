@@ -2,7 +2,7 @@
     Cver Engine
     Engine
     Primary entrypoint to the Cver Engine utility.
-    This service is intended to run as a cronjob on the Kubernetes system 
+    This service is intended to run as a cronjob on the Kubernetes system.
 
 """
 import logging
@@ -73,7 +73,6 @@ class Engine:
         image = Image()
         image.get_by_id(ibw.image_id)
         # if ibw.image_build_id:
-
 
 
 if __name__ == "__main__":
