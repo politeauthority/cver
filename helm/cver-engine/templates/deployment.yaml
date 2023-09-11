@@ -29,10 +29,10 @@ spec:
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
+            privileged: true
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["tail", "-f", "/dev/null"]
+          command: ["dockerd"]
           env:
             - name: CVER_ENV
               value: "{{ .Values.app.envName }}"

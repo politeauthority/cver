@@ -40,7 +40,6 @@ class CverClient:
 
         self.base_url = s_misc.strip_trailing_slash(self.base_url)
 
-        print("API_KEY: %s" % self.api_key)
         self.token = ""
         self.token_path = ""
         self.response = None
@@ -50,6 +49,7 @@ class CverClient:
 
     def login(self, skip_local_token: bool = False) -> bool:
         """Login to the Cver API."""
+        logging.info("Logging into Cver Api")
         if not skip_local_token and self._open_valid_token():
             return True
         if not self.client_id or not self.api_key:
@@ -66,7 +66,7 @@ class CverClient:
         }
         response = requests.request(**request_args)
         if response.status_code != 200:
-            print("ERROR: %s logging in" % response.status_code)
+            logging.error("Recived status code %s logging in" % response.status_code)
             self.login_attempts += 1
             return False
         response_json = response.json()
@@ -78,8 +78,9 @@ class CverClient:
     def make_request(self, url: str, method: str = "GET", payload: dict = {}):
         """Make a generic request to the Cver Api. If we don't have a token attempt to login. Return
         the response json back."""
-        if not self.token:
-            self.login()
+        self.login()
+        # if not self.token:
+        #     self.login()
         headers = {
             "token": self.token,
             "content-type": "application/json"
@@ -101,8 +102,8 @@ class CverClient:
         response = requests.request(**request_args)
 
         # If our token has expired, attempt to get a new one, skipping using the current one.
-        if response.status_code == 412:
-            self.login(skip_local_token=True)
+        if response.status_code in [412, 401]:
+            self.destroy_token()
 
         if response.status_code > 399 and response.status_code < 500:
             logging.error(f"ISSUE WITH REQUEST: {response}")
@@ -140,9 +141,10 @@ class CverClient:
         """"If we have an existing server token already on the system, lets use that.
         @todo: Reade the token data to see if it has expired already or not.
         """
+        logging.debug("Token File: %s" % self.token_file)
         if not os.path.exists(self.token_file):
             return False
-        logging.info("Using token file")
+        logging.debug("Using token file")
         with open(self.token_file, "r") as temp_file:
             token_data = temp_file.read()
         self.token = token_data
