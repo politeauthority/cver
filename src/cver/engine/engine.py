@@ -107,7 +107,7 @@ class Engine:
                 image.name)
         else:
             image_loc = "%s/%s" % (image.repository, image.name)
-            
+
         pull_cmd = ["docker", "pull", image_loc]
         print(pull_cmd)
 
