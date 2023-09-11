@@ -7,6 +7,7 @@ docker/api/src/
 helpers/
 src/cver/cli_debug.py
 helm/cver-api/secrets
+data/
 
 
 # Byte-compiled / optimized / DLL files

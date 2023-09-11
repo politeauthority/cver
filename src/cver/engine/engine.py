@@ -1,7 +1,8 @@
 """
-    Cver Ingest
-    Download Images
-    Pull Docker Images into local harbor registry.
+    Cver Engine
+    Engine
+    Primary entrypoint to the Cver Engine utility.
+    This service is intended to run as a cronjob on the Kubernetes system 
 
 """
 import logging
@@ -15,7 +16,7 @@ from cver.cver_client.collections.image_build_waitings import ImageBuildWaitings
 from cver.cver_client.models.option import Option
 
 
-class DownloadImages:
+class Engine:
     def __init__(self):
         self.registry_url = None
         self.registry_user = None
@@ -29,7 +30,7 @@ class DownloadImages:
             exit(1)
         ibws = self.get_image_build_waitings()
         for ibw in ibws:
-            self.download_image(ibw)
+            self.determine_work(ibw)
 
     def preflight(self):
         """Check that have a registry to push to."""
@@ -37,24 +38,28 @@ class DownloadImages:
         reg_url.get_by_name("registry_url")
         self.registry_url = reg_url.value
         if not self.registry_url:
+            logging.error("No registry url found on Cver")
             return False
 
         reg_user = Option()
         reg_user.get_by_name("registry_user")
         self.registry_user = reg_user.value
         if not self.registry_user:
+            logging.error("No registry user found on Cver")
             return False
 
         reg_pass = Option()
         reg_pass.get_by_name("registry_password")
         self.registry_password = reg_pass.value
         if not self.registry_password:
+            logging.error("No registry password found on Cver")
             return False
 
         reg_pull_thru_docker = Option()
         reg_pull_thru_docker.get_by_name("registry_pull_thru_docker_io")
         self.registry_pull_thru_docker_io = reg_pull_thru_docker.value
         if not self.registry_pull_thru_docker_io:
+            logging.error("No registry pull through found on Cver")
             return False
 
         return True
@@ -64,13 +69,15 @@ class DownloadImages:
         ibws = ImageBuildWaitings().get()
         return ibws
 
-    def download_image(self, ibw):
+    def determine_work(self, ibw):
         image = Image()
         image.get_by_id(ibw.image_id)
+        # if ibw.image_build_id:
+
 
 
 if __name__ == "__main__":
-    DownloadImages().run()
+    Engine().run()
 
 
 # End File: cver/src/cver/ingest/download_images.py

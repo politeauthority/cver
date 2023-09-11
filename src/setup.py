@@ -22,7 +22,7 @@ setup(
         "cver.cver_client.collections",
         "cver.cver_client.models",
         "cver.cver_client.ingest",
-        "cver.engine.",
+        "cver.engine",
         "cver.ingest",
         "cver.ingest.utils",
         "cver.migrate",
