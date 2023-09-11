@@ -1,5 +1,5 @@
 # Cver-Engine
-# The workhorse running syncs and scans
+# The work horse running syncs and scans
 #
 ARG DOCKER_REGISTRY="docker.io/library"
 FROM ${DOCKER_REGISTRY}/debian:stable-slim as base
