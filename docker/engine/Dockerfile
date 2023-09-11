@@ -23,8 +23,8 @@ RUN apt-get update && apt-get install -y docker-ce docker-ce-cli containerd.io d
 
 # Install trivy
 RUN apt-get -y install wget apt-transport-https gnupg lsb-release
-RUN wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
-RUN echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+RUN wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | apt-key add -
+RUN echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | tee -a /etc/apt/sources.list.d/trivy.list
 RUN apt-get update
 RUN apt-get install -y trivy
 
