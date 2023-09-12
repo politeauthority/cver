@@ -67,12 +67,12 @@ class Engine:
 
     def registry_login(self):
         """Login to the registry Cver has been instructed to use."""
-        cmd = "cat ~/my_password.txt | docker login --username foo --password-stdin"
         cmd = [
             "echo", self.registry_password, "|", "docker", "login", self.registry_url, "--username",
             self.registry_user, "--password-stdin"
         ]
         result = subprocess.check_output(cmd)
+        print(result)
         if not result:
             return False
         logging.info("Authenticated to registry: %s" % self.registry_url)
