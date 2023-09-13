@@ -41,6 +41,7 @@ from cver.api.controllers.ctrl_models.ctrl_option import ctrl_option
 from cver.api.controllers.ctrl_collections.ctrl_options import ctrl_options
 from cver.api.controllers.ctrl_models.ctrl_scan import ctrl_scan
 from cver.api.controllers.ctrl_collections.ctrl_scans import ctrl_scans
+from cver.api.controllers.ctrl_collections.ctrl_scanners import ctrl_scanners
 from cver.api.controllers.ctrl_models.ctrl_software import ctrl_software
 from cver.api.controllers.ctrl_collections.ctrl_softwares import ctrl_softwares
 from cver.api.controllers.ctrl_submit_scan import ctrl_submit_scan
@@ -98,6 +99,7 @@ def register_blueprints(app: Flask) -> bool:
     app.register_blueprint(ctrl_options)
     app.register_blueprint(ctrl_scan)
     app.register_blueprint(ctrl_scans)
+    app.register_blueprint(ctrl_scanners)
     app.register_blueprint(ctrl_software)
     app.register_blueprint(ctrl_softwares)
     app.register_blueprint(ctrl_submit_scan)
