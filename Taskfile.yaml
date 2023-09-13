@@ -3,6 +3,7 @@ vars:
   CVER_DIR: "."
 
 tasks:
+
   build-api:
     cmds:
       - cp -r {{.CVER_DIR}}/src {{.CVER_DIR}}/docker/api/
@@ -31,6 +32,7 @@ tasks:
       - rm -rf {{.CVER_DIR}}/docker/api/tests
       - echo "Completed build politeauthority/cver-api"
     silent: false
+
   build-engine:
     cmds:
       - cp -r {{.CVER_DIR}}/src {{.CVER_DIR}}/docker/engine/
@@ -59,6 +61,7 @@ tasks:
       - rm -rf {{.CVER_DIR}}/docker/engine/tests
       - echo "Completed build politeauthority/cver-engine"
     silent: false
+
   dev-run-api:
     cmds:
       - |
@@ -84,38 +87,67 @@ tasks:
       - docker network connect cver cver-api
       - echo "Success"
     silent: false
+
   dev-cp-api:
     cmds:
       - |
-        POD=$(kubectl get pods -l app.kubernetes.io/name=dev --no-headers | cut -d' ' -f1)
+        POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-api-dev --no-headers | cut -d' ' -f1)
         kubectl cp {{ .CVER_DIR }}/src/cver/ ${POD}:/app/ -c cver-api
         kubectl exec -it ${POD} -c cver-api -- cver-build
+      - echo "Copied and Built!"
+  dev-cp-engine:
+    cmds:
+      - |
+        POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-engine-dev --no-headers | cut -d' ' -f1)
+        kubectl cp {{ .CVER_DIR }}/src/cver/ ${POD}:/app/
+        kubectl exec -it ${POD} -- cver-build
       - echo "Copied and Built!"
   dev-exec-api:
     cmds:
       - |
-        POD=$(kubectl get pods -l app.kubernetes.io/name=dev --no-headers | cut -d' ' -f1)
+        POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-api-dev --no-headers | cut -d' ' -f1)
         echo "Logging into to pod: ${POD}"
         kubectl exec -it ${POD} -c cver-api -- bash
+
+  dev-exec-engine:
+    cmds:
+      - |
+        POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-engine-dev --no-headers | cut -d' ' -f1)
+        echo "Logging into to pod: ${POD}"
+        kubectl exec -it ${POD} -- bash
+
   dev-helm-api:
     cmds:
       - |
         helm upgrade --install \
             cver-api-dev \
             helm/cver-api \
+            -f helm/cver-engine/values.yaml \
             -f helm/cver-api/values-quigley-dev.yaml
-  dev-docker-exec-api:
+      - kubectl rollout restart deployment/cver-api-dev
+
+  dev-helm-engine:
     cmds:
-      - docker exec -it cver-api bash
-  dev-docker-stop-api:
+      - |
+        helm upgrade --install \
+            cver-engine-dev \
+            helm/cver-engine \
+            -f helm/cver-engine/values.yaml \
+            -f helm/cver-engine/values-quigley-dev.yaml
+      - kubectl rollout restart deployment/cver-engine-dev
+
+  dev-mysql:
     cmds:
-      - docker rm -f cver-api
+      - |
+        mysql -h 127.0.0.1 -u root -p
+
   cver-build:
     cmds:
       - |
         cd src
         python3 setup.py build
         python3 setup.py install
+
   pre-commit:
     cmds: 
       - |
@@ -127,6 +159,7 @@ tasks:
         echo "tests/"
         flake8 tests/ --config=tests/flake8 --count --show-source --statistics
     silent: true
+
   k8s-exec-stage:
     cmds:
       - |
