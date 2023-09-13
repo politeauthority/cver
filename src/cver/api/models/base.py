@@ -347,7 +347,9 @@ class Base:
         return True
 
     def _gen_insert_sql(self, skip_fields: list = ["id"]) -> tuple:
-        """Generate the insert SQL statement."""
+        """Generate the insert SQL statement.
+        :unit-test: test___gen_insert_sql
+        """
         insert_sql = "INSERT INTO `%s` (%s) VALUES (%s)" % (
             self.table_name,
             self._sql_fields_sanitized(skip_fields=skip_fields),
@@ -628,19 +630,6 @@ class Base:
                     class_var_name,
                     arrow.get(class_var_value).datetime)
                 continue
-
-    def _convert_ints(self, name: str, value) -> bool:
-        """Attempts to convert ints to a usable value or raises an AttributeError.
-        :unit-test: test___convert_ints
-        """
-        if isinstance(value, int):
-            return value
-        if isinstance(value, str) and value.isdigit():
-            logging.warning('Class %s field %s value %s is not int, changed to int.' % (
-                __class__.__name__, name, value))
-            return int(value)
-        raise AttributeError('Class %s field %s value %s is not int.' % (
-            __class__.__name__, name, value))
 
     def _generate_create_table_feilds(self) -> str:
         """Generates all fields column create sql statements.

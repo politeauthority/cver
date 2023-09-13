@@ -1,6 +1,10 @@
 """Utility Xlate
 A collection of misc trasnlation functions used all throuhout the Pignus platofrm.
 
+Testing:
+    Unit test file  cver/tests/unit/shared/utils/test_xlate.py
+    Unit tested     4/18
+
 """
 from datetime import datetime
 import logging
@@ -11,7 +15,7 @@ from sqlescapy import sqlescape
 
 
 def url_decode(encoded_str: str) -> str:
-    """Decode a URL str such as "haproxy%3A2.0.12" to "haproxy/2.0.12"
+    """Decode a URL str such as "haproxy%3A2.0.12" to "haproxy:2.0.12"
     :unit-test: TestXlate::test__url_decode
     """
     if not encoded_str:
@@ -30,7 +34,7 @@ def url_encode(slug: str) -> str:
 
 def decode_post_data(post_data: str) -> dict:
     """Take post data from a POST request and separate it into a key value dictionary.
-    :unit-test: TestXlate::test__decode_post_data
+    :@todo: This isnt used right now, maybe it should be.
     """
     try:
         data = json.loads(post_data)
@@ -113,31 +117,12 @@ def convert_list_to_str(value: list) -> str:
         return None
     if isinstance(value, str):
         value = [value]
-    if not isinstance(value, list):
-        msg = "Cannot convert list to str: %s" % value
-        raise AttributeError(msg)
 
     clean_values = []
     for item in value:
         clean_values.append(str(item))
 
     return ",".join(clean_values)
-
-
-def convert_any_to_native(value: str):
-    """Convert a value to its native Python type, such as a string "true" to a bool True.
-    :unit-test: TestXlate::test__convert_any_to_native
-    """
-    if not value:
-        return None
-
-    if isinstance(value, str):
-        if value.lower() == "true":
-            return True
-        elif value.lower() == "false":
-            return False
-
-    return value
 
 
 def convert_str_to_bool(value: str) -> bool:
