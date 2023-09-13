@@ -3,6 +3,7 @@ vars:
   CVER_DIR: "."
 
 tasks:
+
   build-api:
     cmds:
       - cp -r {{.CVER_DIR}}/src {{.CVER_DIR}}/docker/api/
@@ -31,6 +32,7 @@ tasks:
       - rm -rf {{.CVER_DIR}}/docker/api/tests
       - echo "Completed build politeauthority/cver-api"
     silent: false
+
   build-engine:
     cmds:
       - cp -r {{.CVER_DIR}}/src {{.CVER_DIR}}/docker/engine/
@@ -59,6 +61,7 @@ tasks:
       - rm -rf {{.CVER_DIR}}/docker/engine/tests
       - echo "Completed build politeauthority/cver-engine"
     silent: false
+
   dev-run-api:
     cmds:
       - |
@@ -84,6 +87,7 @@ tasks:
       - docker network connect cver cver-api
       - echo "Success"
     silent: false
+
   dev-cp-api:
     cmds:
       - |
@@ -131,10 +135,12 @@ tasks:
             -f helm/cver-engine/values.yaml \
             -f helm/cver-engine/values-quigley-dev.yaml
       - kubectl rollout restart deployment/cver-engine-dev
+
   dev-mysql:
     cmds:
       - |
         mysql -h 127.0.0.1 -u root -p
+
   cver-build:
     cmds:
       - |
