@@ -8,7 +8,7 @@ The Base Model SQL driver can work with both SQLite3 and MySQL database.
 
 Testing:
     Unit test file  cver/tests/unit/api/models/test_base.py
-    Unit tested     11/37
+    Unit tested     14/40
 
 """
 from datetime import datetime
@@ -206,10 +206,7 @@ class Base:
             FROM %s
             WHERE %s
             LIMIT 1;""" % (self.table_name, sql_fields)
-        # print("\n\n")
-        # print(sql)
-        # print(fields)
-        # print("\n\n")
+
         self.cursor.execute(sql)
         run_raw = self.cursor.fetchone()
         if not run_raw:
@@ -522,10 +519,13 @@ class Base:
 
         return value
 
-    def _get_sql_value_santized_typed(self, field, value) -> str:
-        """Convert values to a safe santized value based on it's type."""
+    def _get_sql_value_santized_typed(self, field: dict, value) -> str:
+        """Convert values to a safe santized value based on it's type.
+        :unit-test: test___get_sql_value_santized_typed
+        """
         # Handle converting int value
         if field["type"] == "int":
+            value = int(value)
             value = xlate.sql_safe(value)
 
         # Handle converting a list value
@@ -603,8 +603,7 @@ class Base:
         return True
 
     def _set_types(self) -> bool:
-        """Set the types of class table field vars and corrects their types where possible
-        :unit-test: test___set_types
+        """Set the types of class table field vars and corrects their types where possible.
         """
         for field_name, field in self.field_map.items():
             class_var_name = field['name']
@@ -728,4 +727,4 @@ class Base:
             self.cursor = glow.db["cursor"]
         return True
 
-# End File: gather/src/api/models/base.py
+# End File: cver/src/cver/api/models/base.py

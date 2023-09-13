@@ -1,9 +1,11 @@
 """
     Cver Test Unit
     Api Model: Base
-    Tests File: cver/api/models/base.py
+    Tests File: cver/src/cver/api/models/base.py
 
 """
+import arrow
+
 from datetime import datetime
 from dateutil.tz import tzutc
 
@@ -86,6 +88,19 @@ class TestApiModelBase:
         assert "name" in field
         assert "type" in field
 
+    def test___gen_insert_sql(self):
+        """Check that we create a correct SQL statement for an insert.
+        :method: Base()._gen_insert_sql
+        """
+        base = Base()
+        base.table_name = "base"
+        base.field_map = BASE_MAP
+        base.setup()
+        result = base._gen_insert_sql()
+        assert len(result) == 127
+        expected = 'INSERT INTO `base` (`created_ts`, `updated_ts`) VALUES ('
+        assert result[:56] == expected
+
     def test___gen_get_by_id_sql(self):
         """
         :method: Base()._gen_get_by_id_sql
@@ -98,6 +113,34 @@ class TestApiModelBase:
         expected_res = '\n            SELECT *\n            FROM `base`\n            '
         expected_res += 'WHERE `id` = 1;'
         assert base._gen_get_by_id_sql() == expected_res
+
+    def test___sql_field_value(self):
+        """
+        :method: Base()._sql_field_value
+        """
+        base = Base()
+        base.table_name = "base"
+        base.field_map = BASE_MAP
+        field_map_info = {
+            "name": "image_id",
+            "type": "int"
+        }
+        field_data = {
+            "field": "image_build_id",
+            "value": 1,
+            "op": "eq"
+        }
+        assert base._sql_field_value(field_map_info, field_data) == 1
+        field_map_info = {
+            "name": "name",
+            "type": "str",
+        }
+        field_data = {
+            "field": "name",
+            "value": "hello",
+            "op": "eq"
+        }
+        assert base._sql_field_value(field_map_info, field_data) == '"hello"'
 
     def test___sql_fields_sanitized(self):
         """
@@ -155,5 +198,64 @@ class TestApiModelBase:
         assert set_detaults
         assert base.new
 
+    def test___get_sql_value_santized_typed(self):
+        """
+        :method: Base()._get_sql_value_santized_typed
+        """
+        base = Base()
+        base.field_map = BASE_MAP
+        field = BASE_MAP["id"]
+        assert base._get_sql_value_santized_typed(field, 6) == 6
+        assert base._get_sql_value_santized_typed(field, "6") == 6
+        field = BASE_MAP["created_ts"]
+        now = arrow.now()
+        assert isinstance(base._get_sql_value_santized_typed(field, now.datetime), str)
+
+        bool_field = {
+            "name": "bool_field",
+            "type": "bool",
+        }
+        assert base._get_sql_value_santized_typed(bool_field, True) == 1
+        assert base._get_sql_value_santized_typed(bool_field, "true") == 1
+        assert base._get_sql_value_santized_typed(bool_field, "True") == 1
+        assert base._get_sql_value_santized_typed(bool_field, False) == 0
+        assert base._get_sql_value_santized_typed(bool_field, "False") == 0
+
+    # def test___gen_sql_get_by_fields(self):
+    #     """
+    #     :method: Base()._gen_sql_get_by_fields
+    #     """
+    #     SCAN_MAP = {
+    #         "image_id": {
+    #             "name": "image_id",
+    #             "type": "int",
+    #             "api_searchable": True
+    #         },
+    #         "image_build_id": {
+    #             "name": "image_build_id",
+    #             "type": "int",
+    #             "api_searchable": True
+    #         }
+    #     }
+    #     new_map = BASE_MAP
+    #     new_map.update(SCAN_MAP)
+    #     fields = [
+    #         {
+    #             "field": "image_id",
+    #             "value": 1,
+    #             "op": "eq"
+    #         },
+    #         {
+    #             "field": "image_build_id",
+    #             "value": 1,
+    #             "op": "eq"
+    #         }
+    #     ]
+    #     base = Base()
+    #     base.table_name = "base"
+    #     base.field_map = new_map
+    #     base.setup()
+    #     result = base._gen_sql_get_by_fields(fields)
+    #     assert result == "`image_id` = 1 AND `image_build_id` = 1"
 
 # End File: cver/tests/unit/api/models/test_base.py

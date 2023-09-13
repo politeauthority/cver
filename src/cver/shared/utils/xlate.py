@@ -69,11 +69,21 @@ def convert_any_to_int(value) -> int:
 
 def convert_bool_to_int(value: bool) -> int:
     """Convert a bool into an int. Typically used for storing bools as TINYINT in SQL.
+    @todo: This should probably rasie an Attribute error with bad string input.
     :unit-test: TestXlate::test__convert_bool_to_int
     """
     if isinstance(value, type(None)):
         return None
     elif value:
+        if isinstance(value, str):
+            value = value.lower()
+            if value == "true":
+                return 1
+            elif value == "false":
+                return 0
+            else:
+                logging.error("Cannot convert str: %s to bool" % value)
+                return None
         return 1
     elif not value:
         return 0
