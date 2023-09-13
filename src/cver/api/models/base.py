@@ -200,17 +200,16 @@ class Base:
             ]
         :unit-test: None
         """
-        sql_fields = ""
-        for field in fields:
-            sql_fields += '`%s`="%s",' % (
-                xlate.sql_safe(field["field"]),
-                xlate.sql_safe(field["value"]))
-        sql_fields = sql_fields[:-1]
+        sql_fields = self._gen_sql_get_by_fields(fields)
         sql = """
             SELECT *
             FROM %s
             WHERE %s
             LIMIT 1;""" % (self.table_name, sql_fields)
+        # print("\n\n")
+        # print(sql)
+        # print(fields)
+        # print("\n\n")
         self.cursor.execute(sql)
         run_raw = self.cursor.fetchone()
         if not run_raw:
@@ -407,6 +406,59 @@ class Base:
             "model_id": xlate.sql_safe(self.id)
         }
         return sql
+
+    def _gen_sql_get_by_fields(self, fields: list) -> str:
+        """Generate a str for one or many search fields.
+        :param fields: list of dict
+            fields
+            [
+                {
+                    "field": "name",
+                    "value": "A Cool Name",
+                    "op": "eq"
+                }
+            ]
+        """
+        sql_fields = ""
+        for field in fields:
+            field_name = "`%s`" % field["field"]
+            if field["op"] == "eq":
+                operation = "="
+            else:
+                logging.error("Unanticipated operation value: %s for model: %s" % (
+                    field["op"],
+                    self))
+            value = self._sql_field_value(self.field_map[field["field"]], field)
+            sql_fields += '%s %s %s AND ' % (
+                field_name,
+                operation,
+                value)
+        sql_fields = sql_fields[:-5]
+        return sql_fields
+
+    def _sql_field_value(self, field_map_info: dict, field_data: dict):
+        """Get the correctly typed value for a field, santized and ready for use in SQL.
+        :unit-test: test___sql_field_value
+        """
+        # Handle ints
+        if field_map_info["type"] == "int":
+            value = xlate.sql_safe(field_data["value"])
+
+        # Handle bools
+        elif field_map_info["type"] == "bool":
+            if field_data["value"] == True:
+                value = 1
+            elif field_data["value"] == False:
+                value = 0
+            else:
+                logging.error("Unanticipated bool value: %s for model: %s" % (
+                    field_data["value"],
+                    self))
+                return False
+        # Handle str and everything else
+        else:
+            value = '"%s"' % xlate.sql_safe(field_data["value"])
+        return value
 
     def _sql_fields_sanitized(self, skip_fields: dict) -> str:
         """Get all class table column fields in a comma separated list for sql cmds. Returns a value
