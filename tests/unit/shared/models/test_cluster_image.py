@@ -1,21 +1,21 @@
 """
     Cver Test Unit
-    Shared Model: Cluster
-    Source: cver/src/cver/shared/model/image.py
+    Shared Model: ClusterImage
+
 """
 
-from cver.shared.models.image import FIELD_MAP
+from cver.shared.models.cluster_image import FIELD_MAP
 
 
 FIELD_DETAILS = ["name", "type", "primary", "default", "extra", "api_display", "api_writeable",
                  "api_searchable"]
 
 
-class TestSharedModelImage:
+class TestSharedModelClusterImage:
 
     def test__FIELD_MAP(self):
-        """Test the Cluster model's initialization.
-        :data: cluster.FIELD_MAP
+        """Test the ClusterImage model's initialization.
+        :data: cluster_image.FIELD_MAP
         """
         assert isinstance(FIELD_MAP, dict)
         for field_name, field in FIELD_MAP.items():
@@ -25,4 +25,4 @@ class TestSharedModelImage:
                 assert field_detail in FIELD_DETAILS
 
 
-# End File: cver/tests/unit/shared/models/test_shared_model_image.py
+# End File: cver/tests/unit/shared/models/test_cluster_image.py
