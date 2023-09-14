@@ -19,7 +19,7 @@ ctrl_scanners = Blueprint("scanners", __name__, url_prefix="/scanners")
 def index():
     args = api_util.get_params()
     data = Scanners().get_paginated(**args)
-    data["info"]["object_type"] = "scanners"
+    data["info"]["object_type"] = "scanner"
     return jsonify(data)
 
 
