@@ -144,8 +144,7 @@ tasks:
 
   dev-mysql:
     cmds:
-      - |
-        mysql -h 127.0.0.1 -u root -p
+      - mysql -h 127.0.0.1 -u root --password=$MYSQL_PWD
 
   cver-build:
     cmds:
