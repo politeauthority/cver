@@ -15,6 +15,7 @@ app:
   envName: "prod"
   deployedAt: "unknown"
   logHealthChecks: true
+  runApiOnStart: true
 
 image:
   repository: politeauthority/cver-api
