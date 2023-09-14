@@ -8,7 +8,7 @@ The Base Model SQL driver can work with both SQLite3 and MySQL database.
 
 Testing:
     Unit test file  cver/tests/unit/api/models/test_base.py
-    Unit tested     11/37
+    Unit tested     14/40
 
 """
 from datetime import datetime
@@ -200,17 +200,13 @@ class Base:
             ]
         :unit-test: None
         """
-        sql_fields = ""
-        for field in fields:
-            sql_fields += '`%s`="%s",' % (
-                xlate.sql_safe(field["field"]),
-                xlate.sql_safe(field["value"]))
-        sql_fields = sql_fields[:-1]
+        sql_fields = self._gen_sql_get_by_fields(fields)
         sql = """
             SELECT *
             FROM %s
             WHERE %s
             LIMIT 1;""" % (self.table_name, sql_fields)
+
         self.cursor.execute(sql)
         run_raw = self.cursor.fetchone()
         if not run_raw:
@@ -351,7 +347,9 @@ class Base:
         return True
 
     def _gen_insert_sql(self, skip_fields: list = ["id"]) -> tuple:
-        """Generate the insert SQL statement."""
+        """Generate the insert SQL statement.
+        :unit-test: test___gen_insert_sql
+        """
         insert_sql = "INSERT INTO `%s` (%s) VALUES (%s)" % (
             self.table_name,
             self._sql_fields_sanitized(skip_fields=skip_fields),
@@ -407,6 +405,59 @@ class Base:
             "model_id": xlate.sql_safe(self.id)
         }
         return sql
+
+    def _gen_sql_get_by_fields(self, fields: list) -> str:
+        """Generate a str for one or many search fields.
+        :param fields: list of dict
+            fields
+            [
+                {
+                    "field": "name",
+                    "value": "A Cool Name",
+                    "op": "eq"
+                }
+            ]
+        """
+        sql_fields = ""
+        for field in fields:
+            field_name = "`%s`" % field["field"]
+            if field["op"] == "eq":
+                operation = "="
+            else:
+                logging.error("Unanticipated operation value: %s for model: %s" % (
+                    field["op"],
+                    self))
+            value = self._sql_field_value(self.field_map[field["field"]], field)
+            sql_fields += '%s %s %s AND ' % (
+                field_name,
+                operation,
+                value)
+        sql_fields = sql_fields[:-5]
+        return sql_fields
+
+    def _sql_field_value(self, field_map_info: dict, field_data: dict):
+        """Get the correctly typed value for a field, santized and ready for use in SQL.
+        :unit-test: test___sql_field_value
+        """
+        # Handle ints
+        if field_map_info["type"] == "int":
+            value = xlate.sql_safe(field_data["value"])
+
+        # Handle bools
+        elif field_map_info["type"] == "bool":
+            if field_data["value"] == True:
+                value = 1
+            elif field_data["value"] == False:
+                value = 0
+            else:
+                logging.error("Unanticipated bool value: %s for model: %s" % (
+                    field_data["value"],
+                    self))
+                return False
+        # Handle str and everything else
+        else:
+            value = '"%s"' % xlate.sql_safe(field_data["value"])
+        return value
 
     def _sql_fields_sanitized(self, skip_fields: dict) -> str:
         """Get all class table column fields in a comma separated list for sql cmds. Returns a value
@@ -470,10 +521,13 @@ class Base:
 
         return value
 
-    def _get_sql_value_santized_typed(self, field, value) -> str:
-        """Convert values to a safe santized value based on it's type."""
+    def _get_sql_value_santized_typed(self, field: dict, value) -> str:
+        """Convert values to a safe santized value based on it's type.
+        :unit-test: test___get_sql_value_santized_typed
+        """
         # Handle converting int value
         if field["type"] == "int":
+            value = int(value)
             value = xlate.sql_safe(value)
 
         # Handle converting a list value
@@ -551,8 +605,7 @@ class Base:
         return True
 
     def _set_types(self) -> bool:
-        """Set the types of class table field vars and corrects their types where possible
-        :unit-test: test___set_types
+        """Set the types of class table field vars and corrects their types where possible.
         """
         for field_name, field in self.field_map.items():
             class_var_name = field['name']
@@ -577,19 +630,6 @@ class Base:
                     class_var_name,
                     arrow.get(class_var_value).datetime)
                 continue
-
-    def _convert_ints(self, name: str, value) -> bool:
-        """Attempts to convert ints to a usable value or raises an AttributeError.
-        :unit-test: test___convert_ints
-        """
-        if isinstance(value, int):
-            return value
-        if isinstance(value, str) and value.isdigit():
-            logging.warning('Class %s field %s value %s is not int, changed to int.' % (
-                __class__.__name__, name, value))
-            return int(value)
-        raise AttributeError('Class %s field %s value %s is not int.' % (
-            __class__.__name__, name, value))
 
     def _generate_create_table_feilds(self) -> str:
         """Generates all fields column create sql statements.
@@ -676,4 +716,4 @@ class Base:
             self.cursor = glow.db["cursor"]
         return True
 
-# End File: gather/src/api/models/base.py
+# End File: cver/src/cver/api/models/base.py

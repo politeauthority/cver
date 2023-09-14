@@ -11,6 +11,8 @@ app:
   runMigrations: true
   envName: "dev"
   debug: true
+  runApiOnStart: true
+  jwtExpireMinutes: 1440
 
 test:
   test: true
