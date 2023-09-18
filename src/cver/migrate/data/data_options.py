@@ -18,36 +18,40 @@ class DataOptions:
         """Create container registry details."""
         # Registry URL
         registry_url = Option()
-        registry_url.type = "str"
         registry_url.name = "registry_url"
-        registry_url.acl_write = ["write-all"]
-        registry_url.acl_read = ["read-all"]
-        registry_url.save()
+        if not registry_url.get_by_name():
+            registry_url.type = "str"
+            registry_url.acl_write = ["write-all"]
+            registry_url.acl_read = ["read-all"]
+            registry_url.save()
 
         # Registry User
         registry_user = Option()
-        registry_user.type = "str"
         registry_user.name = "registry_user"
-        registry_user.acl_write = ["write-all"]
-        registry_user.acl_read = ["read-all"]
-        registry_user.save()
+        if not registry_user.get_by_name():
+            registry_user.type = "str"
+            registry_user.acl_write = ["write-all"]
+            registry_user.acl_read = ["read-all"]
+            registry_user.save()
 
         # Registry Password
         registry_password = Option()
-        registry_password.type = "str"
         registry_password.name = "registry_password"
-        registry_password.acl_write = ["write-all"]
-        registry_password.acl_read = ["read-all"]
-        registry_password.hide_value = True
-        registry_password.save()
+        if not registry_password.get_by_name():
+            registry_password.type = "str"
+            registry_password.acl_write = ["write-all"]
+            registry_password.acl_read = ["read-all"]
+            registry_password.hide_value = True
+            registry_password.save()
 
         # Registry Docker Hub Pull Through
-        registry_password = Option()
-        registry_password.type = "str"
-        registry_password.name = "registry_pull_thru_docker_io"
-        registry_password.acl_write = ["write-all"]
-        registry_password.acl_read = ["read-all"]
-        registry_password.save()
+        registry_pull_through = Option()
+        registry_pull_through.name = "registry_pull_thru_docker_io"
+        if not registry_pull_through.get_by_name():
+            registry_pull_through.type = "str"
+            registry_pull_through.acl_write = ["write-all"]
+            registry_pull_through.acl_read = ["read-all"]
+            registry_pull_through.save()
 
         logging.info("Options create successful")
 

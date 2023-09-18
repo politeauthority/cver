@@ -46,6 +46,7 @@ class CverClient:
         temp_dir = tempfile.gettempdir()
         self.token_file = os.path.join(temp_dir, "cver-token")
         self.login_attempts = 0
+        self.max_login_attempts = 2
 
     def login(self, skip_local_token: bool = False) -> bool:
         """Login to the Cver API."""
@@ -54,6 +55,9 @@ class CverClient:
             return True
         if not self.client_id or not self.api_key:
             logging.critical("No Client ID or ApiKey submitted, both are required.")
+            return False
+        if self.login_attempts >= self.max_login_attempts:
+            logging.critical("Attemped %s logins, not attempting more" % self.login_attempts)
             return False
         request_args = {
             "headers": {
@@ -65,9 +69,13 @@ class CverClient:
             "url": f"{self.base_url}/auth",
         }
         response = requests.request(**request_args)
-        if response.status_code != 200:
-            logging.error("Recived status code %s logging in" % response.status_code)
+        if response.status_code == 403:
+            logging.error("Received status code %s logging in" % response.status_code)
             self.login_attempts += 1
+            self.login(skip_local_token=True)
+            return False
+        if response.status_code != 200:
+            logging.error("Error authenticating to api")
             return False
         response_json = response.json()
         self.token = response_json["token"]
