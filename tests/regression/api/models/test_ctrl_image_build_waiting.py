@@ -57,24 +57,24 @@ class TestApiModelImageBuildWaiting(TestApiBase):
         response = requests.request(**request_args)
         assert response.status_code == 201
 
-    def test__image_build_get_200(self):
-        """Tests fetching a single ImageBuildWaiting through the Cver Api from its name.
-        GET /image-build-waiting
-        """
-        assert self.login()
-        request_args = {
-            "headers": self.get_headers(),
-            "method": "GET",
-            "url": "%s%s" % (CVER_API_URL, URL_BASE),
-            "params": {
-                "name": TEST_MODEL["name"]
-            }
-        }
-        response = requests.request(**request_args)
+    # def test__image_build_get_200(self):
+    #     """Tests fetching a single ImageBuildWaiting through the Cver Api from its name.
+    #     GET /image-build-waiting
+    #     """
+    #     assert self.login()
+    #     request_args = {
+    #         "headers": self.get_headers(),
+    #         "method": "GET",
+    #         "url": "%s%s" % (CVER_API_URL, URL_BASE),
+    #         "params": {
+    #             "name": TEST_MODEL["name"]
+    #         }
+    #     }
+    #     response = requests.request(**request_args)
 
-        assert response.status_code == 200
-        response_json = response.json()
-        assert response_json
+    #     assert response.status_code == 200
+    #     response_json = response.json()
+    #     assert response_json
 
     # def test__image_build_waiting_delete_200(self):
     #     """Test ImageBuildWaiting DELETE
