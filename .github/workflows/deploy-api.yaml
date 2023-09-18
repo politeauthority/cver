@@ -40,6 +40,7 @@ jobs:
           else
             RELEASE_NAME="cver-api-${{ inputs.deployment-name}}"
             DB_NAME="cver_${{ inputs.deployment-name}}"
+            IMAGE_TAG="${{ github.sha }}"
           fi
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
@@ -62,3 +63,4 @@ jobs:
           fi
           echo "# Deployed" >> $GITHUB_STEP_SUMMARY
           echo "Created Helm deployment: cver-api-${RELEASE_NAME}" >> $GITHUB_STEP_SUMMARY
+

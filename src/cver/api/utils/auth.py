@@ -6,6 +6,7 @@
 import datetime
 from functools import wraps
 import logging
+import os
 import random
 
 from flask import make_response, request, jsonify
@@ -18,7 +19,7 @@ from cver.api.utils import date_utils
 from cver.api.utils import rbac
 from cver.api.utils import glow
 
-SECRET_KEY = "my-secret-key"
+SECRET_KEY = os.environ.get("CVER_SECRET_KEY")
 
 
 def auth_request(f):
