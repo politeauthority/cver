@@ -62,8 +62,20 @@ spec:
             - name: CVER_TEST
               value: "true"
             {{- end }}
+          volumeMounts:
+          - name: docker-config-json
+            mountPath: /root/.docker/config.json
+            subPath: config.json
+            readOnly: true
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+      - name: docker-config-json
+        secret:
+          secretName: docker-config-json
+          items:
+            - key: config.json
+              path: config.json
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

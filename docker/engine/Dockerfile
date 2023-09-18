@@ -2,7 +2,7 @@
 # The work horse running syncs and scans
 #
 ARG DOCKER_REGISTRY="docker.io/library"
-FROM ${DOCKER_REGISTRY}/debian:stable-slim as base
+FROM ${DOCKER_REGISTRY}/python:3.10-slim as base
 ARG CVER_BUILD=""
 ENV CVER_BUILD="${CVER_BUILD}"
 ENV CVER_VERSION="0.0.0"
