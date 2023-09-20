@@ -3,7 +3,7 @@ A collection of misc trasnlation functions used all throuhout the Pignus platofr
 
 Testing:
     Unit test file  cver/tests/unit/shared/utils/test_xlate.py
-    Unit tested     4/18
+    Unit tested     10/15
 
 """
 from datetime import datetime
@@ -16,7 +16,7 @@ from sqlescapy import sqlescape
 
 def url_decode(encoded_str: str) -> str:
     """Decode a URL str such as "haproxy%3A2.0.12" to "haproxy:2.0.12"
-    :unit-test: TestXlate::test__url_decode
+    :unit-test: TestSharedUtilsXlate::test__url_decode
     """
     if not encoded_str:
         return ""
@@ -25,23 +25,11 @@ def url_decode(encoded_str: str) -> str:
 
 def url_encode(slug: str) -> str:
     """Encode a str to be URL safe. Such as "haproxy:2.0.12" to "haproxy%3A2.0.12"
-    :unit-test: TestXlate::test__url_encode
+    :unit-test: TestSharedUtilsXlate::test__url_encode
     """
     butterfly = quote(slug)
     butterfly = butterfly.replace("/", "%2F")
     return butterfly
-
-
-def decode_post_data(post_data: str) -> dict:
-    """Take post data from a POST request and separate it into a key value dictionary.
-    :@todo: This isnt used right now, maybe it should be.
-    """
-    try:
-        data = json.loads(post_data)
-        return data
-    except json.decoder.JSONDecodeError as e:
-        logging.warning("Failed parsing decode post data: %s" % post_data, exception=e)
-        raise e
 
 
 def convert_any_to_int(value) -> int:
@@ -133,15 +121,19 @@ def convert_str_to_bool(value: str) -> bool:
         return None
     if isinstance(value, bool):
         return value
+    value = str(value)
     value = value.lower().strip()
-    accepted_true_values = ["true", "1"]
-    accepted_false_values = ["false", "0"]
+    accepted_true_values = ["true", "1", 1]
+    accepted_false_values = ["false", "0", 0]
 
     if value in accepted_true_values:
         return True
     elif value in accepted_false_values:
         return False
-    return None
+    raise AttributeError(
+        'Cannot convert "%s" of type "%s" to bool.' % (
+            value,
+            type(value)))
 
 
 def sql_safe(query_item):
@@ -164,18 +156,8 @@ def sql_safe(query_item):
         return sqlescape(query_item)
 
 
-def aws_account_docker_url(docker_url: str) -> str:
-    """Get the AWS account number from a docker url if one exists.
-    :unit-test: TestXlate::test__aws_account_docker_url
-    """
-    if "dkr.ecr." not in docker_url:
-        return ""
-    else:
-        return docker_url[:docker_url.find(".")]
-
-
 def get_digest(image_str: str):
-    """Extracts the digest from a docer-pullable string as given from the K8 api
+    """Extracts the digest from a docker-pullable string as given from the K8 api
     example image_str: docker-pullable://docker.io/politeauthority/pignus@sha256:\
         d480d804f0c11548d6be95568
     :unit-test: TestXlate::test__get_digest
@@ -195,7 +177,6 @@ def json_dump(the_dict: dict) -> str:
 def _convert_dict_objects(the_dict):
     """Recursily scrubs non serializable objects from a dictionary replacing them with their str
     represntations.
-    :unit-test: TestXlate::_convert_dict_objects()
     """
     new_dict = {}
     for key, value in the_dict.items():
@@ -210,7 +191,6 @@ def _convert_dict_objects(the_dict):
 
 def _is_jsonable(item, exclude_dicts: bool = False) -> bool:
     """Tests to see if a given value is JSONable.
-    :unit-test: TestXlate::test___is_jsonable()
     """
     jsonable = ["str", "bool", "int", "float"]
     if not exclude_dicts:
@@ -219,17 +199,6 @@ def _is_jsonable(item, exclude_dicts: bool = False) -> bool:
         return True
     else:
         return False
-
-
-def comma_separate_list(the_list: list) -> str:
-    """
-    """
-    ret_string = ""
-    for item in the_list:
-        ret_string += "%s," % str(item)
-    if ret_string:
-        ret_string = ret_string[:-1]
-    return ret_string
 
 
 def rest_to_snake_case(rest: str) -> str:

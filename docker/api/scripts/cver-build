@@ -16,7 +16,3 @@ flake8 /app/cver --config=/app/flake8 --count --show-source --statistics
 
 # Flake8 Tests
 flake8 /tests --config=/tests/flake8 --count --show-source --statistics
-
-# echo "Running tests"
-cd /tests/unit
-pytest

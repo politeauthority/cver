@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   
-  build-python:
+  build-cver:
     uses: ./.github/workflows/build-python.yaml
     secrets: inherit 
     permissions:
@@ -30,7 +30,7 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   api:
-    needs: [build-python, lint]
+    needs: [build-cver, lint]
     uses: ./.github/workflows/build-container-api.yaml
     secrets: inherit
     permissions:
@@ -43,7 +43,7 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   engine:
-    needs: [build-python, lint]
+    needs: [build-cver, lint]
     uses: ./.github/workflows/build-container-engine.yaml
     secrets: inherit 
     permissions:
@@ -56,7 +56,7 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   ephem:
-    needs: [api, build-python, lint]
+    needs: [api, build-cver, lint]
     uses: ./.github/workflows/deploy-api.yaml
     secrets: inherit 
     with:

@@ -43,6 +43,7 @@ RUN apk add bash curl vim mysql-client
 # Add Scripts
 ADD scripts/cver-api /bin
 ADD scripts/cver-build /bin
+ADD scripts/cver-build-tests /bin
 ADD scripts/cver-run-api /bin
 ADD scripts/cver-test-unit /bin
 ADD scripts/cver-test-regression /bin
@@ -55,3 +56,4 @@ ADD scripts/cver-db-destroy /bin
 ENV CVER_API_URL="http://localhost/"
 ENV CVER_DB_PASS=""
 ADD tests/ /tests
+RUN cd /tests/ && python3 setup.py build && python3 setup.py install

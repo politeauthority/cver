@@ -4,7 +4,7 @@
     Tests File: cver/src/cver/shared/utils/xlate.py
 
 """
-# from pytest import raises
+from pytest import raises
 
 from cver.shared.utils import xlate
 
@@ -61,6 +61,20 @@ class TestSharedUtilsXlate:
         test_list = ["hello", "how", "are", "you"]
         assert xlate.convert_list_to_str(test_list) == "hello,how,are,you"
 
+    def test__convert_str_to_bool(self):
+        """
+        :method: xlate.convert_str_to_bool
+        """
+        assert not xlate.convert_str_to_bool(None)
+        assert xlate.convert_str_to_bool("true")
+        assert xlate.convert_str_to_bool("1")
+        assert xlate.convert_str_to_bool(1)
+        assert not xlate.convert_str_to_bool("false")
+        assert not xlate.convert_str_to_bool("0")
+        assert not xlate.convert_str_to_bool(0)
+        with raises(AttributeError):
+            assert xlate.convert_str_to_bool("hello")
+
     def test__rest_to_snake_case(self):
         """Test that we can convert rest case to snake case.
         :method: xlate.rest_to_snake_case()
@@ -76,5 +90,13 @@ class TestSharedUtilsXlate:
         assert xlate.snake_to_camel_case("my_module_is_great") == "MyModuleIsGreat"
         assert xlate.snake_to_camel_case("image_build_waiting") == "ImageBuildWaiting"
 
+    def test__get_digest(self):
+        """Test that we can convert snake case to camel case.
+        :method: xlate.snake_to_camel_case()
+        """
+        expected = "d480d804f0c11548d6be95568"
+        digest = "docker-pullable://docker.io/politeauthority/pignus@sha256:"
+        digest += expected
+        assert expected == xlate.get_digest(digest)
 
 # End File: cver/tests/unit/shared/utils/test_xlate.py

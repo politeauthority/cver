@@ -5,7 +5,7 @@ on:
 
 
 jobs:
-  build-python:
+  build-cver:
     runs-on: self-hosted
     strategy:
       fail-fast: true
@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-            token: ${{ secrets.PAT }}
+          token: ${{ secrets.PAT }}
 
       - uses: dorny/paths-filter@v2
         id: changes
@@ -22,9 +22,11 @@ jobs:
           filters: |
             src:
             - 'src/**'
+            tests:
+              - 'tests/**'
 
       - name: Set up Python 3.10
-        if: steps.changes.outputs.src == 'true'
+        if: steps.changes.outputs.src == 'true' || steps.changes.outputs.tests
         uses: actions/setup-python@v3
         with:
           python-version: "3.10"
@@ -36,7 +38,7 @@ jobs:
           python3 -m pip install flake8 pytest
           pip install -r src/requirements.txt
 
-      - name: Build Packages
+      - name: Build Cver Packages
         if: steps.changes.outputs.src == 'true'
         run: |
           cd src/
@@ -48,13 +50,35 @@ jobs:
         run: |
           flake8 src/cver --config=src/flake8 --count --show-source --statistics
 
-      - name: Tests Linter
-        if: steps.changes.outputs.src == 'true'
-        run: |
-          flake8 tests --config=tests/flake8 --count --show-source --statistics
+      - name: Set up Python 3.10
+        if: steps.changes.outputs.tests == 'true'
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
 
-      - name: Unit Tests
-        if: steps.changes.outputs.src == 'true'
+      # - name: Install Dependencies
+      #   if: steps.changes.outputs.src == 'true'
+      #   run: |
+      #     python3 -m pip install --upgrade pip
+      #     python3 -m pip install flake8 pytest
+      #     pip install -r src/requirements.txt
+
+      - name: Build Test Package
+        if: steps.changes.outputs.tests == 'true'
+        run: |
+          cd tests/
+          python3 setup.py build
+          python3 setup.py install
+
+      - name: Test Linter
+        if: steps.changes.outputs.tests == 'true'
+        run: |
+          flake8 tests/ --config=src/flake8 --count --show-source --statistics
+
+      - name: Run Unit Tests
+        if: steps.changes.outputs.src == 'true' || steps.changes.outputs.tests
         run: |
           pytest tests/unit --md report.md
           cat report.md >> $GITHUB_STEP_SUMMARY
+
+# End File: cver/.github/workflows/build-python.yaml
