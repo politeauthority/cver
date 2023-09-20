@@ -101,9 +101,9 @@ jobs:
 
   run-unit-tests:
     runs-on: self-hosted
+    needs: [build-cver, build-tests]
     strategy:
       fail-fast: true
-
     steps:
       - name: Unit Tests
         run: |
