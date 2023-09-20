@@ -138,7 +138,6 @@ class Base:
                 }
             ]
         :returns: A list of model objects, hydrated to the default of the base.build_from_list()
-        :unit-test: TestBase.test___generate_paginated_sql
         """
         if limit == 0:
             limit = per_page
@@ -172,7 +171,7 @@ class Base:
         limit: int
     ) -> str:
         """Generate the SQL query for the paginated request.
-        :unit-test: TestBase:test___generate_paginated_sql()
+        :unit-test: TestApiCollectsBase::test___generate_paginated_sql()
         """
         sql_vars = {
             'table_name': self.table_name,

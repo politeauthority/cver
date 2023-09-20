@@ -55,3 +55,4 @@ ADD scripts/cver-db-destroy /bin
 ENV CVER_API_URL="http://localhost/"
 ENV CVER_DB_PASS=""
 ADD tests/ /tests
+RUN cd /tests/ && python3 setup.py build && python3 setup.py install

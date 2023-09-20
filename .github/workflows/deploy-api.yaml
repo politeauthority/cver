@@ -59,6 +59,7 @@ jobs:
             --set "app.dbName=${DB_NAME}" \
             --set "app.deployedAt=${DEPLOYED_AT}"
           if [ "${{ inputs.deployment-name }}" != "test" ]; then
+            sleep 5
             kubectl rollout restart deployment/${RELEASE_NAME}
           fi
           echo "# Deployed" >> $GITHUB_STEP_SUMMARY
