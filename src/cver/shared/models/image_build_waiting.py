@@ -24,6 +24,12 @@ FIELD_MAP = {
         "api_writeable": True,
         "api_searchable": True,
     },
+    "image_build_id": {
+        "name": "image_build_id",
+        "type": "int",
+        "api_writeable": True,
+        "api_searchable": True,
+    },
     "tag": {
         "name": "tag",
         "type": "str",
@@ -33,6 +39,13 @@ FIELD_MAP = {
     "waiting": {
         "name": "waiting",
         "type": "bool",
+        "default": True,
+        "api_writeable": True,
+        "api_searchable": True,
+    },
+    "waiting_for": {
+        "name": "waiting_for",
+        "type": "str",
         "default": True,
         "api_writeable": True,
         "api_searchable": True,

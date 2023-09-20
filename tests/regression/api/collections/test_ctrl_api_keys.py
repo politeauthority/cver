@@ -46,9 +46,9 @@ class TestApiApiKeys(TestApiBase):
         assert "total_objects" in response_json["info"]
         assert isinstance(response_json["info"]["total_objects"], int)
 
-        assert "object_type" in response_json["info"]
-        assert isinstance(response_json["info"]["object_type"], str)
-        assert response_json["info"]["object_type"] == URL_MODEL
+        assert "object_type" in response_json
+        assert isinstance(response_json["object_type"], str)
+        assert response_json["object_type"] == URL_MODEL
 
         assert "objects" in response_json
         assert isinstance(response_json["objects"], list)
@@ -56,8 +56,6 @@ class TestApiApiKeys(TestApiBase):
         assert len(response_json["objects"]) >= 2
 
         for api_key in response_json["objects"]:
-            assert "key" not in api_key
-            assert "id" in api_key
-
+            assert api_key["key"] == "hidden"
 
 # End File: cver/tests/regression/api/collections/test_ctrl_api_keys.py

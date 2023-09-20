@@ -1,8 +1,8 @@
 # Cver-Engine
-# The workhorse running syncs and scans
+# The work horse running syncs and scans
 #
 ARG DOCKER_REGISTRY="docker.io/library"
-FROM ${DOCKER_REGISTRY}/debian:stable-slim as base
+FROM ${DOCKER_REGISTRY}/python:3.10-slim as base
 ARG CVER_BUILD=""
 ENV CVER_BUILD="${CVER_BUILD}"
 ENV CVER_VERSION="0.0.0"
@@ -21,6 +21,13 @@ RUN echo \
   tee /etc/apt/sources.list.d/docker.list > /dev/null
 RUN apt-get update && apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
+# Install trivy
+RUN apt-get -y install wget apt-transport-https gnupg lsb-release
+RUN wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | apt-key add -
+RUN echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | tee -a /etc/apt/sources.list.d/trivy.list
+RUN apt-get update
+RUN apt-get install -y trivy
+
 WORKDIR /app/cver
 
 ADD src/ /app
@@ -34,7 +41,7 @@ RUN cd /app && pip install --break-system-packages .
 FROM base AS tests
 
 # Dev-Build
+ADD scripts/cver-build /bin
 
 # Cver Tests
-ENV CVER_API_URL="http://localhost:80"
 ADD tests/ /tests

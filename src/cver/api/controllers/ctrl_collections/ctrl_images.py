@@ -18,9 +18,6 @@ ctrl_images = Blueprint("images", __name__, url_prefix="/images")
 @auth.auth_request
 def index():
     data = ctrl_collection_base.get(Images)
-    # args = api_util.get_params()
-    # data = Images().get_paginated(**args)
-    # data["info"]["object_type"] = "image"
     return jsonify(data)
 
 
