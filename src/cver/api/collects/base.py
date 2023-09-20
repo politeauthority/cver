@@ -2,6 +2,7 @@
 
 """
 from datetime import timedelta
+import logging
 import math
 
 import arrow
@@ -186,6 +187,7 @@ class Base:
             %(where)s
             %(order)s
             LIMIT %(limit)s OFFSET %(offset)s;""" % sql_vars
+        logging.info("\n\nRaw SQL\n%s\n" % sql)
         return sql
 
     def get_pagination_info(self, sql: str, current_page: int, per_page: int) -> dict:
