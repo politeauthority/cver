@@ -4,7 +4,7 @@
 
     Testing:
         Unit test file  cver/tests/unit/api/collects/test_base.py
-        Unit tested     3/25
+        Unit tested     6/25
 
 """
 from datetime import timedelta
@@ -375,10 +375,15 @@ class Base:
 
         return where_and_sql
 
-    def _pagination_order(self, order: dict) -> str:
+    def _pagination_order(self, order: dict = None) -> str:
         """Create the order clause for pagination using user supplied arguments or defaulting to
         created_desc DESC.
-        :unit-test: TestBase.test___pagination_order
+        :param order: The ordering dict
+            example: {
+                "field": "id"
+                "op": "DESC"
+            }
+        :unit-test: TestBase::test___pagination_order
         """
         order_sql = "ORDER BY `created_ts` DESC"
         if not order:

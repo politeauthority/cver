@@ -4,7 +4,7 @@
 set -e
 echo "Running Cver Build Test Suite"
 
-rm -rf /usr/local/lib/python3.10/site-packages/cver*
+rm -rf /usr/local/lib/python3.10/site-packages/cver_test_tools*
 rm -rf /tests/build
 rm -rf /tests/cver_test_tools.egg-info
 
