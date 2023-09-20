@@ -4,7 +4,7 @@
 
     Testing:
         Unit test file  cver/tests/unit/api/collects/test_base.py
-        Unit tested     6/25
+        Unit tested     7/25
 
 """
 from datetime import timedelta
@@ -221,36 +221,6 @@ class Base:
             model.delete()
         return True
 
-    def _pagination_offset(self, page: int, per_page: int) -> int:
-        """Get the offset number for pagination queries.
-        :unit-test: TestBase.test___pagination_offset
-        """
-        if page == 1:
-            offset = 0
-        else:
-            offset = (page * per_page) - per_page
-        return offset
-
-    def _pagination_total(self, sql: str) -> int:
-        """Get the total number of pages for a pagination query."""
-        total_sql = self._edit_pagination_sql_for_info(sql)
-        self.cursor.execute(total_sql)
-        raw = self.cursor.fetchone()
-        if not raw:
-            return 0
-        return raw[0]
-
-    def _edit_pagination_sql_for_info(self, original_sql: str):
-        """Edit the original pagination query to get the total number of results for pagination
-        details.
-        :unit-test: TestBase::test___edit_pagination_sql_for_info
-        """
-        sql = original_sql[original_sql.find("FROM"):]
-        sql = "%s %s" % ("SELECT COUNT(*)", sql)
-        end_sql = sql.find("LIMIT")
-        sql = sql[:end_sql].strip() + ";"
-        return sql
-
     def get_total_pages(self, total, per_page) -> int:
         """Get total number of pages based on a total count and per page value.
         :unit-test: TestBase.test__get_total_pages
@@ -348,10 +318,48 @@ class Base:
         sql_ids = sql_ids[:-1]
         return sql_ids
 
+    def _pagination_offset(self, page: int, per_page: int) -> int:
+        """Get the offset number for pagination queries.
+        :unit-test: TestBase.test___pagination_offset
+        """
+        if page == 1:
+            offset = 0
+        else:
+            offset = (page * per_page) - per_page
+        return offset
+
+    def _pagination_total(self, sql: str) -> int:
+        """Get the total number of pages for a pagination query."""
+        total_sql = self._edit_pagination_sql_for_info(sql)
+        self.cursor.execute(total_sql)
+        raw = self.cursor.fetchone()
+        if not raw:
+            return 0
+        return raw[0]
+
+    def _edit_pagination_sql_for_info(self, original_sql: str):
+        """Edit the original pagination query to get the total number of results for pagination
+        details.
+        :unit-test: TestBase::test___edit_pagination_sql_for_info
+        """
+        sql = original_sql[original_sql.find("FROM"):]
+        sql = "%s %s" % ("SELECT COUNT(*)", sql)
+        end_sql = sql.find("LIMIT")
+        sql = sql[:end_sql].strip() + ";"
+        return sql
+
     def _pagination_where_and(self, where_and: list) -> str:
         """Create the where clause for pagination when where and clauses are supplied.
         Note: We append multiple statements with an AND in the sql statement.
-        :unit-test: TestBase().test___pagination_where_and()
+        :param where_and:
+            example: [
+                {
+                    "field": "name",
+                    "value": "test",
+                    "op": "="
+                }
+            ]
+        :unit-test: TestBase::test___pagination_where_and()
         """
         where = False
         where_and_sql = ""

@@ -60,6 +60,22 @@ class TestApiCollectsBase:
         expected = """SELECT COUNT(*) FROM `table` WHERE name LIKE "%thing%";"""
         assert expected == result
 
+    def test___pagination_where_and(self):
+        """
+        :method: Base()._pagination_where_and()
+        """
+        base = Base()
+        where_and = [
+            {
+                "field": "name",
+                "value": "test",
+                "op": "="
+            }
+        ]
+        result = base._pagination_where_and(where_and)
+        expected = 'WHERE `name` = "test"'
+        assert expected == result
+
     def test__int_list_to_sql(self):
         """
         :method: Base()._int_list_to_sql()
