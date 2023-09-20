@@ -50,6 +50,14 @@ class TestApiCollectsBase:
         assert 0 == base._pagination_offset(1, 20)
         assert 20 == base._pagination_offset(2, 20)
 
+    # def test___pagination_order(self):
+    #     """
+    #     :method: Base()._pagination_order()
+    #     """
+    #     base = Base()
+    #     x = base._pagination_order()
+    #     import ipdb; ipdb.set_trace()
+
     def test___get_previous_page(self):
         """
         :method: Base()._get_previous_page()
