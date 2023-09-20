@@ -392,12 +392,14 @@ class Base:
         """Get the previous page, or first page if below 1.
         :unit-test: TestBase.test___get_previous_page
         """
+        if page == 1:
+            return None
         previous = page - 1
         return previous
 
     def _get_next_page(self, page: int, last_page: int) -> int:
         """Get the next page.
-        :unit-test: TestBase.test___get_next_page
+        :unit-test: TestBase::test___get_next_page
         """
         if page == last_page:
             return None

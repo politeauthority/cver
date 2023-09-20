@@ -50,5 +50,21 @@ class TestApiCollectsBase:
         assert 0 == base._pagination_offset(1, 20)
         assert 20 == base._pagination_offset(2, 20)
 
+    def test___get_previous_page(self):
+        """
+        :method: Base()._get_previous_page()
+        """
+        base = Base()
+        assert not base._get_previous_page(1)
+        assert 4 == base._get_previous_page(5)
+
+    def test___get_next_page(self):
+        """
+        :method: Base()._get_next_page()
+        """
+        base = Base()
+        assert not base._get_next_page(1, 1)
+        assert 2 == base._get_next_page(1, 20)
+    
 
 # End File: cver/tests/unit/api/collects/test_base.py
