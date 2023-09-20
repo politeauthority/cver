@@ -1,4 +1,10 @@
-"""Base Collection
+"""
+    Cver Api
+    Collects - Base
+
+    Testing:
+        Unit test file  cver/tests/unit/api/collects/test_base.py
+        Unit tested     3/25
 
 """
 from datetime import timedelta

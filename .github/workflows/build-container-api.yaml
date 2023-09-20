@@ -79,5 +79,5 @@ jobs:
           docker push harbor.squid-ink.us/politeauthority/cver-api:${{ inputs.tag-name }}
           docker push harbor.squid-ink.us/politeauthority/cver-api:${{ inputs.tag-prefix }}-latest
           echo "# Docker Build" >> $GITHUB_STEP_SUMMARY
-          echo "**Built:** `harbor.squid-ink.us/politeauthority/cver-api:${{ inputs.tag-name }}`" >> $GITHUB_STEP_SUMMARY
-          echo "**Built:** `harbor.squid-ink.us/politeauthority/cver-api:${{ inputs.tag-prefix }}-latest`" >> $GITHUB_STEP_SUMMARY
+          echo "**Built:** harbor.squid-ink.us/politeauthority/cver-api:${{ inputs.tag-name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Built:** harbor.squid-ink.us/politeauthority/cver-api:${{ inputs.tag-prefix }}-latest" >> $GITHUB_STEP_SUMMARY

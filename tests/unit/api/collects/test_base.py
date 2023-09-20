@@ -42,4 +42,13 @@ class TestApiCollectsBase:
         expected += "OFFSET 0;"
         assert expected == result
 
+    def test___pagination_offset(self):
+        """
+        :method: Base()._pagination_offset()
+        """
+        base = Base()
+        assert 0 == base._pagination_offset(1, 20)
+        assert 20 == base._pagination_offset(2, 20)
+
+
 # End File: cver/tests/unit/api/collects/test_base.py
