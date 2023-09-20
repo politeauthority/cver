@@ -50,6 +50,23 @@ class TestApiCollectsBase:
         assert 0 == base._pagination_offset(1, 20)
         assert 20 == base._pagination_offset(2, 20)
 
+    def test___edit_pagination_sql_for_info(self):
+        """
+        :method: Base()._edit_pagination_sql_for_info()
+        """
+        base = Base()
+        sql = """SELECT * FROM `table` WHERE name LIKE "%thing%" LIMIT 20;"""
+        result = base._edit_pagination_sql_for_info(sql)
+        expected = """SELECT COUNT(*) FROM `table` WHERE name LIKE "%thing%";"""
+        assert expected == result
+
+    def test__int_list_to_sql(self):
+        """
+        :method: Base()._int_list_to_sql()
+        """
+        base = Base()
+        assert "1,2,3" == base._int_list_to_sql([1, 2, 3])
+
     def test___pagination_order(self):
         """
         :method: Base()._pagination_order()
@@ -74,6 +91,6 @@ class TestApiCollectsBase:
         base = Base()
         assert not base._get_next_page(1, 1)
         assert 2 == base._get_next_page(1, 20)
-    
+
 
 # End File: cver/tests/unit/api/collects/test_base.py

@@ -42,7 +42,7 @@ class Base:
         if not model_ids:
             return []
         model_ids = list(set(model_ids))
-        sql_ids = self.int_list_to_sql(model_ids)
+        sql_ids = self._int_list_to_sql(model_ids)
         sql = """
             SELECT *
             FROM %(table_name)s
@@ -243,7 +243,7 @@ class Base:
     def _edit_pagination_sql_for_info(self, original_sql: str):
         """Edit the original pagination query to get the total number of results for pagination
         details.
-        :unit-test: TestBase.test___edit_pagination_sql_for_info
+        :unit-test: TestBase::test___edit_pagination_sql_for_info
         """
         sql = original_sql[original_sql.find("FROM"):]
         sql = "%s %s" % ("SELECT COUNT(*)", sql)
@@ -338,8 +338,10 @@ class Base:
             prestines.append(new_object)
         return prestines
 
-    def int_list_to_sql(self, item_list: list) -> str:
-        """Transform a list of ints to a sql safe comma separated string. """
+    def _int_list_to_sql(self, item_list: list) -> str:
+        """Transform a list of ints to a sql safe comma separated string.
+        :unit-test: TestBase::test___int_list_to_sql
+        """
         sql_ids = ""
         for i in item_list:
             sql_ids += "%s," % i
