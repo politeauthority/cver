@@ -50,14 +50,6 @@ jobs:
         run: |
           flake8 src/cver --config=src/flake8 --count --show-source --statistics
 
-      - uses: dorny/paths-filter@v2
-        id: changes
-        with:
-          token: ${{ secrets.PAT }}
-          filters: |
-            tests:
-            - 'tests/**'
-
       - name: Set up Python 3.10
         if: steps.changes.outputs.tests == 'true'
         uses: actions/setup-python@v3
