@@ -114,7 +114,7 @@ class CverClient:
             self.destroy_token()
 
         if response.status_code > 399 and response.status_code < 500:
-            logging.error(f"ISSUE WITH REQUEST: {response}")
+            logging.error(f"ISSUE WITH REQUEST: {response} - {url}")
 
         response_json = response.json()
         return response_json

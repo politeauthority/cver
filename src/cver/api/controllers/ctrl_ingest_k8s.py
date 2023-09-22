@@ -87,6 +87,7 @@ def _handle_image_build(image: Image, image_map: dict) -> bool:
     else:
         ibw = ImageBuildWaiting()
         ibw.image_id = image.id
+        ibw.waiting_for = "download"
         if "tag" in image_map and image_map["tag"]:
             ibw.tag = image_map["tag"]
         ibw.save()

@@ -7,9 +7,9 @@ Testing:
 
 """
 from datetime import datetime
-import logging
 import json
-from urllib.parse import unquote, quote
+import logging
+from urllib.parse import unquote, quote, quote_plus
 
 from sqlescapy import sqlescape
 
@@ -30,6 +30,11 @@ def url_encode(slug: str) -> str:
     butterfly = quote(slug)
     butterfly = butterfly.replace("/", "%2F")
     return butterfly
+
+
+def url_encode_json(self, data: dict) -> str:
+    """Ecode a dict into JSON, primarily used for collection search term requests."""
+    return quote_plus(json.dumps(data))
 
 
 def convert_any_to_int(value) -> int:

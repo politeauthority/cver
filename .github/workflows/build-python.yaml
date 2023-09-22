@@ -59,6 +59,7 @@ jobs:
         if: steps.changes.outputs.src == 'true' || steps.changes.outputs.tests
         run: |
           cd tests/
+          pip install -r requirements.txt
           python3 setup.py build
           python3 setup.py install
           pytest unit/ --md report.md
