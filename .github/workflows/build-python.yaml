@@ -50,26 +50,6 @@ jobs:
         run: |
           flake8 src/cver --config=src/flake8 --count --show-source --statistics
 
-      - name: Set up Python 3.10
-        if: steps.changes.outputs.tests == 'true'
-        uses: actions/setup-python@v3
-        with:
-          python-version: "3.10"
-
-      # - name: Install Dependencies
-      #   if: steps.changes.outputs.src == 'true'
-      #   run: |
-      #     python3 -m pip install --upgrade pip
-      #     python3 -m pip install flake8 pytest
-      #     pip install -r src/requirements.txt
-
-      - name: Build Test Package
-        if: steps.changes.outputs.tests == 'true'
-        run: |
-          cd tests/
-          python3 setup.py build
-          python3 setup.py install
-
       - name: Test Linter
         if: steps.changes.outputs.tests == 'true'
         run: |
@@ -78,6 +58,9 @@ jobs:
       - name: Run Unit Tests
         if: steps.changes.outputs.src == 'true' || steps.changes.outputs.tests
         run: |
+          cd tests/
+          python3 setup.py build
+          python3 setup.py install
           pytest tests/unit --md report.md
           cat report.md >> $GITHUB_STEP_SUMMARY
 
