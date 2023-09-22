@@ -24,7 +24,6 @@ setup(
         "cver.cver_client.ingest",
         "cver.engine",
         "cver.ingest",
-        "cver.ingest.utils",
         "cver.migrate",
         "cver.migrate.data",
         "cver.shared",

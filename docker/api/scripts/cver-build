@@ -4,7 +4,7 @@
 set -e
 echo "Running Cver Build"
 
-# rm -rf /usr/local/lib/python3.10/site-packages/cver*
+rm -rf /usr/local/lib/python3.10/site-packages/cver-*.dist-info
 rm -rf /app/build
 rm -rf /app/cver.egg-info
 

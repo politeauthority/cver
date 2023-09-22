@@ -34,8 +34,12 @@ jobs:
         with:
             token: ${{ secrets.PAT }}
             filters: |
-              src:
-                - 'helm/**'
+              api:
+                - 'helm/cver-api'
+              engine:
+                - 'helm/cver-engine'
+              ingest:
+                - 'helm/cver-ingest'
       - name: Decider
         run: |
           echo "ALIX DEBUG: CHANGES-OUTPUT: ${{steps.changes.outputs.src}}"
@@ -44,7 +48,19 @@ jobs:
           else
             echo "Running Lint Helm. Changes detected." >> $GITHUB_STEP_SUMMARY
           fi
-      - name: Lint Helm
+      - name: Lint Helm - Cver-Api
         if: steps.changes.outputs.src == 'true'
         run: |
           helm lint ./helm/cver-api
+
+      - name: Lint Helm - Cver-Engine
+        if: steps.changes.outputs.engine == 'true'
+        run: |
+          helm lint ./helm/cver-engine
+  
+      - name: Lint Helm - Cver-Ingest
+        if: steps.changes.outputs.ingest == 'true'
+        run: |
+          helm lint ./helm/cver-ingest
+    
+  

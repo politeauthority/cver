@@ -14,9 +14,14 @@ class ClientCollectionsBase(CverClient):
     def __init__(self):
         super(ClientCollectionsBase, self).__init__()
 
-    def get(self):
+    def get(self, args: {}):
         """Get a paginated list of entities."""
-        response = self.make_request(self.collection_name)
+        payload = {}
+        if "search" in args:
+            payload = {
+                "search": xlate.url_encode_json(args["search"])
+            }
+        response = self.make_request(self.collection_name, payload=payload)
         if response["status"] == "success":
             return self.build_list_of_dicts(response["object_type"], response["objects"])
         else:
@@ -36,7 +41,7 @@ class ClientCollectionsBase(CverClient):
         return module()
 
     def build_list_of_dicts(self, object_type: str, objs: list) -> list:
-        """Build """
+        """Builds a list of dictionaries."""
         bare_model = self.dynamic_get_model_instance(object_type)
         print(bare_model)
         ret_list = []

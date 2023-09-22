@@ -46,7 +46,6 @@ FIELD_MAP = {
     "waiting_for": {
         "name": "waiting_for",
         "type": "str",
-        "default": True,
         "api_writeable": True,
         "api_searchable": True,
     },

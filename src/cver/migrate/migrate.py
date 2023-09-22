@@ -18,7 +18,7 @@ from cver.migrate.data.data_test_data import DataTestData
 from cver.migrate.data.data_misc import DataMisc
 
 
-CURRENT_MIGRATION = 3
+CURRENT_MIGRATION = 4
 
 dictConfig({
     'version': 1,

@@ -116,6 +116,15 @@ tasks:
       - echo "Copied and Built!"
     silent: True
 
+  dev-cp-ingest:
+    cmds:
+      - |
+        POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-ingest-dev --no-headers | cut -d' ' -f1)
+        kubectl cp {{ .CVER_DIR }}/src/cver/ ${POD}:/app/
+        kubectl exec -it ${POD} -- cver-build
+      - echo "Copied and Built!"
+    silent: True
+
   dev-exec-api:
     cmds:
       - |
@@ -128,6 +137,14 @@ tasks:
     cmds:
       - |
         POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-engine-dev --no-headers | cut -d' ' -f1)
+        echo "Logging into to pod: ${POD}"
+        kubectl exec -it ${POD} -- bash
+    silent: True
+
+  dev-exec-ingest:
+    cmds:
+      - |
+        POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-ingest-dev --no-headers | cut -d' ' -f1)
         echo "Logging into to pod: ${POD}"
         kubectl exec -it ${POD} -- bash
     silent: True
@@ -151,6 +168,15 @@ tasks:
             -f helm/cver-engine/values.yaml \
             -f helm/cver-engine/values-quigley-dev.yaml
       - kubectl rollout restart deployment/cver-engine-dev
+
+  dev-helm-ingest:
+    cmds:
+      - |
+        helm upgrade --install \
+            cver-ingest-dev \
+            helm/cver-ingest \
+            -f helm/cver-ingest/values.yaml \
+            -f helm/cver-ingest/values-quigley-dev.yaml
 
   dev-logs-api:
     cmds:

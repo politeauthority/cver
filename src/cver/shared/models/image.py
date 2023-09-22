@@ -30,13 +30,15 @@ FIELD_MAP = {
         "name": "repository",
         "type": "str",
         "extra": "NOT NULL",
-        "api_writeable": True
+        "api_writeable": True,
+        "api_searchable": True
     },
     "maintained": {
         "name": "maintained",
         "type": "bool",
         "default": True,
-        "api_writeable": True
+        "api_writeable": True,
+        "api_searchable": True
     }
 }
 

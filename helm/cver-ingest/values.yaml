@@ -4,7 +4,7 @@ replicaCount: 1
 fullname: "cver-engine"
 
 app:
-  debug: false
+  debug: true
   envName: "prod"
   deployedAt: "unknown"
   logHealthChecks: true
@@ -19,12 +19,12 @@ test:
   secretName: 
 
 imagePullSecrets: []
-nameOverride: "dev-engine"
+nameOverride: "dev-ingest"
 fullnameOverride: ""
 
 serviceAccount:
   # Specifies whether a service account should be created
-  create: false
+  create: true
   # Annotations to add to the service account
   annotations: {}
   # The name of the service account to use.
