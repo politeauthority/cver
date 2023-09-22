@@ -11,7 +11,7 @@ app:
   dbUser: "mysql-user"
   runMigrations: true
   jwtExpireMinutes: 60
-  debug: False
+  debug: false
   envName: "prod"
   deployedAt: "unknown"
   logHealthChecks: true
