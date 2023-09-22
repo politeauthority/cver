@@ -61,6 +61,7 @@ jobs:
           cd tests/
           python3 setup.py build
           python3 setup.py install
+          cd /
           pytest tests/unit --md report.md
           cat report.md >> $GITHUB_STEP_SUMMARY
 
