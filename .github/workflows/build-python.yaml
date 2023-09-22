@@ -61,8 +61,8 @@ jobs:
           cd tests/
           python3 setup.py build
           python3 setup.py install
-          cd /
-          pytest tests/unit --md report.md
+          cd /tests/unit
+          pytest --md report.md
           cat report.md >> $GITHUB_STEP_SUMMARY
 
 # End File: cver/.github/workflows/build-python.yaml
