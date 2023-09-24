@@ -55,7 +55,7 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
-  deploy-ephem-api:
+  deploy-api:
     needs: [api, build-cver, lint]
     uses: ./.github/workflows/deploy-api.yaml
     secrets: inherit 
@@ -66,7 +66,7 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
-  deploy-ephem-engine:
+  deploy-engine:
     needs: [engine, build-cver, lint]
     uses: ./.github/workflows/deploy-engine.yaml
     secrets: inherit 
@@ -77,9 +77,9 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
-  test-ephem-api:
-    needs: [deploy-ephem-api, engine]
-    if: ${{ needs.ephem.result == 'success' }}
+  test-api:
+    needs: [deploy-api, engine]
+    if: ${{ needs.deploy-api.result == 'success' }}
     uses: ./.github/workflows/regression.yaml
     secrets: inherit 
     with:
@@ -90,7 +90,7 @@ jobs:
 
   # test-ephem-engine:
   #   needs: [ephem, engine]
-  #   if: ${{ needs.ephem.result == 'success' }}
+  #   if: ${{ needs.deploy-engine.result == 'success' }}
   #   uses: ./.github/workflows/regression.yaml
   #   secrets: inherit 
   #   with:
@@ -101,7 +101,7 @@ jobs:
 
   remove-ephem:
     runs-on: self-hosted
-    needs: [test-ephem-api]
+    needs: [test-api]
     if: ${{ needs.ephem.result == 'success' }}
     container:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
