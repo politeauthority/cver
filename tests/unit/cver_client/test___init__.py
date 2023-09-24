@@ -67,14 +67,14 @@ class TestClientInit:
         assert "test_api_key" == client.api_key
         assert "https://google.com" == client.base_url
 
-    # @pytest.mark.vcr
-    # def test_login(self):
-    #     """Test the CverClient login flow.
-    #     :method: CverClient().login
-    #     """
-    #     client = CverClient()
-    #     assert client.login()
-    #     assert os.path.exists(client.token_file)
+    @pytest.mark.vcr
+    def test_login(self):
+        """Test the CverClient login flow.
+        :method: CverClient().login
+        """
+        client = CverClient()
+        assert client.login()
+        assert os.path.exists(client.token_file)
 
     @pytest.mark.usefixtures("cver_client_id_empty")
     def test___determine_if_login_no_client_id(self):
