@@ -34,10 +34,10 @@ jobs:
         run: |
           IMAGE_TAG="${{ inputs.deployment-name }}-latest"
           if [ "${{ inputs.deployment-name }}" = "test" ]; then
-            RELEASE_NAME="cver-api-test-${{ inputs.run-number }}"
+            RELEASE_NAME="cver-engine-test-${{ inputs.run-number }}"
             IMAGE_TAG="dev-latest"
           else
-            RELEASE_NAME="cver-api-${{ inputs.deployment-name}}"
+            RELEASE_NAME="cver-engine-${{ inputs.deployment-name}}"
             IMAGE_TAG="${{ github.sha }}"
           fi
           mkdir ~/.kube
@@ -45,7 +45,6 @@ jobs:
           export KUBECONFIG=~/.kube/config.yaml
           chmod 600 ~/.kube/config.yaml
           DEPLOYED_AT=$(date +"%Y-%m-%d %T")
-          helm dependency build helm/cver-api
           helm upgrade --install \
             --namespace=cver \
             ${RELEASE_NAME} \
