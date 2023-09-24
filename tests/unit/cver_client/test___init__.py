@@ -72,9 +72,9 @@ class TestClientInit:
         """Test the CverClient login flow.
         :method: CverClient().login
         """
-        client = CverClient()
         os.environ["CVER_CLIENT_ID"] = "test-client-id"
         os.environ["CVER_API_KEY"] = "test-api-key"
+        client = CverClient()
         assert client.login()
         assert os.path.exists(client.token_file)
 
