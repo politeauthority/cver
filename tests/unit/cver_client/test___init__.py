@@ -14,10 +14,18 @@ from cver.cver_client import CverClient
 @pytest.fixture(scope='module')
 def vcr_cassette_dir(request):
     """Put all cassets in the cver_test_tools/vhs/{module}/{test}.yaml dir"""
-    return os.path.join(
-        "../../",
-        "cver_test_tools/vhs/cver-client",
-        request.module.__name__)
+    cver_test_dir = os.environ.get("CVER_TEST_DIR")
+    if not cver_test_dir:
+        return os.path.join(
+            "../",
+            "cver_test_tools/vhs/cver-client",
+            request.module.__name__)
+    else:
+        return os.path.join(
+            cver_test_dir,
+            "cver_test_tools/vhs/cver-client",
+            request.module.__name__
+        )
 
 
 @pytest.fixture(scope='module')
