@@ -17,7 +17,6 @@ def vcr_cassette_dir(request):
     cver_test_dir = os.environ.get("CVER_TEST_DIR")
     if not cver_test_dir:
         return os.path.join(
-            "../",
             "cver_test_tools/vhs/cver-client",
             request.module.__name__)
     else:
