@@ -5,7 +5,6 @@
 
 """
 import logging
-from logging.config import dictConfig
 
 from flask import Flask, jsonify, request
 from werkzeug.exceptions import HTTPException
@@ -13,6 +12,7 @@ from werkzeug.exceptions import HTTPException
 from cver.api.utils import db
 from cver.api.utils import glow
 from cver.api.utils import misc
+from cver.shared.utils.log_config import log_config
 
 from cver.api.controllers.ctrl_models.ctrl_api_key import ctrl_api_key
 from cver.api.controllers.ctrl_collections.ctrl_api_keys import ctrl_api_keys
@@ -48,24 +48,15 @@ from cver.api.controllers.ctrl_submit_scan import ctrl_submit_scan
 from cver.api.controllers.ctrl_ingest_k8s import ctrl_ingest_k8s
 
 
-dictConfig({
-    'version': 1,
-    'formatters': {'default': {
-        'format': '[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
-    }},
-    'handlers': {'wsgi': {
-        'class': 'logging.StreamHandler',
-        'stream': 'ext://flask.logging.wsgi_errors_stream',
-        'formatter': 'default'
-    }},
-    'root': {
-        'level': 'INFO',
-        'handlers': ['wsgi']
-    }
-})
-
+# logging.config.dictConfig(log_config)
+logging.config.dictConfig(log_config)
 logger = logging.getLogger(__name__)
+# logger.getLogger("cver")
+# logger.config.dictConfig(log_config)
 logger.propagate = True
+logging.info("HEY INFO")
+logging.debug("HEY DEBUG")
+logging.debug("HEY DEBUG")
 app = Flask(__name__)
 app.config.update(DEBUG=True)
 app.debugger = False
