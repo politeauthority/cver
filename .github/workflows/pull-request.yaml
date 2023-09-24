@@ -67,7 +67,7 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   deploy-ephem-engine:
-    needs: [build-cver, lint]
+    needs: [engine, build-cver, lint]
     uses: ./.github/workflows/deploy-engine.yaml
     secrets: inherit 
     with:
