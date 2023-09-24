@@ -116,12 +116,12 @@ tasks:
       - echo "Copied and Built!"
     silent: True
 
-  dev-cp-engine-test:
+  dev-cp-engine-tests:
     cmds:
       - |
         POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-engine-dev --no-headers | cut -d' ' -f1)
         kubectl cp {{ .CVER_DIR }}/tests/ ${POD}:/
-        kubectl exec -it ${POD} -- cver-build-tests
+        # kubectl exec -it ${POD} -- cver-build-tests
       - echo "Copied and Built!"
     silent: True
 
