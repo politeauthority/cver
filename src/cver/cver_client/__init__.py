@@ -53,11 +53,7 @@ class CverClient:
         logging.info("Logging into Cver Api")
         if not skip_local_token and self._open_valid_token():
             return True
-        if not self.client_id or not self.api_key:
-            logging.critical("No Client ID or ApiKey submitted, both are required.")
-            return False
-        if self.login_attempts >= self.max_login_attempts:
-            logging.critical("Attemped %s logins, not attempting more" % self.login_attempts)
+        if not self._determine_if_login():
             return False
         request_args = {
             "headers": {
@@ -134,6 +130,18 @@ class CverClient:
         """Delete a local token from temp space."""
         os.remove(self.token_file)
         logging.info("Deleted local Cver token.")
+        return True
+
+    def _determine_if_login(self) -> bool:
+        """Determine if we should even attempt to login.
+        :unit-test: TestClientInit::test___determine_if_login
+        """
+        if not self.client_id or not self.api_key:
+            logging.critical("No Client ID or ApiKey submitted, both are required.")
+            return False
+        if self.login_attempts >= self.max_login_attempts:
+            logging.critical("Attemped %s logins, not attempting more" % self.login_attempts)
+            return False
         return True
 
     def _save_token(self):
