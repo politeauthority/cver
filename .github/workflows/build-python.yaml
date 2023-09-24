@@ -59,12 +59,14 @@ jobs:
         if: steps.changes.outputs.src == 'true' || steps.changes.outputs.tests
         run: |
           cd src/
+          pip install -r requirements.txt
           python3 setup.py build
           python3 setup.py install
-          pip install -r requirements.txt
           cd ../
           cd tests/
           pip install -r requirements.txt
+          python3 setup.py build
+          python3 setup.py install
           pytest --vcr-record=none -rx -vvv -s unit/ --md report.md
           cat report.md >> $GITHUB_STEP_SUMMARY
 
