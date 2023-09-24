@@ -147,6 +147,9 @@ class CverClient:
     def _save_token(self):
         """Save a token to a local tempfile location."""
         logging.info(f"Temp Dir is: {self.token_file}")
+        if not self.token:
+            logging.error("No token to save.")
+            return False
         with open(self.token_file, "w") as temp_file:
             temp_file.write(self.token)
         logging.info(f"Wrote: {temp_file}")
