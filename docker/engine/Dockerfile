@@ -41,6 +41,6 @@ RUN cd /app && pip install --break-system-packages .
 FROM base AS tests
 
 ADD scripts/cver-build /bin
-ADD scripts/cver-build-test /bin
+ADD scripts/cver-build-tests /bin
 
 ADD tests/ /tests
