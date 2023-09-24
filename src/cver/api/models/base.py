@@ -624,7 +624,7 @@ class Base:
                 setattr(self, class_var_name, converted_value)
                 continue
 
-            if field['type'] == 'datetime' and type(class_var_value) != datetime:
+            if field['type'] == 'datetime' and type(class_var_value) is not datetime:
                 setattr(
                     self,
                     class_var_name,

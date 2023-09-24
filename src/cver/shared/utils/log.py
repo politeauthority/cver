@@ -194,7 +194,7 @@ def _eval_log_numeral(level: str) -> int:
     """Get the numerical value of a log level string as python logging understands them.
     :unit-test: test___eval_log_numeral
     """
-    if type(level) == str:
+    if type(level) is str:
         level = level.upper()
         if level == "DEBUG":
             level = 10
