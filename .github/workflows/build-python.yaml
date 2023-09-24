@@ -62,7 +62,7 @@ jobs:
           pip install -r requirements.txt
           python3 setup.py build
           python3 setup.py install
-          pytest -vvv unit/ --md report.md
+          pytest -rx -vvv -s unit/ --md report.md
           cat report.md >> $GITHUB_STEP_SUMMARY
 
 # End File: cver/.github/workflows/build-cver.yaml

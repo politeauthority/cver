@@ -94,6 +94,9 @@ class CverClient:
             "method": method,
             "url": f"{self.base_url}/{url}"
         }
+        print("ALIX-DEBUG\n\n")
+        print(request_args)
+        print("ALIX-DEBUG\n\n")
 
         if request_args:
             if method == "GET":
