@@ -614,7 +614,7 @@ class Base:
             if class_var_value is None:
                 continue
 
-            if field['type'] == 'int' and type(class_var_value) != int:
+            if field['type'] == 'int' and type(class_var_value) is not int:
                 converted_value = xlate.convert_any_to_int(class_var_value)
                 setattr(self, class_var_name, converted_value)
                 continue
@@ -624,7 +624,7 @@ class Base:
                 setattr(self, class_var_name, converted_value)
                 continue
 
-            if field['type'] == 'datetime' and type(class_var_value) != datetime:
+            if field['type'] == 'datetime' and type(class_var_value) is not datetime:
                 setattr(
                     self,
                     class_var_name,

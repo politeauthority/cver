@@ -15,6 +15,4 @@ requests==2.31.0
 
 
 
-# Dev Requirements
-flake8==6.0.0
-ipdb==0.13.13
+

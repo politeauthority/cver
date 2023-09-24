@@ -53,11 +53,7 @@ class CverClient:
         logging.info("Logging into Cver Api")
         if not skip_local_token and self._open_valid_token():
             return True
-        if not self.client_id or not self.api_key:
-            logging.critical("No Client ID or ApiKey submitted, both are required.")
-            return False
-        if self.login_attempts >= self.max_login_attempts:
-            logging.critical("Attemped %s logins, not attempting more" % self.login_attempts)
+        if not self._determine_if_login():
             return False
         request_args = {
             "headers": {
@@ -98,7 +94,6 @@ class CverClient:
             "method": method,
             "url": f"{self.base_url}/{url}"
         }
-
         if request_args:
             if method == "GET":
                 request_args["params"] = payload
@@ -136,9 +131,24 @@ class CverClient:
         logging.info("Deleted local Cver token.")
         return True
 
+    def _determine_if_login(self) -> bool:
+        """Determine if we should even attempt to login.
+        :unit-test: TestClientInit::test___determine_if_login
+        """
+        if not self.client_id or not self.api_key:
+            logging.critical("No Client ID or ApiKey submitted, both are required.")
+            return False
+        if self.login_attempts >= self.max_login_attempts:
+            logging.critical("Attemped %s logins, not attempting more" % self.login_attempts)
+            return False
+        return True
+
     def _save_token(self):
         """Save a token to a local tempfile location."""
         logging.info(f"Temp Dir is: {self.token_file}")
+        if not self.token:
+            logging.error("No token to save.")
+            return False
         with open(self.token_file, "w") as temp_file:
             temp_file.write(self.token)
         logging.info(f"Wrote: {temp_file}")

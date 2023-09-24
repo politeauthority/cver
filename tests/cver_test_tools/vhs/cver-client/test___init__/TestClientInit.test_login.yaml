@@ -1,0 +1,41 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      User-Agent:
+      - python-requests/2.31.0
+      client-id:
+      - dummy
+      content-type:
+      - application/json
+      x-api-key:
+      - dummy
+    method: POST
+    uri: http://localhost/auth
+  response:
+    body:
+      string: "{\n  \"message\": \"Authenticated user and minted token\",\n  \"status\":
+        \"Success\",\n  \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJyb2xlX3Blcm1zIjpbIndyaXRlLWFsbCIsInJlYWQtYWxsIl0sImlhdCI6MTY5NTU3OTAyMSwiZXhwIjoxNjk1NjY1NDIxfQ.RdIKNZYFhsm5klea_rqiWo-jBh6cjsZQJhK3T3UBnmc\"\n}\n"
+    headers:
+      Connection:
+      - close
+      Content-Length:
+      - '288'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 24 Sep 2023 18:10:21 GMT
+      Server:
+      - gunicorn/20.0.4
+    status:
+      code: 200
+      message: OK
+version: 1
