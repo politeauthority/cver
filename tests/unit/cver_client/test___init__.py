@@ -74,6 +74,7 @@ class TestClientInit:
         """
         os.environ["CVER_CLIENT_ID"] = "test-client-id"
         os.environ["CVER_API_KEY"] = "test-api-key"
+        os.environ["CVER_API_URL"] = "http://localhost/"
         client = CverClient()
         assert client.login()
         assert os.path.exists(client.token_file)
