@@ -5,6 +5,7 @@ replicaCount: 1
 nameOverride: "dev"
 
 app:
+  logLevel: "DEBUG"
   dbName: "cver_dev"
   dbHost: "cver-mysql.cver.svc.cluster.local"
   dbUser: "cver"

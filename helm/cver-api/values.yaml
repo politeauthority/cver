@@ -5,6 +5,7 @@
 replicaCount: 1
 
 app:
+  logLevel: "INFO"
   dbName: "cver"
   dbHost: "mysql"
   dbPort: 3306
