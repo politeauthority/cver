@@ -24,7 +24,7 @@ class TestCverClient:
         assert cver.login()
         assert os.path.exists(token_file)
 
-    def test__destroy_token():
+    def test__destroy_token(self):
         """Test that we actually remove the token from the system"""
         token_file = os.path.join(tempfile.gettempdir(), "cver-token")
         cver = CverClient()
