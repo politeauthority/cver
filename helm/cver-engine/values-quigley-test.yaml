@@ -1,4 +1,4 @@
-# Quigely dev values for cver-engine
+# Quigely test values for cver-engine
 
 replicaCount: 1
 
@@ -6,7 +6,7 @@ nameOverride: "dev"
 
 app:
   logLevel: "DEBUG"
-  envName: "dev"
+  envName: "test"
   debug: true
 
 test:

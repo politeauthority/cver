@@ -55,7 +55,7 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
-  ephem:
+  deploy-ephem-api:
     needs: [api, build-cver, lint]
     uses: ./.github/workflows/deploy-api.yaml
     secrets: inherit 
@@ -66,7 +66,18 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
-  test-ephem:
+  deploy-ephem-engine:
+    needs: [build-cver, lint]
+    uses: ./.github/workflows/deploy-engine.yaml
+    secrets: inherit 
+    with:
+      deployment-name: "test"
+      run-number: ${{ github.run_number }}
+      tag-name: "${{ github.sha }}"
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
+
+  test-ephem-api:
     needs: [ephem, engine]
     if: ${{ needs.ephem.result == 'success' }}
     uses: ./.github/workflows/regression.yaml
@@ -76,6 +87,17 @@ jobs:
       run-number: ${{ github.run_number }}
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
+
+  # test-ephem-engine:
+  #   needs: [ephem, engine]
+  #   if: ${{ needs.ephem.result == 'success' }}
+  #   uses: ./.github/workflows/regression.yaml
+  #   secrets: inherit 
+  #   with:
+  #     deployment-name: "test"
+  #     run-number: ${{ github.run_number }}
+  #     cicd-version: "${{ vars.CICD_VERSION }}"
+  #     harbor-user: "${{ vars.HARBOR_USER }}"
 
   remove-ephem:
     runs-on: self-hosted

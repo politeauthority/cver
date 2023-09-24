@@ -6,14 +6,20 @@
 
 """
 import logging
+import logging.config
 import subprocess
 
+from cver.shared.utils.log_config import log_config
 from cver.cver_client.models.image import Image
 # from cver.cver_client.models.image_build import ImageBuild
 # from cver.cver_client.models.image_build_waiting import ImageBuildWaiting
 from cver.cver_client.collections.image_build_waitings import ImageBuildWaitings
 from cver.cver_client.models.option import Option
 from cver.cver_client.models.image_build_waiting import ImageBuildWaiting
+
+logging.config.dictConfig(log_config)
+logger = logging.getLogger(__name__)
+logger.propagate = True
 
 
 class Engine:

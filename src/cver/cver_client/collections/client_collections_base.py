@@ -14,7 +14,7 @@ class ClientCollectionsBase(CverClient):
     def __init__(self):
         super(ClientCollectionsBase, self).__init__()
 
-    def get(self, args: {}):
+    def get(self, args: dict = {}):
         """Get a paginated list of entities."""
         payload = {}
         if "search" in args:

@@ -48,15 +48,9 @@ from cver.api.controllers.ctrl_submit_scan import ctrl_submit_scan
 from cver.api.controllers.ctrl_ingest_k8s import ctrl_ingest_k8s
 
 
-# logging.config.dictConfig(log_config)
 logging.config.dictConfig(log_config)
 logger = logging.getLogger(__name__)
-# logger.getLogger("cver")
-# logger.config.dictConfig(log_config)
 logger.propagate = True
-logging.info("HEY INFO")
-logging.debug("HEY DEBUG")
-logging.debug("HEY DEBUG")
 app = Flask(__name__)
 app.config.update(DEBUG=True)
 app.debugger = False
