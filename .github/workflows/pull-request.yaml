@@ -78,7 +78,7 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   test-ephem-api:
-    needs: [ephem, engine]
+    needs: [deploy-ephem-api, engine]
     if: ${{ needs.ephem.result == 'success' }}
     uses: ./.github/workflows/regression.yaml
     secrets: inherit 
@@ -101,7 +101,7 @@ jobs:
 
   remove-ephem:
     runs-on: self-hosted
-    needs: [test-ephem, ephem]
+    needs: [test-ephem-api]
     if: ${{ needs.ephem.result == 'success' }}
     container:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
