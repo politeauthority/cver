@@ -58,14 +58,14 @@ jobs:
       - name: Run Unit Tests
         if: steps.changes.outputs.src == 'true' || steps.changes.outputs.tests
         run: |
-          export CVER_TEST_DIR="$(pwd)/tests"
+          CVER_TEST_DIR="$(pwd)/tests"
           echo "ALIX-DEBUG"
-          echo $CVER_TEST_DIR
+          echo "$CVER_TEST_DIR"
           cd tests/
-          # pip install -r requirements.txt
-          # python3 setup.py build
-          # python3 setup.py install
-          # pytest unit/ --md report.md
-          # cat report.md >> $GITHUB_STEP_SUMMARY
+          pip install -r requirements.txt
+          python3 setup.py build
+          python3 setup.py install
+          pytest unit/ --md report.md
+          cat report.md >> $GITHUB_STEP_SUMMARY
 
 # End File: cver/.github/workflows/build-cver.yaml

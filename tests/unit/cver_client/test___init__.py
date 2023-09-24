@@ -14,8 +14,9 @@ from cver.cver_client import CverClient
 @pytest.fixture(scope='module')
 def vcr_cassette_dir(request):
     """Put all cassets in the cver_test_tools/vhs/{module}/{test}.yaml dir"""
+    import ipdb; ipdb.set_trace()
     return os.path.join(
-        os.environ.get("CVER_TEST_DIR"),
+        "../../",
         "cver_test_tools/vhs/cver-client",
         request.module.__name__)
 
