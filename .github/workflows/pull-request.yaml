@@ -89,8 +89,8 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   test-engine:
-    needs: [deploy-api, engine]
-    if: ${{ needs.deploy-engine.result == 'success' }}
+    needs: [deploy-api, deploy-engine]
+    if: ${{ needs.deploy-engine.result == 'success' }} and ${{ needs.deploy-api.result == 'success' }}
     uses: ./.github/workflows/regression-enigne.yaml
     secrets: inherit 
     with:
