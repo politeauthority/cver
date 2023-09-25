@@ -126,7 +126,7 @@ jobs:
 
       - name: Tear Down Engine
         run: |
-          mkdir ~/.kube
+          mkdir -p ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
           export KUBECONFIG=~/.kube/config.yaml
           echo "Remove the helm installation"
