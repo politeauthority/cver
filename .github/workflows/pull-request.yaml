@@ -101,8 +101,8 @@ jobs:
 
   remove-ephem:
     runs-on: self-hosted
-    needs: [test-api]
-    if: ${{ needs.ephem.result == 'success' }}
+    needs: [test-api, deploy-engine]
+    if: ${{ needs.deploy-api.result == 'success' }}
     container:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
       credentials:
@@ -110,7 +110,7 @@ jobs:
         password: ${{ secrets.HARBOR_PASSWORD }}
     steps:
       - uses: actions/checkout@v3
-      - name: Tear Down
+      - name: Tear Down Api
         run: |
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
@@ -124,4 +124,16 @@ jobs:
             cver-api-test-${{ github.run_number }}
           echo "Uninstalled Helm deployment cver-api-test-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
 
+      - name: Tear Down Engine
+        run: |
+          mkdir ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
+          export KUBECONFIG=~/.kube/config.yaml
+          echo "Remove the helm installation"
+          helm uninstall \
+            --namespace=cver \
+            cver-engine-test-${{ github.run_number }}
+          echo "Uninstalled Helm deployment cver-engine-test-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+
+            
 # End File: cver/.github/workflows/pull-request.yaml
