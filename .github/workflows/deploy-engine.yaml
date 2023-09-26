@@ -50,7 +50,7 @@ jobs:
             ${RELEASE_NAME} \
             helm/cver-engine/ \
             --wait \
-            --timeout=120s \
+            --timeout=240s \
             -f helm/cver-engine/values-quigley-${{ inputs.deployment-name }}.yaml \
             --set "image.tag=${IMAGE_TAG}" \
             --set "app.dbName=${DB_NAME}" \
