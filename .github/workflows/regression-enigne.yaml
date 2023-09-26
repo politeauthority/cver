@@ -32,7 +32,7 @@ jobs:
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
           export KUBECONFIG=~/.kube/config.yaml
-          TEST_POD=$(kubectl get -n cver pods -l app.kubernetes.io/instance=cver-api-${{ inputs.deployment-name }}-${{ inputs.run-number }} --no-headers | cut -d' ' -f1)
+          TEST_POD=$(kubectl get -n cver pods -l app.kubernetes.io/instance=cver-engine-${{ inputs.deployment-name }}-${{ inputs.run-number }} --no-headers | cut -d' ' -f1)
           kubectl exec -n cver -it ${TEST_POD} -- echo "helo world"
 
 # End File: cver/.github/workflows/regression-engine.yaml
