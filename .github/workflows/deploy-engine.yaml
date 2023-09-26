@@ -1,4 +1,4 @@
-name: Deploy Api
+name: Deploy Engine
 
 on:
   workflow_call:
@@ -34,12 +34,10 @@ jobs:
         run: |
           IMAGE_TAG="${{ inputs.deployment-name }}-latest"
           if [ "${{ inputs.deployment-name }}" = "test" ]; then
-            RELEASE_NAME="cver-api-test-${{ inputs.run-number }}"
-            DB_NAME="cver_${{ inputs.run-number }}"
+            RELEASE_NAME="cver-engine-test-${{ inputs.run-number }}"
             IMAGE_TAG="dev-latest"
           else
-            RELEASE_NAME="cver-api-${{ inputs.deployment-name}}"
-            DB_NAME="cver_${{ inputs.deployment-name}}"
+            RELEASE_NAME="cver-engine-${{ inputs.deployment-name}}"
             IMAGE_TAG="${{ github.sha }}"
           fi
           mkdir ~/.kube
@@ -47,23 +45,16 @@ jobs:
           export KUBECONFIG=~/.kube/config.yaml
           chmod 600 ~/.kube/config.yaml
           DEPLOYED_AT=$(date +"%Y-%m-%d %T")
-          helm dependency build helm/cver-api
           helm upgrade --install \
             --namespace=cver \
             ${RELEASE_NAME} \
-            helm/cver-api/ \
+            helm/cver-engine/ \
             --wait \
             --timeout=240s \
-            -f helm/cver-api/values-quigley-${{ inputs.deployment-name }}.yaml \
+            -f helm/cver-engine/values-quigley-${{ inputs.deployment-name }}.yaml \
             --set "image.tag=${IMAGE_TAG}" \
             --set "app.dbName=${DB_NAME}" \
             --set "app.deployedAt=${DEPLOYED_AT}"
-          # Removing this for now
-          # if [ "${{ inputs.deployment-name }}" != "test" ]; then
-          #   sleep 30
-          #   kubectl get deployments
-          #   kubectl rollout restart deployment/${RELEASE_NAME}
-          # fi
           echo "# Deployed" >> $GITHUB_STEP_SUMMARY
           echo "Created Helm deployment: ${RELEASE_NAME}" >> $GITHUB_STEP_SUMMARY
 

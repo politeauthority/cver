@@ -10,7 +10,7 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
-jobs:
+jobs: 
   
   build-cver:
     uses: ./.github/workflows/build-python.yaml
@@ -55,7 +55,7 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
-  ephem:
+  deploy-api:
     needs: [api, build-cver, lint]
     uses: ./.github/workflows/deploy-api.yaml
     secrets: inherit 
@@ -66,10 +66,32 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
-  test-ephem:
-    needs: [ephem, engine]
-    if: ${{ needs.ephem.result == 'success' }}
-    uses: ./.github/workflows/regression.yaml
+  deploy-engine:
+    needs: [engine, build-cver, lint]
+    uses: ./.github/workflows/deploy-engine.yaml
+    secrets: inherit 
+    with:
+      deployment-name: "test"
+      run-number: ${{ github.run_number }}
+      tag-name: "${{ github.sha }}"
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
+
+  test-api:
+    needs: [deploy-api, engine]
+    if: ${{ needs.deploy-api.result == 'success' }}
+    uses: ./.github/workflows/regression-api.yaml
+    secrets: inherit 
+    with:
+      deployment-name: "test"
+      run-number: ${{ github.run_number }}
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
+
+  test-engine:
+    needs: [deploy-api, deploy-engine]
+    if: ${{ needs.deploy-engine.result == 'success' }} and ${{ needs.deploy-api.result == 'success' }}
+    uses: ./.github/workflows/regression-enigne.yaml
     secrets: inherit 
     with:
       deployment-name: "test"
@@ -79,8 +101,8 @@ jobs:
 
   remove-ephem:
     runs-on: self-hosted
-    needs: [test-ephem, ephem]
-    if: ${{ needs.ephem.result == 'success' }}
+    needs: [test-api, test-engine]
+    if: ${{ needs.deploy-api.result == 'success' }}
     container:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
       credentials:
@@ -88,7 +110,7 @@ jobs:
         password: ${{ secrets.HARBOR_PASSWORD }}
     steps:
       - uses: actions/checkout@v3
-      - name: Tear Down
+      - name: Tear Down Api
         run: |
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
@@ -102,4 +124,16 @@ jobs:
             cver-api-test-${{ github.run_number }}
           echo "Uninstalled Helm deployment cver-api-test-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
 
+      - name: Tear Down Engine
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
+          export KUBECONFIG=~/.kube/config.yaml
+          echo "Remove the helm installation"
+          helm uninstall \
+            --namespace=cver \
+            cver-engine-test-${{ github.run_number }}
+          echo "Uninstalled Helm deployment cver-engine-test-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+
+            
 # End File: cver/.github/workflows/pull-request.yaml
