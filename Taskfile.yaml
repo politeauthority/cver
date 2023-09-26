@@ -166,7 +166,7 @@ tasks:
             helm/cver-api \
             -f helm/cver-api/values.yaml \
             -f helm/cver-api/values-quigley-dev.yaml
-      # - kubectl rollout restart deployment/cver-api-dev
+      - kubectl rollout restart deployment/cver-api-dev
 
   dev-helm-engine:
     cmds:

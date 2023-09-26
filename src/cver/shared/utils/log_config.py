@@ -10,6 +10,7 @@ log_config = {
     "formatters": {
         "default": {
             "format": "[%(asctime)s] %(levelname)s %(module)s: %(message)s",
+            "datefmt": "%m-%d %H:%M:%S"
         }
     },
     "handlers": {

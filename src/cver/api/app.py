@@ -51,6 +51,7 @@ from cver.api.controllers.ctrl_ingest_k8s import ctrl_ingest_k8s
 logging.config.dictConfig(log_config)
 logger = logging.getLogger(__name__)
 logger.propagate = True
+
 app = Flask(__name__)
 app.config.update(DEBUG=True)
 app.debugger = False
