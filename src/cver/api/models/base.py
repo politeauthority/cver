@@ -8,7 +8,7 @@ The Base Model SQL driver can work with both SQLite3 and MySQL database.
 
 Testing:
     Unit test file  cver/tests/unit/api/models/test_base.py
-    Unit tested     14/40
+    Unit tested     35/41
 
 """
 from datetime import datetime
@@ -73,7 +73,9 @@ class Base:
         return True
 
     def create_table_sql(self) -> bool:
-        """Create a table based SQL on the self.table_name, and self.field_map."""
+        """Create a table based SQL on the self.table_name, and self.field_map.
+        :unit-test: TestBase::test__create_table_sql
+        """
         if not self.table_name:
             raise AttributeError('Model table name not set, (self.table_name)')
         sql = "CREATE TABLE IF NOT EXISTS %s \n(%s)" % (
@@ -90,7 +92,9 @@ class Base:
         return True
 
     def save(self) -> bool:
-        """Saves a model instance in the model table."""
+        """Saves a model instance in the model table.
+        :unit-test: TestBase::test__save
+        """
         self.setup()
         self.check_required_class_vars()
         if self.backed_iodku and not self.id:
@@ -103,24 +107,45 @@ class Base:
         self.conn.commit()
         return True
 
+    def insert(self):
+        """Insert a new record of the model.
+        :unit-test: TestBase::test__insert
+        """
+        sql = self._gen_insert_sql()
+        try:
+            self.cursor.execute(sql)
+            self.conn.commit()
+        except ProgrammingError as e:
+            logging.critical(sql)
+            logging.critical("Caught ProgrammingError exception:", e)
+            exit(1)
+        self.id = self.cursor.lastrowid
+        return True
+
+    def iodku(self) -> bool:
+        """Runs an insert on duplicate key update query against the database, setting the id of
+        the item as it's class var id.
+        :unit-test: TestBase::test__iodku
+        """
+        sql = self._gen_iodku_sql()
+        self.cursor.execute(sql)
+        self.conn.commit()
+        self.id = self.cursor.lastrowid
+        return True
+
     def delete(self) -> bool:
-        """Delete a model item."""
-        sql = """DELETE FROM `%s` WHERE `id` = %s """ % (self.table_name, self.id)
+        """Delete a model item.
+        :unit-test: TestBase::test__delete()
+        """
+        sql = self._gen_delete_sql()
         self.cursor.execute(sql)
         self.conn.commit()
         return True
 
-    def get_field(self, field_name: str):
-        """Get the details on a model field from the field map.
-        :unit-test: test__get_field
-        """
-        for field_name, field in self.field_map.items():
-            if field["name"] == field_name:
-                return field
-        return None
-
     def get_by_id(self, model_id: int = None) -> bool:
-        """Get a single model object from db based on an object ID."""
+        """Get a single model object from db based on an object ID.
+        :unit-test: TestBase::test__get_by_id()
+        """
         if model_id:
             self.id = model_id
 
@@ -138,21 +163,13 @@ class Base:
         return True
 
     def get_by_name(self, name: str) -> bool:
-        """Get a model by name, if the model has a name field."""
-        found_name_field = False
-        for field_name, field in self.field_map.items():
-            if field["name"] == "name":
-                found_name_field = True
-                break
+        """Get a model by name, if the model has a name field.
+        :unit-test: TestBase::test__get_by_name()
+        """
+        if "name" not in self.field_map:
+            raise AttributeError('%s does not have a `name` attribute.' % __class__.__name__)
+        sql = self._gen_get_by_name_sql(name)
 
-        if not found_name_field:
-            logging.warning("Entity does not have a get by name method.")
-            return False
-
-        sql = """
-            SELECT *
-            FROM `%s`
-            WHERE `name` = "%s"; """ % (self.table_name, xlate.sql_safe(name))
         self.cursor.execute(sql)
         raw = self.cursor.fetchone()
         if not raw:
@@ -162,23 +179,14 @@ class Base:
 
     def get_by_field(self, field: str, value: str) -> bool:
         """Get a model by specific, if the model has a name field."""
-        found_field = False
-        for field_name, field_info in self.field_map.items():
-            if field_name == field:
-                found_field = True
-                break
-
-        if not found_field:
-            logging.warning("Entity does not have a %s field." % field)
-            return False
-
-        sql = """
-            SELECT *
-            FROM `%s`
-            WHERE `%s` = "%s"; """ % (
-            self.table_name,
-            xlate.sql_safe(field),
-            xlate.sql_safe(value))
+        if field not in self.field_map:
+            raise AttributeError('%s missing Attribute "%s"' % (self, field))
+        field = {
+            "field": field,
+            "value": value,
+            "op": "eq"
+        }
+        sql = self._gen_get_by_fields_sql(fields=[field])
         self.cursor.execute(sql)
         raw = self.cursor.fetchone()
         if not raw:
@@ -200,7 +208,7 @@ class Base:
             ]
         :unit-test: None
         """
-        sql_fields = self._gen_sql_get_by_fields(fields)
+        sql_fields = self._gen_get_by_fields_sql(fields)
         sql = """
             SELECT *
             FROM %s
@@ -216,11 +224,7 @@ class Base:
 
     def get_last(self) -> bool:
         """Get the last created model."""
-        sql = """
-            SELECT *
-            FROM %s
-            ORDER BY created_ts DESC
-            LIMIT 1""" % (self.table_name)
+        sql = self._gen_get_last_sql()
 
         self.cursor.execute(sql)
         run_raw = self.cursor.fetchone()
@@ -229,10 +233,21 @@ class Base:
         self.build_from_list(run_raw)
         return True
 
+    def get_field(self, field_name: str):
+        """Get the details on a model field from the field map.
+        :unit-test: test__get_field
+        """
+        for field_name, field in self.field_map.items():
+            if field["name"] == field_name:
+                return field
+        return None
+
     def build_from_list(self, raw: list) -> bool:
         """Build a model from an ordered list, converting data types to their desired type where
         possible.
+        :@todo: Simplify this method, it's too big.
         :param raw: The raw data from the database to be converted to model data.
+        :unit-test: TestBase::test__build_from_list
         """
         if len(self.field_map) != len(raw):
             msg = "BUILD FROM LIST Model: %s field_map: %s, record: %s \n" % (
@@ -241,6 +256,7 @@ class Base:
                 len(raw))
             msg += "Field Map: %s \n" % str(self.field_map)
             msg += "Raw Record: %s \n" % str(raw)
+            msg += "Maybe .setup() has not been run"
             logging.error(msg)
             raise AttributeError(msg)
 
@@ -287,16 +303,13 @@ class Base:
     def build_from_dict(self, raw: dict) -> bool:
         """Builds a model by a dictionary. This is expected to be used mostly from a client making
         a request from a web api.
+        :unit-test: TestBase::test__build_from_dict
         """
         for field, value in raw.items():
             if not hasattr(self, field):
                 continue
-            for field_map_field in self.field_map:
-                if field_map_field["name"] == field:
-                    field_map = field_map_field
-                    break
 
-            if field_map["type"] == "datetime":
+            if self.field_map[field]["type"] == "datetime":
                 if isinstance(value, str):
                     value = date_utils.date_from_json(value)
             setattr(self, field, value)
@@ -306,6 +319,7 @@ class Base:
     def json(self, get_api: bool = False) -> dict:
         """Create a JSON friendly output of the model, converting types to friendlies. If get_api
         is specified and a model doesnt have api_display=False, it will export in the output.
+        :unit-test: TestBase::test__json
         """
         json_out = {}
         for field_name, field in self.field_map.items():
@@ -316,35 +330,6 @@ class Base:
                 value = date_utils.json_date(value)
             json_out[field["name"]] = value
         return json_out
-
-    def describe(self) -> bool:
-        """Debug tool for describing an model instance, printing all its fields to the console."""
-        for field in self.field_map:
-            print("%s\t\t\t%s" % (field["name"], getattr(self, field["name"])))
-        return True
-
-    def insert(self):
-        """Insert a new record of the model."""
-        sql = self._gen_insert_sql()
-        try:
-            self.cursor.execute(sql)
-            self.conn.commit()
-        except ProgrammingError as e:
-            logging.critical(sql)
-            logging.critical("Caught ProgrammingError exception:", e)
-            exit(1)
-        self.id = self.cursor.lastrowid
-        return True
-
-    def iodku(self) -> bool:
-        """Runs an insert on duplicate key update query against the database, setting the id of
-        the item as it's class var id.
-        """
-        sql = self._gen_iodku_sql()
-        self.cursor.execute(sql)
-        self.conn.commit()
-        self.id = self.cursor.lastrowid
-        return True
 
     def _gen_insert_sql(self, skip_fields: list = ["id"]) -> tuple:
         """Generate the insert SQL statement.
@@ -378,6 +363,14 @@ class Base:
             # logging.info(iodku_sql)
         return iodku_sql
 
+    def _gen_delete_sql(self) -> str:
+        """Generate the SQL for deleting a record.
+        :unit-test: TestBase::test___gen_delete_sql
+        """
+        if not self.id:
+            raise AttributeError('%s missing Attribute "id"' % self)
+        return """DELETE FROM `%s` WHERE `id` = %s;""" % (self.table_name, xlate.sql_safe(self.id))
+
     def _gen_update_sql(self, skip_fields: list) -> tuple:
         """Generate the update SQL statement."""
         sql_args = {
@@ -406,7 +399,17 @@ class Base:
         }
         return sql
 
-    def _gen_sql_get_by_fields(self, fields: list) -> str:
+    def _gen_get_by_name_sql(self, name) -> str:
+        """
+        :unit-test: TestBase::test___gen_get_by_name_sql
+        """
+        sql = """
+            SELECT *
+            FROM `%s`
+            WHERE `name` = "%s";""" % (self.table_name, xlate.sql_safe(name))
+        return sql
+
+    def _gen_get_by_fields_sql(self, fields: list) -> str:
         """Generate a str for one or many search fields.
         :param fields: list of dict
             fields
@@ -417,6 +420,7 @@ class Base:
                     "op": "eq"
                 }
             ]
+        :unit-test: TestBase::test___gen_get_by_fields_sql
         """
         sql_fields = ""
         for field in fields:
@@ -434,6 +438,17 @@ class Base:
                 value)
         sql_fields = sql_fields[:-5]
         return sql_fields
+
+    def _gen_get_last_sql(self) -> str:
+        """Generate the last created row SQL.
+        :unit-test: TestModel::test___gen_get_last_sql
+        """
+        sql = """
+            SELECT *
+            FROM %s
+            ORDER BY created_ts DESC
+            LIMIT 1""" % (self.table_name)
+        return sql
 
     def _sql_field_value(self, field_map_info: dict, field_data: dict):
         """Get the correctly typed value for a field, santized and ready for use in SQL.
@@ -523,7 +538,7 @@ class Base:
 
     def _get_sql_value_santized_typed(self, field: dict, value) -> str:
         """Convert values to a safe santized value based on it's type.
-        :unit-test: test___get_sql_value_santized_typed
+        :unit-test: TestBase::test___get_sql_value_santized_typed
         """
         # Handle converting int value
         if field["type"] == "int":
@@ -558,8 +573,8 @@ class Base:
 
     def check_required_class_vars(self, extra_class_vars: list = []) -> bool:
         """Quick class var checks to make sure the required class vars are set before proceeding
-           with an operation.
-
+        with an operation.
+        :unit-test: TestBase::test__check_required_class_vars
         """
         if not self.conn:
             raise AttributeError('Missing self.conn')
@@ -633,7 +648,6 @@ class Base:
 
     def _generate_create_table_feilds(self) -> str:
         """Generates all fields column create sql statements.
-           :unit-test: test___generate_create_table_feilds
         """
         field_sql = ""
         field_num = len(self.field_map)
@@ -684,8 +698,8 @@ class Base:
 
     def _xlate_field_type(self, field_type: str) -> str:
         """Translates field types into sql lite column types.
-           @todo: create better class var for xlate map.
-           :unit-test: test
+        @todo: create better class var for xlate map.
+        :unit-test: TestBase.test___xlate_field_type
         """
         if self.backend == "mysql":
             if field_type == 'int':
