@@ -4,12 +4,15 @@
     Tests File: cver/src/cver/api/models/base.py
 
 """
-import arrow
-
 from datetime import datetime
 from dateutil.tz import tzutc
 
+import arrow
+from pytest import raises
+
 from cver.api.models.base import Base
+
+from cver_test_tools.fixtures import db
 
 
 BASE_MAP = {
@@ -69,12 +72,88 @@ class TestApiModelBase:
         assert hasattr(base, "cursor")
         assert base.cursor == "cursor"
 
+    def test__create_table(self):
+        """
+        :method: Base().create_table()
+        """
+        base = Base(db.Conn(), db.Cursor())
+        base.field_map = BASE_MAP
+        base.setup()
+        with raises(AttributeError):
+            assert base.create_table()
+        base.table_name = "base_table"
+        assert base.save()
+
+    def test__create_table_sql(self):
+        """
+        :method: Base().create_table_sql()
+        """
+        base = Base()
+        with raises(AttributeError):
+            assert base.create_table_sql()
+        base.table_name = "base_table"
+        base.field_map = BASE_MAP
+        base.setup()
+        expected = "CREATE TABLE IF NOT EXISTS base_table \n(`id` INTEGER PRIMARY KEY "
+        expected += "AUTO_INCREMENT,\n`created_ts` DATETIME,\n`updated_ts` DATETIME)"
+        assert expected == base.create_table_sql()
+
     def test__setup(self):
         """
         :method: Base().get_field()
         """
         base = Base().setup()
         assert base
+
+    def test__save(self):
+        """
+        :method: Base().save()
+        """
+        base = Base(db.Conn(), db.Cursor())
+        base.table_name = "base_table"
+        FIELD_MAP = BASE_MAP
+        FIELD_MAP["new_field"] = {
+            "name": "new_field",
+            "type": "str"
+        }
+        base.field_map = FIELD_MAP
+        base.setup()
+        BASE_MAP.pop("new_field")
+        assert base
+        assert not base.id, None
+        assert base.save()
+        assert isinstance(base.id, int)
+
+    def test__insert(self):
+        """
+        :method: Base().insert()
+        """
+        base = Base(db.Conn(), db.Cursor())
+        base.table_name = "base_table"
+        FIELD_MAP = BASE_MAP
+        FIELD_MAP["new_field"] = {
+            "name": "new_field",
+            "type": "str"
+        }
+        base.field_map = FIELD_MAP
+        base.setup()
+        BASE_MAP.pop("new_field")
+        assert base
+        assert not base.id
+        assert base.insert()
+        assert isinstance(base.id, int)
+
+    def test__iodku(self):
+        """
+        :method: Base().idoku()
+        """
+        base = Base(db.Conn(), db.Cursor())
+        base.table_name = "base_table"
+        base.field_map = BASE_MAP
+        base.setup()
+        base.id = 5
+        assert base
+        assert base.iodku()
 
     def test__get_field(self):
         """
@@ -92,7 +171,7 @@ class TestApiModelBase:
         """Check that we create a correct SQL statement for an insert.
         :method: Base()._gen_insert_sql
         """
-        base = Base()
+        base = Base(None, None)
         base.table_name = "base"
         base.field_map = BASE_MAP
         base.setup()
@@ -100,6 +179,31 @@ class TestApiModelBase:
         assert len(result) == 127
         expected = 'INSERT INTO `base` (`created_ts`, `updated_ts`) VALUES ('
         assert result[:56] == expected
+
+    def test____gen_iodku_sql(self):
+        """Check that we create a correct SQL statement for an insert.
+        :method: Base()._gen_iodku_sql
+        """
+        base = Base(None, None)
+        base.table_name = "base"
+        base.field_map = BASE_MAP
+        base.setup()
+        base.id = 5
+        result = base._gen_iodku_sql()
+        assert 314 == len(result)
+
+    def test____gen_delete_sql(self):
+        """Check that we create a correct SQL statement for a delete.
+        :method: Base()._gen_delete_sql
+        """
+        base = Base()
+        base.table_name = "base"
+        base.field_map = BASE_MAP
+        base.setup()
+        base.id = 5
+        result = base._gen_delete_sql()
+        expected = "DELETE FROM `base` WHERE `id` = 5;"
+        assert expected == result
 
     def test___gen_get_by_id_sql(self):
         """

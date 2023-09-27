@@ -73,7 +73,9 @@ class Base:
         return True
 
     def create_table_sql(self) -> bool:
-        """Create a table based SQL on the self.table_name, and self.field_map."""
+        """Create a table based SQL on the self.table_name, and self.field_map.
+        :unit-test: TestBase::test__create_table_sql
+        """
         if not self.table_name:
             raise AttributeError('Model table name not set, (self.table_name)')
         sql = "CREATE TABLE IF NOT EXISTS %s \n(%s)" % (
@@ -90,7 +92,9 @@ class Base:
         return True
 
     def save(self) -> bool:
-        """Saves a model instance in the model table."""
+        """Saves a model instance in the model table.
+        :unit-test: TestBase::test__save
+        """
         self.setup()
         self.check_required_class_vars()
         if self.backed_iodku and not self.id:
@@ -103,9 +107,35 @@ class Base:
         self.conn.commit()
         return True
 
+    def insert(self):
+        """Insert a new record of the model.
+        :unit-test: TestBase::test__insert
+        """
+        sql = self._gen_insert_sql()
+        try:
+            self.cursor.execute(sql)
+            self.conn.commit()
+        except ProgrammingError as e:
+            logging.critical(sql)
+            logging.critical("Caught ProgrammingError exception:", e)
+            exit(1)
+        self.id = self.cursor.lastrowid
+        return True
+
+    def iodku(self) -> bool:
+        """Runs an insert on duplicate key update query against the database, setting the id of
+        the item as it's class var id.
+        :unit-test: TestBase::test__iodku
+        """
+        sql = self._gen_iodku_sql()
+        self.cursor.execute(sql)
+        self.conn.commit()
+        self.id = self.cursor.lastrowid
+        return True
+
     def delete(self) -> bool:
         """Delete a model item."""
-        sql = """DELETE FROM `%s` WHERE `id` = %s """ % (self.table_name, self.id)
+        sql = self._gen_delete_sql()
         self.cursor.execute(sql)
         self.conn.commit()
         return True
@@ -323,29 +353,6 @@ class Base:
             print("%s\t\t\t%s" % (field["name"], getattr(self, field["name"])))
         return True
 
-    def insert(self):
-        """Insert a new record of the model."""
-        sql = self._gen_insert_sql()
-        try:
-            self.cursor.execute(sql)
-            self.conn.commit()
-        except ProgrammingError as e:
-            logging.critical(sql)
-            logging.critical("Caught ProgrammingError exception:", e)
-            exit(1)
-        self.id = self.cursor.lastrowid
-        return True
-
-    def iodku(self) -> bool:
-        """Runs an insert on duplicate key update query against the database, setting the id of
-        the item as it's class var id.
-        """
-        sql = self._gen_iodku_sql()
-        self.cursor.execute(sql)
-        self.conn.commit()
-        self.id = self.cursor.lastrowid
-        return True
-
     def _gen_insert_sql(self, skip_fields: list = ["id"]) -> tuple:
         """Generate the insert SQL statement.
         :unit-test: test___gen_insert_sql
@@ -377,6 +384,14 @@ class Base:
             # logging.info("IODKU")
             # logging.info(iodku_sql)
         return iodku_sql
+
+    def _gen_delete_sql(self) -> str:
+        """Generate the SQL for deleting a record.
+        :unit-test: TestBase::test___gen_delete_sql
+        """
+        if not self.id:
+            raise AttributeError('%s missing Attribute "id"' % self)
+        return """DELETE FROM `%s` WHERE `id` = %s;""" % (self.table_name, xlate.sql_safe(self.id))
 
     def _gen_update_sql(self, skip_fields: list) -> tuple:
         """Generate the update SQL statement."""
