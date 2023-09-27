@@ -116,6 +116,22 @@ tasks:
       - echo "Copied and Built!"
     silent: True
 
+  dev-cp-all:
+    cmds:
+      - |
+        POD_API=$(kubectl get pods -l app.kubernetes.io/instance=cver-api-dev --no-headers | cut -d' ' -f1)
+        kubectl cp {{ .CVER_DIR }}/src/cver/ ${POD_API}:/app/ -c cver-api
+        kubectl exec -it ${POD_API} -c cver-api -- cver-build
+        echo "Copied and Built Api"
+      # - |
+      #   POD_ENGINE=$(kubectl get pods -l app.kubernetes.io/instance=cver-engine-dev --no-headers | cut -d' ' -f1)
+      #   kubectl cp {{ .CVER_DIR }}/src/cver/ ${POD_ENGINE}:/app/
+      #   kubectl exec -it ${POD_ENGINE} -- cver-build
+      #   echo "Copied and Built Engine"
+      - |
+        POD_API=$(kubectl get pods -l app.kubernetes.io/instance=cver-api-dev --no-headers | cut -d' ' -f1)
+        kubectl exec -it ${POD_API} -c cver-api -- cver-test-unit
+
   dev-cp-engine-tests:
     cmds:
       - |

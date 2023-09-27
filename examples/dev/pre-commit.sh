@@ -1,1 +1,3 @@
-flake8 src/cver --config=src/flake8 --count --show-source --statistics
+cd ${CVER_DIR}
+task dev-cp-all
+task 
