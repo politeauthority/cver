@@ -202,6 +202,67 @@ class TestApiModelBase:
         assert "hello-world" == base.name
         BASE_MAP.pop("name")
 
+    def test__get_by_field(self):
+        """
+        :method: Base().get_by_field()
+        """
+        FIELD_MAP = BASE_MAP
+        FIELD_MAP["name"] = {
+            "name": "name",
+            "type": "str"
+        }
+        cursor = db.Cursor()
+        cursor.result_to_return = [5, datetime.now(), datetime.now(), "hello-world"]
+        base = Base(db.Conn(), cursor)
+        base.table_name = "base_table"
+        base.field_map = FIELD_MAP
+        base.setup()
+        assert base.get_by_field("name", "hello-world")
+        assert "hello-world" == base.name
+        BASE_MAP.pop("name")
+
+    def test__get_by_fields(self):
+        """
+        :method: Base().get_by_fields()
+        """
+        FIELD_MAP = BASE_MAP
+        FIELD_MAP["image_id"] = {
+            "name": "image_id",
+            "type": "int"
+        }
+        FIELD_MAP["image_build_id"] = {
+            "name": "image_build_id",
+            "type": "int"
+        }
+        cursor = db.Cursor()
+        cursor.result_to_return = [
+            5,
+            datetime.now(),
+            datetime.now(),
+            5,
+            10]
+        fields = [
+            {
+                "field": "image_id",
+                "value": 5,
+                "op": "eq"
+            },
+            {
+                "field": "image_build_id",
+                "value": 10,
+                "op": "eq"
+            }
+        ]
+        base = Base(db.Conn(), cursor)
+        base.table_name = "base_table"
+        base.field_map = FIELD_MAP
+        base.setup()
+        assert base.get_by_fields(fields)
+        assert 5 == base.image_id
+        assert 10 == base.image_build_id
+        BASE_MAP.pop("image_id")
+        BASE_MAP.pop("image_build_id")
+
     def test__get_field(self):
         """
         :method: Base().get_field()
@@ -317,6 +378,17 @@ class TestApiModelBase:
         BASE_MAP.pop("image_id")
         BASE_MAP.pop("image_build_id")
 
+    def test___gen_get_last_sql(self):
+        """
+        :method: Base()._gen_get_last_sql
+        """
+        base = Base()
+        base.table_name = "base"
+        result = base._gen_get_last_sql()
+        expected = "\n            SELECT *\n            FROM base\n            ORDER BY "
+        expected += "created_ts DESC\n            LIMIT 1"
+        assert expected == result
+
     def test___sql_field_value(self):
         """
         :method: Base()._sql_field_value
@@ -367,7 +439,7 @@ class TestApiModelBase:
         base.created_ts = datetime(2023, 6, 3, 20, 19, 22, tzinfo=tzutc())
         base.updated_ts = datetime(2023, 6, 3, 20, 19, 22, tzinfo=tzutc())
         expected_res = '1, "2023-06-03 20:19:22+00:00", "2023-06-03 20:19:22+00:00"'
-        assert base._sql_insert_values_santized({}) == expected_res
+        assert expected_res == base._sql_insert_values_santized({})
 
     def test___sql_update_fields_values_santized(self):
         """
@@ -406,6 +478,17 @@ class TestApiModelBase:
         assert base._get_sql_value_santized_typed(bool_field, "True") == 1
         assert base._get_sql_value_santized_typed(bool_field, False) == 0
         assert base._get_sql_value_santized_typed(bool_field, "False") == 0
+
+    def test__check_required_class_vars(self):
+        """
+        :method: Base().check_required_class_vars
+        """
+        base = Base()
+        with raises(AttributeError):
+            base.check_required_class_vars()
+
+        base = Base(db.Conn(), db.Cursor())
+        assert base.check_required_class_vars()
 
     def test___set_defaults(self):
         """Checks that default field types are applied to the model.

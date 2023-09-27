@@ -8,7 +8,7 @@ The Base Model SQL driver can work with both SQLite3 and MySQL database.
 
 Testing:
     Unit test file  cver/tests/unit/api/models/test_base.py
-    Unit tested     27/41
+    Unit tested     29/42
 
 """
 from datetime import datetime
@@ -179,23 +179,14 @@ class Base:
 
     def get_by_field(self, field: str, value: str) -> bool:
         """Get a model by specific, if the model has a name field."""
-        found_field = False
-        for field_name, field_info in self.field_map.items():
-            if field_name == field:
-                found_field = True
-                break
-
-        if not found_field:
-            logging.warning("Entity does not have a %s field." % field)
-            return False
-
-        sql = """
-            SELECT *
-            FROM `%s`
-            WHERE `%s` = "%s"; """ % (
-            self.table_name,
-            xlate.sql_safe(field),
-            xlate.sql_safe(value))
+        if field not in self.field_map:
+            raise AttributeError('%s missing Attribute "%s"' % (self, field))
+        field = {
+            "field": field,
+            "value": value,
+            "op": "eq"
+        }
+        sql = self._gen_get_by_fields_sql(fields=[field])
         self.cursor.execute(sql)
         raw = self.cursor.fetchone()
         if not raw:
@@ -233,11 +224,7 @@ class Base:
 
     def get_last(self) -> bool:
         """Get the last created model."""
-        sql = """
-            SELECT *
-            FROM %s
-            ORDER BY created_ts DESC
-            LIMIT 1""" % (self.table_name)
+        sql = self._gen_get_last_sql()
 
         self.cursor.execute(sql)
         run_raw = self.cursor.fetchone()
@@ -438,6 +425,7 @@ class Base:
                     "op": "eq"
                 }
             ]
+        :unit-test: TestBase::test___gen_get_by_fields_sql
         """
         sql_fields = ""
         for field in fields:
@@ -455,6 +443,17 @@ class Base:
                 value)
         sql_fields = sql_fields[:-5]
         return sql_fields
+
+    def _gen_get_last_sql(self) -> str:
+        """Generate the last created row SQL.
+        :unit-test: TestModel::test___gen_get_last_sql
+        """
+        sql = """
+            SELECT *
+            FROM %s
+            ORDER BY created_ts DESC
+            LIMIT 1""" % (self.table_name)
+        return sql
 
     def _sql_field_value(self, field_map_info: dict, field_data: dict):
         """Get the correctly typed value for a field, santized and ready for use in SQL.
@@ -544,7 +543,7 @@ class Base:
 
     def _get_sql_value_santized_typed(self, field: dict, value) -> str:
         """Convert values to a safe santized value based on it's type.
-        :unit-test: test___get_sql_value_santized_typed
+        :unit-test: TestBase::test___get_sql_value_santized_typed
         """
         # Handle converting int value
         if field["type"] == "int":
@@ -579,8 +578,8 @@ class Base:
 
     def check_required_class_vars(self, extra_class_vars: list = []) -> bool:
         """Quick class var checks to make sure the required class vars are set before proceeding
-           with an operation.
-
+        with an operation.
+        :unit-test: TestBase::test__check_required_class_vars
         """
         if not self.conn:
             raise AttributeError('Missing self.conn')
