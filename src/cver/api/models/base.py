@@ -8,7 +8,7 @@ The Base Model SQL driver can work with both SQLite3 and MySQL database.
 
 Testing:
     Unit test file  cver/tests/unit/api/models/test_base.py
-    Unit tested     26/41
+    Unit tested     27/41
 
 """
 from datetime import datetime
@@ -217,7 +217,7 @@ class Base:
             ]
         :unit-test: None
         """
-        sql_fields = self._gen_sql_get_by_fields(fields)
+        sql_fields = self._gen_get_by_fields_sql(fields)
         sql = """
             SELECT *
             FROM %s
@@ -427,7 +427,7 @@ class Base:
             WHERE `name` = "%s";""" % (self.table_name, xlate.sql_safe(name))
         return sql
 
-    def _gen_sql_get_by_fields(self, fields: list) -> str:
+    def _gen_get_by_fields_sql(self, fields: list) -> str:
         """Generate a str for one or many search fields.
         :param fields: list of dict
             fields
@@ -654,7 +654,6 @@ class Base:
 
     def _generate_create_table_feilds(self) -> str:
         """Generates all fields column create sql statements.
-           :unit-test: test___generate_create_table_feilds
         """
         field_sql = ""
         field_num = len(self.field_map)
@@ -705,8 +704,8 @@ class Base:
 
     def _xlate_field_type(self, field_type: str) -> str:
         """Translates field types into sql lite column types.
-           @todo: create better class var for xlate map.
-           :unit-test: test
+        @todo: create better class var for xlate map.
+        :unit-test: TestBase.test___xlate_field_type
         """
         if self.backend == "mysql":
             if field_type == 'int':

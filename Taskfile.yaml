@@ -102,7 +102,7 @@ tasks:
     cmds:
       - |
         POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-api-dev --no-headers | cut -d' ' -f1)
-        kubectl cp -c cver-api {{ .CVER_DIR }}/tests/ ${POD}:/
+        kubectl cp {{ .CVER_DIR }}/tests/ ${POD}:/
         kubectl exec -it ${POD} -c cver-api -- cver-build-tests
       - echo "Copied and Built Cver Tests"
     silent: True

@@ -192,6 +192,7 @@ class TestApiModelBase:
             "type": "str"
         }
         cursor = db.Cursor()
+
         cursor.result_to_return = [5, datetime.now(), datetime.now(), "hello-world"]
         base = Base(db.Conn(), cursor)
         base.table_name = "base_table"
@@ -276,6 +277,46 @@ class TestApiModelBase:
         expected_res += '= "hello-world";'
         assert expected_res == base._gen_get_by_name_sql("hello-world")
 
+    def test___gen_get_by_fields_sql(self):
+        """
+        :method: Base()._gen_get_by_fields_sql
+        """
+        SCAN_MAP = {
+            "image_id": {
+                "name": "image_id",
+                "type": "int",
+                "api_searchable": True
+            },
+            "image_build_id": {
+                "name": "image_build_id",
+                "type": "int",
+                "api_searchable": True
+            }
+        }
+        new_map = BASE_MAP
+        new_map.update(SCAN_MAP)
+        fields = [
+            {
+                "field": "image_id",
+                "value": 1,
+                "op": "eq"
+            },
+            {
+                "field": "image_build_id",
+                "value": 1,
+                "op": "eq"
+            }
+        ]
+        base = Base()
+        base.table_name = "base"
+        base.field_map = new_map
+        base.setup()
+        result = base._gen_get_by_fields_sql(fields)
+        expected = "`image_id` = 1 AND `image_build_id` = 1"
+        assert expected == result
+        BASE_MAP.pop("image_id")
+        BASE_MAP.pop("image_build_id")
+
     def test___sql_field_value(self):
         """
         :method: Base()._sql_field_value
@@ -343,23 +384,6 @@ class TestApiModelBase:
         expected_res += '`updated_ts`="2023-06-03 20:19:22+00:00"'
         assert base._sql_update_fields_values_santized({}) == expected_res
 
-    def test___set_defaults(self):
-        """Checks that default field types are applied to the model.
-        @todo: Currently only tests bools, need to test more types.
-        :method: Base()._set_defaults
-        """
-        FIELD_MAP = BASE_MAP
-        FIELD_MAP["new"] = {
-            "name": "new",
-            "type": "bool",
-            "default": True
-        }
-        base = Base()
-        base.field_map = FIELD_MAP
-        set_detaults = base._set_defaults()
-        assert set_detaults
-        assert base.new
-
     def test___get_sql_value_santized_typed(self):
         """
         :method: Base()._get_sql_value_santized_typed
@@ -383,41 +407,36 @@ class TestApiModelBase:
         assert base._get_sql_value_santized_typed(bool_field, False) == 0
         assert base._get_sql_value_santized_typed(bool_field, "False") == 0
 
-    # def test___gen_sql_get_by_fields(self):
-    #     """
-    #     :method: Base()._gen_sql_get_by_fields
-    #     """
-    #     SCAN_MAP = {
-    #         "image_id": {
-    #             "name": "image_id",
-    #             "type": "int",
-    #             "api_searchable": True
-    #         },
-    #         "image_build_id": {
-    #             "name": "image_build_id",
-    #             "type": "int",
-    #             "api_searchable": True
-    #         }
-    #     }
-    #     new_map = BASE_MAP
-    #     new_map.update(SCAN_MAP)
-    #     fields = [
-    #         {
-    #             "field": "image_id",
-    #             "value": 1,
-    #             "op": "eq"
-    #         },
-    #         {
-    #             "field": "image_build_id",
-    #             "value": 1,
-    #             "op": "eq"
-    #         }
-    #     ]
-    #     base = Base()
-    #     base.table_name = "base"
-    #     base.field_map = new_map
-    #     base.setup()
-    #     result = base._gen_sql_get_by_fields(fields)
-    #     assert result == "`image_id` = 1 AND `image_build_id` = 1"
+    def test___set_defaults(self):
+        """Checks that default field types are applied to the model.
+        @todo: Currently only tests bools, need to test more types.
+        :method: Base()._set_defaults
+        """
+        FIELD_MAP = BASE_MAP
+        FIELD_MAP["new"] = {
+            "name": "new",
+            "type": "bool",
+            "default": True
+        }
+        base = Base()
+        base.field_map = FIELD_MAP
+        set_detaults = base._set_defaults()
+        assert set_detaults
+        assert base.new
+
+    def test___xlate_field_type(self):
+        """
+        :method: Base()._xlate_field_type
+        """
+        base = Base()
+        "INTEGER" == base._xlate_field_type("int")
+        "DATETIME" == base._xlate_field_type("datetime")
+        "DATETIME" == base._xlate_field_type("datetime")
+        "VARCHAR(200)" == base._xlate_field_type("str")
+        "TEXT" == base._xlate_field_type("text")
+        "TINYINT(1)" == base._xlate_field_type("bool")
+        "DECIMAL(10, 5)" == base._xlate_field_type("float")
+        "TEXT" == base._xlate_field_type("list")
+        "JSON" == base._xlate_field_type("json")
 
 # End File: cver/tests/unit/api/models/test_base.py
