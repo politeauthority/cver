@@ -187,6 +187,7 @@ class Base:
             "op": "eq"
         }
         sql = self._gen_get_by_fields_sql(fields=[field])
+        logging.debug(sql)
         self.cursor.execute(sql)
         raw = self.cursor.fetchone()
         if not raw:
