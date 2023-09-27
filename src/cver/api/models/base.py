@@ -8,7 +8,7 @@ The Base Model SQL driver can work with both SQLite3 and MySQL database.
 
 Testing:
     Unit test file  cver/tests/unit/api/models/test_base.py
-    Unit tested     29/42
+    Unit tested     35/42
 
 """
 from datetime import datetime
@@ -245,7 +245,9 @@ class Base:
     def build_from_list(self, raw: list) -> bool:
         """Build a model from an ordered list, converting data types to their desired type where
         possible.
+        :@todo: Simplify this method, it's too big.
         :param raw: The raw data from the database to be converted to model data.
+        :unit-test: TestBase::test__build_from_list
         """
         if len(self.field_map) != len(raw):
             msg = "BUILD FROM LIST Model: %s field_map: %s, record: %s \n" % (
@@ -254,6 +256,7 @@ class Base:
                 len(raw))
             msg += "Field Map: %s \n" % str(self.field_map)
             msg += "Raw Record: %s \n" % str(raw)
+            msg += "Maybe .setup() has not been run"
             logging.error(msg)
             raise AttributeError(msg)
 
@@ -300,16 +303,13 @@ class Base:
     def build_from_dict(self, raw: dict) -> bool:
         """Builds a model by a dictionary. This is expected to be used mostly from a client making
         a request from a web api.
+        :unit-test: TestBase::test__build_from_dict
         """
         for field, value in raw.items():
             if not hasattr(self, field):
                 continue
-            for field_map_field in self.field_map:
-                if field_map_field["name"] == field:
-                    field_map = field_map_field
-                    break
 
-            if field_map["type"] == "datetime":
+            if self.field_map[field]["type"] == "datetime":
                 if isinstance(value, str):
                     value = date_utils.date_from_json(value)
             setattr(self, field, value)
@@ -319,6 +319,7 @@ class Base:
     def json(self, get_api: bool = False) -> dict:
         """Create a JSON friendly output of the model, converting types to friendlies. If get_api
         is specified and a model doesnt have api_display=False, it will export in the output.
+        :unit-test: TestBase::test__json
         """
         json_out = {}
         for field_name, field in self.field_map.items():

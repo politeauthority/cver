@@ -2,10 +2,12 @@
     Cver Test Unit
     Api Model: Base
     Tests File: cver/src/cver/api/models/base.py
+    @todo: Many of these tests could stand to be expanded out to test more types and complex models.
 
 """
 from datetime import datetime
 from dateutil.tz import tzutc
+import json
 
 import arrow
 from pytest import raises
@@ -192,7 +194,6 @@ class TestApiModelBase:
             "type": "str"
         }
         cursor = db.Cursor()
-
         cursor.result_to_return = [5, datetime.now(), datetime.now(), "hello-world"]
         base = Base(db.Conn(), cursor)
         base.table_name = "base_table"
@@ -263,6 +264,19 @@ class TestApiModelBase:
         BASE_MAP.pop("image_id")
         BASE_MAP.pop("image_build_id")
 
+    def test__get_last(self):
+        """
+        :method: Base().get_last()
+        """
+        cursor = db.Cursor()
+        cursor.result_to_return = [5, datetime.now(), datetime.now()]
+        base = Base(db.Conn(), cursor)
+        base.table_name = "base_table"
+        base.field_map = BASE_MAP
+        base.setup()
+        assert base.get_last()
+        assert 5 == base.id
+
     def test__get_field(self):
         """
         :method: Base().get_field()
@@ -274,6 +288,56 @@ class TestApiModelBase:
         assert isinstance(field, dict)
         assert "name" in field
         assert "type" in field
+
+    def test__build_from_list(self):
+        """
+        :method: Base().build_from_list()
+        """
+        test_record = [5, datetime.now(), datetime.now()]
+        base = Base()
+        base.field_map = BASE_MAP
+        base.setup()
+        assert base.build_from_list(test_record)
+        assert 5 == base.id
+        assert isinstance(base.created_ts, datetime)
+        assert isinstance(base.updated_ts, datetime)
+
+        with raises(AttributeError):
+            test_record_error = test_record
+            test_record_error.append("hello-world")
+            base.build_from_list(test_record_error)
+
+    def test__build_from_dict(self):
+        """
+        :method: Base().build_from_dict()
+        :@todo: This can be expanded to handle more types.
+        """
+        base = Base()
+        base.field_map = BASE_MAP
+        base.setup()
+        test_record = {
+            "id": 5,
+            "created_ts": datetime.now(),
+            "updated_ts": datetime.now()
+        }
+        assert base.build_from_dict(test_record)
+        assert 5 == base.id
+        assert isinstance(base.created_ts, datetime)
+        assert isinstance(base.updated_ts, datetime)
+
+    def test__json(self):
+        """
+        :method: Base().json()
+        :@todo: This can be expanded more to handle the api argument.
+        """
+        base = Base()
+        base.field_map = BASE_MAP
+        base.setup()
+        base.id = 5
+        base.created_ts = datetime.now()
+        base.updated_ts = datetime.now()
+        base_json = base.json()
+        assert json.dumps(base_json)
 
     def test___gen_insert_sql(self):
         """Check that we create a correct SQL statement for an insert.
