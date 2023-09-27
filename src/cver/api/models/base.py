@@ -8,7 +8,7 @@ The Base Model SQL driver can work with both SQLite3 and MySQL database.
 
 Testing:
     Unit test file  cver/tests/unit/api/models/test_base.py
-    Unit tested     35/42
+    Unit tested     35/41
 
 """
 from datetime import datetime
@@ -330,12 +330,6 @@ class Base:
                 value = date_utils.json_date(value)
             json_out[field["name"]] = value
         return json_out
-
-    def describe(self) -> bool:
-        """Debug tool for describing an model instance, printing all its fields to the console."""
-        for field in self.field_map:
-            print("%s\t\t\t%s" % (field["name"], getattr(self, field["name"])))
-        return True
 
     def _gen_insert_sql(self, skip_fields: list = ["id"]) -> tuple:
         """Generate the insert SQL statement.
