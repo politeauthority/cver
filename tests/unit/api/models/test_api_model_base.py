@@ -155,6 +155,52 @@ class TestApiModelBase:
         assert base
         assert base.iodku()
 
+    def test__delete(self):
+        """
+        :method: Base().delete()
+        """
+        base = Base(db.Conn(), db.Cursor())
+        base.table_name = "base_table"
+        base.field_map = BASE_MAP
+        base.setup()
+        base.id = 5
+        assert base
+        assert base.delete()
+
+    def test__get_by_id(self):
+        """
+        :method: Base().get_by_id()
+        """
+        cursor = db.Cursor()
+        cursor.result_to_return = [5, datetime.now(), datetime.now()]
+        base = Base(db.Conn(), cursor)
+        base.table_name = "base_table"
+        base.field_map = BASE_MAP
+        base.setup()
+        assert base.get_by_id(5)
+        assert 5 == base.id
+        assert isinstance(base.created_ts, datetime)
+        assert isinstance(base.updated_ts, datetime)
+
+    def test__get_by_name(self):
+        """
+        :method: Base().get_by_name()
+        """
+        FIELD_MAP = BASE_MAP
+        FIELD_MAP["name"] = {
+            "name": "name",
+            "type": "str"
+        }
+        cursor = db.Cursor()
+        cursor.result_to_return = [5, datetime.now(), datetime.now(), "hello-world"]
+        base = Base(db.Conn(), cursor)
+        base.table_name = "base_table"
+        base.field_map = FIELD_MAP
+        base.setup()
+        assert base.get_by_name("hello-world")
+        assert "hello-world" == base.name
+        BASE_MAP.pop("name")
+
     def test__get_field(self):
         """
         :method: Base().get_field()
@@ -217,6 +263,18 @@ class TestApiModelBase:
         expected_res = '\n            SELECT *\n            FROM `base`\n            '
         expected_res += 'WHERE `id` = 1;'
         assert base._gen_get_by_id_sql() == expected_res
+
+    def test___gen_get_by_name_sql(self):
+        """
+        :method: Base()._gen_get_by_name_sql
+        """
+        base = Base()
+        base.table_name = "base"
+        base.field_map = BASE_MAP
+        base.setup()
+        expected_res = '\n            SELECT *\n            FROM `base`\n            WHERE `name` '
+        expected_res += '= "hello-world";'
+        assert expected_res == base._gen_get_by_name_sql("hello-world")
 
     def test___sql_field_value(self):
         """

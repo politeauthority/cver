@@ -8,7 +8,7 @@ The Base Model SQL driver can work with both SQLite3 and MySQL database.
 
 Testing:
     Unit test file  cver/tests/unit/api/models/test_base.py
-    Unit tested     14/40
+    Unit tested     26/41
 
 """
 from datetime import datetime
@@ -134,23 +134,18 @@ class Base:
         return True
 
     def delete(self) -> bool:
-        """Delete a model item."""
+        """Delete a model item.
+        :unit-test: TestBase::test__delete()
+        """
         sql = self._gen_delete_sql()
         self.cursor.execute(sql)
         self.conn.commit()
         return True
 
-    def get_field(self, field_name: str):
-        """Get the details on a model field from the field map.
-        :unit-test: test__get_field
-        """
-        for field_name, field in self.field_map.items():
-            if field["name"] == field_name:
-                return field
-        return None
-
     def get_by_id(self, model_id: int = None) -> bool:
-        """Get a single model object from db based on an object ID."""
+        """Get a single model object from db based on an object ID.
+        :unit-test: TestBase::test__get_by_id()
+        """
         if model_id:
             self.id = model_id
 
@@ -168,21 +163,13 @@ class Base:
         return True
 
     def get_by_name(self, name: str) -> bool:
-        """Get a model by name, if the model has a name field."""
-        found_name_field = False
-        for field_name, field in self.field_map.items():
-            if field["name"] == "name":
-                found_name_field = True
-                break
+        """Get a model by name, if the model has a name field.
+        :unit-test: TestBase::test__get_by_name()
+        """
+        if "name" not in self.field_map:
+            raise AttributeError('%s does not have a `name` attribute.' % __class__.__name__)
+        sql = self._gen_get_by_name_sql(name)
 
-        if not found_name_field:
-            logging.warning("Entity does not have a get by name method.")
-            return False
-
-        sql = """
-            SELECT *
-            FROM `%s`
-            WHERE `name` = "%s"; """ % (self.table_name, xlate.sql_safe(name))
         self.cursor.execute(sql)
         raw = self.cursor.fetchone()
         if not raw:
@@ -258,6 +245,15 @@ class Base:
             return False
         self.build_from_list(run_raw)
         return True
+
+    def get_field(self, field_name: str):
+        """Get the details on a model field from the field map.
+        :unit-test: test__get_field
+        """
+        for field_name, field in self.field_map.items():
+            if field["name"] == field_name:
+                return field
+        return None
 
     def build_from_list(self, raw: list) -> bool:
         """Build a model from an ordered list, converting data types to their desired type where
@@ -419,6 +415,16 @@ class Base:
             "table": self.table_name,
             "model_id": xlate.sql_safe(self.id)
         }
+        return sql
+
+    def _gen_get_by_name_sql(self, name) -> str:
+        """
+        :unit-test: TestBase::test___gen_get_by_name_sql
+        """
+        sql = """
+            SELECT *
+            FROM `%s`
+            WHERE `name` = "%s";""" % (self.table_name, xlate.sql_safe(name))
         return sql
 
     def _gen_sql_get_by_fields(self, fields: list) -> str:
