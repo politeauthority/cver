@@ -8,7 +8,7 @@ The Base Model SQL driver can work with both SQLite3 and MySQL database.
 
 Testing:
     Unit test file  cver/tests/unit/api/models/test_base.py
-    Unit tested     35/41
+    Unit tested     35/42
 
 """
 from datetime import datetime
@@ -186,7 +186,7 @@ class Base:
             "value": value,
             "op": "eq"
         }
-        sql = self._gen_get_by_fields_sql(fields=[field])
+        sql = self._gen_get_by_field_sql(field=field)
         logging.info(sql)
         self.cursor.execute(sql)
         raw = self.cursor.fetchone()
@@ -410,6 +410,20 @@ class Base:
             WHERE `name` = "%s";""" % (self.table_name, xlate.sql_safe(name))
         return sql
 
+    def _gen_get_by_field_sql(self, field) -> str:
+        """
+        :unit-test: TestBase::test___gen_get_by_field_sql
+        """
+        field_sql = self._gen_get_by_fields_sql(fields=[field])
+        sql = """
+            SELECT *
+            FROM %s
+            WHERE
+                %s
+            LIMIT 1;
+        """ % (self.table_name, field_sql)
+        return sql
+
     def _gen_get_by_fields_sql(self, fields: list) -> str:
         """Generate a str for one or many search fields.
         :param fields: list of dict
@@ -421,6 +435,7 @@ class Base:
                     "op": "eq"
                 }
             ]
+        :returns: `slug_name` = "admin"
         :unit-test: TestBase::test___gen_get_by_fields_sql
         """
         sql_fields = ""

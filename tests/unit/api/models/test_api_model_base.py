@@ -402,6 +402,17 @@ class TestApiModelBase:
         expected_res += '= "hello-world";'
         assert expected_res == base._gen_get_by_name_sql("hello-world")
 
+    # def test___gen_get_by_fields_sql(self):
+    #     """
+    #     :method: Base()._gen_get_by_fields_sql()
+    #     """
+    #     base = Base()
+    #     base.table_name = "base"
+    #     base.field_map = BASE_MAP
+    #     base.setup()
+    #     result = base._gen_get_by_fields_sql()
+    #     import ipdb; ipdb.set_trace()
+
     def test___gen_get_by_fields_sql(self):
         """
         :method: Base()._gen_get_by_fields_sql
