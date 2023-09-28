@@ -83,7 +83,7 @@ def post_model(model, entity_id: int = None, generated_data: dict = {}):
                 data["message"] = "Could not find %s ID: %s" % (entity.model_name, entity_id)
                 return make_response(jsonify(data), 404)
             else:
-                logging.debug("POST - Found entity: %s" % entity)
+                logging.info("POST - Found entity by ID: %s" % entity)
 
     # Dont allow api creates on api uncreateble models
     if not entity.id and not entity.createable:
@@ -108,6 +108,9 @@ def post_model(model, entity_id: int = None, generated_data: dict = {}):
         for entity_field_name, entity_field in entity.field_map.items():
             if entity_field["name"] == field_name:
                 if "api_writeable" not in entity_field and field_name not in generated_data:
+                    logging.warning("Entity %s can not write field %s via an API request" % (
+                        entity,
+                        field_name))
                     continue
                 else:
                     update_field = True

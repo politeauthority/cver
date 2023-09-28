@@ -47,10 +47,10 @@ jobs:
               - 'src/migrate/**'
               - 'src/shared/**'
               - 'src/cver_client/**'
-              - 'tests/unit/api
-              - 'tests/unit/cver_client
-              - 'tests/regression/api
-              - 'tests/regression/cver_client
+              - 'tests/unit/api/**'
+              - 'tests/unit/cver_client/**'
+              - 'tests/regression/api/**'
+              - 'tests/regression/cver_client/**'
       - uses: docker/login-action@v2
         if: steps.changes.outputs.src == 'true'
         with:

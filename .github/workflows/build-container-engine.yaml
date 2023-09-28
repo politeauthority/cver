@@ -46,6 +46,7 @@ jobs:
               - 'src/shared/**'
               - 'src/cver_client/**'
               - 'src/engine/**'
+              - 'tests/regression/engine/**'
       - uses: docker/login-action@v2
         if: steps.changes.outputs.src == 'true'
         with:
