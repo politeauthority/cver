@@ -156,6 +156,7 @@ class Engine:
         tmp = tmp[:tmp.find("\n")]
         return tmp
 
+
 if __name__ == "__main__":
     Engine().run()
 
