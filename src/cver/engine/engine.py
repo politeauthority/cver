@@ -142,7 +142,6 @@ class Engine:
         else:
             logging.error("Could not save: %s" % ib)
 
-        import ipdb; ipdb.set_trace()
         ibw.waiting_for = "scan"
         ibw.image_build_id = ib.id
         ibw.save()
