@@ -574,10 +574,17 @@ class TestApiModelBase:
         }
         field_data = {
             "field": "image_build_id",
+            "value": None,
+            "op": "eq"
+        }
+        assert "NULL" == base._sql_field_value(field_map_info, field_data)
+        field_data = {
+            "field": "image_build_id",
             "value": 1,
             "op": "eq"
         }
-        assert base._sql_field_value(field_map_info, field_data) == 1
+        assert 1 == base._sql_field_value(field_map_info, field_data)
+
         field_map_info = {
             "name": "name",
             "type": "str",
@@ -587,7 +594,7 @@ class TestApiModelBase:
             "value": "hello",
             "op": "eq"
         }
-        assert base._sql_field_value(field_map_info, field_data) == '"hello"'
+        assert '"hello"' == base._sql_field_value(field_map_info, field_data)
 
     def test___sql_fields_sanitized(self):
         """

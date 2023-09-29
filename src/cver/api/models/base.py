@@ -190,6 +190,7 @@ class Base:
         if not self.field_meta:
             return False
         sql = self._gen_get_by_unique_key_sql(fields)
+        logging.info("\n\n%s\n\n" % sql)
         self.cursor.execute(sql)
         raw = self.cursor.fetchone()
         if not raw:
@@ -507,11 +508,10 @@ class Base:
         sql_fields = ""
         for field in fields:
             field_name = "`%s`" % field["field"]
-            if field["op"] == "eq":
-                operation = "="
-            elif not field["value"]:
+            if not field["value"]:
                 operation = "IS"
-                value = "NULL"
+            elif field["op"] == "eq":
+                operation = "="
             else:
                 logging.error("Unanticipated operation value: %s for model: %s" % (
                     field["op"],
@@ -539,6 +539,8 @@ class Base:
         """Get the correctly typed value for a field, santized and ready for use in SQL.
         :unit-test: test___sql_field_value
         """
+        if field_data["value"] is None:
+            return "NULL"
         # Handle ints
         if field_map_info["type"] == "int":
             value = xlate.sql_safe(field_data["value"])
