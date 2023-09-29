@@ -1,6 +1,7 @@
 """
     Cver Shared
-    Model - Image
+    Model
+    Image
 
 """
 
@@ -40,6 +41,10 @@ FIELD_MAP = {
         "api_writeable": True,
         "api_searchable": True
     }
+}
+
+FIELD_META = {
+    "unique_key": ["name", "reposistory"]
 }
 
 # End File: cver/src/shared/models/image.py

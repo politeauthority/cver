@@ -8,7 +8,7 @@ The Base Model SQL driver can work with both SQLite3 and MySQL database.
 
 Testing:
     Unit test file  cver/tests/unit/api/models/test_base.py
-    Unit tested     35/42
+    Unit tested     37/44
 
 """
 from datetime import datetime
@@ -36,6 +36,7 @@ class Base:
         self.table_name = None
         self.entity_name = None
         self.field_map = {}
+        self.field_meta = {}
         self.immutable = False
         self.id = None
         self.setup()
@@ -170,6 +171,26 @@ class Base:
             raise AttributeError('%s does not have a `name` attribute.' % __class__.__name__)
         sql = self._gen_get_by_name_sql(name)
 
+        self.cursor.execute(sql)
+        raw = self.cursor.fetchone()
+        if not raw:
+            return False
+        self.build_from_list(raw)
+        return True
+
+    def get_by_unique_key(self, fields: dict) -> bool:
+        """Get a model by it's unique keys.
+        :param fields: A dict of key values, corresponding to models unique keys.
+            {
+                "field": "value",
+                "value": "A Cool Name",
+            }
+        :unit-test: TestBase::test__get_by_unique_key
+        """
+        if not self.field_meta:
+            return False
+        sql = self._gen_get_by_unique_key_sql(fields)
+        logging.info("\n\n%s\n\n" % sql)
         self.cursor.execute(sql)
         raw = self.cursor.fetchone()
         if not raw:
@@ -410,6 +431,52 @@ class Base:
             WHERE `name` = "%s";""" % (self.table_name, xlate.sql_safe(name))
         return sql
 
+    def _gen_get_by_unique_key_sql(self, fields: dict) -> str:
+        """Generate a  SQL statement to get a model by it's unique keys.
+        :param fields: list of dict
+            fields
+            {
+                "field": "value",
+                "another_field: "another value"
+            }
+        :unit-test: TestBase::test___gen_get_by_unique_key_sql
+        """
+        unique_key_fields = self.field_meta["unique_key"]
+        if len(fields) != len(unique_key_fields):
+            log_warn = "_gen_get_by_unique_key_sql\tModel: %s Submitted fields: %s - unique key: %s"
+            log_warn = log_warn % (self, fields, unique_key_fields)
+            logging.warning(log_warn)
+            attr_error = "%s has a unique key number %s, %s fields were submitted. Check"
+            attr_error += "above for submitted values"
+            attr_error = attr_error % (
+                self,
+                len(unique_key_fields),
+                len(fields)
+            )
+            raise AttributeError(attr_error)
+
+        for field_name, field_value in fields.items():
+            if field_name not in unique_key_fields:
+                raise AttributeError("%s does not have a unique key of %s" % (self, field_name))
+
+        prep_gen_fields = []
+        for field_name, field_value in fields.items():
+            the_field = {
+                "field": field_name,
+                "value": field_value,
+                "op": "eq"
+            }
+            prep_gen_fields.append(the_field)
+        fields_sql = self._gen_get_by_fields_sql(prep_gen_fields)
+        sql = """
+            SELECT *
+            FROM %s
+            WHERE
+                %s
+            LIMIT 1;
+        """ % (self.table_name, fields_sql)
+        return sql
+
     def _gen_get_by_field_sql(self, field) -> str:
         """
         :unit-test: TestBase::test___gen_get_by_field_sql
@@ -441,7 +508,9 @@ class Base:
         sql_fields = ""
         for field in fields:
             field_name = "`%s`" % field["field"]
-            if field["op"] == "eq":
+            if not field["value"]:
+                operation = "IS"
+            elif field["op"] == "eq":
                 operation = "="
             else:
                 logging.error("Unanticipated operation value: %s for model: %s" % (
@@ -470,6 +539,8 @@ class Base:
         """Get the correctly typed value for a field, santized and ready for use in SQL.
         :unit-test: test___sql_field_value
         """
+        if field_data["value"] is None:
+            return "NULL"
         # Handle ints
         if field_map_info["type"] == "int":
             value = xlate.sql_safe(field_data["value"])

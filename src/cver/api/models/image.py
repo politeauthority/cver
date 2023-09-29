@@ -3,7 +3,7 @@
     Model - Image
 
 """
-from cver.shared.models.image import FIELD_MAP
+from cver.shared.models.image import FIELD_MAP, FIELD_META
 from cver.shared.utils import xlate
 from cver.api.models.base_entity_meta import BaseEntityMeta
 
@@ -17,6 +17,7 @@ class Image(BaseEntityMeta):
         super(Image, self).__init__(conn, cursor)
         self.table_name = "images"
         self.field_map = FIELD_MAP
+        self.field_meta = FIELD_META
         self.createable = True
         self.setup()
 

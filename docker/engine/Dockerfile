@@ -39,8 +39,7 @@ RUN cd /app && pip install --break-system-packages .
 
 # --- Tests Node ---
 FROM base AS tests
-
 ADD scripts/cver-build /bin
 ADD scripts/cver-build-tests /bin
-
 ADD tests/ /tests
+RUN pip install -r /tests/requirements.txt

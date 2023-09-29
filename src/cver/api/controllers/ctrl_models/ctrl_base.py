@@ -76,6 +76,7 @@ def post_model(model, entity_id: int = None, generated_data: dict = {}):
         "status": "error"
     }
     entity = model()
+    entity_found = False
     if not entity.immutable:
         if entity_id:
             if not entity.get_by_id(entity_id):
@@ -83,7 +84,8 @@ def post_model(model, entity_id: int = None, generated_data: dict = {}):
                 data["message"] = "Could not find %s ID: %s" % (entity.model_name, entity_id)
                 return make_response(jsonify(data), 404)
             else:
-                logging.debug("POST - Found entity: %s" % entity)
+                entity_found = True
+                logging.info("POST - Found entity by ID: %s" % entity)
 
     # Dont allow api creates on api uncreateble models
     if not entity.id and not entity.createable:
@@ -102,12 +104,20 @@ def post_model(model, entity_id: int = None, generated_data: dict = {}):
     if generated_data:
         request_data.update(generated_data)
 
+    # Attempt to get the entity thoguh unqiue keys
+    if not entity_found:
+        entity_found = get_entity_by_unqiue_keys(entity, request_data)
+        logging.info("Found entity: %s through unique keys" % entity)
+
     # Check through the fields and see if they should be applied to the entity.
     for field_name, field_value in request_data.items():
         update_field = False
         for entity_field_name, entity_field in entity.field_map.items():
             if entity_field["name"] == field_name:
                 if "api_writeable" not in entity_field and field_name not in generated_data:
+                    logging.warning("Entity %s can not write field %s via an API request" % (
+                        entity,
+                        field_name))
                     continue
                 else:
                     update_field = True
@@ -117,7 +127,6 @@ def post_model(model, entity_id: int = None, generated_data: dict = {}):
                 field_name,
                 field_value))
             setattr(entity, field_name, field_value)
-
     entity.save()
     data["status"] = "success"
     data["object"] = entity.json()
@@ -125,21 +134,49 @@ def post_model(model, entity_id: int = None, generated_data: dict = {}):
     return data, 201
 
 
-def delete_model(model, entity_id: int):
+def delete_model(model, entity_id: int = None):
     """Base DELETE a model."""
     entity = model()
     data = {
         "status": "Success",
         "object_type": entity.model_name
     }
-    if not entity.get_by_id(entity_id):
-        data["status"] = "Error"
-        data["message"] = "Entity not found"
-        return make_response(jsonify(data), 404)
+    entity_found = False
+    # Attempt the entity by unique keys
+    if not entity_id:
+        try:
+            request_data = request.get_json()
+        except json.decoder.JSONDecodeError as e:
+            logging.warning(f"Recieved data that cant be decoded to JSON: {e}")
+            return make_response("ERROR", 401)
+        entity_found = get_entity_by_unqiue_keys(entity, request_data)
+
+    # Get the entity by ID if we havent found it yet.
+    if not entity_found:
+        if not entity.get_by_id(entity_id):
+            data["status"] = "Error"
+            data["message"] = "Entity not found"
+            return make_response(jsonify(data), 404)
     entity.delete()
-    data["message"] = "User deleted successfully"
+    data["message"] = "%s deleted successfully" % entity.model_name
     data["object"] = entity.json()
     return make_response(jsonify(data), 202)
+
+
+def get_entity_by_unqiue_keys(entity, request_args: dict):
+    """Finds a model based on it's unique keys based on data coming from the request.
+    :unit-test:
+    """
+    if not entity.field_meta or "unique_key" not in entity.field_meta:
+        return False
+
+    fields = {}
+    for key in entity.field_meta["unique_key"]:
+        if key not in request_args:
+            return False
+        fields[key] = request_args[key]
+
+    return entity.get_by_unique_key(fields)
 
 
 # End File: cver/src/api/controllers/ctrl_modles/ctrl_base.py

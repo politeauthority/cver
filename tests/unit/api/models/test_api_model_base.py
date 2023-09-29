@@ -203,6 +203,57 @@ class TestApiModelBase:
         assert "hello-world" == base.name
         BASE_MAP.pop("name")
 
+    def test__get_by_unique_key(self):
+        """
+        :@note: WIP
+        :method: Base().get_by_unique_key()
+        """
+        new_map = BASE_MAP
+        EXTRAS = {
+            "image_id": {
+                "name": "image_id",
+                "type": "int",
+                "api_writeable": True,
+                "api_searchable": True,
+            },
+            "image_build_id": {
+                "name": "image_build_id",
+                "type": "int",
+                "api_writeable": True,
+                "api_searchable": True,
+            },
+            "tag": {
+                "name": "tag",
+                "type": "str",
+                "api_writeable": True,
+                "api_searchable": True,
+            }
+        }
+        new_map.update(EXTRAS)
+        cursor = db.Cursor()
+        cursor.result_to_return = [5, datetime.now(), datetime.now(), 5, 10, "hello"]
+        base = Base(db.Conn(), cursor)
+        base.table_name = "base"
+        base.field_map = new_map
+        field_meta = {
+            "unique_key": ["image_id", "image_build_id", "tag"]
+        }
+        base.field_meta = field_meta
+        base.setup()
+        fields = {
+            "image_id": 5,
+            "image_build_id": 10,
+            "tag": "latest"
+        }
+
+        assert base.get_by_unique_key(fields)
+        assert 5 == base.image_id
+        assert 10 == base.image_build_id
+        assert "hello" == base.tag
+        BASE_MAP.pop("image_id")
+        BASE_MAP.pop("image_build_id")
+        BASE_MAP.pop("tag")
+
     def test__get_by_field(self):
         """
         :method: Base().get_by_field()
@@ -402,16 +453,62 @@ class TestApiModelBase:
         expected_res += '= "hello-world";'
         assert expected_res == base._gen_get_by_name_sql("hello-world")
 
-    # def test___gen_get_by_fields_sql(self):
-    #     """
-    #     :method: Base()._gen_get_by_fields_sql()
-    #     """
-    #     base = Base()
-    #     base.table_name = "base"
-    #     base.field_map = BASE_MAP
-    #     base.setup()
-    #     result = base._gen_get_by_fields_sql()
-    #     import ipdb; ipdb.set_trace()
+    def test___gen_get_by_unique_key_sql(self):
+        """
+        :method: Base()._gen_get_by_unique_key_sql()
+        """
+        new_map = BASE_MAP
+        EXTRAS = {
+            "image_id": {
+                "name": "image_id",
+                "type": "int",
+                "api_writeable": True,
+                "api_searchable": True,
+            },
+            "image_build_id": {
+                "name": "image_build_id",
+                "type": "int",
+                "api_writeable": True,
+                "api_searchable": True,
+            },
+            "tag": {
+                "name": "tag",
+                "type": "str",
+                "api_writeable": True,
+                "api_searchable": True,
+            }
+        }
+        new_map.update(EXTRAS)
+        base = Base()
+        base.table_name = "base"
+        base.field_map = new_map
+        base.field_meta = {
+            "unique_key": ["image_id", "image_build_id"]
+        }
+        fields = {
+            "image_id": 5,
+            "image_build_id": 10,
+            "tag": "latest"
+        }
+
+        with raises(AttributeError):
+            base._gen_get_by_unique_key_sql(fields)
+        base.field_meta = {
+            "unique_key": ["image_id", "image_build_id", "tag"]
+        }
+        expected = """
+            SELECT *
+            FROM base
+            WHERE
+                `image_id` = 5 AND `image_build_id` = 10 AND `tag` = "latest"
+            LIMIT 1;
+        """
+
+        result = base._gen_get_by_unique_key_sql(fields)
+        assert expected == result
+        BASE_MAP.pop("image_id")
+        BASE_MAP.pop("image_build_id")
+        BASE_MAP.pop("tag")
 
     def test___gen_get_by_fields_sql(self):
         """
@@ -477,10 +574,17 @@ class TestApiModelBase:
         }
         field_data = {
             "field": "image_build_id",
+            "value": None,
+            "op": "eq"
+        }
+        assert "NULL" == base._sql_field_value(field_map_info, field_data)
+        field_data = {
+            "field": "image_build_id",
             "value": 1,
             "op": "eq"
         }
-        assert base._sql_field_value(field_map_info, field_data) == 1
+        assert 1 == base._sql_field_value(field_map_info, field_data)
+
         field_map_info = {
             "name": "name",
             "type": "str",
@@ -490,7 +594,7 @@ class TestApiModelBase:
             "value": "hello",
             "op": "eq"
         }
-        assert base._sql_field_value(field_map_info, field_data) == '"hello"'
+        assert '"hello"' == base._sql_field_value(field_map_info, field_data)
 
     def test___sql_fields_sanitized(self):
         """

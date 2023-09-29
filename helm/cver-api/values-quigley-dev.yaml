@@ -5,6 +5,7 @@ replicaCount: 1
 nameOverride: "dev"
 
 app:
+  runApiOnStart: true
   logLevel: "DEBUG"
   dbName: "cver_dev"
   dbHost: "cver-mysql.cver.svc.cluster.local"
@@ -12,7 +13,6 @@ app:
   runMigrations: true
   envName: "dev"
   debug: true
-  runApiOnStart: true
   jwtExpireMinutes: 1440
 
 test:
