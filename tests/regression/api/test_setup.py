@@ -9,7 +9,7 @@ from cver.cver_client.models.image import Image
 
 class TestSetupTests:
 
-    @pytest.mark.first
+    @pytest.mark.order(1)
     def test__setup_images(request):
         """Create the test Images that will be used in our tests."""
         global images

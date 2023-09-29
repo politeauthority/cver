@@ -1,4 +1,4 @@
 #!/bin/sh -l
 set -e
-echo "Running Cver Unit"
+echo "Running Cver Unit Tests"
 cd /tests/unit && pytest
