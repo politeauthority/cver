@@ -7,7 +7,7 @@
 from flask import Blueprint, jsonify
 
 from cver.api.collects.scans import Scans
-from cver.api.utils import api_util
+from cver.api.controllers.ctrl_collections import ctrl_collection_base
 from cver.api.utils import auth
 
 ctrl_scans = Blueprint("scans", __name__, url_prefix="/scans")
@@ -17,9 +17,7 @@ ctrl_scans = Blueprint("scans", __name__, url_prefix="/scans")
 @ctrl_scans.route("/")
 @auth.auth_request
 def index():
-    args = api_util.get_params()
-    data = Scans().get_paginated(**args)
-    data["info"]["object_type"] = "scans"
+    data = ctrl_collection_base.get(Scans)
     return jsonify(data)
 
 
