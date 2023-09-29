@@ -686,6 +686,23 @@ class TestApiModelBase:
         assert set_detaults
         assert base.new
 
+    def test___set_types(self):
+        """
+        :method: Base()._set_types()
+        """
+        FIELD_MAP = BASE_MAP
+        FIELD_MAP["new"] = {
+            "name": "new",
+            "type": "bool",
+            "default": True
+        }
+        base = Base()
+        base.field_map = FIELD_MAP
+        set_detaults = base._set_defaults()
+        base._set_types()
+        assert set_detaults
+        assert base.new
+
     def test___xlate_field_type(self):
         """
         :method: Base()._xlate_field_type
