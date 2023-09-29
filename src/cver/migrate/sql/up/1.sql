@@ -76,8 +76,8 @@ CREATE TABLE IF NOT EXISTS image_builds (
     `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
     `created_ts` DATETIME,
     `updated_ts` DATETIME,
-    `sha` VARCHAR(200),
-    `sha_imported` VARCHAR(200),
+    `sha` VARCHAR(200) UNIQUE,
+    `sha_imported` VARCHAR(200) UNIQUE,
     `image_id` INTEGER NOT NULL,
     `repository` VARCHAR(200) NOT NULL,
     `repository_imported` VARCHAR(200),
@@ -102,8 +102,11 @@ CREATE TABLE IF NOT EXISTS image_build_waitings (
     `created_ts` DATETIME,
     `updated_ts` DATETIME,
     `image_id` INTEGER NOT NULL,
+    `image_build_id` INTEGER,
     `tag` VARCHAR(200),
-    `waiting` TINYINT(1) DEFAULT True
+    `waiting` TINYINT(1) DEFAULT True,
+    `waiting_for` VARCHAR(200),
+     UNIQUE image_id_build_tag (image_id, image_build_id, tag)
 );
 
 --- 
