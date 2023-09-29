@@ -121,7 +121,7 @@ class Engine:
         print(pull_cmd)
 
         image_pull = subprocess.check_output(pull_cmd)
-        
+
         print(image_pull)
 
         sha = self._get_sha_from_docker_pull(image_pull.decode("utf-8"))
