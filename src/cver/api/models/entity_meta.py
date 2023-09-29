@@ -26,7 +26,7 @@ How to use:
 from cver.shared.utils import xlate
 from cver.shared.models.entity_meta import FIELD_MAP
 from cver.api.models.base import Base
-from cver.api.utils import date_utils
+from cver.shared.utils import date_utils
 
 
 class EntityMeta(Base):

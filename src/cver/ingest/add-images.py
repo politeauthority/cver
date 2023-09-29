@@ -6,7 +6,7 @@
 """
 import logging
 
-from cver.ingest.utils import docker
+from cver.shared.utils import docker
 # from cver.cver_client import CverClient
 from cver.cver_client.models.image import Image
 from cver.cver_client.models.image_build import ImageBuild
@@ -35,7 +35,12 @@ class AddImages:
         repos.
         """
         local_images = docker.get_local_images()
-        images_to_select = ["mysql", "aquasec/trivy", "kennethreitz/httpbin", "wordpress"]
+        images_to_select = [
+            # "mysql",
+            # "aquasec/trivy",
+            # "kennethreitz/httpbin",
+            "wordpress"
+        ]
         images_to_use = []
         for image in local_images:
             if image["name"] in images_to_select:
@@ -59,7 +64,6 @@ class AddImages:
                 image.repository = the_image["repository"]
             image.save()
             logging.info("\tWrote: %s" % image)
-
             # If we have data to create an ImageBuild
             if "sha" in the_image:
                 image_build = ImageBuild()
@@ -83,6 +87,7 @@ class AddImages:
         ibw = ImageBuildWaiting()
         ibw.image_id = image.id
         ibw.tag = tag
+        ibw.waiting_for = "download"
         if ibw.save():
             return True
         else:

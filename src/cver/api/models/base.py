@@ -19,7 +19,7 @@ import arrow
 from pymysql.err import ProgrammingError
 
 from cver.shared.utils import xlate
-from cver.api.utils import date_utils
+from cver.shared.utils import date_utils
 from cver.api.utils import glow
 
 

@@ -22,6 +22,13 @@ def json_date(the_datetime: datetime) -> str:
     return arrow.get(the_datetime).format('YYYY-MM-DD HH:mm:ss ZZ')
 
 
+def json_date_now() -> str:
+    """Get a JSON returnable value from now in UTC.
+    :unit-test: TestDateUtils.test__json_date_now
+    """
+    return arrow.utcnow().format('YYYY-MM-DD HH:mm:ss ZZ')
+
+
 def human_date(the_datetime: str) -> str:
     """Get a human date from a Datetime object, such as "2 hours ago".
     :unit-test: TestDateUtils.test__human_date

@@ -42,4 +42,5 @@ FROM base AS tests
 ADD scripts/cver-build /bin
 ADD scripts/cver-build-tests /bin
 ADD tests/ /tests
+RUN cd /tests/ && python3 setup.py build && python3 setup.py install
 RUN pip install -r /tests/requirements.txt

@@ -10,8 +10,10 @@ import logging.config
 import subprocess
 
 from cver.shared.utils.log_config import log_config
+from cver.shared.utils import misc
+from cver.shared.utils import date_utils
 from cver.cver_client.models.image import Image
-# from cver.cver_client.models.image_build import ImageBuild
+from cver.cver_client.models.image_build import ImageBuild
 # from cver.cver_client.models.image_build_waiting import ImageBuildWaiting
 from cver.cver_client.collections.image_build_waitings import ImageBuildWaitings
 from cver.cver_client.models.option import Option
@@ -107,10 +109,11 @@ class Engine:
         image = Image()
         image.get_by_id(ibw.image_id)
         if image.repository == "docker.io":
-            image_loc = "%s/%s/%s" % (
+            image_loc = "%s/%s/%s:%s" % (
                 self.registry_url,
                 self.registry_pull_thru_docker_io,
-                image.name)
+                image.name,
+                ibw.tag)
         else:
             image_loc = "%s/%s" % (image.repository, image.name)
 
@@ -118,8 +121,41 @@ class Engine:
         print(pull_cmd)
 
         image_pull = subprocess.check_output(pull_cmd)
+        
         print(image_pull)
 
+        sha = self._get_sha_from_docker_pull(image_pull.decode("utf-8"))
+        ib = ImageBuild()
+        ib.sha = sha
+        ib.image_id = image.id
+        ib.repository = image.repository
+        ib.repository_imported = misc.strip_trailing_slash(image_loc.replace(image.name, ""))
+        ib.tags = [ibw.tag]
+        ib.sync_enabled = True
+        ib.sync_flag = False
+        ib.sync_last_ts = date_utils.json_date_now()
+        ib.scan_flag = True
+        ib.scan_enabled = True
+        ib.pending_operation = "scan"
+        if ib.save():
+            logging.info("Save: %s" % ib)
+        else:
+            logging.error("Could not save: %s" % ib)
+
+        import ipdb; ipdb.set_trace()
+        ibw.waiting_for = "scan"
+        ibw.image_build_id = ib.id
+        ibw.save()
+
+    def _get_sha_from_docker_pull(self, image_pull: str):
+        """Get the sha from a Docker image pull command."""
+        if "sha256" not in image_pull:
+            logging.error("Cannot get sha from docker pull command.")
+            return False
+
+        tmp = image_pull[image_pull.find("sha256") + 7:]
+        tmp = tmp[:tmp.find("\n")]
+        return tmp
 
 if __name__ == "__main__":
     Engine().run()

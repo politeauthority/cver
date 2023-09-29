@@ -16,7 +16,7 @@ from cver.api.models.image_build import ImageBuild
 from cver.api.models.image_build_waiting import ImageBuildWaiting
 from cver.api.models.image import Image
 from cver.shared.utils import misc
-from cver.api.utils import date_utils
+from cver.shared.utils import date_utils
 
 
 ctrl_ingest_k8s = Blueprint("ingest-k8s", __name__, url_prefix="/ingest-k8s")
