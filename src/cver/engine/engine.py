@@ -38,6 +38,7 @@ class Engine:
         if not self.preflight():
             logging.critical("Pre flight checks failed.")
             exit(1)
+        the_job = "download"
         ibws = self.get_image_build_waitings()
         for ibw in ibws:
             self.determine_work(ibw)
@@ -75,21 +76,10 @@ class Engine:
         docker.registry_login(self.registry_url, self.registry_user, self.registry_password)
         return True
 
-    def registry_login(self):
-        """Login to the registry Cver has been instructed to use."""
-        cmd = [
-            "echo", self.registry_password, "|", "docker", "login", self.registry_url, "--username",
-            self.registry_user, "--password-stdin"
-        ]
-        result = subprocess.check_output(cmd)
-        if not result:
-            return False
-        logging.info("Authenticated to registry: %s" % self.registry_url)
-        return True
-
     def get_image_build_waitings(self):
         """Get the ImageBuildsWaiting for some sort of processing."""
         ibws = ImageBuildWaitings().get()
+        import ipdb; ipdb.set_trace()
         return ibws
 
     def determine_work(self, ibw):
