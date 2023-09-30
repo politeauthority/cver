@@ -38,7 +38,7 @@ class Engine:
         if not self.preflight():
             logging.critical("Pre flight checks failed.")
             exit(1)
-        the_job = "download"
+        # the_job = "download"
         ibws = self.get_image_build_waitings()
         for ibw in ibws:
             self.determine_work(ibw)
@@ -79,7 +79,7 @@ class Engine:
     def get_image_build_waitings(self):
         """Get the ImageBuildsWaiting for some sort of processing."""
         ibws = ImageBuildWaitings().get()
-        import ipdb; ipdb.set_trace()
+        # import ipdb; ipdb.set_trace()
         return ibws
 
     def determine_work(self, ibw):
