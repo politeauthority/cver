@@ -16,7 +16,7 @@ from cver.cver_client.models.image_build import ImageBuild
 def run_trivy(image: Image, ib: ImageBuild) -> str:
     cmd = get_trivy_cmd(image, ib)
     if not cmd:
-        logging.error("Cannot run scan for: %s" % ibw)
+        logging.error("Cannot run scan for: %s" % ib)
         return False
     scan_result_raw = subprocess.check_output(cmd)
     scan_result = json.loads(scan_result_raw)
