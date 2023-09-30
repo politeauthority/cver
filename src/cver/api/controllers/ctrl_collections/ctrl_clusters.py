@@ -1,5 +1,6 @@
 """
-    Cver Api - Controller Collection
+    Cver Api
+    Controller Collection
     Clusters
 
 """
@@ -18,9 +19,6 @@ ctrl_clusters = Blueprint("clusters", __name__, url_prefix="/clusters")
 @auth.auth_request
 def index():
     data = ctrl_collection_base.get(Clusters)
-    # args = api_util.get_params()
-    # data = Images().get_paginated(**args)
-    # data["info"]["object_type"] = "image"
     return jsonify(data)
 
 
