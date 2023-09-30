@@ -3,7 +3,7 @@
     Model - ClusterImage
 
 """
-from cver.shared.models.cluster_image import FIELD_MAP
+from cver.shared.models.cluster_image import FIELD_MAP, FIELD_META
 from cver.shared.utils import xlate
 from cver.api.models.base_entity_meta import BaseEntityMeta
 
@@ -17,6 +17,7 @@ class ClusterImage(BaseEntityMeta):
         super(ClusterImage, self).__init__(conn, cursor)
         self.table_name = "cluster_images"
         self.field_map = FIELD_MAP
+        self.field_meta = FIELD_META
         self.createable = True
         self.setup()
 
