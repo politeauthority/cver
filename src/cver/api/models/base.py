@@ -708,6 +708,7 @@ class Base:
 
     def _set_types(self) -> bool:
         """Set the types of class table field vars and corrects their types where possible.
+        :unit-test: TestApiModelBase::test___set_types
         """
         for field_name, field in self.field_map.items():
             class_var_name = field['name']

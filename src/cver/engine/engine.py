@@ -5,6 +5,7 @@
     This service is intended to run as a cronjob on the Kubernetes system.
 
 """
+import argparse
 import logging
 import logging.config
 import subprocess
@@ -12,6 +13,7 @@ import subprocess
 from cver.shared.utils.log_config import log_config
 from cver.shared.utils import misc
 from cver.shared.utils import date_utils
+from cver.shared.utils import docker
 from cver.cver_client.models.image import Image
 from cver.cver_client.models.image_build import ImageBuild
 # from cver.cver_client.models.image_build_waiting import ImageBuildWaiting
@@ -70,7 +72,7 @@ class Engine:
             logging.error("No registry pull through found on Cver")
             return False
 
-        self.registry_login()
+        docker.registry_login(self.registry_url, self.registry_user, self.registry_password)
         return True
 
     def registry_login(self):
@@ -80,7 +82,6 @@ class Engine:
             self.registry_user, "--password-stdin"
         ]
         result = subprocess.check_output(cmd)
-        print(result)
         if not result:
             return False
         logging.info("Authenticated to registry: %s" % self.registry_url)
@@ -118,11 +119,8 @@ class Engine:
             image_loc = "%s/%s" % (image.repository, image.name)
 
         pull_cmd = ["docker", "pull", image_loc]
-        print(pull_cmd)
 
         image_pull = subprocess.check_output(pull_cmd)
-
-        print(image_pull)
 
         sha = self._get_sha_from_docker_pull(image_pull.decode("utf-8"))
         ib = ImageBuild()
@@ -144,9 +142,13 @@ class Engine:
 
         ibw.waiting_for = "scan"
         ibw.image_build_id = ib.id
-        ibw.save()
+        if ibw.save():
+            logging.info("Save: %s" % ibw)
+        else:
+            logging.error("Could not save: %s" % ibw)
+        return True
 
-    def _get_sha_from_docker_pull(self, image_pull: str):
+    def _get_sha_from_docker_pull(self, image_pull: str) -> str:
         """Get the sha from a Docker image pull command."""
         if "sha256" not in image_pull:
             logging.error("Cannot get sha from docker pull command.")
@@ -156,6 +158,17 @@ class Engine:
         tmp = tmp[:tmp.find("\n")]
         return tmp
 
+
+def parse_args(args):
+    """Parse CLI args
+    """
+    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser.add_argument('filename')           # positional argument
+    parser.add_argument('-c', '--count')      # option that takes a value
+    parser.add_argument('-v', '--verbose',
+                        action='store_true')  # on/off flag
+    print(args)
+    return parser
 
 if __name__ == "__main__":
     Engine().run()
