@@ -70,7 +70,6 @@ jobs:
           pytest --vcr-record=none -rx -v -s --md report.md unit/ 
           pytest --cov=cver --vcr-record=none -rx -s unit/ >> ./coverage.txt
           echo "ALIX-DEBUG"
-          ls /tests/
           COVERAGE=$(awk '/---------- coverage: platform linux,/{flag=1} flag' "./coverage.txt")
           echo $COVERAGE >> $GITHUB_STEP_SUMMARY
           cat report.md >> $GITHUB_STEP_SUMMARY
