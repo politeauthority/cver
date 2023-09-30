@@ -10,7 +10,7 @@ from cver.api.utils import glow
 from cver.api.collects.users import Users
 from cver.api.models.api_key import ApiKey
 from cver.api.models.user import User
-from cver.api.models.org import Org
+from cver.api.models.organization import Organization
 from cver.api.utils import auth
 
 
@@ -28,14 +28,19 @@ class DataUsers:
         self.create_first_user()
         self.create_test_user()
 
-    def create_first_org(self):
-        """Create the first Org.
-        @todo: This can be done better, with multiple orgs, for testing and regular use etc.
+    def create_first_org(self) -> bool:
+        """Create the first Organization
+        @todo: Make this more dynamic.
         """
-        org = Org()
-        if not org.get_by_name("default"):
-            org.name = "default"
-            org.save()
+        org = Organization()
+        if org.get_by_email("test@example.com"):
+            logging.info("Organization %s already exists, skipping creation" % org.name)
+            self.org_id = org.id
+            return True
+        org.name = "First Org"
+        org.email = "test@example.com"
+        org.save()
+        logging.info("Created Org: %s" % org)
         self.org_id = org.id
         return True
 

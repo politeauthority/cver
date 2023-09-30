@@ -1,33 +1,33 @@
 """
     Cver Api
     Model
-    User
+    Organization
 
 """
-from cver.shared.models.user import FIELD_MAP
+from cver.shared.models.organization import FIELD_MAP
 from cver.api.models.base import Base
 from cver.shared.utils import xlate
 
 
-class User(Base):
+class Organization(Base):
 
-    model_name = "user"
+    model_name = "organization"
 
     def __init__(self, conn=None, cursor=None):
-        """Create the User instance."""
-        super(User, self).__init__(conn, cursor)
-        self.table_name = "users"
+        """Create the Orangization instance."""
+        super(Organization, self).__init__(conn, cursor)
+        self.table_name = "organizations"
         self.field_map = FIELD_MAP
-        self.createable = True
+        self.createable = False
         self.setup()
 
     def __repr__(self):
-        """User model representation."""
+        """Organization model representation."""
         if self.id and not self.name:
-            return "<User %s>" % self.id
+            return "<Org %s>" % self.id
         if self.name and self.id:
-            return "<User: %s %s>" % (self.id, self.name)
-        return "<User>"
+            return "<Org: %s %s>" % (self.id, self.name)
+        return "<Org>"
 
     def get_by_email(self, email: str) -> bool:
         sql = """

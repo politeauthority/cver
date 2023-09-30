@@ -12,6 +12,9 @@ from cver.api.models.scanner import Scanner
 
 class DataMisc:
 
+    def __init__(self):
+        self.org_id = None
+
     def create(self) -> bool:
         """Create the misc data needed for an installation of Cver Api."""
         self.create_cluster()
@@ -25,7 +28,7 @@ class DataMisc:
         if cluster.get_by_name("default"):
             return True
         cluster.name = "default"
-        cluster.org_id = 1
+        cluster.org_id = self.org_id
         cluster.save()
         logging.info("Created Cluster")
         return True
