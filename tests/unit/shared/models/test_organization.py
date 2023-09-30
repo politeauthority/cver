@@ -1,10 +1,11 @@
 """
     Cver Test Unit
-    Shared Model: Org
+    Cver Shared
+    Model: Organization
 
 """
 
-from cver.shared.models.org import FIELD_MAP
+from cver.shared.models.organization import FIELD_MAP
 
 
 FIELD_DETAILS = ["name", "type", "primary", "default", "extra", "api_display", "api_writeable",
@@ -25,4 +26,4 @@ class TestSharedOrg:
                 assert field_detail in FIELD_DETAILS
 
 
-# End File: cver/tests/unit/shared/models/test_org.py
+# End File: cver/tests/unit/shared/models/test_organization.py
