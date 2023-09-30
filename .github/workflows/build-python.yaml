@@ -67,7 +67,10 @@ jobs:
           pip install -r requirements.txt
           python3 setup.py build
           python3 setup.py install
-          pytest --vcr-record=none -rx -vvv -s unit/ --md report.md
+          pytest --vcr-record=none -rx -v -s --md report.md unit/ 
+          pytest --cov=cver --vcr-record=none -rx -s unit/ > coverage.txt
+          COVERAGE=$(awk '/---------- coverage: platform linux,/{flag=1} flag' "/tests/unit/coverage.txt")
+          echo $COVERAGE >> $GITHUB_STEP_SUMMARY
           cat report.md >> $GITHUB_STEP_SUMMARY
 
 # End File: cver/.github/workflows/build-cver.yaml
