@@ -96,7 +96,5 @@ def get_local_images() -> list:
         images.append(image)
     return images
 
-# End File: cver/src/ingest/utils/docker.py
-
 
 # End File: cver/src/shared/utils/docker.py

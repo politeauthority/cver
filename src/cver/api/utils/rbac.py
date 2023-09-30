@@ -128,6 +128,16 @@ ACL = {
         "POST": ["write-all"],
         "DELETE": ["write-all"],
     },
+    "/scan-raw": {
+        "GET": ["read-all"],
+        "POST": ["write-all"],
+        "DELETE": ["write-all"],
+    },
+    "/scan-raws": {
+        "GET": ["read-all"],
+        "POST": ["write-all"],
+        "DELETE": ["write-all"],
+    },
     "/scan": {
         "GET": ["read-all"],
         "POST": ["write-all"],

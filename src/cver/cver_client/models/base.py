@@ -40,19 +40,19 @@ class Base(CverClient):
 
     def get_by_id(self, entity_id: int) -> bool:
         """Get an entity by ID."""
-        data = {
-            "id": entity_id
-        }
-        response = self.make_request(self.model_name, payload=data)
+        url = "%s/%s" % (self.model_name, entity_id)
+        response = self.make_request(url)
         if response["status"] == "success":
             return self.build(response["object"])
         else:
             return False
 
-    def get_by_name(self, name: str) -> bool:
+    def get_by_name(self, name: str = None) -> bool:
         """Get an entity by name.
         @todo: Not all entities have names, this should be restricted to just those entities.
         """
+        if not name:
+            name = self.name
         data = {
             "name": name
         }

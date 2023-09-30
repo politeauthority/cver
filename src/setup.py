@@ -23,6 +23,7 @@ setup(
         "cver.cver_client.models",
         "cver.cver_client.ingest",
         "cver.engine",
+        "cver.engine.utils",
         "cver.ingest",
         "cver.migrate",
         "cver.migrate.data",

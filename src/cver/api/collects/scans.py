@@ -1,6 +1,6 @@
 """
     Cver Api - Collection
-    Scanners
+    Scans
 
 """
 from cver.api.collects.base import Base
