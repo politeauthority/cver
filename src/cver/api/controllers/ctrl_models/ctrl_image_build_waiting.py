@@ -41,6 +41,7 @@ def post_model(image_build_waiting_id: int = None):
     return ctrl_base.post_model(ImageBuildWaiting, image_build_waiting_id)
 
 
+@ctrl_image_build_waiting.route("", methods=["DELETE"])
 @ctrl_image_build_waiting.route("/", methods=["DELETE"])
 @ctrl_image_build_waiting.route("/<image_build_waiting_id>", methods=["DELETE"])
 @auth.auth_request

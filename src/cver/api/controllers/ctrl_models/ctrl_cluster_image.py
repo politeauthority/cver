@@ -40,6 +40,8 @@ def post_model(cluster_image_id: int = None):
     return ctrl_base.post_model(ClusterImage, cluster_image_id)
 
 
+@ctrl_cluster_image.route("", methods=["DELETE"])
+@ctrl_cluster_image.route("/", methods=["DELETE"])
 @ctrl_cluster_image.route("/<cluster_image_id>", methods=["DELETE"])
 @auth.auth_request
 def delete_model(cluster_image_id: int = None):
