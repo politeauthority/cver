@@ -4,6 +4,7 @@ replicaCount: 1
 fullname: "cver-engine"
 
 app:
+  logLevel: "INFO"
   debug: false
   envName: "prod"
   deployedAt: "unknown"

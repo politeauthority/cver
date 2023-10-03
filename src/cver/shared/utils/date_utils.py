@@ -1,4 +1,10 @@
-"""Date Utilities
+"""
+    Cver Shared
+    Utils
+    Date Utilities
+    Testing
+        Unit Test File: tests/unit/shared/utils/test_date_utils.py
+        7/7
 
 """
 from datetime import datetime
@@ -8,23 +14,30 @@ import arrow
 
 def now() -> datetime:
     """Short hand to get now as UTC.
-    :unit-test: TestDateUtils.test__now
+    :unit-test: TestSharedUtilsDateUtils.test__now
     """
     return arrow.utcnow().datetime
 
 
 def json_date(the_datetime: datetime) -> str:
     """Get a JSON returnable value from a datetime.
-    :unit-test: TestDateUtils.test__json_date
+    :unit-test: TestSharedUtilsDateUtils.test__json_date
     """
     if not the_datetime:
         return None
     return arrow.get(the_datetime).format('YYYY-MM-DD HH:mm:ss ZZ')
 
 
+def json_date_now() -> str:
+    """Get a JSON returnable value from now in UTC.
+    :unit-test: TestSharedUtilsDateUtils.test__json_date_now
+    """
+    return arrow.utcnow().format('YYYY-MM-DD HH:mm:ss ZZ')[:-7]
+
+
 def human_date(the_datetime: str) -> str:
     """Get a human date from a Datetime object, such as "2 hours ago".
-    :unit-test: TestDateUtils.test__human_date
+    :unit-test: TestSharedUtilsDateUtils.test__human_date
     """
     if not the_datetime:
         return None
@@ -36,15 +49,15 @@ def human_date(the_datetime: str) -> str:
 
 def get_as_utc(a_datetime: datetime):
     """Convert a datetime into a UTC Arrow object.
-    :unit-test: TestDateUtils.test__get_as_utc
+    :unit-test: TestSharedUtilsDateUtils.test__get_as_utc
     """
     a_utc_time = arrow.get(a_datetime)
     return a_utc_time.to('UTC')
 
 
-def date_from_json(the_datetime: str, parse_fmt: str = None) -> datetime:
-    """Convert a string into a python dative datetime object.
-    :unit-test: TestDateUtils.test__date_from_json
+def date_from_json(the_datetime: str, parse_fmt: str = None) -> arrow.arrow.Arrow:
+    """Convert a string into a python native arrow object.
+    :unit-test: TestSharedUtilsDateUtils.test__date_from_json
     """
     if not the_datetime:
         return None
@@ -59,7 +72,7 @@ def date_from_json(the_datetime: str, parse_fmt: str = None) -> datetime:
 
 def interval_ready(last: datetime, interval_hours: int) -> bool:
     """Determine in a given datetime is older than the interval_hours.
-    :unit-test: TestDateUtils.test__interval_ready
+    :unit-test: TestSharedUtilsDateUtils.test__interval_ready
     """
     now = arrow.utcnow()
     last = arrow.get(last)
@@ -70,20 +83,4 @@ def interval_ready(last: datetime, interval_hours: int) -> bool:
     else:
         return False
 
-
-def date_hours_ago(interval_hours: int) -> datetime:
-    """Determine in a given datetime is older than the interval_hours.
-    :unit-test: TestDateUtils.date_hours_ago
-    """
-    now = arrow.utcnow()
-    sync_interval = interval_hours * -1 * 3600
-    the_date_then = now.shift(seconds=sync_interval)
-    return the_date_then.datetime
-
-
-def expire_date():
-    now = arrow.utcnow()
-    future = now.shift(hours=8)
-    return future
-
-# End File: cver/src/api/utils/date_utils.py
+# End File: cver/src/share/utils/date_utils.py

@@ -1,6 +1,7 @@
 """
     Cver Client
-    Collections - Base
+    Collections
+    Base
 
 """
 import importlib
@@ -21,6 +22,9 @@ class ClientCollectionsBase(CverClient):
             payload = {
                 "search": xlate.url_encode_json(args["search"])
             }
+        elif args:
+            payload = self._prepare_search(args)
+
         response = self.make_request(self.collection_name, payload=payload)
         if response["status"] == "success":
             return self.build_list_of_dicts(response["object_type"], response["objects"])
@@ -50,5 +54,18 @@ class ClientCollectionsBase(CverClient):
             thing.build(obj)
             ret_list.append(thing)
         return ret_list
+
+    def _prepare_search(self, args: dict) -> dict:
+        """Prepare a search query for a collection."""
+        search = {}
+        for field_name, field_value in args.items():
+            if field_name in self.field_map:
+                if "api_searchable" not in self.field_map[field_name]:
+                    continue
+                if not self.field_map[field_name]["api_searchable"]:
+                    continue
+                search[field_name] = field_value
+        return search
+
 
 # End File: cver/src/cver_client/collections/client_connections_base.py

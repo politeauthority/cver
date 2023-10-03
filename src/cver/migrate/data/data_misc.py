@@ -13,7 +13,7 @@ from cver.api.models.scanner import Scanner
 class DataMisc:
 
     def __init__(self):
-        self.org_id = None
+        self.org_id = 1
 
     def create(self) -> bool:
         """Create the misc data needed for an installation of Cver Api."""

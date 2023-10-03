@@ -11,7 +11,7 @@ import os
 
 import requests
 
-from cver.api.utils import date_utils
+from cver.shared.utils import date_utils
 
 from .test_api_base import TestApiBase
 

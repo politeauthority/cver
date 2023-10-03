@@ -3,7 +3,7 @@
 """
 import os
 
-LOG_LEVEL = os.environ.get("CVER_LOG_LEVEL")
+LOG_LEVEL = os.environ.get("CVER_LOG_LEVEL", "DEBUG")
 
 log_config = {
     "version": 1,

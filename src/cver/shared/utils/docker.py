@@ -1,11 +1,26 @@
 """
     Cver Shared
-    Utils - Docker
+    Utils
+    Docker
     Utilities for interacting with docker
 
 """
 import logging
 import subprocess
+
+
+def registry_login(registry_url: str, registry_user: str, registry_pass: str) -> bool:
+    """Login to the registry Cver has been instructed to use."""
+    cmd = [
+        "echo", registry_pass, "|", "docker", "login", registry_url, "--username",
+        registry_user, "--password-stdin"
+    ]
+    result = subprocess.check_output(cmd)
+    if not result:
+        logging.error("Error connecting to registry: %s" % registry_url)
+        return False
+    logging.info("Authenticated to registry: %s" % registry_url)
+    return True
 
 
 def pull_image(image_loc: str, pull_through_registry: str = None) -> bool:
@@ -80,8 +95,6 @@ def get_local_images() -> list:
         }
         images.append(image)
     return images
-
-# End File: cver/src/ingest/utils/docker.py
 
 
 # End File: cver/src/shared/utils/docker.py

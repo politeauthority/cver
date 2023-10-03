@@ -16,7 +16,7 @@ drop table image_build_waitings;
 drop table images;
 drop table migrations;
 drop table options;
-drop table orgs;
+drop table organizations;
 drop table perms;
 drop table role_perms;
 drop table roles;

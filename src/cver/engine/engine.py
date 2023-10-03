@@ -5,17 +5,23 @@
     This service is intended to run as a cronjob on the Kubernetes system.
 
 """
+import argparse
 import logging
 import logging.config
 import subprocess
 
 from cver.shared.utils.log_config import log_config
+from cver.shared.utils import misc
+from cver.shared.utils import date_utils
+from cver.shared.utils import docker
 from cver.cver_client.models.image import Image
-# from cver.cver_client.models.image_build import ImageBuild
+from cver.cver_client.models.image_build import ImageBuild
 # from cver.cver_client.models.image_build_waiting import ImageBuildWaiting
 from cver.cver_client.collections.image_build_waitings import ImageBuildWaitings
+from cver.cver_client.models.scan import Scan
 from cver.cver_client.models.option import Option
 from cver.cver_client.models.image_build_waiting import ImageBuildWaiting
+from cver.engine.utils import scan as scan_util
 
 logging.config.dictConfig(log_config)
 logger = logging.getLogger(__name__)
@@ -29,14 +35,19 @@ class Engine:
         self.registry_password = None
         self.download_limit = 1
         self.downloaded = 0
+        self.scan_limit = 1
+        self.scanned = 0
 
     def run(self):
         if not self.preflight():
             logging.critical("Pre flight checks failed.")
             exit(1)
-        ibws = self.get_image_build_waitings()
-        for ibw in ibws:
-            self.determine_work(ibw)
+        the_job = "scan"
+        # the_job = "download"
+        if the_job == "download":
+            self.run_downloads()
+        elif the_job == "scan":
+            self.run_scans()
 
     def preflight(self):
         """Check that have a registry to push/pull to/from."""
@@ -68,61 +79,203 @@ class Engine:
             logging.error("No registry pull through found on Cver")
             return False
 
-        self.registry_login()
+        docker.registry_login(self.registry_url, self.registry_user, self.registry_password)
         return True
 
-    def registry_login(self):
-        """Login to the registry Cver has been instructed to use."""
-        cmd = [
-            "echo", self.registry_password, "|", "docker", "login", self.registry_url, "--username",
-            self.registry_user, "--password-stdin"
-        ]
-        result = subprocess.check_output(cmd)
-        print(result)
-        if not result:
+    def run_downloads(self):
+        """Engine Download runner. Here we'll download images waiting to be pulled down."""
+        logging.info("Running Engine Download")
+        ibws = self.get_image_build_waitings("download")
+        logging.info("Found %s" % len(ibws))
+        for ibw in ibws:
+            self.run_download(ibw)
+
+    def run_scans(self):
+        logging.info("Running Engine Scan")
+        ibws = self.get_image_build_waitings("scan")
+        logging.info(ibws)
+        for ibw in ibws:
+            self.run_scan(ibw)
+
+    def run_download(self, ibw: ImageBuildWaiting) -> bool:
+        """Run a s single download."""
+        self.download_image(ibw)
+
+    def run_scan(self, ibw: ImageBuildWaiting) -> bool:
+        """Run a single scan."""
+        image = Image()
+        if not image.get_by_id(ibw.image_id):
+            logging.error("Cant find Image by ID: %s" % ibw.image_id)
             return False
-        logging.info("Authenticated to registry: %s" % self.registry_url)
-        return True
 
-    def get_image_build_waitings(self):
+        ib = ImageBuild()
+        if not ib.get_by_id(ibw.image_build_id):
+            logging.error("Cant find ImageBuild by ID: %s" % ibw.image_build_id)
+            return False
+        scan_result = scan_util.run_trivy(image, ib)
+        self.save_scan(ib, scan_result)
+        ibw.waiting_for = None
+        ibw.waiting = False
+        if ibw.save():
+            logging.info("Saved: %s" % ibw)
+            return True
+        else:
+            logging.error("Failed to Save: %s" % ibw)
+            return False
+
+    def save_scan(self, ib: ImageBuild, scan_result: dict) -> bool:
+        """Parse and save a scan to the Cver api."""
+        logging.info("Parsing scan results from Trivy")
+        vulns = scan_result["Results"][0]["Vulnerabilities"]
+        scan = Scan()
+        scan.user_id = 1
+        scan.image_id = ib.image_id
+        scan.image_build_id = ib.id
+        scan.scanner_id = 1
+        vuln_data = self._parse_scan_vulns(vulns)
+        scan.cve_critical_int = vuln_data["cve_critical_int"]
+        scan.cve_crticial_nums = vuln_data["cve_high_nums"]
+        scan.cve_high_int = vuln_data["cve_high_int"]
+        scan.cve_high_nums = vuln_data["cve_high_nums"]
+        scan.cve_medium_int = vuln_data["cve_medium_int"]
+        scan.cve_medium_nums = vuln_data["cve_medium_nums"]
+        scan.cve_low_int = vuln_data["cve_low_int"]
+        scan.cve_low_nums = vuln_data["cve_low_nums"]
+        scan.cve_unknown_int = vuln_data["cve_unknown_int"]
+        scan.cve_unknown_nums = vuln_data["cve_unknown_nums"]
+        if scan.save():
+            logging.info("Saved Scan results successfully")
+            return True
+        else:
+            logging.warning("Failed to save scan for %s" % ib)
+            return False
+
+    def get_image_build_waitings(self, waiting_for: str):
         """Get the ImageBuildsWaiting for some sort of processing."""
-        ibws = ImageBuildWaitings().get()
+        args = {
+            "waiting_for": waiting_for
+        }
+        ibws = ImageBuildWaitings().get(args)
+        # import ipdb; ipdb.set_trace()
         return ibws
 
-    def determine_work(self, ibw):
-        """Determine what work needs to be done for the ImageBuildWaiting. This breaks down to the
-        following scenarios.
-            - The IBW is missing an image_build_id, and we need to download a build to the registry.
-
-        """
-        if not ibw.image_build_id:
-            self.download_latest_image(ibw)
-        else:
-            logging.warning("Not sure what to do with ImageBuildWaiting: %s" % ibw)
-
-    def download_latest_image(self, ibw: ImageBuildWaiting):
+    def download_image(self, ibw: ImageBuildWaiting) -> bool:
         """Download the docker image.
         @note: For now we'll assume we always have a pull through cache like Harbor available.
         """
         image = Image()
-        image.get_by_id(ibw.image_id)
+        if not image.get_by_id(ibw.image_id):
+            logging.error("Cannot find Image by ID: %s" % ibw.image_id)
+            return False
+        pull_through = False
         if image.repository == "docker.io":
-            image_loc = "%s/%s/%s" % (
+            pull_through = True
+            image_loc = "%s/%s/%s:%s" % (
                 self.registry_url,
                 self.registry_pull_thru_docker_io,
-                image.name)
+                image.name,
+                ibw.tag)
         else:
             image_loc = "%s/%s" % (image.repository, image.name)
 
         pull_cmd = ["docker", "pull", image_loc]
-        print(pull_cmd)
 
         image_pull = subprocess.check_output(pull_cmd)
-        print(image_pull)
+
+        sha = self._get_sha_from_docker_pull(image_pull.decode("utf-8"))
+        ib = ImageBuild()
+        ib.sha = sha
+        ib.image_id = image.id
+        ib.repository = image.repository
+        if pull_through:
+            replace_str = "%s:%s" % (image.name, ibw.tag)
+            ib.repository_imported = misc.strip_trailing_slash(image_loc.replace(replace_str, ""))
+        ib.tags = [ibw.tag]
+        ib.sync_enabled = True
+        ib.sync_flag = False
+        ib.sync_last_ts = date_utils.json_date_now()
+        ib.scan_flag = True
+        ib.scan_enabled = True
+        ib.pending_operation = "scan"
+        if ib.save():
+            logging.info("Save: %s" % ib)
+        else:
+            logging.error("Could not save: %s" % ib)
+
+        ibw.waiting_for = "scan"
+        ibw.image_build_id = ib.id
+        if ibw.save():
+            logging.info("Save: %s" % ibw)
+        else:
+            logging.error("Could not save: %s" % ibw)
+        return True
+
+    def _get_sha_from_docker_pull(self, image_pull: str) -> str:
+        """Get the sha from a Docker image pull command."""
+        if "sha256" not in image_pull:
+            logging.error("Cannot get sha from docker pull command.")
+            return False
+
+        tmp = image_pull[image_pull.find("sha256") + 7:]
+        tmp = tmp[:tmp.find("\n")]
+        return tmp
+
+    def _parse_scan_vulns(self, vulns: list) -> dict:
+        """Parses the scan results for vulnerabilities and hydrates a dict to be used for saving
+        them.
+        """
+        data = {
+            "cve_critical_int": 0,
+            "cve_critical_nums": [],
+            "cve_high_int": 0,
+            "cve_high_nums": [],
+            "cve_medium_int": 0,
+            "cve_medium_nums": [],
+            "cve_low_int": 0,
+            "cve_low_nums": [],
+            "cve_unknown_int": 0,
+            "cve_unknown_nums": [],
+        }
+        for vuln in vulns:
+            cve_num = vuln["VulnerabilityID"]
+            cve_sev = vuln["Severity"]
+            if cve_sev == "CRITICAL":
+                if cve_num not in data["cve_critical_nums"]:
+                    data["cve_critical_int"] += 1
+                    data["cve_critical_nums"].append(cve_num)
+            elif cve_sev == "HIGH":
+                if cve_num not in data["cve_high_nums"]:
+                    data["cve_high_int"] += 1
+                    data["cve_medium_nums"].append(cve_num)
+            elif cve_sev == "MEDIUM":
+                if cve_num not in data["cve_medium_nums"]:
+                    data["cve_medium_int"] += 1
+                    data["cve_medium_nums"].append(cve_num)
+            elif cve_sev == "LOW":
+                if cve_num not in data["cve_low_nums"]:
+                    data["cve_low_int"] += 1
+                    data["cve_unknown_nums"].append(cve_num)
+            elif cve_sev == "UNKNOWN":
+                if cve_num not in data["cve_unknown_nums"]:
+                    data["cve_unknown_int"] += 1
+                    data["cve_unknown_nums"].append(cve_num)
+            else:
+                logging.warning("Uknown CVE severity: %s\n%s" % (cve_sev, vuln))
+        return data
+
+
+def parse_args(args):
+    """Parse CLI args"""
+    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser.add_argument('filename')           # positional argument
+    parser.add_argument('-c', '--count')      # option that takes a value
+    parser.add_argument('-v', '--verbose', action='store_true')  # on/off flag
+    print(args)
+    return parser
 
 
 if __name__ == "__main__":
     Engine().run()
 
 
-# End File: cver/src/cver/ingest/download_images.py
+# End File: cver/src/cver/engine/engine.py
