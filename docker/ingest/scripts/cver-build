@@ -1,0 +1,18 @@
+#!/bin/sh -l
+# Cver Build
+
+set -e
+echo "Running Cver Build"
+
+rm -rf /usr/local/lib/python3.10/site-packages/cver-*.dist-info
+rm -rf /app/build
+rm -rf /app/cver.egg-info
+
+cd /app
+pip install .
+
+# Flake8 Source
+flake8 /app/cver --config=/app/flake8 --count --show-source --statistics
+
+# Flake8 Tests
+flake8 /tests --config=/tests/flake8 --count --show-source --statistics

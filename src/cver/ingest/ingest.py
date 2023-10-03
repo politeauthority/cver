@@ -1,6 +1,6 @@
 """
     Cver Ingest
-    Ingest - K8s
+    Ingest
     This runs inside the kubernetes cluster and collects all the images being used in the cluster.
     It then submits those images to Cver and tags their association to the cluster.
 
@@ -77,4 +77,4 @@ if __name__ == "__main__":
     KubernetesIngest().run()
 
 
-# End File: cver/src/cver/ingest/ingest-kubernetes.py
+# End File: cver/src/cver/ingest/ingest.py
