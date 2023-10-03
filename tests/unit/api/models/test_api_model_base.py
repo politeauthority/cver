@@ -718,4 +718,18 @@ class TestApiModelBase:
         "TEXT" == base._xlate_field_type("list")
         "JSON" == base._xlate_field_type("json")
 
+    def test___is_model_json(self):
+        """
+        :method: Base()._is_model_json
+        """
+        base = Base()
+        assert not base._is_model_json()
+        base.field_map = {
+            "json_field": {
+                "name": json,
+                "type": "json"
+            }
+        }
+        assert base._is_model_json()
+
 # End File: cver/tests/unit/api/models/test_base.py

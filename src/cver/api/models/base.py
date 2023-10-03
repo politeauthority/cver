@@ -8,7 +8,7 @@ The Base Model SQL driver can work with both SQLite3 and MySQL database.
 
 Testing:
     Unit test file  cver/tests/unit/api/models/test_base.py
-    Unit tested     37/44
+    Unit tested     37/45
 
 """
 from datetime import datetime
@@ -27,7 +27,7 @@ class Base:
 
     def __init__(self, conn=None, cursor=None):
         """Base model constructor
-        :unit-test: TestBase::test____init__
+        :unit-test: TestApiModelBase::test____init__
         """
         self._establish_db(conn, cursor)
         self.backed_iodku = True
@@ -43,7 +43,7 @@ class Base:
 
     def __repr__(self):
         """Base model representation
-        :unit-test: TestBase::test____repr__
+        :unit-test: TestApiModelBase::test____repr__
         """
         if self.id:
             return "<%s: %s>" % (self.__class__.__name__, self.id)
@@ -51,14 +51,14 @@ class Base:
 
     def __desc__(self) -> None:
         """Describes the fields and values of class.
-        :unit-test: TestBase::test____repr__
+        :unit-test: TestApiModelBase::test____repr__
         """
         for field_id, field in self.field_map.items():
             print("%s: %s" % (field["name"], getattr(self, field["name"])))
 
     def connect(self, conn, cursor) -> bool:
         """Quick bootstrap method to connect the model to the database connection.
-        :unit-test: TestBase::test__connect
+        :unit-test: TestApiModelBase::test__connect
         """
         self.conn = conn
         self.cursor = cursor
@@ -75,7 +75,7 @@ class Base:
 
     def create_table_sql(self) -> bool:
         """Create a table based SQL on the self.table_name, and self.field_map.
-        :unit-test: TestBase::test__create_table_sql
+        :unit-test: TestApiModelBase::test__create_table_sql
         """
         if not self.table_name:
             raise AttributeError('Model table name not set, (self.table_name)')
@@ -86,7 +86,7 @@ class Base:
 
     def setup(self) -> bool:
         """Set up model class vars, sets class var defaults, and corrects types where possible.
-        :unit-test: TestBase::test__setup
+        :unit-test: TestApiModelBase::test__setup
         """
         self._set_defaults()
         self._set_types()
@@ -94,10 +94,12 @@ class Base:
 
     def save(self) -> bool:
         """Saves a model instance in the model table.
-        :unit-test: TestBase::test__save
+        :unit-test: TestApiModelBase::test__save
         """
         self.setup()
         self.check_required_class_vars()
+        if self._is_model_json():
+            return self.insert()
         if self.backed_iodku and not self.id:
             return self.iodku()
         if not self.id:
@@ -110,10 +112,11 @@ class Base:
 
     def insert(self):
         """Insert a new record of the model.
-        :unit-test: TestBase::test__insert
+        :unit-test: TestApiModelBase::test__insert
         """
         sql = self._gen_insert_sql()
         try:
+            logging.info("\n\n%s\n\n" % sql)
             self.cursor.execute(sql)
             self.conn.commit()
         except ProgrammingError as e:
@@ -126,9 +129,10 @@ class Base:
     def iodku(self) -> bool:
         """Runs an insert on duplicate key update query against the database, setting the id of
         the item as it's class var id.
-        :unit-test: TestBase::test__iodku
+        :unit-test: TestApiModelBase::test__iodku
         """
         sql = self._gen_iodku_sql()
+        logging.info("\n\n%s\n\n" % sql)
         self.cursor.execute(sql)
         self.conn.commit()
         self.id = self.cursor.lastrowid
@@ -136,7 +140,7 @@ class Base:
 
     def delete(self) -> bool:
         """Delete a model item.
-        :unit-test: TestBase::test__delete()
+        :unit-test: TestApiModelBase::test__delete()
         """
         sql = self._gen_delete_sql()
         self.cursor.execute(sql)
@@ -145,7 +149,7 @@ class Base:
 
     def get_by_id(self, model_id: int = None) -> bool:
         """Get a single model object from db based on an object ID.
-        :unit-test: TestBase::test__get_by_id()
+        :unit-test: TestApiModelBase::test__get_by_id()
         """
         if model_id:
             self.id = model_id
@@ -165,7 +169,7 @@ class Base:
 
     def get_by_name(self, name: str) -> bool:
         """Get a model by name, if the model has a name field.
-        :unit-test: TestBase::test__get_by_name()
+        :unit-test: TestApiModelBase::test__get_by_name()
         """
         if "name" not in self.field_map:
             raise AttributeError('%s does not have a `name` attribute.' % __class__.__name__)
@@ -185,7 +189,7 @@ class Base:
                 "field": "value",
                 "value": "A Cool Name",
             }
-        :unit-test: TestBase::test__get_by_unique_key
+        :unit-test: TestApiModelBase::test__get_by_unique_key
         """
         if not self.field_meta:
             return False
@@ -257,7 +261,7 @@ class Base:
 
     def get_field(self, field_name: str):
         """Get the details on a model field from the field map.
-        :unit-test: test__get_field
+        :unit-test: TestApiModelBase::test__get_field
         """
         for field_name, field in self.field_map.items():
             if field["name"] == field_name:
@@ -269,15 +273,16 @@ class Base:
         possible.
         :@todo: Simplify this method, it's too big.
         :param raw: The raw data from the database to be converted to model data.
-        :unit-test: TestBase::test__build_from_list
+        :unit-test: TestApiModelBase::test__build_from_list
         """
         if len(self.field_map) != len(raw):
             msg = "BUILD FROM LIST Model: %s field_map: %s, record: %s \n" % (
                 self,
                 len(self.field_map),
                 len(raw))
-            msg += "Field Map: %s \n" % str(self.field_map)
-            msg += "Raw Record: %s \n" % str(raw)
+            msg += "Model Fields: %s\n" % (self.field_map.keys())
+            msg += "Field Map: %s\n" % str(self.field_map)
+            msg += "Raw Record: %s\n" % str(raw)
             msg += "Maybe .setup() has not been run"
             logging.error(msg)
             raise AttributeError(msg)
@@ -314,6 +319,10 @@ class Base:
                 else:
                     setattr(self, field_name, None)
 
+            elif field["type"] == "json":
+                json_value = json.loads(field_value)
+                setattr(self, field_name, json_value)
+
             # Handle all other field types without any translation.
             else:
                 setattr(self, field_name, field_value)
@@ -325,7 +334,7 @@ class Base:
     def build_from_dict(self, raw: dict) -> bool:
         """Builds a model by a dictionary. This is expected to be used mostly from a client making
         a request from a web api.
-        :unit-test: TestBase::test__build_from_dict
+        :unit-test: TestApiModelBase::test__build_from_dict
         """
         for field, value in raw.items():
             if not hasattr(self, field):
@@ -341,7 +350,7 @@ class Base:
     def json(self, get_api: bool = False) -> dict:
         """Create a JSON friendly output of the model, converting types to friendlies. If get_api
         is specified and a model doesnt have api_display=False, it will export in the output.
-        :unit-test: TestBase::test__json
+        :unit-test: TestApiModelBase::test__json
         """
         json_out = {}
         for field_name, field in self.field_map.items():
@@ -355,7 +364,7 @@ class Base:
 
     def _gen_insert_sql(self, skip_fields: list = ["id"]) -> tuple:
         """Generate the insert SQL statement.
-        :unit-test: test___gen_insert_sql
+        :unit-test: TestApiModelBase::test___gen_insert_sql
         """
         insert_sql = "INSERT INTO `%s` (%s) VALUES (%s)" % (
             self.table_name,
@@ -387,7 +396,7 @@ class Base:
 
     def _gen_delete_sql(self) -> str:
         """Generate the SQL for deleting a record.
-        :unit-test: TestBase::test___gen_delete_sql
+        :unit-test: TestApiModelBase::test___gen_delete_sql
         """
         if not self.id:
             raise AttributeError('%s missing Attribute "id"' % self)
@@ -410,7 +419,7 @@ class Base:
 
     def _gen_get_by_id_sql(self) -> str:
         """Generates the get by_id sql.
-        :unit-test: test___gen_get_by_id_sql
+        :unit-test: TestApiModelBase::test___gen_get_by_id_sql
         """
         sql = """
             SELECT *
@@ -423,7 +432,7 @@ class Base:
 
     def _gen_get_by_name_sql(self, name) -> str:
         """
-        :unit-test: TestBase::test___gen_get_by_name_sql
+        :unit-test: TestApiModelBase::test___gen_get_by_name_sql
         """
         sql = """
             SELECT *
@@ -439,7 +448,7 @@ class Base:
                 "field": "value",
                 "another_field: "another value"
             }
-        :unit-test: TestBase::test___gen_get_by_unique_key_sql
+        :unit-test: TestApiModelBase::test___gen_get_by_unique_key_sql
         """
         unique_key_fields = self.field_meta["unique_key"]
         if len(fields) != len(unique_key_fields):
@@ -479,7 +488,7 @@ class Base:
 
     def _gen_get_by_field_sql(self, field) -> str:
         """
-        :unit-test: TestBase::test___gen_get_by_field_sql
+        :unit-test: TestApiModelBase::test___gen_get_by_field_sql
         """
         field_sql = self._gen_get_by_fields_sql(fields=[field])
         sql = """
@@ -503,7 +512,7 @@ class Base:
                 }
             ]
         :returns: `slug_name` = "admin"
-        :unit-test: TestBase::test___gen_get_by_fields_sql
+        :unit-test: TestApiModelBase::test___gen_get_by_fields_sql
         """
         sql_fields = ""
         for field in fields:
@@ -526,7 +535,7 @@ class Base:
 
     def _gen_get_last_sql(self) -> str:
         """Generate the last created row SQL.
-        :unit-test: TestModel::test___gen_get_last_sql
+        :unit-test: TestApiModelBase::test___gen_get_last_sql
         """
         sql = """
             SELECT *
@@ -537,7 +546,7 @@ class Base:
 
     def _sql_field_value(self, field_map_info: dict, field_data: dict):
         """Get the correctly typed value for a field, santized and ready for use in SQL.
-        :unit-test: test___sql_field_value
+        :unit-test: TestApiModelBase::test___sql_field_value
         """
         if field_data["value"] is None:
             return "NULL"
@@ -564,7 +573,7 @@ class Base:
     def _sql_fields_sanitized(self, skip_fields: dict) -> str:
         """Get all class table column fields in a comma separated list for sql cmds. Returns a value
             like: `id`, `created_ts`, `update_ts`, `name`, `vendor`.
-        :unit-test: test___sql_fields_sanitized
+        :unit-test: TestApiModelBase::test___sql_fields_sanitized
         """
         field_sql = ""
         for field_name, field in self.field_map.items():
@@ -577,7 +586,7 @@ class Base:
     def _sql_insert_values_santized(self, skip_fields: dict = None) -> str:
         """Creates the values portion of a query with the actual values sanitized.
         example: "2021-12-12", "a string", 1.
-        :unit-test: test___sql_insert_values_santized
+        :unit-test: TestApiModelBase::test___sql_insert_values_santized
         """
         if not skip_fields:
             skip_fields = {}
@@ -591,7 +600,7 @@ class Base:
 
     def _sql_update_fields_values_santized(self, skip_fields: dict = None) -> str:
         """Generate the models SET sql statements, ie: SET key = value, other_key = other_value.
-        :unit-test: test___sql_update_fields_values_santized
+        :unit-test: TestApiModelBase::test___sql_update_fields_values_santized
         """
         set_sql = ""
         for field_name, field in self.field_map.items():
@@ -606,6 +615,7 @@ class Base:
 
     def _get_sql_value_santized(self, field: dict) -> str:
         """Get the sanitized value of a given field.
+        :unit-test: None
         """
         value = self.sql_value_override_for_model(field)
 
@@ -625,7 +635,7 @@ class Base:
 
     def _get_sql_value_santized_typed(self, field: dict, value) -> str:
         """Convert values to a safe santized value based on it's type.
-        :unit-test: TestBase::test___get_sql_value_santized_typed
+        :unit-test: TestApiModelBase::test___get_sql_value_santized_typed
         """
         # Handle converting int value
         if field["type"] == "int":
@@ -678,7 +688,7 @@ class Base:
     def _set_defaults(self) -> bool:
         """Set the defaults for the class field vars and populates the self.field_list var
         containing all table field names.
-        :unit-test: test___set_defaults
+        :unit-test: TestApiModelBase::test___set_defaults
         """
         self.field_list = []
         for field_name, field in self.field_map.items():
@@ -787,7 +797,7 @@ class Base:
     def _xlate_field_type(self, field_type: str) -> str:
         """Translates field types into sql lite column types.
         @todo: create better class var for xlate map.
-        :unit-test: TestBase.test___xlate_field_type
+        :unit-test: TestApiModelBase.test___xlate_field_type
         """
         if self.backend == "mysql":
             if field_type == 'int':
@@ -817,5 +827,14 @@ class Base:
         if not self.cursor and "cursor" in glow.db:
             self.cursor = glow.db["cursor"]
         return True
+
+    def _is_model_json(self) -> bool:
+        """Check if a model contains a JSON field type, if it does, return True.
+        :unit-test: TestApiModelBase:test___is_model_json
+        """
+        for field_name, field_info in self.field_map.items():
+            if field_info["type"] == "json":
+                return True
+        return False
 
 # End File: cver/src/cver/api/models/base.py
