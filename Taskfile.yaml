@@ -23,14 +23,14 @@ tasks:
         fi
         echo "Building Target: ${TARGET}"
         docker build \
-          -t politeauthority/cver-api:${CVER_API_TAG} \
+          -t cver/cver-api:${CVER_API_TAG} \
           --build-arg CVER_BUILD="${CVER_API_TAG}" \
           --build-arg DOCKER_REGISTRY="harbor.squid-ink.us/docker-hub" \
           --target ${TARGET} \
           {{.CVER_DIR}}/docker/api
       - rm -rf {{.CVER_DIR}}/docker/api/src
       - rm -rf {{.CVER_DIR}}/docker/api/tests
-      - echo "Completed build politeauthority/cver-api"
+      - echo "Completed build cver/cver-api"
     silent: false
 
   build-engine:
@@ -52,14 +52,14 @@ tasks:
         fi
         echo "Building Target: ${TARGET}"
         docker build \
-          -t politeauthority/cver-engine:${CVER_ENGINE_TAG} \
+          -t cver/cver-engine:${CVER_ENGINE_TAG} \
           --build-arg CVER_BUILD="${CVER_ENGINE_TAG}" \
           --build-arg DOCKER_REGISTRY="harbor.squid-ink.us/docker-hub" \
           --target "tests" \
           {{.CVER_DIR}}/docker/engine
       - rm -rf {{.CVER_DIR}}/docker/engine/src
       - rm -rf {{.CVER_DIR}}/docker/engine/tests
-      - echo "Completed build politeauthority/cver-engine"
+      - echo "Completed build cver/cver-engine"
     silent: false
 
   build-ingest:
@@ -81,14 +81,14 @@ tasks:
         fi
         echo "Building Target: ${TARGET}"
         docker build \
-          -t politeauthority/cver-ingest:${CVER_INGEST_TAG} \
+          -t cver/cver-ingest:${CVER_INGEST_TAG} \
           --build-arg CVER_BUILD="${CVER_INGEST_TAG}" \
           --build-arg DOCKER_REGISTRY="harbor.squid-ink.us/docker-hub" \
           --target ${TARGET} \
           {{.CVER_DIR}}/docker/ingest
       - rm -rf {{.CVER_DIR}}/docker/ingest/src
       - rm -rf {{.CVER_DIR}}/docker/ingest/tests
-      - echo "Completed build politeauthority/cver-ingest"
+      - echo "Completed build cver/cver-ingest"
     silent: false
 
   dev-run-api:
@@ -112,7 +112,7 @@ tasks:
           -e CVER_SECRET_KEY="${CVER_SECRET_KEY}" \
           -e CVER_TEST="true" \
           -e CVER_JWT_EXPIRE_MINUTES=1440 \
-          politeauthority/cver-api:dev \
+          cver/cver-api:dev \
           tail -f /dev/null
       - docker network connect cver cver-ap
       - echo "Success"

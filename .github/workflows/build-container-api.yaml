@@ -77,11 +77,11 @@ jobs:
       - name: Push Container
         if: steps.changes.outputs.src == 'true'
         run: |
-          IMAGE_ID=$(docker images --filter "reference=politeauthority/cver-api" --format "{{.ID}}")
-          docker tag ${IMAGE_ID} harbor.squid-ink.us/politeauthority/cver-api:${{ inputs.tag-name }}
-          docker tag ${IMAGE_ID} harbor.squid-ink.us/politeauthority/cver-api:${{ inputs.tag-prefix }}-latest
-          docker push harbor.squid-ink.us/politeauthority/cver-api:${{ inputs.tag-name }}
-          docker push harbor.squid-ink.us/politeauthority/cver-api:${{ inputs.tag-prefix }}-latest
+          IMAGE_ID=$(docker images --filter "reference=cver/cver-api" --format "{{.ID}}")
+          docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-name }}
+          docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-prefix }}-latest
+          docker push harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-name }}
+          docker push harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-prefix }}-latest
           echo "# Docker Build" >> $GITHUB_STEP_SUMMARY
-          echo "**Built:** harbor.squid-ink.us/politeauthority/cver-api:${{ inputs.tag-name }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Built:** harbor.squid-ink.us/politeauthority/cver-api:${{ inputs.tag-prefix }}-latest" >> $GITHUB_STEP_SUMMARY
+          echo "**Built:** harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Built:** harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-prefix }}-latest" >> $GITHUB_STEP_SUMMARY
