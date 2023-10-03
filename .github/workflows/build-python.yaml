@@ -72,7 +72,7 @@ jobs:
           echo "ALIX-DEBUG"
           COVERAGE=$(awk '/---------- coverage: platform linux,/{flag=1} flag' "./coverage.txt")
           COVERAGE=$(awk '/TOTAL/{print $NF}' "./coverage.txt")
-          echo "# Coverage: ${COVERAGE}" >> $GITHUB_STEP_SUMMARY
           cat report.md >> $GITHUB_STEP_SUMMARY
+          echo "**Coverage:** ${COVERAGE}" >> $GITHUB_STEP_SUMMARY
 
 # End File: cver/.github/workflows/build-cver.yaml

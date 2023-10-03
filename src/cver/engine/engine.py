@@ -114,8 +114,16 @@ class Engine:
             return False
         scan_result = scan_util.run_trivy(image, ib)
         self.save_scan(ib, scan_result)
+        ibw.waiting_for = None
+        ibw.waiting = False
+        if ibw.save():
+            logging.info("Saved: %s" % ibw)
+            return True
+        else:
+            logging.error("Failed to Save: %s" % ibw)
+            return False
 
-    def save_scan(self, ib: ImageBuild, scan_result: dict):
+    def save_scan(self, ib: ImageBuild, scan_result: dict) -> bool:
         """Parse and save a scan to the Cver api."""
         logging.info("Parsing scan results from Trivy")
         vulns = scan_result["Results"][0]["Vulnerabilities"]
@@ -137,6 +145,10 @@ class Engine:
         scan.cve_unknown_nums = vuln_data["cve_unknown_nums"]
         if scan.save():
             logging.info("Saved Scan results successfully")
+            return True
+        else:
+            logging.warning("Failed to save scan for %s" % ib)
+            return False
 
     def get_image_build_waitings(self, waiting_for: str):
         """Get the ImageBuildsWaiting for some sort of processing."""

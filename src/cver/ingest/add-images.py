@@ -25,8 +25,13 @@ class AddImages:
     def get_static_images(self):
         emby = {
             "name": "emby/embyserver",
-            "tag": "latest",
+            "tags": ["latest", "4.7.14.0"],
+            "sha": "fe2044bd3cd3b22dd38c77c1d05c50588520bc6b4083a36e8062dc08e923599f"
         }
+        # sonarr = {
+        #     "name": "linuxserver/sonarr",
+        #     "tag": "latest"
+        # }
         images = [emby]
         return images
 
@@ -70,7 +75,8 @@ class AddImages:
                 image_build.sha = the_image["sha"]
                 image_build.image_id = image.id
                 image_build.repository = image.repository
-                image_build.tags = [the_image["tag"]]
+                if "tags" in the_image:
+                    image_build.tags = the_image["tags"]
                 image_build.save()
                 logging.info("\tWrote: %s" % image_build)
             else:
