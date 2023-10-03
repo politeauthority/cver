@@ -69,7 +69,7 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   deploy-api:
-    needs: [build-api, build-cver, lint]
+    needs: [build-api, build-cver, lint, build-cver]
     uses: ./.github/workflows/deploy-api.yaml
     secrets: inherit 
     with:
@@ -80,7 +80,7 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   deploy-engine:
-    needs: [build-engine, build-cver, lint]
+    needs: [build-engine, lint, build-cver]
     uses: ./.github/workflows/deploy-engine.yaml
     secrets: inherit 
     with:
