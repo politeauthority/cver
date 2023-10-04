@@ -55,6 +55,7 @@ jobs:
           echo "ALIX-debug"
           docker images
           IMAGE_ID=$(docker images --filter "reference=cver/cver-ingest" --format "{{.ID}}")
+          echo "IMAGE ID: ${IMAGE_ID}"
           docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-ingest:${{ inputs.tag-name }}
           docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-ingest:${{ inputs.tag-prefix }}-latest
           docker push harbor.squid-ink.us/cver/cver-ingest:${{ inputs.tag-name }}
