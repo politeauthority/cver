@@ -74,7 +74,7 @@ def post_submit_image():
     return jsonify(data), 201
 
 
-def _handle_image_build(image: Image, image_map: dict) -> bool:
+def _handle_image_build(image: Image, image_map: dict) -> ImageBuildWaiting:
     if "sha" in image_map and image_map["sha"]:
         ib = ImageBuild()
         ib.sha = image_map["sha"]
@@ -86,6 +86,13 @@ def _handle_image_build(image: Image, image_map: dict) -> bool:
         return ib
     else:
         ibw = ImageBuildWaiting()
+        fields = {
+            "image_id": image.id,
+            "image_build_id": None,
+            "tag": image_map["tag"]
+        }
+        if ibw.get_by_unique_key(fields):
+            return ibw
         ibw.image_id = image.id
         ibw.waiting_for = "download"
         if "tag" in image_map and image_map["tag"]:
