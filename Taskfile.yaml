@@ -81,7 +81,7 @@ tasks:
         fi
         echo "Building Target: ${TARGET}"
         docker build \
-          -t cver/cver-ingest:${CVER_INGEST_TAG} \
+          -t cver/cver-ingest \
           --build-arg CVER_BUILD="${CVER_INGEST_TAG}" \
           --build-arg DOCKER_REGISTRY="harbor.squid-ink.us/docker-hub" \
           --target ${TARGET} \
