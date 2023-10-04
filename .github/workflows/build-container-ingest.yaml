@@ -48,7 +48,7 @@ jobs:
         run: |
           echo "Run Task: Build"
           export CVER_INGEST_TAG="${{ inputs.tag-name }}"
-          task build-api
+          task build-ingest
 
       - name: Push Container
         run: |
