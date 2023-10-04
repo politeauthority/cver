@@ -147,6 +147,15 @@ tasks:
       - echo "Copied and Built!"
     silent: True
 
+  dev-cp-ingest:
+    cmds:
+      - |
+        POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-ingest-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
+        kubectl cp {{ .CVER_DIR }}/src/cver/ ${POD}:/app/
+        kubectl exec -it ${POD} -- cver-build
+      - echo "Copied and Built!"
+    silent: True
+
   dev-cp-all:
     cmds:
       - |
@@ -169,15 +178,6 @@ tasks:
         POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-engine-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
         kubectl cp {{ .CVER_DIR }}/tests/ ${POD}:/
         # kubectl exec -it ${POD} -- cver-build-tests
-      - echo "Copied and Built!"
-    silent: True
-
-  dev-cp-ingest:
-    cmds:
-      - |
-        POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-ingest-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
-        kubectl cp {{ .CVER_DIR }}/src/cver/ ${POD}:/app/
-        kubectl exec -it ${POD} -- cver-build
       - echo "Copied and Built!"
     silent: True
 

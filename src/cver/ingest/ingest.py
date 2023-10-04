@@ -16,10 +16,16 @@ import requests
 
 # from cver.shared.utils import misc
 # from cver.cver_client.models.image import Image
+# from cver.shared.utils.log_config import log_config
 from cver.cver_client.ingest.ingest_k8s import IngestK8s
 
 
-class KubernetesIngest:
+# logging.config.dictConfig(log_config)
+logger = logging.getLogger(__name__)
+logger.propagate = True
+
+
+class Ingest:
 
     def __init__(self):
         self.cluster_id = 1
@@ -74,7 +80,7 @@ class KubernetesIngest:
 
 
 if __name__ == "__main__":
-    KubernetesIngest().run()
+    Ingest().run()
 
 
 # End File: cver/src/cver/ingest/ingest.py

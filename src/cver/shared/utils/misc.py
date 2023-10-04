@@ -1,9 +1,11 @@
 """
     Cver Shared
-    Utils - Misc
+    Utils
+    Misc
     A bunch of misc tools to share between efforts.
 
 """
+import logging
 import json
 import re
 import pprint
@@ -102,15 +104,18 @@ def _get_tag(the_string: str) -> str:
     """
     num_colons = the_string.count(":")
     if num_colons == 0:
-        return ""
+        logging.debug("Cant get tag from string: '%s' assuming 'latest'" % the_string)
+        return "latest"
     elif num_colons == 1:
         if "@" in the_string:
-            return ""
+            logging.debug("Cant get tag from string: '%s' assuming 'latest'" % the_string)
+            return "latest"
         tag_loc = the_string.find(":")
         tag = the_string[tag_loc + 1:]
     elif num_colons == 2:
         if "@" not in the_string:
-            raise AttributeError()
+            logging.debug("Cant get tag from string: '%s' assuming 'latest'" % the_string)
+            return "latest"
         tag_loc_first = the_string.find(":")
         tag_loc_last = the_string.find("@")
         tag = the_string[tag_loc_first + 1: tag_loc_last]

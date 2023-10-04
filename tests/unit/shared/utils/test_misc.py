@@ -54,7 +54,7 @@ class TestSharedUtilMisc:
         assert isinstance(test_res, dict)
         assert test_res["repository"] == "registry.k8s.io"
         assert test_res["image"] == "ingress-nginx/controller"
-        assert test_res["tag"] == ""
+        assert test_res["tag"] == "latest"
         assert test_res["sha"] == img_sha
 
     def test__is_fqdn(self):
@@ -114,7 +114,7 @@ class TestSharedUtilMisc:
 
     def test___get_tag(self):
         """Test that we get a tag
-        :method: misc.get_tag()
+        :method: misc._get_tag()
         """
         tag = misc._get_tag("docker.io/calico/node:v3.20.2")
         assert isinstance(tag, str)
@@ -122,7 +122,7 @@ class TestSharedUtilMisc:
 
         tag = misc._get_tag("docker.io/calico/node")
         assert isinstance(tag, str)
-        assert tag == ""
+        assert "latest" == misc._get_tag("docker.io/calico/node")
 
         img_sha = "e5c4824e7375fcf2a393e1c03c293b69759af37a9ca6abdb91b13d78a93da8bd"
         image_url = "registry.k8s.io/ingress-nginx/controller:v1.8.1@sha256:%s" % img_sha
