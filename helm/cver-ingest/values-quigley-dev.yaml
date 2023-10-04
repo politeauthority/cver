@@ -1,4 +1,4 @@
-# Quigely dev values for cver-engine
+# Quigely dev values for cver-ingest
 
 replicaCount: 1
 
@@ -12,7 +12,7 @@ test:
   test: true
 
 image:
-  repository: harbor.squid-ink.us/politeauthority/cver-engine
+  repository: harbor.squid-ink.us/cver/cver-ingest
   pullPolicy: Always
   tag: "dev-latest"
 

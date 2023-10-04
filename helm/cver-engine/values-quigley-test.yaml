@@ -13,7 +13,7 @@ test:
   test: true
 
 image:
-  repository: harbor.squid-ink.us/politeauthority/cver-engine
+  repository: harbor.squid-ink.us/cver/cver-engine
   pullPolicy: Always
   tag: "dev-latest"
 

@@ -19,7 +19,7 @@ test:
   test: true
 
 image:
-  repository: harbor.squid-ink.us/politeauthority/cver-api
+  repository: harbor.squid-ink.us/cver/cver-api
   pullPolicy: Always
   tag: "dev-latest"
 

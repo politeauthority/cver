@@ -1,0 +1,4 @@
+#!/bin/sh -l
+set -e
+echo "Running Cver Regression Tests"
+cd /tests/regression && pytest

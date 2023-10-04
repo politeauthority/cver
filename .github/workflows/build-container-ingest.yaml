@@ -1,0 +1,65 @@
+name: Build Cver Ingest Container
+
+on:
+  workflow_call:
+    inputs:
+      tag-prefix:
+        required: true
+        type: string
+      tag-name:
+        required: true
+        type: string
+      cicd-version:
+        required: true
+        type: string
+      harbor-user:
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: self-hosted
+    permissions:
+      pull-requests: read
+    container:
+      image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ inputs.cicd-version }}
+      credentials:
+        username: ${{ inputs.harbor-user }}
+        password: ${{ secrets.HARBOR_PASSWORD }}
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.PAT }}
+      - name: Add Safe Dir
+        run: |
+          git config --global --add safe.directory /__w/cver/cver
+
+      - uses: docker/login-action@v2
+        # if: steps.changes.outputs.src == 'true'
+        with:
+          registry: harbor.squid-ink.us
+          username: ${{ inputs.harbor-user }}
+          password: ${{ secrets.HARBOR_PASSWORD }}
+
+      - name: Build Container
+        # if: steps.changes.outputs.src == 'true'
+        run: |
+          echo "Run Task: Build"
+          export CVER_INGEST_TAG="${{ inputs.tag-name }}"
+          task build-ingest
+
+      - name: Push Container
+        run: |
+          echo "ALIX-debug"
+          docker images
+          IMAGE_ID=$(docker images --filter "reference=cver/cver-ingest" --format "{{.ID}}")
+          echo "IMAGE ID: ${IMAGE_ID}"
+          docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-ingest:${{ inputs.tag-name }}
+          docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-ingest:${{ inputs.tag-prefix }}-latest
+          docker push harbor.squid-ink.us/cver/cver-ingest:${{ inputs.tag-name }}
+          docker push harbor.squid-ink.us/cver/cver-ingest:${{ inputs.tag-prefix }}-latest
+          echo "# Docker Build" >> $GITHUB_STEP_SUMMARY
+          echo "**Built:** harbor.squid-ink.us/cver/cver-ingest:${{ inputs.tag-name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Built:** harbor.squid-ink.us/cver/cver-ingest:${{ inputs.tag-prefix }}-latest" >> $GITHUB_STEP_SUMMARY

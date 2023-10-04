@@ -1,7 +1,7 @@
-# Default values for cver-engine
+# Default values for cver-ingest
 
 replicaCount: 1
-fullname: "cver-engine"
+fullname: "cver-ingest"
 
 app:
   debug: true
@@ -10,7 +10,7 @@ app:
   logHealthChecks: true
 
 image:
-  repository: politeauthority/cver-engine
+  repository: politeauthority/cver-ingest
   pullPolicy: IfNotPresent
   tag: "latest"
 
@@ -19,7 +19,7 @@ test:
   secretName: 
 
 imagePullSecrets: []
-nameOverride: "dev-ingest"
+nameOverride: "ingest"
 fullnameOverride: ""
 
 serviceAccount:
