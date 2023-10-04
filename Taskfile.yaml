@@ -89,7 +89,7 @@ tasks:
       - rm -rf {{.CVER_DIR}}/docker/ingest/src
       - rm -rf {{.CVER_DIR}}/docker/ingest/tests
       - echo "ALIX-debug"
-      - echo $(docker images ps)
+      - echo $(docker images)
       - echo "Completed build cver/cver-ingest"
     silent: false
 
