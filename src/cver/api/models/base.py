@@ -116,7 +116,7 @@ class Base:
         """
         sql = self._gen_insert_sql()
         try:
-            logging.info("\n\n%s\n\n" % sql)
+            # logging.info("\n\n%s\n\n" % sql)
             self.cursor.execute(sql)
             self.conn.commit()
         except ProgrammingError as e:
@@ -132,7 +132,7 @@ class Base:
         :unit-test: TestApiModelBase::test__iodku
         """
         sql = self._gen_iodku_sql()
-        logging.info("\n\n%s\n\n" % sql)
+        # logging.info("\n\n%s\n\n" % sql)
         self.cursor.execute(sql)
         self.conn.commit()
         self.id = self.cursor.lastrowid
@@ -212,7 +212,7 @@ class Base:
             "op": "eq"
         }
         sql = self._gen_get_by_field_sql(field=field)
-        logging.info(sql)
+        # logging.info(sql)
         self.cursor.execute(sql)
         raw = self.cursor.fetchone()
         if not raw:
