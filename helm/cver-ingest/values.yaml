@@ -1,7 +1,7 @@
 # Default values for cver-ingest
 
 replicaCount: 1
-fullname: "cver-engine"
+fullname: "cver-ingest"
 
 app:
   debug: true
@@ -19,7 +19,7 @@ test:
   secretName: 
 
 imagePullSecrets: []
-nameOverride: "dev-ingest"
+nameOverride: "ingest"
 fullnameOverride: ""
 
 serviceAccount:

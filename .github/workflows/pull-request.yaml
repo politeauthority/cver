@@ -90,6 +90,17 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
+  deploy-ingest:
+    needs: [build-ingest, lint, build-cver]
+    uses: ./.github/workflows/deploy-ingest.yaml
+    secrets: inherit 
+    with:
+      deployment-name: "test"
+      run-number: ${{ github.run_number }}
+      tag-name: "${{ github.sha }}"
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
+
   test-api:
     needs: [deploy-api]
     if: ${{ needs.deploy-api.result == 'success' }}
