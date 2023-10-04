@@ -4,7 +4,7 @@ name: Push Stage
 
 on:
   push:
-    branches: ["stage"]
+    branches: ["stage", "stage-cicd"]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -29,7 +29,7 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
-  api:
+  build-api:
     needs: [build-python, lint]
     uses: ./.github/workflows/build-container-api.yaml
     secrets: inherit
@@ -42,7 +42,7 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
-  engine:
+  build-engine:
     needs: [build-python, lint]
     uses: ./.github/workflows/build-container-engine.yaml
     secrets: inherit 
@@ -55,8 +55,21 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
-  deploy:
-    needs: [api, build-python, lint]
+  build-ingest:
+    needs: [build-python, lint]
+    uses: ./.github/workflows/build-container-ingest.yaml
+    secrets: inherit 
+    permissions:
+      pull-requests: read
+      contents: read
+    with:
+      tag-prefix: "stage"
+      tag-name: "${{ github.sha }}"
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
+
+  deploy-api:
+    needs: [build-api]
     uses: ./.github/workflows/deploy-api.yaml
     secrets: inherit 
     with:
@@ -66,8 +79,19 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
-  test-stage:
-    needs: deploy
+  deploy-engine:
+    needs: [build-engine]
+    uses: ./.github/workflows/deploy-api.yaml
+    secrets: inherit 
+    with:
+      deployment-name: "stage"
+      run-number: ${{ github.run_number }}
+      tag-name: "${{ github.sha }}"
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
+
+  test-api:
+    needs: deploy-api
     runs-on: self-hosted
     container:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}

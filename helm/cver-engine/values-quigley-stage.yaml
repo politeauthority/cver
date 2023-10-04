@@ -1,0 +1,21 @@
+# Quigely test values for cver-engine
+
+replicaCount: 1
+
+nameOverride: "stage"
+
+app:
+  logLevel: "DEBUG"
+  envName: "test"
+  debug: false
+
+test:
+  test: true
+
+image:
+  repository: harbor.squid-ink.us/cver/cver-engine
+  pullPolicy: Always
+  tag: "stage-latest"
+
+imagePullSecrets:
+  - name: harbor
