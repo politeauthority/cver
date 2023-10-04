@@ -45,6 +45,7 @@ jobs:
           export KUBECONFIG=~/.kube/config.yaml
           chmod 600 ~/.kube/config.yaml
           DEPLOYED_AT=$(date +"%Y-%m-%d %T")
+          echo "RELEASE_NAME: ${RELEASE_NAME}"
           helm upgrade --install \
             --namespace=cver \
             ${RELEASE_NAME} \

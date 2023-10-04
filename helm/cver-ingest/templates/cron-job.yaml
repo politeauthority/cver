@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: cver-ingest-cron
+  name: {{ include "cver-ingest.fullname" . }}
 spec:
   schedule: "*/30 * * * *" # This runs every 30 minutes
   jobTemplate:
