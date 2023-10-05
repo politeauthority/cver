@@ -36,9 +36,11 @@ jobs:
           if [ "${{ inputs.deployment-name }}" = "test" ]; then
             RELEASE_NAME="cver-ingest-test-${{ inputs.run-number }}"
             IMAGE_TAG="dev-latest"
+            NAMESPACE="cver-test"
           else
             RELEASE_NAME="cver-ingest-${{ inputs.deployment-name}}"
             IMAGE_TAG="${{ github.sha }}"
+            NAMESPACE="cver-${{ inputs.deployment-name}}"
           fi
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
@@ -47,8 +49,8 @@ jobs:
           DEPLOYED_AT=$(date +"%Y-%m-%d %T")
           echo "RELEASE_NAME: ${RELEASE_NAME}"
           helm upgrade ${RELEASE_NAME} helm/cver-ingest \
+            --namespace=${NAMESPACE} \
             --install \
-            --namespace=cver \
             --wait \
             --timeout=240s \
             -f helm/cver-ingest/values-quigley-${{ inputs.deployment-name }}.yaml \
