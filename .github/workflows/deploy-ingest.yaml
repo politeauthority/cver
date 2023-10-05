@@ -46,10 +46,9 @@ jobs:
           chmod 600 ~/.kube/config.yaml
           DEPLOYED_AT=$(date +"%Y-%m-%d %T")
           echo "RELEASE_NAME: ${RELEASE_NAME}"
-          helm upgrade --install \
+          helm upgrade ${RELEASE_NAME} helm/cver-ingest/ \
+            --install \
             --namespace=cver \
-            ${RELEASE_NAME} \
-            helm/cver-ingest/ \
             --wait \
             --timeout=240s \
             -f helm/cver-ingest/values-quigley-${{ inputs.deployment-name }}.yaml \
