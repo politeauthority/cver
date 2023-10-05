@@ -1,6 +1,5 @@
 #!/bin/sh -l
-# Cver Api Entry Point
+# Cver Ingest Entrypoint
 set -e
 echo "Cver Ingest Starting"
-cd /app/cver/ingest
-python3 ingest.py
+/usr/bin/timeout ${TIMEOUT_SECONDS} python3 /app/cver/ingest/ingest.py

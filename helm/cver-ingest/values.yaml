@@ -7,6 +7,8 @@ app:
   schedule:  "*/30 * * * *"
   envName: "prod"
   logLevel: "INFO"
+  timeoutSeconds: 300
+  suspendCron: false
   debug: true
   deployedAt: "unknown"
 

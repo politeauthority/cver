@@ -3,7 +3,11 @@ kind: CronJob
 metadata:
   name: {{ include "cver-ingest.fullname" . }}
 spec:
-  schedule: {{ .Values.app.schedule }}
+  schedule: "{{ .Values.app.schedule }}"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 2
+  suspend: {{ .Values.app.suspendCron }}
   jobTemplate:
     spec:
       template:
@@ -15,14 +19,13 @@ spec:
           - name: cver-ingest-k8s
             image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
             imagePullPolicy: {{ .Values.image.pullPolicy }}
-            args:
-            - python3
-            - /app/cver/ingest/ingest.py
             env:
               - name: CVER_ENV
                 value: "{{ .Values.app.envName }}"
               - name: CVER_API_URL
                 value: "http://cver-api-{{ .Values.app.envName }}"
+              - name: TIMEOUT_SECONDS
+                value: {{ .Values.app.timeoutSeconds }}
               {{- if .Values.test.test }}
               - name: CVER_TEST_CLIENT_ID
                 valueFrom:
