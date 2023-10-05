@@ -53,7 +53,7 @@ def post_submit_image():
     # Handle Image
     image_map = misc.container_url(request_json["image"])
     image = Image()
-    if not image.get_by_repo_and_name(image_map["repository"], image_map["image"]):
+    if not image.get_by_registry_and_name(image_map["repository"], image_map["image"]):
         image.repository = image_map["repository"]
         image.name = image_map["image"]
         image.save()

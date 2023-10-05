@@ -21,13 +21,13 @@ class Image(BaseEntityMeta):
         self.createable = True
         self.setup()
 
-    def get_by_repo_and_name(self, registry: str, name: str):
+    def get_by_registry_and_name(self, registry: str, name: str):
         """Get an Image entity by repo and image name."""
         sql = """
             SELECT *
             FROM `%s`
             WHERE
-                `repository` = "%s" AND
+                `registry` = "%s" AND
                 `name` = "%s";
         """ % (
             self.table_name,
