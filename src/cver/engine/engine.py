@@ -168,7 +168,7 @@ class Engine:
             logging.error("Cannot find Image by ID: %s" % ibw.image_id)
             return False
         pull_through = False
-        if image.repository == "docker.io":
+        if image.registry == "docker.io":
             pull_through = True
             image_loc = "%s/%s/%s:%s" % (
                 self.registry_url,
@@ -176,7 +176,7 @@ class Engine:
                 image.name,
                 ibw.tag)
         else:
-            image_loc = "%s/%s" % (image.repository, image.name)
+            image_loc = "%s/%s" % (image.registry, image.name)
 
         pull_cmd = ["docker", "pull", image_loc]
 
@@ -186,10 +186,10 @@ class Engine:
         ib = ImageBuild()
         ib.sha = sha
         ib.image_id = image.id
-        ib.repository = image.repository
+        ib.registry = image.registry
         if pull_through:
             replace_str = "%s:%s" % (image.name, ibw.tag)
-            ib.repository_imported = misc.strip_trailing_slash(image_loc.replace(replace_str, ""))
+            ib.registry_imported = misc.strip_trailing_slash(image_loc.replace(replace_str, ""))
         ib.tags = [ibw.tag]
         ib.sync_enabled = True
         ib.sync_flag = False
