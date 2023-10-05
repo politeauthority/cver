@@ -241,6 +241,16 @@ tasks:
         POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-api-dev --no-headers | cut -d' ' -f1)
         stern ${POD}
 
+  dev-pods:
+    cmds:
+      - |
+        kubectl get pods -n cver-dev -w
+
+  stage-pods:
+    cmds:
+      - |
+        kubectl get pods -n cver-stage -w
+
   dev-mysql:
     cmds:
       - mysql -h 127.0.0.1 -u root --password=$MYSQL_PWD
