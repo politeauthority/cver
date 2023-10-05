@@ -36,19 +36,21 @@ jobs:
           if [ "${{ inputs.deployment-name }}" = "test" ]; then
             RELEASE_NAME="cver-engine-test-${{ inputs.run-number }}"
             IMAGE_TAG="dev-latest"
+            NAMESPACE="cver-test"
           else
             RELEASE_NAME="cver-engine-${{ inputs.deployment-name}}"
             IMAGE_TAG="${{ github.sha }}"
+            NAMESPACE="cver-${{ inputs.deployment-name}}"
           fi
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
           export KUBECONFIG=~/.kube/config.yaml
           chmod 600 ~/.kube/config.yaml
           DEPLOYED_AT=$(date +"%Y-%m-%d %T")
-          helm upgrade --install \
-            --namespace=cver \
-            ${RELEASE_NAME} \
-            helm/cver-engine/ \
+          helm upgrade \
+            ${RELEASE_NAME} helm/cver-engine/ \
+            --namespace=${NAMESPACE} \
+            --install \
             --wait \
             --timeout=240s \
             -f helm/cver-engine/values-quigley-${{ inputs.deployment-name }}.yaml \

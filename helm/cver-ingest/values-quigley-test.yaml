@@ -1,0 +1,22 @@
+# Quigely test values for cver-ingest
+
+replicaCount: 1
+
+nameOverride: "test"
+
+app:
+  envName: "test"
+  logLevel: "DEBUG"
+  debug: true
+  suspendCron: true
+
+test:
+  test: true
+
+image:
+  repository: harbor.squid-ink.us/cver/cver-ingest
+  pullPolicy: Always
+  tag: "dev-latest"
+
+imagePullSecrets:
+  - name: harbor

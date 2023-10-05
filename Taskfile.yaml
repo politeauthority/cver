@@ -186,7 +186,7 @@ tasks:
       - |
         POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-api-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
         echo "Logging into to pod: ${POD}"
-        kubectl exec -it ${POD} -c cver-api -- bash
+        kubectl exec -n cver-dev -it ${POD} -c cver-api -- bash
     silent: True
 
   dev-exec-engine:
@@ -194,7 +194,7 @@ tasks:
       - |
         POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-engine-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
         echo "Logging into to pod: ${POD}"
-        kubectl exec -it ${POD} -- bash
+        kubectl exec -n cver-dev -it ${POD} -- bash
     silent: True
 
   dev-exec-ingest:
@@ -202,7 +202,7 @@ tasks:
       - |
         POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-ingest-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
         echo "Logging into to pod: ${POD}"
-        kubectl exec -it ${POD} -- bash
+        kubectl exec -n cver-dev -it ${POD} -- bash
     silent: True
 
   dev-helm-api:
@@ -211,6 +211,7 @@ tasks:
         helm upgrade --install \
             cver-api-dev \
             helm/cver-api \
+            --namespace=cver-dev \
             -f helm/cver-api/values.yaml \
             -f helm/cver-api/values-quigley-dev.yaml
       - kubectl rollout restart deployment/cver-api-dev
@@ -221,6 +222,7 @@ tasks:
         helm upgrade --install \
             cver-engine-dev \
             helm/cver-engine \
+            --namespace=cver-dev \
             -f helm/cver-engine/values.yaml \
             -f helm/cver-engine/values-quigley-dev.yaml
       - kubectl rollout restart deployment/cver-engine-dev
@@ -231,6 +233,7 @@ tasks:
         helm upgrade --install \
             cver-ingest-dev \
             helm/cver-ingest \
+            --namespace=cver-dev \
             -f helm/cver-ingest/values.yaml \
             -f helm/cver-ingest/values-quigley-dev.yaml
 

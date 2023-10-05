@@ -4,10 +4,13 @@ replicaCount: 1
 fullname: "cver-ingest"
 
 app:
-  debug: true
+  schedule:  "*/30 * * * *"
   envName: "prod"
+  logLevel: "INFO"
+  timeoutSeconds: 300
+  suspendCron: false
+  debug: true
   deployedAt: "unknown"
-  logHealthChecks: true
 
 image:
   repository: politeauthority/cver-ingest

@@ -1,0 +1,20 @@
+# Quigely stage values for cver-ingest
+
+replicaCount: 1
+
+nameOverride: "stage"
+
+app:
+  envName: "stage"
+  debug: true
+
+test:
+  test: true
+
+image:
+  repository: harbor.squid-ink.us/cver/cver-ingest
+  pullPolicy: Always
+  tag: "stage-latest"
+
+imagePullSecrets:
+  - name: harbor
