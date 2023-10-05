@@ -13,6 +13,5 @@ validators==0.18.2
 # Cver Engine / Ingest
 requests==2.31.0
 
-
-
-
+# Cver Shared
+tldextract==3.6.0
