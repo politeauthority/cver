@@ -124,8 +124,8 @@ tasks:
     cmds:
       - |
         POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-api-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
-        kubectl cp {{ .CVER_DIR }}/src/cver/ ${POD}:/app/ -c cver-api
-        kubectl exec -it ${POD} -c cver-api -- /bin/cver-build
+        kubectl cp -n cver-dev {{ .CVER_DIR }}/src/cver/ ${POD}:/app/ -c cver-api
+        kubectl exec -n cver-dev -it ${POD} -c cver-api -- /bin/cver-build
       - echo "Copied and Built!"
     silent: True
 
@@ -133,8 +133,8 @@ tasks:
     cmds:
       - |
         POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-api-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
-        kubectl cp {{ .CVER_DIR }}/tests/ ${POD}:/
-        kubectl exec -it ${POD} -c cver-api -- cver-build-tests
+        kubectl cp -n cver-dev {{ .CVER_DIR }}/tests/ ${POD}:/
+        kubectl exec -n cver-dev -it ${POD} -c cver-api -- cver-build-tests
       - echo "Copied and Built Cver Tests"
     silent: True
 
@@ -142,8 +142,8 @@ tasks:
     cmds:
       - |
         POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-engine-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
-        kubectl cp {{ .CVER_DIR }}/src/cver/ ${POD}:/app/
-        kubectl exec -it ${POD} -- cver-build
+        kubectl cp -n cver-dev {{ .CVER_DIR }}/src/cver/ ${POD}:/app/
+        kubectl exec -n cver-dev -it ${POD} -- cver-build
       - echo "Copied and Built!"
     silent: True
 
