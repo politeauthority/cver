@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: {{ include "cver-ingest.fullname" . }}
 spec:
-  schedule: "*/30 * * * *" # This runs every 30 minutes
+  schedule: {{ .Values.app.schedule }}
   jobTemplate:
     spec:
       template:

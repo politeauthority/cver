@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "cver-ingest.fullname" . }}
+  name: {{ include "cver-ingest.fullname" . }}-static
   labels:
     {{- include "cver-ingest.labels" . | nindent 4 }}
 spec:
