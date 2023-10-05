@@ -1,14 +1,12 @@
-# Quigely test values for cver-ingest
+# Quigely stage values for cver-ingest
 
 replicaCount: 1
 
-nameOverride: "test"
+nameOverride: "stage"
 
 app:
-  envName: "test"
-  logLevel: "DEBUG"
+  envName: "stage"
   debug: true
-  suspendCron: true
 
 test:
   test: true
@@ -16,7 +14,7 @@ test:
 image:
   repository: harbor.squid-ink.us/cver/cver-ingest
   pullPolicy: Always
-  tag: "dev-latest"
+  tag: "stage-latest"
 
 imagePullSecrets:
   - name: harbor
