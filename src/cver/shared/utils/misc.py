@@ -10,6 +10,8 @@ import json
 import re
 import pprint
 
+import tldextract
+
 
 def container_url(the_string: str):
     """Break down a container url into its parts.
@@ -82,19 +84,11 @@ def _get_repository(the_string: str) -> str:
     :unit-test: test___get_repository
     """
     default_repository = "docker.io"
-    repository = ""
-    num_slashes = the_string.count("/")
-    if num_slashes > 2:
-        print("error")
-        return False
-    # string looks like docker.io/calico/node:v3.20.2
-    elif num_slashes == 2:
-        first_slash = the_string.find("/")
-        pot_fqdn = the_string[:first_slash]
-        if is_fqdn(pot_fqdn):
-            repository = pot_fqdn
-    if not repository:
-        repository = default_repository
+    extracted = tldextract.extract(the_string)
+    if not extracted.suffix:
+        return default_repository
+    tld_len = len(extracted.suffix)
+    repository = the_string[:the_string.find(extracted.suffix) + tld_len]
     return repository
 
 

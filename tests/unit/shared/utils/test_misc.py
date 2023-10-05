@@ -57,6 +57,13 @@ class TestSharedUtilMisc:
         assert test_res["tag"] == "latest"
         assert test_res["sha"] == img_sha
 
+        image_url = "registry.k8s.io/kube-scheduler:v1.24.15"
+        test_res = misc.container_url(image_url)
+        assert "registry.k8s.io" == test_res["repository"]
+        assert "kube-scheduler" == test_res["image"]
+        assert "v1.24.15" == test_res["tag"]
+        assert "" == test_res["sha"]
+
     def test__is_fqdn(self):
         """Test that can determin FQDNs
         :method: misc.is_fqdn()
@@ -76,6 +83,9 @@ class TestSharedUtilMisc:
         """Test that we get a repository domain from a docker image url string.
         :method: misc.repository()
         """
+        repository = misc._get_repository("registry.k8s.io/kube-scheduler:v1.24.15")
+        assert "registry.k8s.io" == repository
+
         repository = misc._get_repository("docker.io/calico/node:v3.20.2")
         assert isinstance(repository, str)
         assert repository == "docker.io"
