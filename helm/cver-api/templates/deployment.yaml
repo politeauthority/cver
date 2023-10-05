@@ -47,12 +47,12 @@ spec:
             valueFrom:
               secretKeyRef:
                 key: mysql-password
-                name: cver-secrets-{{ .Values.app.envName }}
+                name: cver-api
           - name: CVER_SECRET
             valueFrom:
               secretKeyRef:
                 key: cver-secret-key
-                name: cver-secrets-{{ .Values.app.envName }}
+                name: cver-api
           {{- if .Values.test.test }}
           - name: CVER_TEST_CLIENT_ID
             valueFrom:
@@ -94,12 +94,12 @@ spec:
               valueFrom:
                 secretKeyRef:
                   key: mysql-password
-                  name: cver-secrets-{{ .Values.app.envName }}
+                  name: cver-api
             - name: CVER_SECRET_KEY
               valueFrom:
                 secretKeyRef:
                   key: cver-secret-key
-                  name: cver-secrets-{{ .Values.app.envName }}
+                  name: cver-api
             - name: CVER_JWT_EXPIRE_MINUTES
               value: "{{ .Values.app.jwtExpireMinutes }}"
             - name: CVER_LOG_HEALTH_CHECKS
