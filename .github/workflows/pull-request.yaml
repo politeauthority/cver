@@ -180,5 +180,5 @@ jobs:
               --namespace=cver \
               cver-ingest-test-${{ github.run_number }}
             echo "Uninstalled Helm deployment cver-ingest-test-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
-            
+
 # End File: cver/.github/workflows/pull-request.yaml

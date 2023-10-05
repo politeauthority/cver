@@ -243,13 +243,15 @@ tasks:
 
   dev-pods:
     cmds:
-      - |
-        kubectl get pods -n cver-dev -w
+      - kubectl get pods -n cver-dev -w
+
+  test-pods:
+    cmds:
+      - kubectl get pods -n cver-test -w
 
   stage-pods:
     cmds:
-      - |
-        kubectl get pods -n cver-stage -w
+      - kubectl get pods -n cver-stage -w
 
   dev-mysql:
     cmds:
