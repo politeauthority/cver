@@ -27,11 +27,11 @@ def get_trivy_cmd(image: Image, ib: ImageBuild) -> str:
     """
     """
     image_loc = ""
-    if ib.repository_imported:
+    if ib.registry_imported:
         logging.warning("Using TAG for scan, not sha!")
-        image_loc = "%s/%s:%s" % (ib.repository_imported, image.name, ib.tags[0])
+        image_loc = "%s/%s:%s" % (ib.registry_imported, image.name, ib.tags[0])
     else:
-        logging.error("No repository imported to use for %s" % ib)
+        logging.error("No registry imported to use for %s" % ib)
         return False
     cmd = ["trivy", "image", "--scanners", "vuln", "--format", "json", "--quiet", image_loc]
     return cmd

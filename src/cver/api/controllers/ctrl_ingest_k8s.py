@@ -53,8 +53,8 @@ def post_submit_image():
     # Handle Image
     image_map = misc.container_url(request_json["image"])
     image = Image()
-    if not image.get_by_repo_and_name(image_map["repository"], image_map["image"]):
-        image.repository = image_map["repository"]
+    if not image.get_by_repo_and_name(image_map["registry"], image_map["image"]):
+        image.registry = image_map["registry"]
         image.name = image_map["image"]
         image.save()
         data["wrote"]["image"] = image.json()
@@ -79,7 +79,7 @@ def _handle_image_build(image: Image, image_map: dict) -> ImageBuildWaiting:
         ib = ImageBuild()
         ib.sha = image_map["sha"]
         ib.image_id = image.id
-        ib.repository = image_map["repository"]
+        ib.registry = image_map["registry"]
         if "tag" in image_map and image_map["tag"]:
             ib.tags = [image_map["tag"]]
         ib.save()

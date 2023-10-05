@@ -13,7 +13,7 @@ class TestSharedUtilMisc:
         """Test that we can convert a container url to it's usable parts.
         :method: misc.container_url()
         """
-        # Test with repository in url
+        # Test with registry in url
         img_url = "docker.io/calico/node:v3.20.2"
         test_res = misc.container_url(img_url)
         assert isinstance(test_res, dict)

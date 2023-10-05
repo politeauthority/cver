@@ -64,9 +64,9 @@ CREATE TABLE IF NOT EXISTS images (
     `created_ts` DATETIME,
     `updated_ts` DATETIME,
     `name` VARCHAR(200) NOT NULL,
-    `repository` VARCHAR(200) NOT NULL,
+    `registry` VARCHAR(200) NOT NULL,
     `maintained` TINYINT(1) DEFAULT True,
-    UNIQUE KEY `ux_repository_image` (`name`, `repository`)
+    UNIQUE KEY `ux_registry_image` (`name`, `registry`)
 );
 
 --- 
@@ -79,8 +79,8 @@ CREATE TABLE IF NOT EXISTS image_builds (
     `sha` VARCHAR(200) UNIQUE,
     `sha_imported` VARCHAR(200) UNIQUE,
     `image_id` INTEGER NOT NULL,
-    `repository` VARCHAR(200) NOT NULL,
-    `repository_imported` VARCHAR(200),
+    `registry` VARCHAR(200) NOT NULL,
+    `registry_imported` VARCHAR(200),
     `tags` TEXT,
     `os_family` VARCHAR(200),
     `os_name` VARCHAR(200),
@@ -125,14 +125,15 @@ CREATE TABLE IF NOT EXISTS options (
 );
 
 ---
---- Create orgs
+--- Create organizations
 ---
-CREATE TABLE IF NOT EXISTS orgs (
+CREATE TABLE IF NOT EXISTS organizations (
     `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
     `created_ts` DATETIME,
     `updated_ts` DATETIME,
     `name` VARCHAR(200) UNIQUE,
-    `maintained` TINYINT(1) DEFAULT True
+    `email` VARCHAR(200) UNIQUE,
+    `last_access` DATETIME
 );
 
 ---

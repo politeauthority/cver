@@ -27,8 +27,8 @@ FIELD_MAP = {
         "api_searchable": True,
         "api_writeable": True
     },
-    "repository": {
-        "name": "repository",
+    "registry": {
+        "name": "registry",
         "type": "str",
         "extra": "NOT NULL",
         "api_writeable": True,

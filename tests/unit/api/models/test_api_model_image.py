@@ -16,7 +16,7 @@ class TestImage:
         """
         image = Image()
         assert hasattr(image, "name")
-        assert hasattr(image, "repository")
+        assert hasattr(image, "registry")
 
     def test____repr__(self):
         """Test the model's representation.

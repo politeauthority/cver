@@ -61,10 +61,10 @@ class LocalImages:
 
             image = Image()
             image.name = the_image["name"]
-            if "repository" not in the_image:
-                image.repository = "docker.io"
+            if "registry" not in the_image:
+                image.registry = "docker.io"
             else:
-                image.repository = the_image["repository"]
+                image.registry = the_image["registry"]
             image.save()
             logging.info("\tWrote: %s" % image)
 
@@ -73,7 +73,7 @@ class LocalImages:
                 image_build = ImageBuild()
                 image_build.sha = xlate.get_digest(the_image["sha"])
                 image_build.image_id = image.id
-                image_build.repository = image.repository
+                image_build.registry = image.registry
                 image_build.tags = [the_image["tag"]]
                 image_build.save()
                 logging.info("\tWrote: %s" % image_build)

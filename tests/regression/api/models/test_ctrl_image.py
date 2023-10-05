@@ -18,7 +18,7 @@ URL_MODEL = "image"
 
 TEST_MODEL = {
     "name": "not-real",
-    "repository": "https://github.com/example/example"
+    "registry": "https://github.com/example/example"
 }
 
 
@@ -50,7 +50,7 @@ class TestApiModelImage(TestApiBase):
             "url": "%s%s" % (CVER_API_URL, URL_BASE),
             "data": {
                 "name": "not-real",
-                "repository": "https://github.com/example/example",
+                "registry": "https://github.com/example/example",
                 "url_marketing": "https://example.com/"
             }
         }
