@@ -37,6 +37,8 @@ class CverClient:
             self.base_url = api_url
         else:
             self.base_url = os.environ.get("CVER_API_URL")
+        
+        self.api_host = os.environ.get("CVER_API_HOST")
 
         self.base_url = s_misc.strip_trailing_slash(self.base_url)
 
@@ -89,6 +91,8 @@ class CverClient:
             "token": self.token,
             "content-type": "application/json"
         }
+        if self.api_host:
+            headers["Host"] = self.api_host
         request_args = {
             "headers": headers,
             "method": method,
