@@ -17,15 +17,15 @@ class TestSharedUtilMisc:
         img_url = "docker.io/calico/node:v3.20.2"
         test_res = misc.container_url(img_url)
         assert isinstance(test_res, dict)
-        assert test_res["repository"] == "docker.io"
+        assert test_res["registry"] == "docker.io"
         assert test_res["image"] == "calico/node"
         assert test_res["tag"] == "v3.20.2"
         assert test_res["full"] == img_url
 
-        # Test without repository
+        # Test without registry
         img_url = "pignus/api:v3.20.2"
         test_res = misc.container_url(img_url)
-        assert test_res["repository"] == "docker.io"
+        assert test_res["registry"] == "docker.io"
         assert test_res["image"] == "pignus/api"
         assert test_res["tag"] == "v3.20.2"
         assert test_res["full"] == "docker.io/%s" % img_url
@@ -34,7 +34,7 @@ class TestSharedUtilMisc:
         img_url = "nginx"
         test_res = misc.container_url("nginx")
         assert isinstance(test_res, dict)
-        assert test_res["repository"] == "docker.io"
+        assert test_res["registry"] == "docker.io"
         assert test_res["image"] == "nginx"
 
         # Test tag with sha
@@ -42,7 +42,7 @@ class TestSharedUtilMisc:
         image_url = "registry.k8s.io/ingress-nginx/controller:v1.8.1@sha256:%s" % img_sha
         test_res = misc.container_url(image_url)
         assert isinstance(test_res, dict)
-        assert test_res["repository"] == "registry.k8s.io"
+        assert test_res["registry"] == "registry.k8s.io"
         assert test_res["image"] == "ingress-nginx/controller"
         assert test_res["tag"] == "v1.8.1"
         assert test_res["sha"] == img_sha
@@ -52,14 +52,14 @@ class TestSharedUtilMisc:
         image_url = "registry.k8s.io/ingress-nginx/controller@sha256:%s" % img_sha
         test_res = misc.container_url(image_url)
         assert isinstance(test_res, dict)
-        assert test_res["repository"] == "registry.k8s.io"
+        assert test_res["registry"] == "registry.k8s.io"
         assert test_res["image"] == "ingress-nginx/controller"
         assert test_res["tag"] == "latest"
         assert test_res["sha"] == img_sha
 
         image_url = "registry.k8s.io/kube-scheduler:v1.24.15"
         test_res = misc.container_url(image_url)
-        assert "registry.k8s.io" == test_res["repository"]
+        assert "registry.k8s.io" == test_res["registry"]
         assert "kube-scheduler" == test_res["image"]
         assert "v1.24.15" == test_res["tag"]
         assert "" == test_res["sha"]
@@ -79,26 +79,26 @@ class TestSharedUtilMisc:
         assert misc.strip_trailing_slash("google.com/") == "google.com"
         assert misc.strip_trailing_slash("http://localhost/") == "http://localhost"
 
-    def test___get_repository(self):
-        """Test that we get a repository domain from a docker image url string.
-        :method: misc.repository()
+    def test___get_registry(self):
+        """Test that we get a registry domain from a docker image url string.
+        :method: misc.registry()
         """
-        repository = misc._get_repository("registry.k8s.io/kube-scheduler:v1.24.15")
-        assert "registry.k8s.io" == repository
+        registry = misc._get_registry("registry.k8s.io/kube-scheduler:v1.24.15")
+        assert "registry.k8s.io" == registry
 
-        repository = misc._get_repository("docker.io/calico/node:v3.20.2")
-        assert isinstance(repository, str)
-        assert repository == "docker.io"
+        registry = misc._get_registry("docker.io/calico/node:v3.20.2")
+        assert isinstance(registry, str)
+        assert registry == "docker.io"
 
-        repository = misc._get_repository("docker.io/calico/node")
-        assert isinstance(repository, str)
-        assert repository == "docker.io"
+        registry = misc._get_registry("docker.io/calico/node")
+        assert isinstance(registry, str)
+        assert registry == "docker.io"
 
         img_sha = "e5c4824e7375fcf2a393e1c03c293b69759af37a9ca6abdb91b13d78a93da8bd"
         image_url = "registry.k8s.io/ingress-nginx/controller:v1.8.1@sha256:%s" % img_sha
-        repository = misc._get_repository(image_url)
-        assert isinstance(repository, str)
-        assert repository == "registry.k8s.io"
+        registry = misc._get_registry(image_url)
+        assert isinstance(registry, str)
+        assert registry == "registry.k8s.io"
 
     def test___get_image(self):
         """Test that we get a image from a docker url string.

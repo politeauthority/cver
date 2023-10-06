@@ -1,6 +1,7 @@
 """
-    Cver Api - Controller Collection
-    Control Collection Base
+    Cver Api
+    Controllers
+    Collection Base
 
 """
 from cver.api.utils import api_util
@@ -15,11 +16,14 @@ def get(collection) -> dict:
         "objects": [],
         "object_type": _get_object_type(collection)
     }
+    page = 1
+    if "page" in request_args:
+        page = request_args["page"]
     field_map = collection().collect_model().field_map
     where_and = _get_where_and(request_args["raw_args"], field_map)
 
     # Get the data
-    collect_data = collection().get_paginated(where_and=where_and)
+    collect_data = collection().get_paginated(page=page, where_and=where_and)
     for obj in collect_data["objects"]:
         data["objects"].append(obj.json())
 

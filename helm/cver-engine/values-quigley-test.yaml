@@ -8,6 +8,7 @@ app:
   logLevel: "DEBUG"
   envName: "test"
   debug: true
+  suspendCron: true
 
 test:
   test: true

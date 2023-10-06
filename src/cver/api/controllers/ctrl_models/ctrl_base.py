@@ -8,6 +8,8 @@ import logging
 
 from flask import make_response, request, jsonify
 
+from cver.shared.utils import xlate
+
 
 def get_model(model, entity_id: int = None) -> dict:
     """Base GET operation for a model.
@@ -48,6 +50,13 @@ def get_model(model, entity_id: int = None) -> dict:
     if search_fields:
         entity_found = entity.get_by_fields(search_fields)
     elif entity_id:
+        try:
+            entity_id = xlate.convert_any_to_int(entity_id)
+        except AttributeError:
+            data["status"] = "Error"
+            data["message"] = "Entity ID must be int"
+            return make_response(jsonify(data), 400)
+        entity_id = int(entity_id)
         entity_found = entity.get_by_id(entity_id)
     else:
         logging.error("Unexpected endpoint")
@@ -79,6 +88,12 @@ def post_model(model, entity_id: int = None, generated_data: dict = {}):
     entity_found = False
     if not entity.immutable:
         if entity_id:
+            try:
+                entity_id = xlate.convert_any_to_int(entity_id)
+            except AttributeError:
+                data["status"] = "Error"
+                data["message"] = "Entity ID must be int"
+                return make_response(jsonify(data), 400)
             if not entity.get_by_id(entity_id):
                 data["status"] = "Error"
                 data["message"] = "Could not find %s ID: %s" % (entity.model_name, entity_id)
@@ -153,7 +168,14 @@ def delete_model(model, entity_id: int = None):
 
     # Get the entity by ID if we havent found it yet.
     if not entity_found:
-        if not entity.get_by_id(entity_id):
+        try:
+            entity_id = xlate.convert_any_to_int(entity_id)
+        except AttributeError:
+            data["status"] = "Error"
+            data["message"] = "Entity ID must be int"
+            return make_response(jsonify(data), 400)
+
+        if entity_id and not entity.get_by_id(entity_id):
             data["status"] = "Error"
             data["message"] = "Entity not found"
             return make_response(jsonify(data), 404)

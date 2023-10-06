@@ -1,0 +1,78 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "cver-engine.fullname" . }}
+spec:
+  schedule: "{{ .Values.app.schedule }}"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 2
+  suspend: {{ .Values.app.suspendCron }}
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: "Never"
+          imagePullSecrets:
+            - name: harbor
+          containers:
+          - name: {{ .Chart.Name }}
+            securityContext:
+              privileged: true
+            image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+            imagePullPolicy: {{ .Values.image.pullPolicy }}
+            command: ["dockerd"]
+            env:
+              - name: CVER_ENV
+                value: "{{ .Values.app.envName }}"
+              - name: CVER_API_URL
+                value: "http://cver-api-{{ .Values.app.envName }}"
+              - name: CVER_LOG_LEVEL
+                value: "{{ .Values.app.logLevel }}"
+              - name: CVER_ENGINE_DOWNLOAD_LIMIT
+                valueFrom:
+                  configMapKeyRef:
+                    key: CVER_ENGINE_SCAN_LIMIT
+                    name: cver-engine
+              - name: CVER_ENGINE_SCAN_LIMIT
+                valueFrom:
+                  configMapKeyRef:
+                    key: CVER_ENGINE_SCAN_LIMIT
+                    name: cver-engine
+              {{- if .Values.test.test }}
+              - name: CVER_TEST_CLIENT_ID
+                valueFrom:
+                  secretKeyRef:
+                    key: client-id
+                    name: cver-test-creds
+              - name: CVER_CLIENT_ID
+                valueFrom:
+                  secretKeyRef:
+                    key: client-id
+                    name: cver-test-creds
+              - name: CVER_TEST_API_KEY
+                valueFrom:
+                  secretKeyRef:
+                    key: api-key
+                    name: cver-test-creds
+              - name: CVER_API_KEY
+                valueFrom:
+                  secretKeyRef:
+                    key: api-key
+                    name: cver-test-creds
+              - name: CVER_TEST
+                value: "true"
+              {{- end }}
+            volumeMounts:
+            - name: docker-config-json
+              mountPath: /root/.docker/config.json
+              subPath: config.json
+              readOnly: true
+
+          volumes:
+          - name: docker-config-json
+            secret:
+              secretName: docker-config-json
+              items:
+                - key: config.json
+                  path: config.json

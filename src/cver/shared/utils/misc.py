@@ -18,14 +18,14 @@ def container_url(the_string: str):
     :unit-test: test__container_url
     """
     ret = {
-        "repository": _get_repository(the_string),
+        "registry": _get_registry(the_string),
         "image": None,
         "tag": _get_tag(the_string),
         "sha": _get_sha(the_string),
         "full": None,
         "og": the_string
     }
-    ret["image"] = _get_image(the_string, ret["repository"])
+    ret["image"] = _get_image(the_string, ret["registry"])
     ret["full"] = _get_full(ret)
     return ret
 
@@ -79,17 +79,17 @@ def _get_image(the_string: str, registry: str = None) -> str:
     return the_string
 
 
-def _get_repository(the_string: str) -> str:
-    """Get the repository from the container url.
-    :unit-test: test___get_repository
+def _get_registry(the_string: str) -> str:
+    """Get the registry from the container url.
+    :unit-test: test__get_registry
     """
-    default_repository = "docker.io"
+    default_registry = "docker.io"
     extracted = tldextract.extract(the_string)
     if not extracted.suffix:
-        return default_repository
+        return default_registry
     tld_len = len(extracted.suffix)
-    repository = the_string[:the_string.find(extracted.suffix) + tld_len]
-    return repository
+    registry = the_string[:the_string.find(extracted.suffix) + tld_len]
+    return registry
 
 
 def _get_tag(the_string: str) -> str:
@@ -132,7 +132,7 @@ def _get_full(the_image_url: dict):
     """Get a full docker image url from its pieces.
     :unit-test: test__get_full
     """
-    the_url = the_image_url["repository"]
+    the_url = the_image_url["registry"]
     the_url += "/" + the_image_url["image"]
     if the_image_url["tag"] or the_image_url["sha"]:
         the_url += ":"

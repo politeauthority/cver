@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cver-engine
+data:
+  CVER_ENGINE_DOWNLOAD_LIMIT: "{{ .Values.app.engineDownloadLimit }}"
+  CVER_ENGINE_SCAN_LIMIT: "{{ .Values.app.engineScanLimit }}"

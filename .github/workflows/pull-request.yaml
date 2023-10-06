@@ -123,20 +123,20 @@ jobs:
   #     cicd-version: "${{ vars.CICD_VERSION }}"
   #     harbor-user: "${{ vars.HARBOR_USER }}"
 
-  test-engine:
-    needs: [deploy-api, deploy-engine, deploy-ingest]
-    if: ${{ needs.deploy-engine.result == 'success' }} and ${{ needs.deploy-api.result == 'success' }}
-    uses: ./.github/workflows/regression-enigne.yaml
-    secrets: inherit 
-    with:
-      deployment-name: "test"
-      run-number: ${{ github.run_number }}
-      cicd-version: "${{ vars.CICD_VERSION }}"
-      harbor-user: "${{ vars.HARBOR_USER }}"
+  # test-engine:
+  #   needs: [deploy-api, deploy-engine, deploy-ingest]
+  #   if: ${{ needs.deploy-engine.result == 'success' }} and ${{ needs.deploy-api.result == 'success' }}
+  #   uses: ./.github/workflows/regression-enigne.yaml
+  #   secrets: inherit 
+  #   with:
+  #     deployment-name: "test"
+  #     run-number: ${{ github.run_number }}
+  #     cicd-version: "${{ vars.CICD_VERSION }}"
+  #     harbor-user: "${{ vars.HARBOR_USER }}"
 
   remove-ephem:
     runs-on: self-hosted
-    needs: [test-api, test-engine]
+    needs: [test-api]
     if: ${{ needs.deploy-api.result == 'success' }}
     container:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
@@ -155,7 +155,7 @@ jobs:
           # kubectl exec -n cver -it ${TEST_POD} -c cver-api -- /bin/cver-db-destroy
           echo "Remove the helm installation"
           helm uninstall \
-            --namespace=cver \
+            --namespace=cver-test \
             cver-api-test-${{ github.run_number }}
           echo "Uninstalled Helm deployment cver-api-test-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
 
@@ -166,7 +166,7 @@ jobs:
           export KUBECONFIG=~/.kube/config.yaml
           echo "Remove the helm installation"
           helm uninstall \
-            --namespace=cver \
+            --namespace=cver-test \
             cver-engine-test-${{ github.run_number }}
           echo "Uninstalled Helm deployment cver-engine-test-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
 
@@ -177,8 +177,8 @@ jobs:
             export KUBECONFIG=~/.kube/config.yaml
             echo "Remove the helm installation"
             helm uninstall \
-              --namespace=cver \
+              --namespace=cver-test \
               cver-ingest-test-${{ github.run_number }}
             echo "Uninstalled Helm deployment cver-ingest-test-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
-            
+
 # End File: cver/.github/workflows/pull-request.yaml

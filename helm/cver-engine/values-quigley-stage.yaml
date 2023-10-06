@@ -5,6 +5,7 @@ replicaCount: 1
 nameOverride: "stage"
 
 app:
+  schedule:  "22,52 * * * *"
   logLevel: "DEBUG"
   envName: "test"
   debug: false
