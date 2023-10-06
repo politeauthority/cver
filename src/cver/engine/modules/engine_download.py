@@ -17,22 +17,34 @@ from cver.cver_client.models.option import Option
 from cver.cver_client.models.image_build_waiting import ImageBuildWaiting
 
 
-class Download:
+class EngineDownload:
     def __init__(self):
         self.download_limit = 1
         self.downloaded = 0
         self.pull_thru_registries = {
             "docker.io": None
         }
-
+        self.api_ibws = {}
+        self.api_ibws_current_page = 0
+        self.ibws_processed = 0
         self.registry_pull_thru_docker_io = None
 
     def run(self):
         logging.info("Running Engine Download")
         self.get_configs()
-        ibws = self._get_image_build_waitings()
+        self.handle_downloads()
+        logging.info("Download process complete!")
+        return True
+
+    def handle_downloads(self):
+        ibws = self.get_image_build_waitings()
         logging.info("Found %s" % len(ibws))
         for ibw in ibws:
+            self.ibws_processed += 1
+            logging.info("Starting ImageBuild %s waiting. Processing: %s" % (
+                self.ibws_processed,
+                ibw
+            ))
             downloaded = self.run_download(ibw)
             if not downloaded:
                 logging.warning("Did not complete download for: %s" % ibw)
@@ -43,7 +55,8 @@ class Download:
                     self.downloaded,
                     self.download_limit))
                 break
-        logging.info("Download process complete!")
+        if self.downloaded < self.download_limit:
+            self.handle_downloads()
         return True
 
     def get_configs(self):
@@ -90,7 +103,7 @@ class Download:
             "sha": sha
         }
         ib = ImageBuild()
-        if ib.get(ib_args):
+        if ib.get_by_fields(ib_args):
             logging.warning("Found already existing ImageBuild: %s" % ib)
         ib.image_id = image.id
         ib.sha = sha
@@ -106,8 +119,10 @@ class Download:
         ib.scan_enabled = True
         ib.pending_operation = "scan"
         ib.save()
+        ibw.image_build_id = ib.id
         ibw.waiting_for = "scan"
         ibw.save()
+        return True
 
     def docker_pull(self, command):
         try:
@@ -118,10 +133,22 @@ class Download:
         logging.info("Successfully pulled image")
         return image_pull
 
-    def _get_image_build_waitings(self):
+    def get_image_build_waitings(self):
+        self.api_ibws_current_page += 1
         ibw_collect = ImageBuildWaitings()
-        ibws = ibw_collect.get({"waiting_for": "download"})
-        logging.info("Found %s Image Builds waiting for download")
+        the_args = {
+            "waiting_for": "download",
+            "page": self.api_ibws_current_page
+        }
+        ibws = ibw_collect.get(the_args)
+        self.api_ibws = ibw_collect.response_last["info"]
+        if self.api_ibws_current_page == 1:
+            logging.info("Found %s Image Builds waiting for download" % (
+                self.api_ibws["total_objects"]))
+        else:
+            logging.info("Got page %s of %s of ImageBuilds waiting for download" % (
+                self.api_ibws_current_page,
+                self.api_ibws["last_page"]))
         return ibws
 
     def _get_docker_pull_url(self, image: Image, ibw: ImageBuildWaiting):

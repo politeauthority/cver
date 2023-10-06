@@ -16,9 +16,10 @@ class ClientCollectionsBase(CverClient):
         super(ClientCollectionsBase, self).__init__()
         self.response_last = None
 
-    def get(self, args: dict = {}):
+    def get(self, args: dict = {}, page: int = 1) -> list:
         """Get a paginated list of entities."""
         payload = {}
+        payload["page"] = page
         if "search" in args:
             payload = {
                 "search": xlate.url_encode_json(args["search"])
@@ -48,13 +49,13 @@ class ClientCollectionsBase(CverClient):
 
     def build_list_of_dicts(self, object_type: str, objs: list) -> list:
         """Builds a list of dictionaries."""
-        bare_model = self.dynamic_get_model_instance(object_type)
-        print(bare_model)
+        # bare_model = self.dynamic_get_model_instance(object_type)
         ret_list = []
         for obj in objs:
-            thing = bare_model
+            thing = self.dynamic_get_model_instance(object_type)
             thing.build(obj)
             ret_list.append(thing)
+            thing = None
         return ret_list
 
     def _prepare_search(self, args: dict) -> dict:

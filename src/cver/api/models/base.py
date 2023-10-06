@@ -157,6 +157,12 @@ class Base:
         if not self.id:
             raise AttributeError('%s is missing an ID attribute.' % __class__.__name__)
 
+        if not model_id:
+            raise AttributeError('%s is missing an ID attribute.' % __class__.__name__)
+
+        if not isinstance(model_id, int):
+            raise AttributeError('%s ID attribute must be int ' % __class__.__name__)
+
         sql = self._gen_get_by_id_sql()
         self.cursor.execute(sql)
         raw = self.cursor.fetchone()

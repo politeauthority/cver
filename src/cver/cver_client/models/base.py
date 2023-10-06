@@ -62,18 +62,39 @@ class Base(CverClient):
         else:
             return False
 
+    def get_by_fields(self, fields: dict = {}):
+        """ Get an entity by any api searchable fields."""
+        payload = {}
+        for field_name, field_value in fields.items():
+            if field_name not in self.field_map:
+                continue
+            if "api_searchable" not in self.field_map[field_name]:
+                logging.debug("Cannot search for %s with field: %s" % self, field_name)
+                continue
+            elif not self.field_map[field_name]["api_searchable"]:
+                logging.debug("Cannot search for %s with field: %s" % self, field_name)
+                continue
+            payload[field_name] = field_value
+
+        response = self.make_request(self.model_name, payload=payload)
+        if response["status"] == "success":
+            return self.build(response["object"])
+        else:
+            return False
+
     def save(self) -> int:
         """Save a model to the Cver Api."""
         data = self._get_model_fields()
+        logging.debug("Saving %s: %s" % (self.model_name, data))
         self.response = self.make_request(self.model_name, method="POST", payload=data)
         if "object" not in self.response:
-            print("Warning: request error")
+            logging.warning("Request error")
             return False
         entity = self.response["object"]
 
         for field_name, field_value in entity.items():
             setattr(self, field_name, field_value)
-        logging.info(f"Saved {entity} successfully")
+        # logging.info(f"Saved {self} successfully")
         return self.id
 
     def _get_model_fields(self) -> dict:
