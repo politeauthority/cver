@@ -4,6 +4,7 @@
 
 """
 import logging
+import os
 
 from cver.cver_client.models.image import Image
 from cver.cver_client.models.image_build import ImageBuild
@@ -16,7 +17,7 @@ from cver.engine.utils import scan as scan_util
 
 class EngineScan:
     def __init__(self):
-        self.scan_limit = 1
+        self.scan_limit = int(os.environ.get("CVER_ENGINE_SCAN_LIMIT", 1))
         self.downloaded = 0
         self.scanned = 0
         self.pull_thru_registries = {

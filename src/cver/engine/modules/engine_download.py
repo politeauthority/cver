@@ -6,6 +6,7 @@
 
 """
 import logging
+import os
 import subprocess
 
 from cver.shared.utils import misc
@@ -19,7 +20,7 @@ from cver.cver_client.models.image_build_waiting import ImageBuildWaiting
 
 class EngineDownload:
     def __init__(self):
-        self.download_limit = 1
+        self.download_limit = int(os.environ.get("CVER_ENGINE_DOWNLOAD_LIMIT", 1))
         self.downloaded = 0
         self.pull_thru_registries = {
             "docker.io": None
