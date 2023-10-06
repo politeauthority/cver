@@ -155,7 +155,7 @@ jobs:
           # kubectl exec -n cver -it ${TEST_POD} -c cver-api -- /bin/cver-db-destroy
           echo "Remove the helm installation"
           helm uninstall \
-            --namespace=cver \
+            --namespace=cver-test \
             cver-api-test-${{ github.run_number }}
           echo "Uninstalled Helm deployment cver-api-test-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
 
@@ -166,7 +166,7 @@ jobs:
           export KUBECONFIG=~/.kube/config.yaml
           echo "Remove the helm installation"
           helm uninstall \
-            --namespace=cver \
+            --namespace=cver-test \
             cver-engine-test-${{ github.run_number }}
           echo "Uninstalled Helm deployment cver-engine-test-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
 
@@ -177,7 +177,7 @@ jobs:
             export KUBECONFIG=~/.kube/config.yaml
             echo "Remove the helm installation"
             helm uninstall \
-              --namespace=cver \
+              --namespace=cver-test \
               cver-ingest-test-${{ github.run_number }}
             echo "Uninstalled Helm deployment cver-ingest-test-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
 
