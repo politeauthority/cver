@@ -14,6 +14,7 @@ class ClientCollectionsBase(CverClient):
 
     def __init__(self):
         super(ClientCollectionsBase, self).__init__()
+        self.response_last = None
 
     def get(self, args: dict = {}):
         """Get a paginated list of entities."""
@@ -26,6 +27,7 @@ class ClientCollectionsBase(CverClient):
             payload = self._prepare_search(args)
 
         response = self.make_request(self.collection_name, payload=payload)
+        self.response_last = response
         if response["status"] == "success":
             return self.build_list_of_dicts(response["object_type"], response["objects"])
         else:

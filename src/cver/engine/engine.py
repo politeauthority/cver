@@ -22,6 +22,7 @@ from cver.cver_client.models.scan import Scan
 from cver.cver_client.models.option import Option
 from cver.cver_client.models.image_build_waiting import ImageBuildWaiting
 from cver.engine.utils import scan as scan_util
+from cver.engine.modules.download import Download
 
 logging.config.dictConfig(log_config)
 logger = logging.getLogger(__name__)
@@ -42,12 +43,8 @@ class Engine:
         if not self.preflight():
             logging.critical("Pre flight checks failed.")
             exit(1)
-        the_job = "scan"
-        # the_job = "download"
-        if the_job == "download":
-            self.run_downloads()
-        elif the_job == "scan":
-            self.run_scans()
+        self.run_downloads()
+        # self.run_scans()
 
     def preflight(self):
         """Check that have a registry to push/pull to/from."""
@@ -84,11 +81,7 @@ class Engine:
 
     def run_downloads(self):
         """Engine Download runner. Here we'll download images waiting to be pulled down."""
-        logging.info("Running Engine Download")
-        ibws = self.get_image_build_waitings("download")
-        logging.info("Found %s" % len(ibws))
-        for ibw in ibws:
-            self.run_download(ibw)
+        Download().run()
 
     def run_scans(self):
         logging.info("Running Engine Scan")

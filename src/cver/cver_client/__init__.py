@@ -50,7 +50,7 @@ class CverClient:
 
     def login(self, skip_local_token: bool = False) -> bool:
         """Login to the Cver API."""
-        logging.info("Logging into Cver Api")
+        logging.debug("Logging into Cver Api")
         if not skip_local_token and self._open_valid_token():
             return True
         if not self._determine_if_login():
