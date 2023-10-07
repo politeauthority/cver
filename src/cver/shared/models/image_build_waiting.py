@@ -30,6 +30,12 @@ FIELD_MAP = {
         "api_writeable": True,
         "api_searchable": True,
     },
+    "sha": {
+        "name": "sha",
+        "type": "str",
+        "api_writeable": True,
+        "api_searchable": True,
+    },
     "tag": {
         "name": "tag",
         "type": "str",
@@ -45,6 +51,24 @@ FIELD_MAP = {
     },
     "waiting_for": {
         "name": "waiting_for",
+        "type": "str",
+        "api_writeable": True,
+        "api_searchable": True,
+    },
+    "status": {
+        "name": "status",
+        "type": "str",
+        "api_writeable": True,
+        "api_searchable": True,
+    },
+    "status_ts": {
+        "name": "status_ts",
+        "type": "datetime",
+        "api_writeable": True,
+        "api_searchable": True,
+    },
+    "status_reason": {
+        "name": "status_reason",
         "type": "str",
         "api_writeable": True,
         "api_searchable": True,

@@ -247,6 +247,8 @@ class Base:
             WHERE %s
             LIMIT 1;""" % (self.table_name, sql_fields)
 
+        logging.info("\nGET BY FIELDS\n%s\n" % sql)
+
         self.cursor.execute(sql)
         run_raw = self.cursor.fetchone()
         if not run_raw:
@@ -523,8 +525,11 @@ class Base:
         sql_fields = ""
         for field in fields:
             field_name = "`%s`" % field["field"]
+
             if not field["value"]:
                 operation = "IS"
+            # elif field["type"] == "list":
+            #     operation = "IN"
             elif field["op"] == "eq":
                 operation = "="
             else:
@@ -556,6 +561,7 @@ class Base:
         """
         if field_data["value"] is None:
             return "NULL"
+
         # Handle ints
         if field_map_info["type"] == "int":
             value = xlate.sql_safe(field_data["value"])
@@ -571,9 +577,15 @@ class Base:
                     field_data["value"],
                     self))
                 return False
+
+        # Handle lists
+        elif field_map_info["type"] == "list":
+            value = '("%s")' % xlate.sql_safe(field_data["value"])
+
         # Handle str and everything else
         else:
             value = '"%s"' % xlate.sql_safe(field_data["value"])
+
         return value
 
     def _sql_fields_sanitized(self, skip_fields: dict) -> str:

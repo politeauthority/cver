@@ -8,6 +8,7 @@ app:
   schedule:  "7,37 * * * *"
   envName: "stage"
   debug: true
+  apiUrl: "http://cver-api-stage"
 
 test:
   test: true

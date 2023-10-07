@@ -157,6 +157,11 @@ def sql_safe(query_item):
         logging.warning("sql_safe cannot translate dict objects")
         query_item = json.dumps(query_item)
         return query_item
+    elif isinstance(query_item, list):
+        cleaned = []
+        for item in query_item:
+            cleaned.append(sqlescape(item))
+        return ", ".join(cleaned)
     else:
         return sqlescape(query_item)
 

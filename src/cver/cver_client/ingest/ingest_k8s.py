@@ -12,11 +12,12 @@ class IngestK8s(CverClient):
         """Create the instance."""
         super(IngestK8s, self).__init__()
 
-    def image(self, cluster_id: int, image: str) -> bool:
+    def image(self, cluster_id: int, image: str, sha: str = None) -> bool:
         """Submit a k8s image to /ingest-k8s/image endpoint."""
         data = {
             "cluster_id": cluster_id,
-            "image": image
+            "image": image,
+            "sha": sha
         }
         response = self.make_request("/ingest-k8s/image", method="POST", payload=data)
         return response

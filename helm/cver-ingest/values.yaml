@@ -11,6 +11,7 @@ app:
   suspendCron: false
   debug: true
   deployedAt: "unknown"
+  apiUrl: "http://cver-api"
 
 image:
   repository: politeauthority/cver-ingest

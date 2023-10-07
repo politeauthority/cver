@@ -4,7 +4,7 @@ name: Pull Request
 
 on:
   pull_request:
-    branches: ["stage", "stage-cicd"]
+    branches: ["stage", "cver-cli"]
 
 concurrency:
   group: ${{github.ref }}
@@ -112,20 +112,18 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
-  # test-ingest:
-  #   needs: [deploy-api, deploy-ingest]
-  #   if: ${{ needs.deploy-engine.result == 'success' }} and ${{ needs.deploy-api.result == 'success' }}
-  #   uses: ./.github/workflows/regression-ingest.yaml
-  #   secrets: inherit 
-  #   with:
-  #     deployment-name: "test"
-  #     run-number: ${{ github.run_number }}
-  #     cicd-version: "${{ vars.CICD_VERSION }}"
-  #     harbor-user: "${{ vars.HARBOR_USER }}"
+  test-ingest:
+    needs: [deploy-api, deploy-ingest]
+    uses: ./.github/workflows/regression-ingest.yaml
+    secrets: inherit 
+    with:
+      deployment-name: "test"
+      run-number: ${{ github.run_number }}
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
 
   # test-engine:
-  #   needs: [deploy-api, deploy-engine, deploy-ingest]
-  #   if: ${{ needs.deploy-engine.result == 'success' }} and ${{ needs.deploy-api.result == 'success' }}
+  #   needs: [test-ingest]
   #   uses: ./.github/workflows/regression-enigne.yaml
   #   secrets: inherit 
   #   with:
@@ -136,7 +134,7 @@ jobs:
 
   remove-ephem:
     runs-on: self-hosted
-    needs: [test-api]
+    needs: [test-api, test-ingest]
     if: ${{ needs.deploy-api.result == 'success' }}
     container:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
@@ -150,13 +148,18 @@ jobs:
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
           export KUBECONFIG=~/.kube/config.yaml
-          echo "Remove the database"
-          TEST_POD=$(kubectl get pods -n cver -l app.kubernetes.io/instance=cver-api-test-${{ github.run_number }} --no-headers | cut -d' ' -f1)
-          # kubectl exec -n cver -it ${TEST_POD} -c cver-api -- /bin/cver-db-destroy
+          NAMESPACE="cver-test"
+          TEST_POD=$(kubectl get pods -n ${NAMESPACE} -l app.kubernetes.io/instance=cver-api-test-${{ github.run_number }} --no-headers | cut -d' ' -f1)
+          if [ -z "${TEST_POD}"]; then
+            echo "Not removing cver-api-test-${{ github.run_number }}, it doesnt appear to exist"
+            exit 0
+          fi
+          # kubectl exec -n ${NAMESPACE} -it ${TEST_POD} -c cver-api -- /bin/cver-db-destroy
           echo "Remove the helm installation"
           helm uninstall \
-            --namespace=cver-test \
-            cver-api-test-${{ github.run_number }}
+            cver-api-test-${{ github.run_number }} \
+            --namespace=cver-test
+
           echo "Uninstalled Helm deployment cver-api-test-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
 
       - name: Tear Down Engine
@@ -170,15 +173,16 @@ jobs:
             cver-engine-test-${{ github.run_number }}
           echo "Uninstalled Helm deployment cver-engine-test-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
 
-      - name: Tear Down Engine
+      - name: Tear Down Ingest
         run: |
             mkdir -p ~/.kube
             echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
             export KUBECONFIG=~/.kube/config.yaml
             echo "Remove the helm installation"
             helm uninstall \
+              cver-ingest-test-${{ github.run_number }} \
               --namespace=cver-test \
-              cver-ingest-test-${{ github.run_number }}
+
             echo "Uninstalled Helm deployment cver-ingest-test-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
 
 # End File: cver/.github/workflows/pull-request.yaml

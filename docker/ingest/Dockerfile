@@ -38,6 +38,7 @@ CMD /entrypoint.sh
 # --- Tests Node ---
 FROM base AS tests
 
+ENV PS1="cver-ingest# "
 # Dev-Build
 RUN apk add bash curl vim mysql-client
 # Add Scripts

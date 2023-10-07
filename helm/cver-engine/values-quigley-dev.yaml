@@ -8,8 +8,9 @@ app:
   logLevel: "INFO"
   envName: "dev"
   debug: true
-  engineDownloadLimit: 3
-  engineScanLimit: 3
+  engineDownloadLimit: 1
+  engineScanLimit: 1
+  suspendCron: true
 
 test:
   test: true
