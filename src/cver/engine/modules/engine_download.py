@@ -24,7 +24,8 @@ class EngineDownload:
         self.downloaded = 0
         self.pull_thru_registries = {
             "docker.io": None,
-            "quay.io": "cver-quay"
+            "quay.io": "cver-quay",
+            "ghcr.io": "cver-ghcr"
         }
         self.api_ibws = {}
         self.api_ibws_current_page = 0
@@ -78,6 +79,9 @@ class EngineDownload:
         return True
 
     def run_download(self, ibw: ImageBuildWaiting):
+        if ibw.status == "Failed":
+            logging.warning("Skipping: %s, image has already experienced download failures")
+            return False
         logging.info("Starting downloaded process %s of %s" % (
             self.downloaded,
             self.download_limit))
@@ -101,7 +105,13 @@ class EngineDownload:
         image_pull = self.docker_pull(pull_cmd)
         if not image_pull:
             logging.error("Failed to download: %s" % image)
-            exit(1)
+            ibw.status = "Failed"
+            ibw.status_ts = date_utils.json_date_now()
+            ibw.status_reason = "Failed download"
+            if ibw.save():
+                logging.info("Saved ibw failed download status")
+            else:
+                logging.error("Could not save ibw failed status")
             return False
 
         sha = self._get_sha_from_docker_pull(image_pull.decode("utf-8"))

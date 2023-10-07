@@ -186,10 +186,10 @@ class CverClient:
         """"If we have an existing server token already on the system, lets use that.
         @todo: Reade the token data to see if it has expired already or not.
         """
-        logging.debug("Token File: %s" % self.token_file)
+        # logging.debug("Token File: %s" % self.token_file)
         if not os.path.exists(self.token_file):
             return False
-        logging.debug("Using token file")
+        # logging.debug("Using token file")
         with open(self.token_file, "r") as temp_file:
             token_data = temp_file.read()
         self.token = token_data

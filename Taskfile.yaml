@@ -120,7 +120,7 @@ tasks:
   dev-cp-api:
     cmds:
       - |
-        POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-api-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
+        POD=$(kubectl get pods -n cver-dev  -l app.kubernetes.io/instance=cver-api-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
         kubectl cp -n cver-dev {{ .CVER_DIR }}/src/cver/ ${POD}:/app/ -c cver-api
         kubectl exec -n cver-dev -it ${POD} -c cver-api -- /bin/cver-build
       - echo "Copied and Built!"
@@ -138,7 +138,7 @@ tasks:
   dev-cp-engine:
     cmds:
       - |
-        POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-engine-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
+        POD=$(kubectl get pods -n cver-dev -l app.kubernetes.io/instance=cver-engine-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
         kubectl cp -n cver-dev {{ .CVER_DIR }}/src/cver/ ${POD}:/app/
         kubectl exec -n cver-dev -it ${POD} -- cver-build
       - echo "Copied and Built!"
@@ -147,8 +147,8 @@ tasks:
   dev-cp-ingest:
     cmds:
       - |
-        POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-ingest-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
-        kubectl cp {{ .CVER_DIR }}/src/cver/ ${POD}:/app/
+        POD=$(kubectl get pods -n cver-dev -l app.kubernetes.io/instance=cver-ingest-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
+        kubectl cp  -n cver-dev {{ .CVER_DIR }}/src/cver/ ${POD}:/app/
         kubectl exec -it ${POD} -- cver-build
       - echo "Copied and Built!"
     silent: True
@@ -156,8 +156,8 @@ tasks:
   dev-cp-all:
     cmds:
       - |
-        POD_API=$(kubectl get pods -l app.kubernetes.io/instance=cver-api-dev --field-selector=status.phase=Running --no-headers | cut -d' ' -f1)
-        kubectl cp {{ .CVER_DIR }}/src/cver/ ${POD_API}:/app/ -c cver-api
+        POD_API=$(kubectl get pods  -n cver-dev -l app.kubernetes.io/instance=cver-api-dev --field-selector=status.phase=Running --no-headers | cut -d' ' -f1)
+        kubectl cp  -n cver-dev {{ .CVER_DIR }}/src/cver/ ${POD_API}:/app/ -c cver-api
         kubectl exec -it ${POD_API} -c cver-api -- cver-build
         echo "Copied and Built Api"
       # - |
@@ -181,7 +181,7 @@ tasks:
   dev-exec-api:
     cmds:
       - |
-        POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-api-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
+        POD=$(kubectl get pods -n cver-dev -l app.kubernetes.io/instance=cver-api-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
         echo "Logging into to pod: ${POD}"
         kubectl exec -n cver-dev -it ${POD} -c cver-api -- bash
     silent: True
@@ -189,7 +189,7 @@ tasks:
   dev-exec-engine:
     cmds:
       - |
-        POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-engine-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
+        POD=$(kubectl get pods -n cver-dev  -l app.kubernetes.io/instance=cver-engine-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
         echo "Logging into to pod: ${POD}"
         kubectl exec -n cver-dev -it ${POD} -- bash
     silent: True
@@ -197,7 +197,7 @@ tasks:
   dev-exec-ingest:
     cmds:
       - |
-        POD=$(kubectl get pods -l app.kubernetes.io/instance=cver-ingest-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
+        POD=$(kubectl get pods -n cver-dev -l app.kubernetes.io/instance=cver-ingest-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
         echo "Logging into to pod: ${POD}"
         kubectl exec -n cver-dev -it ${POD} -- bash
     silent: True
