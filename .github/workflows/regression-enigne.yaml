@@ -32,10 +32,10 @@ jobs:
           if [ "${{ inputs.deployment-name }}" = "test" ]; then
             NAMESPACE="cver-test"
             # @todo: FIX THE -dev suffix!
-            CRON_JOB="cver-ingest-test-${{ inputs.run-number }}-dev"
+            CRON_JOB="cver-engine-test-${{ inputs.run-number }}-dev"
           else  
             NAMESPACE="cver-stage"
-            CRON_JOB="cver-ingest-stage"
+            CRON_JOB="cver-engine-stage"
           fi
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
