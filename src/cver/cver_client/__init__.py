@@ -37,6 +37,7 @@ class CverClient:
             self.base_url = api_url
         else:
             self.base_url = os.environ.get("CVER_API_URL")
+        self.base_url = s_misc.strip_trailing_slash(self.base_url)
 
         self.headers = {}
         self.api_host = os.environ.get("CVER_API_HOST")
@@ -109,7 +110,8 @@ class CverClient:
         }
 
         request_args["headers"].update(self.headers)
-        # logging.info(request_args)
+        logging.info("\n%s - %s" % (request_args["method"], request_args["url"]))
+        logging.info("%s\n" % request_args)
         if request_args:
             if method == "GET":
                 request_args["params"] = payload

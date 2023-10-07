@@ -34,7 +34,7 @@ def post_submit_image():
         "wrote": {},
         "status": "success"
     }
-    required_keys = ["cluster_id", "image"]
+    required_keys = ["cluster_id", "image", "sha"]
     request_json = request.get_json()
     for required_key in required_keys:
         if required_key not in request_json:
@@ -52,6 +52,8 @@ def post_submit_image():
 
     # Handle Image
     image_map = misc.container_url(request_json["image"])
+    if not image_map["sha"] and request_json["sha"]:
+        image_map["sha"] = request_json["sha"]
     image = Image()
     if not image.get_by_registry_and_name(image_map["registry"], image_map["image"]):
         image.registry = image_map["registry"]
@@ -89,14 +91,18 @@ def _handle_image_build(image: Image, image_map: dict) -> ImageBuildWaiting:
         fields = {
             "image_id": image.id,
             "image_build_id": None,
-            "tag": image_map["tag"]
+            "tags": [image_map["tag"]]
         }
-        if ibw.get_by_unique_key(fields):
+        if image_map["sha"]:
+            ibw.sha = image_map["sha"]
+            ibw.get_by_sha()
+            return ibw
+        elif ibw.get_by_unique_key(fields):
             return ibw
         ibw.image_id = image.id
         ibw.waiting_for = "download"
         if "tag" in image_map and image_map["tag"]:
-            ibw.tag = image_map["tag"]
+            ibw.tags = [image_map["tag"]]
         ibw.save()
         return ibw
 

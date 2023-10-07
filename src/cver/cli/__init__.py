@@ -41,9 +41,10 @@ class Cver:
         ibw.get_by_id(ibw_id)
         image = Image()
         image.get_by_id(ibw.image_id)
+        has_ib = False
         if ibw.image_build_id:
             ib = ImageBuild()
-            ib.get_by_id(ibw.image_build_id)
+            has_ib = ib.get_by_id(ibw.image_build_id)
         print("ImageBuildWaiting")
         print("ID:\t\t%s" % ibw.id)
         print("Created:\t%s" % ibw.created_ts)
@@ -54,15 +55,16 @@ class Cver:
         print("Waiting For:\t%s" % ibw.waiting_for)
         print("")
         print("Image")
-        print(f"\t\tID:\t{image.id}")
-        print(f"\t\tName:\t {image.name}")
-        print(f"\t\tRegistry:\t{image.registry}")
+        print(f"\t\tID:       {image.id}")
+        print(f"\t\tName:     {image.name}")
+        print(f"\t\tRegistry: {image.registry}")
         print("")
-        print("Image Build")
-        print(f"\t\tID:\t{ib.id}")
-        print(f"\t\tName:\t{ib.sha}")
-        print("\t\tName:\t%s" % ", ".join(ib.tags))
-        print(f"\t\tRegistry:\t{ib.registry_imported}")
+        if has_ib:
+            print("Image Build")
+            print(f"\t\tID:\t{ib.id}")
+            print(f"\t\tSha:                {ib.sha}")
+            print("\t\tTags:               %s" % ", ".join(ib.tags))
+            print(f"\t\tRegistry Imported: {ib.registry_imported}")
 
 
 if __name__ == "__main__":

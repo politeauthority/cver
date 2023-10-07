@@ -9,6 +9,8 @@ app:
   envName: "test"
   debug: true
   suspendCron: true
+  engineDownloadLimit: 1
+  engineScanLimit: 1
 
 test:
   test: true

@@ -81,6 +81,9 @@ class EngineScan:
             logging.error("Cant find ImageBuild by ID: %s" % ibw.image_build_id)
             return False
         scan_result = scan_util.run_trivy(image, ib)
+        if not scan_result:
+            logging.error("Scan failed")
+            return False
         self.save_scan(ib, scan_result)
         ibw.delete()
         if ibw.save():
