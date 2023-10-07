@@ -40,7 +40,7 @@ jobs:
           export KUBECONFIG=~/.kube/config.yaml
 
           CRON_JOB="cver-ingest-test-${{ inputs.run-number }}"
-    
+          echo "Creating job: ${CRON_JOB}"
           kubectl create job -n ${NAMESPACE} --from=cronjob/${CRON_JOB} ${CRON_JOB}
           elapsed_time=0
           # Loop until the elapsed time reaches 300 seconds
