@@ -37,8 +37,6 @@ spec:
           env:
             - name: CVER_ENV
               value: "{{ .Values.app.envName }}"
-            # - name: CVER_API_URL
-            #   value: "http://cver-api-{{ .Values.app.envName }}"
             - name: CVER_API_URL
               value: "{{ .Values.app.apiUrl }}"
             - name: CVER_DEPLOYED_AT
