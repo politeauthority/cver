@@ -116,9 +116,9 @@ class EngineDownload:
         ib.sha = sha
         ib.registry = image.registry
         if image.registry in self.pull_thru_registries:
-            replace_str = "%s:%s" % (image.name, ibw.tags[0])
+            replace_str = "%s:%s" % (image.name, ibw.tag)
             ib.registry_imported = misc.strip_trailing_slash(image_loc.replace(replace_str, ""))
-        ib.tags = ibw.tags
+        ib.tags = [ibw.tag]
         ib.sync_enabled = True
         ib.sync_flag = False
         ib.sync_last_ts = date_utils.json_date_now()
@@ -164,7 +164,7 @@ class EngineDownload:
                 self.registry_url,
                 self.pull_thru_registries[image.registry],
                 image.name,
-                ibw.tags[0])
+                ibw.tag)
             return image_loc
         else:
             image_loc = "%s/%s" % (image.registry, image.name)

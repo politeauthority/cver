@@ -8,6 +8,7 @@ import logging.config
 import sys
 
 from cver.shared.utils.log_config import log_config
+from cver.cver_client.collections.image_builds import ImageBuilds
 from cver.cver_client.models.image import Image
 from cver.cver_client.models.image_build import ImageBuild
 from cver.cver_client.models.image_build_waiting import ImageBuildWaiting
@@ -24,17 +25,44 @@ class Cver:
 
         if noun == "image":
             self.get_image(entity_id)
-        elif noun == "ibw":
+        elif noun in ["ib", "image-build"]:
+            self.get_image_buld(entity_id)
+        elif noun in ["ibw", "image-build-waiting"]:
             self.get_image_buld_waiting(entity_id)
 
     def get_image(self, image_id):
+        """Get a single Image."""
         image = Image()
         image.get_by_id(image_id)
+        ibs_collect = ImageBuilds()
+        ibs = ibs_collect.get_by_image_id(image_id)
         # scans = Scans().get({"image_id": image_id})
         print("Image")
         print("ID:\t\t%s" % image.id)
         print("Name:\t\t%s" % image.name)
         print("Registry:\t%s" % image.registry)
+        print("Image Builds: %s" % len(ibs))
+        if ibs:
+            for ib in ibs:
+                print(ib)
+
+    def get_image_buld(self, ibw_id: int):
+        """Get a single ImageBuild."""
+        ib = ImageBuild()
+        ib.get_by_id(ibw_id)
+        image = Image()
+        image.get_by_id(ib.image_id)
+        print("ImageBuild")
+        print("ID:\t\t%s" % ib.id)
+        print("Created:\t%s" % ib.created_ts)
+        print("Updated:\t%s" % ib.updated_ts)
+        print("Image ID:\t%s" % ib.image_id)
+        print("")
+        print("Image")
+        print(f"\t\tID:       {image.id}")
+        print(f"\t\tName:     {image.name}")
+        print(f"\t\tRegistry: {image.registry}")
+        print("")
 
     def get_image_buld_waiting(self, ibw_id: int):
         ibw = ImageBuildWaiting()

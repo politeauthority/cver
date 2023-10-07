@@ -85,7 +85,7 @@ class Ingest:
         logging.info("Submmiting %s Images for Cluster %s" % (
             len(images), self.cluster_id))
         for image in images:
-            response = IngestK8s().image(self.cluster_id, image["name"])
+            response = IngestK8s().image(self.cluster_id, image["name"], image["sha"])
             logging.info("Submitted: %s" % image)
             if response["status"] != "success":
                 logging.critical("Error submitting image to Cver Api: %s" % response["message"])

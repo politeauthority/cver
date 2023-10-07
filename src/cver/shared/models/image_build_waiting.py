@@ -36,9 +36,9 @@ FIELD_MAP = {
         "api_writeable": True,
         "api_searchable": True,
     },
-    "tags": {
-        "name": "tags",
-        "type": "list",
+    "tag": {
+        "name": "tag",
+        "type": "str",
         "api_writeable": True,
         "api_searchable": True,
     },
@@ -58,7 +58,7 @@ FIELD_MAP = {
 }
 
 FIELD_META = {
-    "unique_key": ["image_id", "image_build_id"]
+    "unique_key": ["image_id", "image_build_id", "tag"]
 }
 
 # End File: cver/src/shared/models/image_build_waiting.py

@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS image_build_waitings (
     `image_id` INTEGER NOT NULL,
     `image_build_id` INTEGER,
     `sha` VARCHAR(200) UNIQUE,
-    `tags` TEXT,
+    `tag` TEXT,
     `waiting` TINYINT(1) DEFAULT True,
     `waiting_for` VARCHAR(200),
      UNIQUE image_id_build_tag (image_id, image_build_id)

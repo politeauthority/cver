@@ -110,8 +110,9 @@ class CverClient:
         }
 
         request_args["headers"].update(self.headers)
-        logging.info("\n%s - %s" % (request_args["method"], request_args["url"]))
-        logging.info("%s\n" % request_args)
+        # debug
+        # logging.info("\n%s - %s" % (request_args["method"], request_args["url"]))
+        # logging.info("%s\n" % request_args)
         if request_args:
             if method == "GET":
                 request_args["params"] = payload

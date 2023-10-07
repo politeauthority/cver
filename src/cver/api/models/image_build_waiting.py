@@ -20,5 +20,11 @@ class ImageBuildWaiting(BaseEntityMeta):
         self.createable = True
         self.setup()
 
+    def get_by_sha(self, sha: str = None) -> bool:
+        """Get an ImageBuild by it's sha."""
+        if sha:
+            self.sha = sha
+        return self.get_by_field("sha", self.sha)
+
 
 # End File: cver/src/api/models/image_build_waiting.py
