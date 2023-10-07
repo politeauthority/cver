@@ -36,11 +36,11 @@ jobs:
           if [ "${{ inputs.deployment-name }}" = "test" ]; then
             RELEASE_NAME="cver-ingest-test-${{ inputs.run-number }}"
             NAMESPACE="cver-test"
-            API_URL="cver-api-test-${{ inputs.run-number }}"
+            API_URL="http://cver-api-test-${{ inputs.run-number }}"
           else
             RELEASE_NAME="cver-ingest-${{ inputs.deployment-name}}"
             NAMESPACE="cver-${{ inputs.deployment-name}}"
-            API_URL="cver-api-${{ inputs.deployment-name }}"
+            API_URL="http://cver-api-${{ inputs.deployment-name }}"
           fi
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
