@@ -8,7 +8,6 @@ app:
   timeoutSeconds: 300
   suspendCron: false
   logLevel: "INFO"
-  logHealthChecks: true
   engineDownloadLimit: 1
   engineScanLimit: 1
   debug: false

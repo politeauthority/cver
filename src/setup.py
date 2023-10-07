@@ -18,6 +18,7 @@ setup(
         "cver.api.models",
         "cver.api.utils",
         "cver.api.stats",
+        "cver.cli",
         "cver.cver_client",
         "cver.cver_client.collections",
         "cver.cver_client.models",

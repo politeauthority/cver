@@ -3,9 +3,11 @@
     Model - Base
 
 """
+from datetime import datetime
 import logging
 
 from cver.cver_client import CverClient
+from cver.shared.utils import date_utils
 
 
 class Base(CverClient):
@@ -15,6 +17,7 @@ class Base(CverClient):
         super().__init__()
         self.entity_name = None
         self.field_map = {}
+        self.response_last = None
 
     def __repr__(self):
         """Base model representation."""
@@ -57,6 +60,7 @@ class Base(CverClient):
             "name": name
         }
         response = self.make_request(self.model_name, payload=data)
+        self.response_last = response
         if response["status"] == "success":
             return self.build(response["object"])
         else:
@@ -97,13 +101,30 @@ class Base(CverClient):
         # logging.info(f"Saved {self} successfully")
         return self.id
 
+    def delete(self) -> dict:
+        if not self.id:
+            logging.warning("Cant delete %s with out an ID." % self)
+            return False
+        data = self._get_model_fields()
+        logging.debug("Deleting %s" % self)
+        self.response = self.make_request(f"{self.model_name}/{self.id}", method="DELETE", payload=data)
+        return self.response
+
     def _get_model_fields(self) -> dict:
         """Get the class atribute keys and values that are model fields."""
         data = {}
         for field_name, field_info in self.field_map.items():
             if not getattr(self, field_name):
                 continue
-            data[field_name] = getattr(self, field_name)
+            if field_info["type"] == "datetime":
+                data[field_name] = getattr(self, field_name)
+                if data[field_name]:
+                    if isinstance(data[field_name], datetime):
+                        data[field_name] = date_utils.json_date(data[field_name])
+                    else:
+                        data[field_name] = data[field_name]
+            else:
+                data[field_name] = getattr(self, field_name)
         return data
 
 # End File: cver/src/cver_client/models/base.py

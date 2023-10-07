@@ -23,7 +23,9 @@ class EngineDownload:
         self.download_limit = int(os.environ.get("CVER_ENGINE_DOWNLOAD_LIMIT", 1))
         self.downloaded = 0
         self.pull_thru_registries = {
-            "docker.io": None
+            "docker.io": None,
+            "quay.io": "cver-quay",
+            "ghcr.io": "cver-ghcr"
         }
         self.api_ibws = {}
         self.api_ibws_current_page = 0
@@ -40,6 +42,11 @@ class EngineDownload:
     def handle_downloads(self):
         ibws = self.get_image_build_waitings()
         logging.info("Found %s" % len(ibws))
+
+        if self.ibws_processed > 20:
+            logging.info("Hit max ammount of Image Build processing.")
+            return True
+
         for ibw in ibws:
             self.ibws_processed += 1
             logging.info("Starting ImageBuild %s waiting. Processing: %s" % (
@@ -72,6 +79,9 @@ class EngineDownload:
         return True
 
     def run_download(self, ibw: ImageBuildWaiting):
+        if ibw.status == "Failed":
+            logging.warning("Skipping: %s, image has already experienced download failures")
+            return False
         logging.info("Starting downloaded process %s of %s" % (
             self.downloaded,
             self.download_limit))
@@ -95,7 +105,13 @@ class EngineDownload:
         image_pull = self.docker_pull(pull_cmd)
         if not image_pull:
             logging.error("Failed to download: %s" % image)
-            exit(1)
+            ibw.status = "Failed"
+            ibw.status_ts = date_utils.json_date_now()
+            ibw.status_reason = "Failed download"
+            if ibw.save():
+                logging.info("Saved ibw failed download status")
+            else:
+                logging.error("Could not save ibw failed status")
             return False
 
         sha = self._get_sha_from_docker_pull(image_pull.decode("utf-8"))
@@ -153,10 +169,10 @@ class EngineDownload:
         return ibws
 
     def _get_docker_pull_url(self, image: Image, ibw: ImageBuildWaiting):
-        if image.registry == "docker.io":
+        if image.registry in self.pull_thru_registries:
             image_loc = "%s/%s/%s:%s" % (
                 self.registry_url,
-                self.pull_thru_registries["docker.io"],
+                self.pull_thru_registries[image.registry],
                 image.name,
                 ibw.tag)
             return image_loc

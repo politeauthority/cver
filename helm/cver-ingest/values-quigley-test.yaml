@@ -9,6 +9,7 @@ app:
   logLevel: "DEBUG"
   debug: true
   suspendCron: true
+  apiUrl: "http://cver-api-test-{REPLACE}"
 
 test:
   test: true

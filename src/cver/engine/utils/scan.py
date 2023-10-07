@@ -18,7 +18,11 @@ def run_trivy(image: Image, ib: ImageBuild) -> str:
     if not cmd:
         logging.error("Cannot run scan for: %s" % ib)
         return False
-    scan_result_raw = subprocess.check_output(cmd)
+    try:
+        scan_result_raw = subprocess.check_output(cmd)
+    except subprocess.CalledProcessError as e:
+        logging.error("Error running command\n\t%s\n%s" % (" ".join(cmd), e))
+        return False
     scan_result = json.loads(scan_result_raw)
     return scan_result
 
@@ -28,6 +32,7 @@ def get_trivy_cmd(image: Image, ib: ImageBuild) -> str:
     """
     image_loc = ""
     if ib.registry_imported:
+        logging.info("Using registry imported for %s - %s" % (image, ib))
         logging.warning("Using TAG for scan, not sha!")
         image_loc = "%s/%s:%s" % (ib.registry_imported, image.name, ib.tags[0])
     else:

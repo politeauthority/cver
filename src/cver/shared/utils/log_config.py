@@ -23,6 +23,9 @@ log_config = {
     "root": {
         "level": LOG_LEVEL,
         "handlers": ["wsgi"]
+    },
+    "requests": {
+        "level": "warning"
     }
 }
 

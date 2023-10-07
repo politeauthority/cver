@@ -10,17 +10,17 @@
 
 """
 import logging
+import logging.config
 import os
 
 import requests
 
-# from cver.shared.utils import misc
-# from cver.cver_client.models.image import Image
-# from cver.shared.utils.log_config import log_config
+from cver.shared.utils.log_config import log_config
+from cver.shared.utils import misc
 from cver.cver_client.ingest.ingest_k8s import IngestK8s
 
 
-# logging.config.dictConfig(log_config)
+logging.config.dictConfig(log_config)
 logger = logging.getLogger(__name__)
 logger.propagate = True
 
@@ -54,9 +54,22 @@ class Ingest:
         response_json = response.json()
         images = []
         for pod in response_json["items"]:
+            container_number = 0
+            image = {
+                "name": None,
+                "sha": None
+            }
             for container in pod["spec"]["containers"]:
                 if container["image"] not in images:
-                    images.append(container["image"])
+                    image["name"] = container["image"]
+                    image["sha"] = pod["status"]["containerStatuses"][container_number]["imageID"]
+                    image_map = misc.container_url(image["sha"])
+                    sha = image_map["sha"]
+                    if sha:
+                        image["sha"] = sha
+                    images.append(image)
+
+                container_number += 1
         logging.info("Found %s unique images from the Kubernetes api" % len(images))
         return images
 
@@ -72,7 +85,7 @@ class Ingest:
         logging.info("Submmiting %s Images for Cluster %s" % (
             len(images), self.cluster_id))
         for image in images:
-            response = IngestK8s().image(self.cluster_id, image)
+            response = IngestK8s().image(self.cluster_id, image["name"], image["sha"])
             logging.info("Submitted: %s" % image)
             if response["status"] != "success":
                 logging.critical("Error submitting image to Cver Api: %s" % response["message"])

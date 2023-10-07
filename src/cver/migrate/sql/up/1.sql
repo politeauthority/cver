@@ -103,10 +103,14 @@ CREATE TABLE IF NOT EXISTS image_build_waitings (
     `updated_ts` DATETIME,
     `image_id` INTEGER NOT NULL,
     `image_build_id` INTEGER,
-    `tag` VARCHAR(200),
+    `sha` VARCHAR(200) UNIQUE,
+    `tag` TEXT,
     `waiting` TINYINT(1) DEFAULT True,
     `waiting_for` VARCHAR(200),
-     UNIQUE image_id_build_tag (image_id, image_build_id, tag)
+    `status` VARCHAR(200),
+    `status_ts` DATETIME,
+    `status_reason` VARCHAR(200),
+     UNIQUE image_id_build_tag (image_id, image_build_id)
 );
 
 --- 

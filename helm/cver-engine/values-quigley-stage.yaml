@@ -9,6 +9,8 @@ app:
   logLevel: "DEBUG"
   envName: "test"
   debug: false
+  engineDownloadLimit: 2
+  engineScanLimit: 2
 
 test:
   test: true

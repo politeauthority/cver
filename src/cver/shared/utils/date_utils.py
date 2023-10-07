@@ -28,6 +28,15 @@ def json_date(the_datetime: datetime) -> str:
     return arrow.get(the_datetime).format('YYYY-MM-DD HH:mm:ss ZZ')
 
 
+def json_date_out(the_datetime: datetime) -> str:
+    """Get a JSON postable value from a datetime.
+    :unit-test: TestSharedUtilsDateUtils.test__json_date_out
+    """
+    if not the_datetime:
+        return None
+    return arrow.get(the_datetime).format('YYYY-MM-DD HH:mm:ss ZZ')[:-7]
+
+
 def json_date_now() -> str:
     """Get a JSON returnable value from now in UTC.
     :unit-test: TestSharedUtilsDateUtils.test__json_date_now
