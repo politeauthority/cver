@@ -1,4 +1,4 @@
-# Cver 0.0.2
+# Cver 0.0.3
 ![Regression Tests](https://github.com/politeauthority/cver/actions/workflows/push-stage.yaml/badge.svg)
 
 Cver provides visability into container workloads, in realtime and historically. It allows you to
