@@ -57,6 +57,7 @@ jobs:
 
       - name: Decider
         run: |
+          echo "# Docker Build: Api" >> $GITHUB_STEP_SUMMARY
           echo "ALIX DEBUG: CHANGES-OUTPUT: ${{steps.changes.outputs.src}}"
           if [ "${{steps.changes.outputs.src}}" = "false" ]; then
             echo "Skipping Api Build. No changes detected." >> $GITHUB_STEP_SUMMARY
@@ -79,6 +80,5 @@ jobs:
           docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-prefix }}-latest
           docker push harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-name }}
           docker push harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-prefix }}-latest
-          echo "# Docker Build: Api" >> $GITHUB_STEP_SUMMARY
           echo "**Built:** harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-name }}" >> $GITHUB_STEP_SUMMARY
           echo "**Built:** harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-prefix }}-latest" >> $GITHUB_STEP_SUMMARY

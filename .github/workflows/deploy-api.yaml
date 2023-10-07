@@ -66,6 +66,6 @@ jobs:
           #   kubectl get deployments
           #   kubectl rollout restart deployment/${RELEASE_NAME}
           # fi
-          echo "# Deployed" >> $GITHUB_STEP_SUMMARY
+          echo "# Deployed: Api" >> $GITHUB_STEP_SUMMARY
           echo "Created Helm deployment: ${RELEASE_NAME}" >> $GITHUB_STEP_SUMMARY
 

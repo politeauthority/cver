@@ -35,12 +35,12 @@ jobs:
           IMAGE_TAG="${{ inputs.deployment-name }}-latest"
           if [ "${{ inputs.deployment-name }}" = "test" ]; then
             RELEASE_NAME="cver-ingest-test-${{ inputs.run-number }}"
-            IMAGE_TAG="dev-latest"
             NAMESPACE="cver-test"
+            API_URL="cver-api-test-${{ inputs.run-number }}"
           else
             RELEASE_NAME="cver-ingest-${{ inputs.deployment-name}}"
-            IMAGE_TAG="${{ github.sha }}"
             NAMESPACE="cver-${{ inputs.deployment-name}}"
+            API_URL="cver-api-${{ inputs.deployment-name }}"
           fi
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
@@ -54,7 +54,8 @@ jobs:
             --wait \
             --timeout=240s \
             -f helm/cver-ingest/values-quigley-${{ inputs.deployment-name }}.yaml \
-            --set "image.tag=${IMAGE_TAG}"
-          echo "# Deployed" >> $GITHUB_STEP_SUMMARY
+            --set "app.apiUrl=${API_URL}"
+
+          echo "# Deployed: Ingest" >> $GITHUB_STEP_SUMMARY
           echo "Created Helm deployment: ${RELEASE_NAME}" >> $GITHUB_STEP_SUMMARY
 
