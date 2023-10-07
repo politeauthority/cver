@@ -10,6 +10,7 @@ app:
   debug: true
   engineDownloadLimit: 3
   engineScanLimit: 3
+  suspendCron: true
 
 test:
   test: true

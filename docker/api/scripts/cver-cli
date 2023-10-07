@@ -1,0 +1,4 @@
+#!/bin/sh -l
+# Cver Cli
+
+python3 /app/cver/cli/__init__py

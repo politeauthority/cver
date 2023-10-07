@@ -37,10 +37,18 @@ class CverClient:
             self.base_url = api_url
         else:
             self.base_url = os.environ.get("CVER_API_URL")
-        
-        self.api_host = os.environ.get("CVER_API_HOST")
 
+        self.headers = {}
+        self.api_host = os.environ.get("CVER_API_HOST")
         self.base_url = s_misc.strip_trailing_slash(self.base_url)
+
+        cver_api_host = os.environ.get("CVER_API_HOST")
+        if cver_api_host:
+            self.api_host = cver_api_host
+            self.headers["Host"] = os.environ.get("CVER_API_URL")
+            self.base_url = s_misc.strip_trailing_slash(cver_api_host)
+            self.headers["Host"] = self.headers["Host"].replace("http://", "")
+            self.headers["Host"] = self.headers["Host"].replace("https://", "")
 
         self.token = ""
         self.token_path = ""
@@ -66,6 +74,7 @@ class CverClient:
             "method": "POST",
             "url": f"{self.base_url}/auth",
         }
+        request_args["headers"].update(self.headers)
         response = requests.request(**request_args)
         if response.status_code == 403:
             logging.error("Received status code %s logging in" % response.status_code)
@@ -98,6 +107,9 @@ class CverClient:
             "method": method,
             "url": f"{self.base_url}/{url}"
         }
+
+        request_args["headers"].update(self.headers)
+        # logging.info(request_args)
         if request_args:
             if method == "GET":
                 request_args["params"] = payload
@@ -119,7 +131,11 @@ class CverClient:
             else:
                 logging.error(f"ISSUE WITH REQUEST: {response} - {url}\n{response.text}")
 
-        response_json = response.json()
+        try:
+            response_json = response.json()
+        except requests.exceptions.JSONDecodeError:
+            logging.error("Could not get json from response.\n%s" % response.text)
+            return False
         return response_json
 
     def submit_scan(self, image_id: int, image_build_id: int, raw_scan: dict):

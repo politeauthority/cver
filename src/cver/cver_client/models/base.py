@@ -97,6 +97,15 @@ class Base(CverClient):
         # logging.info(f"Saved {self} successfully")
         return self.id
 
+    def delete(self) -> dict:
+        if not self.id:
+            logging.warning("Cant delete %s with out an ID." % self)
+            return False
+        data = self._get_model_fields()
+        logging.debug("Deleting %s" % self)
+        self.response = self.make_request(f"{self.model_name}/{self.id}", method="DELETE", payload=data)
+        return self.response
+
     def _get_model_fields(self) -> dict:
         """Get the class atribute keys and values that are model fields."""
         data = {}

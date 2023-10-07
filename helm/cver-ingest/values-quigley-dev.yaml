@@ -7,6 +7,7 @@ nameOverride: "dev"
 app:
   envName: "dev"
   debug: true
+  suspendCron: true
 
 test:
   test: true

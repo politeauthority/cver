@@ -23,7 +23,8 @@ class EngineDownload:
         self.download_limit = int(os.environ.get("CVER_ENGINE_DOWNLOAD_LIMIT", 1))
         self.downloaded = 0
         self.pull_thru_registries = {
-            "docker.io": None
+            "docker.io": None,
+            "quay.io": "cver-quay"
         }
         self.api_ibws = {}
         self.api_ibws_current_page = 0
@@ -40,6 +41,11 @@ class EngineDownload:
     def handle_downloads(self):
         ibws = self.get_image_build_waitings()
         logging.info("Found %s" % len(ibws))
+
+        if self.ibws_processed > 20:
+            logging.info("Hit max ammount of Image Build processing.")
+            return True
+
         for ibw in ibws:
             self.ibws_processed += 1
             logging.info("Starting ImageBuild %s waiting. Processing: %s" % (
@@ -153,10 +159,10 @@ class EngineDownload:
         return ibws
 
     def _get_docker_pull_url(self, image: Image, ibw: ImageBuildWaiting):
-        if image.registry == "docker.io":
+        if image.registry in self.pull_thru_registries:
             image_loc = "%s/%s/%s:%s" % (
                 self.registry_url,
-                self.pull_thru_registries["docker.io"],
+                self.pull_thru_registries[image.registry],
                 image.name,
                 ibw.tag)
             return image_loc
