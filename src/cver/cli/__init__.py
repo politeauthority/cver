@@ -61,7 +61,7 @@ class Cver:
         print("Image Build")
         print(f"\t\tID:\t{ib.id}")
         print(f"\t\tName:\t{ib.sha}")
-        print(f"\t\tName:\t%s" % ", ".join(ib.tags))
+        print("\t\tName:\t%s" % ", ".join(ib.tags))
         print(f"\t\tRegistry:\t{ib.registry_imported}")
 
 
