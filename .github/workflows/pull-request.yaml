@@ -134,7 +134,7 @@ jobs:
 
   remove-ephem:
     runs-on: self-hosted
-    needs: [test-api]
+    needs: [test-api, test-engine]
     if: ${{ needs.deploy-api.result == 'success' }}
     container:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
