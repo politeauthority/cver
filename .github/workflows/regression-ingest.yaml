@@ -46,7 +46,7 @@ jobs:
           # Loop until the elapsed time reaches 300 seconds
           while [ $elapsed_time -lt 300 ]; do
               echo "Executing the command..."
-              TEST_POD=$(kubectl get -n ${NAMESPACE} pods -l job-name=${JOB_NAME} --field-selector=status.phase=Succeeded --no-headers | awk '{print $3}')    
+              TEST_POD=$(kubectl get -n ${NAMESPACE} pods -l job-name=${JOB_NAME} --field-selector=status.phase=Succeeded --no-headers | awk '{print $3}')
               echo $TEST_POD
               if [ "${TEST_POD}" = "Completed" ]; then
                   echo "Job executed successfully: ${TEST_POD}"

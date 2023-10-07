@@ -8,6 +8,7 @@ app:
   envName: "dev"
   debug: true
   suspendCron: true
+  apiUrl: "http://cver-api-dev"
 
 test:
   test: true

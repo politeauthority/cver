@@ -25,7 +25,7 @@ spec:
               - name: CVER_ENV
                 value: "{{ .Values.app.envName }}"
               - name: CVER_API_URL
-                value: "http://cver-api-{{ .Values.app.envName }}"
+                value: "{{ .Values.app.apiUrl }}"
               - name: TIMEOUT_SECONDS
                 value: "{{ .Values.app.timeoutSeconds }}"
               - name: CVER_DEPLOYED_AT
