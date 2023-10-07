@@ -32,14 +32,11 @@ jobs:
       - uses: actions/checkout@v3
       - name: Deploy
         run: |
-          IMAGE_TAG="${{ inputs.deployment-name }}-latest"
           if [ "${{ inputs.deployment-name }}" = "test" ]; then
             RELEASE_NAME="cver-engine-test-${{ inputs.run-number }}"
-            IMAGE_TAG="dev-latest"
             NAMESPACE="cver-test"
           else
             RELEASE_NAME="cver-engine-${{ inputs.deployment-name}}"
-            IMAGE_TAG="${{ github.sha }}"
             NAMESPACE="cver-${{ inputs.deployment-name}}"
           fi
           mkdir ~/.kube
@@ -54,9 +51,8 @@ jobs:
             --wait \
             --timeout=240s \
             -f helm/cver-engine/values-quigley-${{ inputs.deployment-name }}.yaml \
-            --set "image.tag=${IMAGE_TAG}" \
             --set "app.dbName=${DB_NAME}" \
             --set "app.deployedAt=${DEPLOYED_AT}"
-          echo "# Deployed" >> $GITHUB_STEP_SUMMARY
+          echo "# Deployed: Engine" >> $GITHUB_STEP_SUMMARY
           echo "Created Helm deployment: ${RELEASE_NAME}" >> $GITHUB_STEP_SUMMARY
 

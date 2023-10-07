@@ -43,14 +43,38 @@ jobs:
           username: ${{ inputs.harbor-user }}
           password: ${{ secrets.HARBOR_PASSWORD }}
 
+      - uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          token: ${{ secrets.PAT }}
+          filters: |
+            src:
+              - 'docker/ingest/**'
+              - 'src/setup.py'
+              - 'src/shared/**'
+              - 'src/cver_client/**'
+              - 'src/ingest/**'
+              - 'tests/regression/ingest/**'
+
+      - name: Decider
+        run: |
+          echo "# Docker Build: Ingest" >> $GITHUB_STEP_SUMMARY
+          echo "ALIX DEBUG: CHANGES-OUTPUT: ${{steps.changes.outputs.src}}"
+          if [ "${{steps.changes.outputs.src}}" = "false" ]; then
+            echo "Skipping Engine Build. No changes detected." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Running Engine Build" >> $GITHUB_STEP_SUMMARY
+          fi
+
       - name: Build Container
-        # if: steps.changes.outputs.src == 'true'
+        if: steps.changes.outputs.src == 'true'
         run: |
           echo "Run Task: Build"
           export CVER_INGEST_TAG="${{ inputs.tag-name }}"
           task build-ingest
 
       - name: Push Container
+        if: steps.changes.outputs.src == 'true'
         run: |
           echo "ALIX-debug"
           docker images
@@ -60,6 +84,5 @@ jobs:
           docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-ingest:${{ inputs.tag-prefix }}-latest
           docker push harbor.squid-ink.us/cver/cver-ingest:${{ inputs.tag-name }}
           docker push harbor.squid-ink.us/cver/cver-ingest:${{ inputs.tag-prefix }}-latest
-          echo "# Docker Build" >> $GITHUB_STEP_SUMMARY
           echo "**Built:** harbor.squid-ink.us/cver/cver-ingest:${{ inputs.tag-name }}" >> $GITHUB_STEP_SUMMARY
           echo "**Built:** harbor.squid-ink.us/cver/cver-ingest:${{ inputs.tag-prefix }}-latest" >> $GITHUB_STEP_SUMMARY
