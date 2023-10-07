@@ -22,8 +22,7 @@ jobs:
           filters: |
             src:
             - 'src/**'
-            tests:
-              - 'tests/**'
+            - 'tests/**'
 
       - name: Set up Python 3.10
         if: steps.changes.outputs.src == 'true' || steps.changes.outputs.tests

@@ -28,6 +28,8 @@ spec:
                 value: "http://cver-api-{{ .Values.app.envName }}"
               - name: TIMEOUT_SECONDS
                 value: "{{ .Values.app.timeoutSeconds }}"
+              - name: CVER_DEPLOYED_AT
+                value: "{{ .Values.app.deployedAt }}"
               {{- if .Values.test.test }}
               - name: CVER_TEST_CLIENT_ID
                 valueFrom:

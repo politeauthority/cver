@@ -51,6 +51,8 @@ spec:
                 configMapKeyRef:
                   key: CVER_ENGINE_SCAN_LIMIT
                   name: cver-engine-{{- if .Values.test.test }}{{.Release.Name}}{{- end }}
+            - name: CVER_DEPLOYED_AT
+              value: "{{ .Values.app.deployedAt }}"
             {{- if .Values.test.test }}
             - name: CVER_TEST_CLIENT_ID
               valueFrom:

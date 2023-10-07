@@ -53,6 +53,8 @@ spec:
               secretKeyRef:
                 key: cver-secret-key
                 name: cver-api
+          - name: CVER_DEPLOYED_AT
+            value: "{{ .Values.app.deployedAt }}"
           {{- if .Values.test.test }}
           - name: CVER_TEST_CLIENT_ID
             valueFrom:
