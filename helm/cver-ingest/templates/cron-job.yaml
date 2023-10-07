@@ -2,6 +2,8 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: {{ include "cver-ingest.fullname" . }}
+  labels:
+    {{- include "cver-ingest.labels" . | nindent 4 }}
 spec:
   schedule: "{{ .Values.app.schedule }}"
   concurrencyPolicy: Forbid

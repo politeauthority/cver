@@ -58,7 +58,7 @@ FIELD_MAP = {
 }
 
 FIELD_META = {
-    "unique_key": ["image_id", "image_build_id", "tags"]
+    "unique_key": ["image_id", "image_build_id"]
 }
 
 # End File: cver/src/shared/models/image_build_waiting.py
