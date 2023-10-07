@@ -29,16 +29,38 @@ jobs:
       # This needs to be updated before staging can use it.
       - name: Execute Tests
         run: |
-          # @todo: Make this more dynamic
           if [ "${{ inputs.deployment-name }}" = "test" ]; then
             NAMESPACE="cver-test"
+            # @todo: FIX THE -dev suffix!
+            CRON_JOB="cver-ingest-test-${{ inputs.run-number }}-dev"
           else  
             NAMESPACE="cver-stage"
+            CRON_JOB="cver-ingest-stage"
           fi
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
           export KUBECONFIG=~/.kube/config.yaml
-          TEST_POD=$(kubectl get -n ${NAMESPACE} pods -l app.kubernetes.io/instance=cver-engine-${{ inputs.deployment-name }}-${{ inputs.run-number }} --no-headers | cut -d' ' -f1)
-          kubectl exec -n ${NAMESPACE} -it ${TEST_POD} -- echo "helo world"
+
+          echo "Creating job: ${CRON_JOB}"
+          kubectl create job -n ${NAMESPACE} --from=cronjob/${CRON_JOB} ${CRON_JOB}
+          elapsed_time=0
+          # Loop until the elapsed time reaches 300 seconds
+          while [ $elapsed_time -lt 300 ]; do
+              echo "Executing the command..."
+              TEST_POD=$(kubectl get -n ${NAMESPACE} pods -l job-name=${CRON_JOB} --no-headers | awk '{print $3}')
+              echo $TEST_POD
+              if [ "${TEST_POD}" = "Completed" ]; then
+                  echo "Job executed successfully: ${TEST_POD}"
+                  exit 0
+              elif [ $TEST_POD = "Error" ]; then
+                  echo "Job failed"
+                  exit 1
+              fi
+              sleep 10
+              # Increment the elapsed time by 10 seconds
+              elapsed_time=$((elapsed_time + 10))
+          done
+          echo "Giving up after 300 seconds."
+          exit 1
 
 # End File: cver/.github/workflows/regression-engine.yaml
