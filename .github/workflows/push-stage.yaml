@@ -92,8 +92,8 @@ jobs:
 
   deploy-engine:
     needs: [build-engine]
-    uses: ./.github/workflows/deploy-api.yaml
-    secrets: inherit 
+    uses: ./.github/workflows/deploy-engine.yaml
+    secrets: inherit
     with:
       deployment-name: "stage"
       run-number: ${{ github.run_number }}
@@ -116,8 +116,8 @@ jobs:
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
           export KUBECONFIG=~/.kube/config.yaml
-          TEST_POD=$(kubectl get -n cver pods -l app.kubernetes.io/instance=cver-api-stage --no-headers | cut -d' ' -f1)
-          kubectl exec -n cver -it ${TEST_POD} -c cver-api -- pytest -vvv /tests/regression --md regression-report.md
+          TEST_POD=$(kubectl get -n cver-stage pods -l app.kubernetes.io/instance=cver-api-stage --no-headers | cut -d' ' -f1)
+          kubectl exec -n cver-stage -it ${TEST_POD} -c cver-api -- pytest -vvv /tests/regression --md regression-report.md
           REPORT=$(kubectl exec -n cver-stage -it ${TEST_POD} -c cver-api -- cat /app/cver/regression-report.md)
           echo "$REPORT"
           echo "${REPORT}" >> $GITHUB_STEP_SUMMARY
