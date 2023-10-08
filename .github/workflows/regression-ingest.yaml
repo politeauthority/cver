@@ -30,15 +30,15 @@ jobs:
       - name: Execute Tests
         run: |
           if [ "${{ inputs.deployment-name }}" = "test" ]; then
+            CRON_JOB="cver-ingest-test-${{ inputs.run-number }}"
             NAMESPACE="cver-test"
-          else  
+          else
+            CRON_JOB="cver-ingest-stage
             NAMESPACE="cver-stage"
           fi
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
           export KUBECONFIG=~/.kube/config.yaml
-
-          CRON_JOB="cver-ingest-test-${{ inputs.run-number }}"
           echo "Creating job: ${CRON_JOB}"
           kubectl create job -n ${NAMESPACE} --from=cronjob/${CRON_JOB} ${CRON_JOB}
           elapsed_time=0
