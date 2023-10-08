@@ -36,7 +36,8 @@ general = {
     "CVER_JWT_EXPIRE_MINUTES": os.environ.get("CVER_JWT_EXPIRE_MINUTES", 60),
     "CVER_SECRET_KEY": os.environ.get("CVER_SECRET_KEY"),
     "CVER_TEST": os.environ.get("CVER_TEST", False),
-    "CVER_LOG_HEALTH_CHECKS": os.environ.get("CVER_LOG_HEALTH_CHECKS", False)
+    "CVER_LOG_HEALTH_CHECKS": os.environ.get("CVER_LOG_HEALTH_CHECKS", False),
+    "CVER_DEPLOYED_AT": os.environ.get("CVER_DEPLOYED_AT", None)
 }
 if general["CVER_BUILD"]:
     general["CVER_BUILD_SHORT"] = general["CVER_BUILD"][:12]
