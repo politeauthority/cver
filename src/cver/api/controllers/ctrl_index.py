@@ -78,7 +78,8 @@ def info():
         "build": glow.general["CVER_BUILD"],
         "build_short": glow.general["CVER_BUILD_SHORT"],
         "migration": CURRENT_MIGRATION,
-        "model_totals": model_totals
+        "model_totals": model_totals,
+        "deployed_at": glow.general["CVER_DEPLOYED_AT"]
     }
     return jsonify(data)
 
