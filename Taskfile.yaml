@@ -204,6 +204,7 @@ tasks:
 
   dev-helm-api:
     cmds:
+      - helm uninstall cver-api-dev -n cver-dev
       - |
         helm upgrade --install \
             cver-api-dev \

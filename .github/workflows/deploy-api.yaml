@@ -57,12 +57,5 @@ jobs:
             -f helm/cver-api/values-quigley-${{ inputs.deployment-name }}.yaml \
             --set "app.dbName=${DB_NAME}" \
             --set "app.deployedAt=${DEPLOYED_AT}"
-          # Removing this for now
-          # if [ "${{ inputs.deployment-name }}" != "test" ]; then
-          #   sleep 30
-          #   kubectl get deployments
-          #   kubectl rollout restart deployment/${RELEASE_NAME}
-          # fi
           echo "# Deployed: Api" >> $GITHUB_STEP_SUMMARY
           echo "Created Helm deployment: ${RELEASE_NAME}" >> $GITHUB_STEP_SUMMARY
-
