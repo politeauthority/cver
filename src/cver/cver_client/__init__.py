@@ -58,6 +58,7 @@ class CverClient:
         self.token_file = os.path.join(temp_dir, "cver-token")
         self.login_attempts = 0
         self.max_login_attempts = 2
+        self.response_last = None
 
     def login(self, skip_local_token: bool = False) -> bool:
         """Login to the Cver API."""
@@ -140,6 +141,12 @@ class CverClient:
             logging.error("Could not get json from response.\n%s" % response.text)
             return False
         return response_json
+
+    def info(self):
+        """Get Cver Api Info"""
+        response = self.make_request("info")
+        self.response_last = response
+        return response
 
     def submit_scan(self, image_id: int, image_build_id: int, raw_scan: dict):
         """Submit a scan to the Cver Api"""
