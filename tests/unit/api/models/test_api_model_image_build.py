@@ -20,7 +20,7 @@ class TestBuild:
         assert hasattr(image, "updated_ts")
         assert hasattr(image, "sha")
         assert hasattr(image, "image_id")
-        assert hasattr(image, "repository")
+        assert hasattr(image, "registry")
         assert hasattr(image, "tags")
         assert hasattr(image, "os_family")
         assert hasattr(image, "os_name")

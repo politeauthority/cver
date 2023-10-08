@@ -41,7 +41,11 @@ FIELD_MAP = {
         "name": "last_seen",
         "type": "datetime",
     },
-
 }
+
+FIELD_META = {
+    "unique_key": ["image_id", "cluster_id"]
+}
+
 
 # End File: cver/src/shared/models/cluster_image.py

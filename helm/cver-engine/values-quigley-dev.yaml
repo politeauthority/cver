@@ -1,0 +1,24 @@
+# Quigely dev values for cver-engine
+
+replicaCount: 1
+
+nameOverride: "dev"
+
+app:
+  logLevel: "INFO"
+  envName: "dev"
+  debug: true
+  engineDownloadLimit: 1
+  engineScanLimit: 1
+  suspendCron: true
+
+test:
+  test: true
+
+image:
+  repository: harbor.squid-ink.us/cver/cver-engine
+  pullPolicy: Always
+  tag: "dev-latest"
+
+imagePullSecrets:
+  - name: harbor

@@ -9,12 +9,12 @@ import logging
 
 from flask import Blueprint, jsonify, request, make_response
 
+from cver.shared.utils import date_utils
 from cver.api.models.image import Image
 from cver.api.models.image_build import ImageBuild
 from cver.api.models.scan import Scan
 # from cver.api.models.scan_raw import ScanRaw
 from cver.api.utils import auth
-from cver.api.utils import date_utils
 from cver.api.utils import parse_trivy
 
 

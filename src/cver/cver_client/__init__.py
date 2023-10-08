@@ -37,23 +37,34 @@ class CverClient:
             self.base_url = api_url
         else:
             self.base_url = os.environ.get("CVER_API_URL")
-
         self.base_url = s_misc.strip_trailing_slash(self.base_url)
 
-        print("API_KEY: %s" % self.api_key)
+        self.headers = {}
+        self.api_host = os.environ.get("CVER_API_HOST")
+        self.base_url = s_misc.strip_trailing_slash(self.base_url)
+
+        cver_api_host = os.environ.get("CVER_API_HOST")
+        if cver_api_host:
+            self.api_host = cver_api_host
+            self.headers["Host"] = os.environ.get("CVER_API_URL")
+            self.base_url = s_misc.strip_trailing_slash(cver_api_host)
+            self.headers["Host"] = self.headers["Host"].replace("http://", "")
+            self.headers["Host"] = self.headers["Host"].replace("https://", "")
+
         self.token = ""
         self.token_path = ""
         self.response = None
         temp_dir = tempfile.gettempdir()
         self.token_file = os.path.join(temp_dir, "cver-token")
         self.login_attempts = 0
+        self.max_login_attempts = 2
 
     def login(self, skip_local_token: bool = False) -> bool:
         """Login to the Cver API."""
+        logging.debug("Logging into Cver Api")
         if not skip_local_token and self._open_valid_token():
             return True
-        if not self.client_id or not self.api_key:
-            logging.critical("No Client ID or ApiKey submitted, both are required.")
+        if not self._determine_if_login():
             return False
         request_args = {
             "headers": {
@@ -64,10 +75,15 @@ class CverClient:
             "method": "POST",
             "url": f"{self.base_url}/auth",
         }
+        request_args["headers"].update(self.headers)
         response = requests.request(**request_args)
-        if response.status_code != 200:
-            print("ERROR: %s logging in" % response.status_code)
+        if response.status_code == 403:
+            logging.error("Received status code %s logging in" % response.status_code)
             self.login_attempts += 1
+            self.login(skip_local_token=True)
+            return False
+        if response.status_code != 200:
+            logging.error("Error authenticating to api")
             return False
         response_json = response.json()
         self.token = response_json["token"]
@@ -78,18 +94,25 @@ class CverClient:
     def make_request(self, url: str, method: str = "GET", payload: dict = {}):
         """Make a generic request to the Cver Api. If we don't have a token attempt to login. Return
         the response json back."""
-        if not self.token:
-            self.login()
+        self.login()
+        # if not self.token:
+        #     self.login()
         headers = {
             "token": self.token,
             "content-type": "application/json"
         }
+        if self.api_host:
+            headers["Host"] = self.api_host
         request_args = {
             "headers": headers,
             "method": method,
             "url": f"{self.base_url}/{url}"
         }
 
+        request_args["headers"].update(self.headers)
+        # debug
+        # logging.info("\n%s - %s" % (request_args["method"], request_args["url"]))
+        # logging.info("%s\n" % request_args)
         if request_args:
             if method == "GET":
                 request_args["params"] = payload
@@ -97,17 +120,25 @@ class CverClient:
                 request_args["data"] = json.dumps(payload)
                 if "id" in payload:
                     request_args["url"] += "/%s" % payload["id"]
+                    payload.pop("id")
 
         response = requests.request(**request_args)
 
         # If our token has expired, attempt to get a new one, skipping using the current one.
-        if response.status_code == 412:
-            self.login(skip_local_token=True)
+        if response.status_code in [412, 401]:
+            self.destroy_token()
 
         if response.status_code > 399 and response.status_code < 500:
-            logging.error(f"ISSUE WITH REQUEST: {response}")
+            if response.status_code == 404:
+                logging.debug(f"Got 404: {response.url}")
+            else:
+                logging.error(f"ISSUE WITH REQUEST: {response} - {url}\n{response.text}")
 
-        response_json = response.json()
+        try:
+            response_json = response.json()
+        except requests.exceptions.JSONDecodeError:
+            logging.error("Could not get json from response.\n%s" % response.text)
+            return False
         return response_json
 
     def submit_scan(self, image_id: int, image_build_id: int, raw_scan: dict):
@@ -127,9 +158,24 @@ class CverClient:
         logging.info("Deleted local Cver token.")
         return True
 
+    def _determine_if_login(self) -> bool:
+        """Determine if we should even attempt to login.
+        :unit-test: TestClientInit::test___determine_if_login
+        """
+        if not self.client_id or not self.api_key:
+            logging.critical("No Client ID or ApiKey submitted, both are required.")
+            return False
+        if self.login_attempts >= self.max_login_attempts:
+            logging.critical("Attemped %s logins, not attempting more" % self.login_attempts)
+            return False
+        return True
+
     def _save_token(self):
         """Save a token to a local tempfile location."""
         logging.info(f"Temp Dir is: {self.token_file}")
+        if not self.token:
+            logging.error("No token to save.")
+            return False
         with open(self.token_file, "w") as temp_file:
             temp_file.write(self.token)
         logging.info(f"Wrote: {temp_file}")
@@ -140,9 +186,10 @@ class CverClient:
         """"If we have an existing server token already on the system, lets use that.
         @todo: Reade the token data to see if it has expired already or not.
         """
+        # logging.debug("Token File: %s" % self.token_file)
         if not os.path.exists(self.token_file):
             return False
-        logging.info("Using token file")
+        # logging.debug("Using token file")
         with open(self.token_file, "r") as temp_file:
             token_data = temp_file.read()
         self.token = token_data

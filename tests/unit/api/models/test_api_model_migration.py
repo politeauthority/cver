@@ -15,9 +15,9 @@ class TestApiModelMigration:
         """Test the models initialization.
         :method: Migration().__init__
         """
-        image = Migration()
-        assert hasattr(image, "number")
-        assert hasattr(image, "success")
+        model = Migration()
+        assert hasattr(model, "number")
+        assert hasattr(model, "success")
 
     def test____repr__(self):
         """Test the model's representation.

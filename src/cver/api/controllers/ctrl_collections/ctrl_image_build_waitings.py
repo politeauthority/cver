@@ -22,9 +22,6 @@ ctrl_image_build_waitings = Blueprint(
 @auth.auth_request
 def index():
     data = ctrl_collection_base.get(ImageBuildWaitings)
-    # args = api_util.get_params()
-    # data = ImageBuildWaitings().get_paginated(**args)
-    # data["info"]["object_type"] = "image-build-waiting"
     return jsonify(data)
 
 

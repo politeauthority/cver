@@ -10,15 +10,8 @@ rich==10.11.0
 sqlescapy==1.0.1
 validators==0.18.2
 
-# Cver Ingest
+# Cver Engine / Ingest
 requests==2.31.0
-# kubernetes==26.1.0
 
-# Testing
-pytest==7.3.0
-pytest-cov==4.0.0
-pytest-md==0.2.0
-
-# Dev Requirements
-flake8==6.0.0
-ipdb==0.13.13
+# Cver Shared
+tldextract==3.6.0

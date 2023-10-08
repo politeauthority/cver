@@ -3,9 +3,11 @@
     Model - Base
 
 """
+from datetime import datetime
 import logging
 
 from cver.cver_client import CverClient
+from cver.shared.utils import date_utils
 
 
 class Base(CverClient):
@@ -15,6 +17,7 @@ class Base(CverClient):
         super().__init__()
         self.entity_name = None
         self.field_map = {}
+        self.response_last = None
 
     def __repr__(self):
         """Base model representation."""
@@ -40,23 +43,44 @@ class Base(CverClient):
 
     def get_by_id(self, entity_id: int) -> bool:
         """Get an entity by ID."""
-        data = {
-            "id": entity_id
-        }
-        response = self.make_request(self.model_name, payload=data)
+        url = "%s/%s" % (self.model_name, entity_id)
+        response = self.make_request(url)
         if response["status"] == "success":
             return self.build(response["object"])
         else:
             return False
 
-    def get_by_name(self, name: str) -> bool:
+    def get_by_name(self, name: str = None) -> bool:
         """Get an entity by name.
         @todo: Not all entities have names, this should be restricted to just those entities.
         """
+        if not name:
+            name = self.name
         data = {
             "name": name
         }
         response = self.make_request(self.model_name, payload=data)
+        self.response_last = response
+        if response["status"] == "success":
+            return self.build(response["object"])
+        else:
+            return False
+
+    def get_by_fields(self, fields: dict = {}):
+        """ Get an entity by any api searchable fields."""
+        payload = {}
+        for field_name, field_value in fields.items():
+            if field_name not in self.field_map:
+                continue
+            if "api_searchable" not in self.field_map[field_name]:
+                logging.debug("Cannot search for %s with field: %s" % self, field_name)
+                continue
+            elif not self.field_map[field_name]["api_searchable"]:
+                logging.debug("Cannot search for %s with field: %s" % self, field_name)
+                continue
+            payload[field_name] = field_value
+
+        response = self.make_request(self.model_name, payload=payload)
         if response["status"] == "success":
             return self.build(response["object"])
         else:
@@ -65,16 +89,26 @@ class Base(CverClient):
     def save(self) -> int:
         """Save a model to the Cver Api."""
         data = self._get_model_fields()
+        logging.debug("Saving %s: %s" % (self.model_name, data))
         self.response = self.make_request(self.model_name, method="POST", payload=data)
         if "object" not in self.response:
-            print("Warning: request error")
+            logging.warning("Request error")
             return False
         entity = self.response["object"]
 
         for field_name, field_value in entity.items():
             setattr(self, field_name, field_value)
-        logging.info(f"Saved {entity} successfully")
+        # logging.info(f"Saved {self} successfully")
         return self.id
+
+    def delete(self) -> dict:
+        if not self.id:
+            logging.warning("Cant delete %s with out an ID." % self)
+            return False
+        data = self._get_model_fields()
+        logging.debug("Deleting %s" % self)
+        self.response = self.make_request(f"{self.model_name}/{self.id}", method="DELETE", payload=data)
+        return self.response
 
     def _get_model_fields(self) -> dict:
         """Get the class atribute keys and values that are model fields."""
@@ -82,7 +116,15 @@ class Base(CverClient):
         for field_name, field_info in self.field_map.items():
             if not getattr(self, field_name):
                 continue
-            data[field_name] = getattr(self, field_name)
+            if field_info["type"] == "datetime":
+                data[field_name] = getattr(self, field_name)
+                if data[field_name]:
+                    if isinstance(data[field_name], datetime):
+                        data[field_name] = date_utils.json_date(data[field_name])
+                    else:
+                        data[field_name] = data[field_name]
+            else:
+                data[field_name] = getattr(self, field_name)
         return data
 
 # End File: cver/src/cver_client/models/base.py

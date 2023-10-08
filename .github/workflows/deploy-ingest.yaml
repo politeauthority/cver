@@ -1,0 +1,61 @@
+name: Deploy Ingest
+
+on:
+  workflow_call:
+    inputs:
+      deployment-name:
+        required: true
+        type: string
+      run-number:
+        required: true
+        type: string
+      tag-name:
+        required: true
+        type: string
+      cicd-version:
+        required: true
+        type: string
+      harbor-user:
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    continue-on-error: false
+    container:
+      image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ inputs.cicd-version }}
+      credentials:
+        username: ${{ inputs.harbor-user }}
+        password: ${{ secrets.HARBOR_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy
+        run: |
+          IMAGE_TAG="${{ inputs.deployment-name }}-latest"
+          if [ "${{ inputs.deployment-name }}" = "test" ]; then
+            RELEASE_NAME="cver-ingest-test-${{ inputs.run-number }}"
+            NAMESPACE="cver-test"
+            API_URL="http://cver-api-test-${{ inputs.run-number }}"
+          else
+            RELEASE_NAME="cver-ingest-${{ inputs.deployment-name}}"
+            NAMESPACE="cver-${{ inputs.deployment-name}}"
+            API_URL="http://cver-api-${{ inputs.deployment-name }}"
+          fi
+          mkdir ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
+          export KUBECONFIG=~/.kube/config.yaml
+          chmod 600 ~/.kube/config.yaml
+          DEPLOYED_AT=$(date +"%Y-%m-%d %T")
+          echo "RELEASE_NAME: ${RELEASE_NAME}"
+          helm upgrade ${RELEASE_NAME} helm/cver-ingest \
+            --namespace=${NAMESPACE} \
+            --install \
+            --wait \
+            --timeout=240s \
+            -f helm/cver-ingest/values-quigley-${{ inputs.deployment-name }}.yaml \
+            --set "app.apiUrl=${API_URL}"
+
+          echo "# Deployed: Ingest" >> $GITHUB_STEP_SUMMARY
+          echo "Created Helm deployment: ${RELEASE_NAME}" >> $GITHUB_STEP_SUMMARY
+

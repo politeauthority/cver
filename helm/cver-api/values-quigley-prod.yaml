@@ -13,7 +13,7 @@ app:
   logHealthChecks: false
 
 image:
-  repository: harbor.squid-ink.us/politeauthority/cver-api
+  repository: harbor.squid-ink.us/cver/cver-api
   pullPolicy: IfNotPresent
   tag: "133c11ae4dd81c1daeb240749e28c58a0adcbaac"
 

@@ -6,6 +6,8 @@ docs/not-ready
 docker/api/src/
 helpers/
 src/cver/cli_debug.py
+helm/cver-api/secrets
+helm/secrets
 
 
 # Byte-compiled / optimized / DLL files

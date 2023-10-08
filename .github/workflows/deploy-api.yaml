@@ -37,9 +37,12 @@ jobs:
             RELEASE_NAME="cver-api-test-${{ inputs.run-number }}"
             DB_NAME="cver_${{ inputs.run-number }}"
             IMAGE_TAG="dev-latest"
+            NAMESPACE="cver-test"
           else
             RELEASE_NAME="cver-api-${{ inputs.deployment-name}}"
             DB_NAME="cver_${{ inputs.deployment-name}}"
+            IMAGE_TAG="${{ github.sha }}"
+            NAMESPACE="cver-${{ inputs.deployment-name}}"
           fi
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
@@ -47,15 +50,22 @@ jobs:
           chmod 600 ~/.kube/config.yaml
           DEPLOYED_AT=$(date +"%Y-%m-%d %T")
           helm dependency build helm/cver-api
-          helm upgrade --install \
-            --namespace=cver \
-            ${RELEASE_NAME} \
-            helm/cver-api/ \
+          helm upgrade \
+            ${RELEASE_NAME} helm/cver-api/ \
+            --namespace=${NAMESPACE} \
+            --install \
             --wait \
-            --timeout=120s \
+            --timeout=240s \
             -f helm/cver-api/values-quigley-${{ inputs.deployment-name }}.yaml \
             --set "image.tag=${IMAGE_TAG}" \
             --set "app.dbName=${DB_NAME}" \
             --set "app.deployedAt=${DEPLOYED_AT}"
-          echo "# Deployed"
-          echo "Created Helm deployment: cver-api-${RELEASE_NAME}" >> $GITHUB_STEP_SUMMARY
+          # Removing this for now
+          # if [ "${{ inputs.deployment-name }}" != "test" ]; then
+          #   sleep 30
+          #   kubectl get deployments
+          #   kubectl rollout restart deployment/${RELEASE_NAME}
+          # fi
+          echo "# Deployed: Api" >> $GITHUB_STEP_SUMMARY
+          echo "Created Helm deployment: ${RELEASE_NAME}" >> $GITHUB_STEP_SUMMARY
+

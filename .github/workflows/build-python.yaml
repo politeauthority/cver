@@ -5,7 +5,7 @@ on:
 
 
 jobs:
-  build-python:
+  build-cver:
     runs-on: self-hosted
     strategy:
       fail-fast: true
@@ -13,48 +13,50 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-            token: ${{ secrets.PAT }}
-
-      - uses: dorny/paths-filter@v2
-        id: changes
-        with:
           token: ${{ secrets.PAT }}
-          filters: |
-            src:
-            - 'src/**'
 
       - name: Set up Python 3.10
-        if: steps.changes.outputs.src == 'true'
         uses: actions/setup-python@v3
         with:
           python-version: "3.10"
 
       - name: Install Dependencies
-        if: steps.changes.outputs.src == 'true'
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install flake8 pytest
           pip install -r src/requirements.txt
 
-      - name: Build Packages
-        if: steps.changes.outputs.src == 'true'
+      - name: Build Cver Packages
         run: |
           cd src/
           python3 setup.py build
           pip install .
 
       - name: Source Linter
-        if: steps.changes.outputs.src == 'true'
         run: |
           flake8 src/cver --config=src/flake8 --count --show-source --statistics
 
-      - name: Tests Linter
-        if: steps.changes.outputs.src == 'true'
+      - name: Test Linter
         run: |
-          flake8 tests --config=tests/flake8 --count --show-source --statistics
+          flake8 tests/ --config=src/flake8 --count --show-source --statistics
 
-      - name: Unit Tests
-        if: steps.changes.outputs.src == 'true'
+      - name: Run Unit Tests
         run: |
-          pytest tests/unit --md report.md
+          cd src/
+          pip install -r requirements.txt
+          python3 setup.py build
+          python3 setup.py install
+          cd ../
+          cd tests/
+          pip install -r requirements.txt
+          python3 setup.py build
+          python3 setup.py install
+          pytest --vcr-record=none -rx -s --md report.md unit/ 
+          pytest --cov=cver --vcr-record=none -rx -s unit/ >> ./coverage.txt
+          echo "ALIX-DEBUG"
+          COVERAGE=$(awk '/---------- coverage: platform linux,/{flag=1} flag' "./coverage.txt")
+          COVERAGE=$(awk '/TOTAL/{print $NF}' "./coverage.txt")
           cat report.md >> $GITHUB_STEP_SUMMARY
+          echo "**Coverage:** ${COVERAGE}" >> $GITHUB_STEP_SUMMARY
+
+# End File: cver/.github/workflows/build-cver.yaml

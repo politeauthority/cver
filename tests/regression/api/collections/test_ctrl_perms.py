@@ -18,7 +18,7 @@ URL_MODEL = "perm"
 
 class TestApiPerms(TestApiBase):
 
-    def test__role_perms_get(self):
+    def test__perms_get(self):
         """Tests the RolePerms collections through the Cver Api
         GET /perms
         """
@@ -46,9 +46,9 @@ class TestApiPerms(TestApiBase):
         assert "total_objects" in response_json["info"]
         assert isinstance(response_json["info"]["total_objects"], int)
 
-        assert "object_type" in response_json["info"]
-        assert isinstance(response_json["info"]["object_type"], str)
-        assert response_json["info"]["object_type"] == URL_MODEL
+        assert "object_type" in response_json
+        assert isinstance(response_json["object_type"], str)
+        assert response_json["object_type"] == URL_MODEL
 
         assert "objects" in response_json
         assert isinstance(response_json["objects"], list)

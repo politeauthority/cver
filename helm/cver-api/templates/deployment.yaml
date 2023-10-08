@@ -47,12 +47,14 @@ spec:
             valueFrom:
               secretKeyRef:
                 key: mysql-password
-                name: cver-secrets-{{ .Values.app.envName }}
+                name: cver-api
           - name: CVER_SECRET
             valueFrom:
               secretKeyRef:
                 key: cver-secret-key
-                name: cver-secrets-{{ .Values.app.envName }}
+                name: cver-api
+          - name: CVER_DEPLOYED_AT
+            value: "{{ .Values.app.deployedAt }}"
           {{- if .Values.test.test }}
           - name: CVER_TEST_CLIENT_ID
             valueFrom:
@@ -74,12 +76,14 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          {{- if .Values.app.debug }}
+          {{- if not .Values.app.runApiOnStart }}
           command: ["tail", "-f", "/dev/null"]
           {{- end }}
           env:
             - name: CVER_ENV
               value: "{{ .Values.app.envName }}"
+            - name: CVER_LOG_LEVEL
+              value: "{{ .Values.app.logLevel }}"
             - name: CVER_DB_HOST
               value: "{{ .Values.app.dbHost }}"
             - name: CVER_DB_PORT
@@ -92,12 +96,12 @@ spec:
               valueFrom:
                 secretKeyRef:
                   key: mysql-password
-                  name: cver-secrets-{{ .Values.app.envName }}
+                  name: cver-api
             - name: CVER_SECRET_KEY
               valueFrom:
                 secretKeyRef:
                   key: cver-secret-key
-                  name: cver-secrets-{{ .Values.app.envName }}
+                  name: cver-api
             - name: CVER_JWT_EXPIRE_MINUTES
               value: "{{ .Values.app.jwtExpireMinutes }}"
             - name: CVER_LOG_HEALTH_CHECKS
@@ -108,7 +112,17 @@ spec:
                 secretKeyRef:
                   key: client-id
                   name: cver-test-creds
+            - name: CVER_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  key: client-id
+                  name: cver-test-creds
             - name: CVER_TEST_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: api-key
+                  name: cver-test-creds
+            - name: CVER_API_KEY
               valueFrom:
                 secretKeyRef:
                   key: api-key

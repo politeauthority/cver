@@ -5,7 +5,6 @@
 
 """
 import logging
-from logging.config import dictConfig
 
 from flask import Flask, jsonify, request
 from werkzeug.exceptions import HTTPException
@@ -13,6 +12,7 @@ from werkzeug.exceptions import HTTPException
 from cver.api.utils import db
 from cver.api.utils import glow
 from cver.api.utils import misc
+from cver.shared.utils.log_config import log_config
 
 from cver.api.controllers.ctrl_models.ctrl_api_key import ctrl_api_key
 from cver.api.controllers.ctrl_collections.ctrl_api_keys import ctrl_api_keys
@@ -40,31 +40,20 @@ from cver.api.controllers.ctrl_collections.ctrl_users import ctrl_users
 from cver.api.controllers.ctrl_models.ctrl_option import ctrl_option
 from cver.api.controllers.ctrl_collections.ctrl_options import ctrl_options
 from cver.api.controllers.ctrl_models.ctrl_scan import ctrl_scan
+from cver.api.controllers.ctrl_models.ctrl_scan_raw import ctrl_scan_raw
+from cver.api.controllers.ctrl_collections.ctrl_scan_raws import ctrl_scan_raws
 from cver.api.controllers.ctrl_collections.ctrl_scans import ctrl_scans
+from cver.api.controllers.ctrl_collections.ctrl_scanners import ctrl_scanners
 from cver.api.controllers.ctrl_models.ctrl_software import ctrl_software
 from cver.api.controllers.ctrl_collections.ctrl_softwares import ctrl_softwares
 from cver.api.controllers.ctrl_submit_scan import ctrl_submit_scan
 from cver.api.controllers.ctrl_ingest_k8s import ctrl_ingest_k8s
 
 
-dictConfig({
-    'version': 1,
-    'formatters': {'default': {
-        'format': '[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
-    }},
-    'handlers': {'wsgi': {
-        'class': 'logging.StreamHandler',
-        'stream': 'ext://flask.logging.wsgi_errors_stream',
-        'formatter': 'default'
-    }},
-    'root': {
-        'level': 'INFO',
-        'handlers': ['wsgi']
-    }
-})
-
+logging.config.dictConfig(log_config)
 logger = logging.getLogger(__name__)
 logger.propagate = True
+
 app = Flask(__name__)
 app.config.update(DEBUG=True)
 app.debugger = False
@@ -97,7 +86,10 @@ def register_blueprints(app: Flask) -> bool:
     app.register_blueprint(ctrl_option)
     app.register_blueprint(ctrl_options)
     app.register_blueprint(ctrl_scan)
+    app.register_blueprint(ctrl_scan_raw)
+    app.register_blueprint(ctrl_scan_raws)
     app.register_blueprint(ctrl_scans)
+    app.register_blueprint(ctrl_scanners)
     app.register_blueprint(ctrl_software)
     app.register_blueprint(ctrl_softwares)
     app.register_blueprint(ctrl_submit_scan)

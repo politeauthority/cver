@@ -1,6 +1,7 @@
 """
     Cver Api
-    Model - ImageBuild
+    Model
+    ImageBuild
 
 """
 from cver.shared.models.image_build import FIELD_MAP
@@ -19,5 +20,10 @@ class ImageBuild(BaseEntityMeta):
         self.createable = True
         self.setup()
 
+    def get_by_sha(self, sha: str = None) -> bool:
+        """Get an ImageBuild by it's sha."""
+        if sha:
+            self.sha = sha
+        return self.get_by_field("sha", self.sha)
 
-# End File: cver/src/shared/modles/image_build.py
+# End File: cver/src/api/modles/image_build.py

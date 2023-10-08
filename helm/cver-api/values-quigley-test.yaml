@@ -5,6 +5,7 @@ replicaCount: 1
 nameOverride: "test"
 
 app:
+  logLevel: "DEBUG"
   dbName: "cver_test"
   dbHost: "cver-mysql.cver.svc.cluster.local"
   dbUser: "cver"
@@ -15,9 +16,9 @@ test:
   test: true
 
 image:
-  repository: harbor.squid-ink.us/politeauthority/cver-api
+  repository: harbor.squid-ink.us/cver/cver-api
   pullPolicy: Always
-  tag: "0.0.1b"
+  tag: "dev-latest"
 
 imagePullSecrets:
   - name: harbor

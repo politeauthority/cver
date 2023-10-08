@@ -7,36 +7,48 @@ on:
     branches: ["main"]
 
 jobs:
-  api:
+  build-api:
     uses: ./.github/workflows/build-container-api.yaml
     secrets: inherit
     permissions:
       pull-requests: read
       contents: read
     with:
-      tag-prefix: "dev"
+      tag-prefix: "prod"
       tag-name: "${{ github.sha }}"
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
-  engine:
+  build-ingest:
+    uses: ./.github/workflows/build-container-ingest.yaml
+    secrets: inherit 
+    permissions:
+      pull-requests: read
+      contents: read
+    with:
+      tag-prefix: "prod"
+      tag-name: "${{ github.sha }}"
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
+
+  build-engine:
     uses: ./.github/workflows/build-container-engine.yaml
     secrets: inherit 
     permissions:
       pull-requests: read
       contents: read
     with:
-      tag-prefix: "dev"
+      tag-prefix: "prod"
       tag-name: "${{ github.sha }}"
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
-  deploy:
-    needs: api
+  deploy-api:
+    needs: build-api
     uses: ./.github/workflows/deploy-api.yaml
     secrets: inherit 
     with:
-      deployment-name: "test"
+      deployment-name: "prod"
       run-number: ${{ github.run_number }}
       tag-name: "${{ github.sha }}"
       cicd-version: "${{ vars.CICD_VERSION }}"

@@ -41,7 +41,7 @@ class TestApiModelCluster(TestApiBase):
         response = requests.request(**request_args)
         assert response.status_code == 404
 
-    def test__image_post_200(self):
+    def test__cluster_post_200(self):
         """ Test that we can create a new model.
         POST /cluster
         """
@@ -56,7 +56,7 @@ class TestApiModelCluster(TestApiBase):
         response = requests.request(**request_args)
         assert response.status_code == 201
 
-    def test__image_get_200(self):
+    def test__cluster_get_200(self):
         """Tests fetching a single model through the Cver Api from its name.
         GET /cluster
         """
@@ -75,9 +75,9 @@ class TestApiModelCluster(TestApiBase):
         response_json = response.json()
         assert response_json
 
-    def test__image_delete_200(self):
-        """Test Software DELETE
-        DELETE /image
+    def test__cluster_delete_200(self):
+        """Test cluster DELETE
+        DELETE /cluster
         """
         assert self.login()
         # Get the model
@@ -101,7 +101,7 @@ class TestApiModelCluster(TestApiBase):
         }
         response_delete = requests.request(**request_args)
 
-        assert response_delete.status_code == 202
+        assert 202 == response_delete.status_code
 
 
 # End File: cver/tests/regression/api/test_ctrl_cluster.py

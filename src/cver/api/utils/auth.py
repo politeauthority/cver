@@ -6,6 +6,7 @@
 import datetime
 from functools import wraps
 import logging
+import os
 import random
 
 from flask import make_response, request, jsonify
@@ -13,12 +14,12 @@ import jwt
 from jwt.exceptions import ExpiredSignatureError, InvalidSignatureError
 from werkzeug import security
 
+from cver.shared.utils import date_utils
 from cver.api.models.api_key import ApiKey
-from cver.api.utils import date_utils
 from cver.api.utils import rbac
 from cver.api.utils import glow
 
-SECRET_KEY = "my-secret-key"
+SECRET_KEY = os.environ.get("CVER_SECRET_KEY")
 
 
 def auth_request(f):

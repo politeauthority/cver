@@ -64,9 +64,9 @@ CREATE TABLE IF NOT EXISTS images (
     `created_ts` DATETIME,
     `updated_ts` DATETIME,
     `name` VARCHAR(200) NOT NULL,
-    `repository` VARCHAR(200) NOT NULL,
+    `registry` VARCHAR(200) NOT NULL,
     `maintained` TINYINT(1) DEFAULT True,
-    UNIQUE KEY `ux_repository_image` (`name`, `repository`)
+    UNIQUE KEY `ux_registry_image` (`name`, `registry`)
 );
 
 --- 
@@ -76,11 +76,11 @@ CREATE TABLE IF NOT EXISTS image_builds (
     `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
     `created_ts` DATETIME,
     `updated_ts` DATETIME,
-    `sha` VARCHAR(200),
-    `sha_imported` VARCHAR(200),
+    `sha` VARCHAR(200) UNIQUE,
+    `sha_imported` VARCHAR(200) UNIQUE,
     `image_id` INTEGER NOT NULL,
-    `repository` VARCHAR(200) NOT NULL,
-    `repository_imported` VARCHAR(200),
+    `registry` VARCHAR(200) NOT NULL,
+    `registry_imported` VARCHAR(200),
     `tags` TEXT,
     `os_family` VARCHAR(200),
     `os_name` VARCHAR(200),
@@ -102,8 +102,15 @@ CREATE TABLE IF NOT EXISTS image_build_waitings (
     `created_ts` DATETIME,
     `updated_ts` DATETIME,
     `image_id` INTEGER NOT NULL,
-    `tag` VARCHAR(200),
-    `waiting` TINYINT(1) DEFAULT True
+    `image_build_id` INTEGER,
+    `sha` VARCHAR(200) UNIQUE,
+    `tag` TEXT,
+    `waiting` TINYINT(1) DEFAULT True,
+    `waiting_for` VARCHAR(200),
+    `status` VARCHAR(200),
+    `status_ts` DATETIME,
+    `status_reason` VARCHAR(200),
+     UNIQUE image_id_build_tag (image_id, image_build_id)
 );
 
 --- 
@@ -122,14 +129,15 @@ CREATE TABLE IF NOT EXISTS options (
 );
 
 ---
---- Create orgs
+--- Create organizations
 ---
-CREATE TABLE IF NOT EXISTS orgs (
+CREATE TABLE IF NOT EXISTS organizations (
     `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
     `created_ts` DATETIME,
     `updated_ts` DATETIME,
     `name` VARCHAR(200) UNIQUE,
-    `maintained` TINYINT(1) DEFAULT True
+    `email` VARCHAR(200) UNIQUE,
+    `last_access` DATETIME
 );
 
 ---

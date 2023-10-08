@@ -1,6 +1,7 @@
 """
     Cver Api
-    Model - User
+    Model
+    User
 
 """
 from cver.shared.models.user import FIELD_MAP
@@ -45,4 +46,4 @@ class User(Base):
         self.build_from_list(raw)
         return True
 
-# End File: cver/src/api/modles/user.py
+# End File: cver/src/api/modles/organization.py

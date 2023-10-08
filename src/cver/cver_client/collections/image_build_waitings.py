@@ -1,6 +1,7 @@
 """
     Cver Client
-    Collections - ImageBuildWaitings
+    Collections
+    ImageBuildWaitings
 
 """
 
@@ -16,5 +17,12 @@ class ImageBuildWaitings(ClientCollectionsBase):
         self.field_map = FIELD_MAP
         self.model_name = "image-build-waiting"
         self.collection_name = "image-build-waitings"
+
+    def get_by_image_id(self, image_id: int, page: int = 1) -> list:
+        """Get a list of ImageBuildWaitings by an Image ID."""
+        payload = {
+            "image_id": image_id
+        }
+        return self.get(payload, page)
 
 # End File: cver/src/cver_client/collections/image_build_waitings.py

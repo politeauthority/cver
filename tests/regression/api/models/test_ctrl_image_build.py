@@ -17,7 +17,7 @@ URL_MODEL = "image-build"
 
 TEST_MODEL = {
     "sha": "07abf81daca242ae5bdedad7cd927d68c2510ab2",
-    "repository": "https://github.com/example/example",
+    "registry": "https://github.com/example/example",
     "image_id": 5,
     "tags": ["latest"]
 }

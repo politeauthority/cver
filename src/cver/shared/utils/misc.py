@@ -1,12 +1,16 @@
 """
     Cver Shared
-    Utils - Misc
+    Utils
+    Misc
     A bunch of misc tools to share between efforts.
 
 """
+import logging
 import json
 import re
 import pprint
+
+import tldextract
 
 
 def container_url(the_string: str):
@@ -14,14 +18,14 @@ def container_url(the_string: str):
     :unit-test: test__container_url
     """
     ret = {
-        "repository": _get_repository(the_string),
+        "registry": _get_registry(the_string),
         "image": None,
         "tag": _get_tag(the_string),
         "sha": _get_sha(the_string),
         "full": None,
         "og": the_string
     }
-    ret["image"] = _get_image(the_string, ret["repository"])
+    ret["image"] = _get_image(the_string, ret["registry"])
     ret["full"] = _get_full(ret)
     return ret
 
@@ -75,25 +79,17 @@ def _get_image(the_string: str, registry: str = None) -> str:
     return the_string
 
 
-def _get_repository(the_string: str) -> str:
-    """Get the repository from the container url.
-    :unit-test: test___get_repository
+def _get_registry(the_string: str) -> str:
+    """Get the registry from the container url.
+    :unit-test: test__get_registry
     """
-    default_repository = "docker.io"
-    repository = ""
-    num_slashes = the_string.count("/")
-    if num_slashes > 2:
-        print("error")
-        return False
-    # string looks like docker.io/calico/node:v3.20.2
-    elif num_slashes == 2:
-        first_slash = the_string.find("/")
-        pot_fqdn = the_string[:first_slash]
-        if is_fqdn(pot_fqdn):
-            repository = pot_fqdn
-    if not repository:
-        repository = default_repository
-    return repository
+    default_registry = "docker.io"
+    extracted = tldextract.extract(the_string)
+    if not extracted.suffix:
+        return default_registry
+    tld_len = len(extracted.suffix)
+    registry = the_string[:the_string.find(extracted.suffix) + tld_len]
+    return registry
 
 
 def _get_tag(the_string: str) -> str:
@@ -102,15 +98,18 @@ def _get_tag(the_string: str) -> str:
     """
     num_colons = the_string.count(":")
     if num_colons == 0:
-        return ""
+        logging.debug("Cant get tag from string: '%s' assuming 'latest'" % the_string)
+        return "latest"
     elif num_colons == 1:
         if "@" in the_string:
-            return ""
+            logging.debug("Cant get tag from string: '%s' assuming 'latest'" % the_string)
+            return "latest"
         tag_loc = the_string.find(":")
         tag = the_string[tag_loc + 1:]
     elif num_colons == 2:
         if "@" not in the_string:
-            raise AttributeError()
+            logging.debug("Cant get tag from string: '%s' assuming 'latest'" % the_string)
+            return "latest"
         tag_loc_first = the_string.find(":")
         tag_loc_last = the_string.find("@")
         tag = the_string[tag_loc_first + 1: tag_loc_last]
@@ -133,7 +132,7 @@ def _get_full(the_image_url: dict):
     """Get a full docker image url from its pieces.
     :unit-test: test__get_full
     """
-    the_url = the_image_url["repository"]
+    the_url = the_image_url["registry"]
     the_url += "/" + the_image_url["image"]
     if the_image_url["tag"] or the_image_url["sha"]:
         the_url += ":"

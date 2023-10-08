@@ -5,16 +5,18 @@
 replicaCount: 1
 
 app:
+  logLevel: "INFO"
   dbName: "cver"
   dbHost: "mysql"
   dbPort: 3306
   dbUser: "mysql-user"
   runMigrations: true
   jwtExpireMinutes: 60
-  debug: False
+  debug: false
   envName: "prod"
   deployedAt: "unknown"
   logHealthChecks: true
+  runApiOnStart: true
 
 image:
   repository: politeauthority/cver-api
