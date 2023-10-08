@@ -38,7 +38,6 @@ class Cver:
     def get_info(self):
         client = CverClient()
         print(client.info())
-        import ipdb; ipdb.set_trace()
 
     def get_image(self, image_id):
         """Get a single Image."""
