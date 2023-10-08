@@ -121,6 +121,7 @@ tasks:
     cmds:
       - |
         POD=$(kubectl get pods -n cver-dev  -l app.kubernetes.io/instance=cver-api-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
+        echo $POD
         kubectl cp -n cver-dev {{ .CVER_DIR }}/src/cver/ ${POD}:/app/ -c cver-api
         kubectl exec -n cver-dev -it ${POD} -c cver-api -- /bin/cver-build
       - echo "Copied and Built!"
@@ -205,32 +206,38 @@ tasks:
   dev-helm-api:
     cmds:
       - |
+        DEPLOYED_AT=$(date +"%Y-%m-%d %T")
         helm upgrade --install \
             cver-api-dev \
             helm/cver-api \
             --namespace=cver-dev \
             -f helm/cver-api/values.yaml \
-            -f helm/cver-api/values-quigley-dev.yaml
+            -f helm/cver-api/values-quigley-dev.yaml \
+            --set "app.deployedAt=${DEPLOYED_AT}"
 
   dev-helm-engine:
     cmds:
       - |
+        DEPLOYED_AT=$(date +"%Y-%m-%d %T")
         helm upgrade --install \
             cver-engine-dev \
             helm/cver-engine \
             --namespace=cver-dev \
             -f helm/cver-engine/values.yaml \
-            -f helm/cver-engine/values-quigley-dev.yaml
+            -f helm/cver-engine/values-quigley-dev.yaml \
+            --set "app.deployedAt=${DEPLOYED_AT}"
 
   dev-helm-ingest:
     cmds:
       - |
+        DEPLOYED_AT=$(date +"%Y-%m-%d %T")
         helm upgrade --install \
             cver-ingest-dev \
             helm/cver-ingest \
             --namespace=cver-dev \
             -f helm/cver-ingest/values.yaml \
-            -f helm/cver-ingest/values-quigley-dev.yaml
+            -f helm/cver-ingest/values-quigley-dev.yaml \
+            --set "app.deployedAt=${DEPLOYED_AT}"
 
   dev-logs-api:
     cmds:
