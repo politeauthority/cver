@@ -45,9 +45,9 @@ jobs:
             src:
               - 'docker/engine/**'
               - 'src/setup.py'
-              - 'src/shared/**'
-              - 'src/cver_client/**'
-              - 'src/engine/**'
+              - 'src/cver/shared/**'
+              - 'src/cver/cver_client/**'
+              - 'src/cver/engine/**'
               - 'tests/regression/engine/**'
 
       - name: Decider

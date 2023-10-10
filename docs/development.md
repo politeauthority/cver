@@ -24,6 +24,7 @@ drop table scans;
 drop table scan_raws;
 drop table scanners;
 drop table softwares;
+drop table tasks;
 drop table users;
 ```
 

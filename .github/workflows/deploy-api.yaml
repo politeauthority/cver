@@ -36,12 +36,10 @@ jobs:
           if [ "${{ inputs.deployment-name }}" = "test" ]; then
             RELEASE_NAME="cver-api-test-${{ inputs.run-number }}"
             DB_NAME="cver_${{ inputs.run-number }}"
-            IMAGE_TAG="dev-latest"
             NAMESPACE="cver-test"
           else
             RELEASE_NAME="cver-api-${{ inputs.deployment-name}}"
             DB_NAME="cver_${{ inputs.deployment-name}}"
-            IMAGE_TAG="${{ github.sha }}"
             NAMESPACE="cver-${{ inputs.deployment-name}}"
           fi
           mkdir ~/.kube
@@ -55,17 +53,9 @@ jobs:
             --namespace=${NAMESPACE} \
             --install \
             --wait \
-            --timeout=240s \
+            --timeout=300s \
             -f helm/cver-api/values-quigley-${{ inputs.deployment-name }}.yaml \
-            --set "image.tag=${IMAGE_TAG}" \
             --set "app.dbName=${DB_NAME}" \
             --set "app.deployedAt=${DEPLOYED_AT}"
-          # Removing this for now
-          # if [ "${{ inputs.deployment-name }}" != "test" ]; then
-          #   sleep 30
-          #   kubectl get deployments
-          #   kubectl rollout restart deployment/${RELEASE_NAME}
-          # fi
           echo "# Deployed: Api" >> $GITHUB_STEP_SUMMARY
           echo "Created Helm deployment: ${RELEASE_NAME}" >> $GITHUB_STEP_SUMMARY
-

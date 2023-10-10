@@ -56,8 +56,10 @@ def authenticate():
 
     user = User()
     user.get_by_id(authed_event["user_id"])
-    glow.user = user
-    auth.record_last_access(authed_event["api_key"])
+    glow.user["user_id"] = user.id
+    glow.user["org_id"] = user.org_id
+    glow.user["role_id"] = user.role_id
+    auth.record_last_access(user, authed_event["api_key"])
 
     # Mint the JWT
     data["token"] = auth.mint_jwt()
@@ -78,7 +80,9 @@ def info():
         "build": glow.general["CVER_BUILD"],
         "build_short": glow.general["CVER_BUILD_SHORT"],
         "migration": CURRENT_MIGRATION,
-        "model_totals": model_totals
+        "tasks": {},
+        "model_totals": model_totals,
+        "deployed_at": glow.general["CVER_DEPLOYED_AT"]
     }
     return jsonify(data)
 

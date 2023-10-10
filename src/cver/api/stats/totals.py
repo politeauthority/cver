@@ -18,6 +18,7 @@ from cver.api.collects.users import Users
 from cver.api.collects.scans import Scans
 from cver.api.collects.scanners import Scanners
 from cver.api.collects.softwares import Softwares
+from cver.api.collects.tasks import Tasks
 
 
 def get_model_totals():
@@ -38,6 +39,7 @@ def get_model_totals():
         "scans": Scans().get_count_total(),
         "scan_raw": Scans().get_count_total(),
         "scanners": Scanners().get_count_total(),
+        "tasks": Tasks().get_count_total()
     }
     return ret
 

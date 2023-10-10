@@ -167,6 +167,16 @@ ACL = {
     "/ingest-k8s": {
         "POST": ["write-all", "write-scan"],
     },
+    "/task": {
+        "GET": ["read-all"],
+        "POST": ["write-all"],
+        "DELETE": ["write-all"],
+    },
+    "/tasks": {
+        "GET": ["read-all"],
+        "POST": ["write-all"],
+        "DELETE": ["write-all"],
+    },
     "/user": {
         "GET": ["read-all"],
         "POST": ["write-all"],

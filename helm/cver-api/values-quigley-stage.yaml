@@ -12,6 +12,7 @@ app:
   runMigrations: true
   envName: "stage"
   logHealthChecks: false
+  jwtExpireMinutes: 1440
 
 test:
   test: true
