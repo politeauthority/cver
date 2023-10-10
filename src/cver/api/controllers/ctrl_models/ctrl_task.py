@@ -10,6 +10,7 @@ from flask import Blueprint, jsonify, Response
 from cver.api.controllers.ctrl_models import ctrl_base
 from cver.api.models.task import Task
 from cver.api.utils import auth
+from cver.api.utils import glow
 
 ctrl_task = Blueprint('task', __name__, url_prefix='/task')
 
@@ -36,7 +37,11 @@ def post_model(task_id: int = None):
     """POST operation for a Task model.
     POST /task
     """
-    return ctrl_base.post_model(Task, task_id)
+    generated_data = {
+        "user_id": glow.user["user_id"],
+        "org_id": glow.user["user_id"],
+    }
+    return ctrl_base.post_model(Task, task_id, generated_data=generated_data)
 
 
 # End File: cve/src/api/controllers/ctrl_modles/ctrl_task.py

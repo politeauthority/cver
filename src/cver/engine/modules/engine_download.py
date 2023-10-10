@@ -16,6 +16,7 @@ from cver.cver_client.models.image_build import ImageBuild
 from cver.cver_client.collections.image_build_waitings import ImageBuildWaitings
 from cver.cver_client.models.option import Option
 from cver.cver_client.models.image_build_waiting import ImageBuildWaiting
+from cver.cver_client.models.task import Task
 
 
 class EngineDownload:
@@ -35,9 +36,15 @@ class EngineDownload:
     def run(self):
         logging.info("Running Engine Download")
         self.get_configs()
+        self.start_task()
         self.handle_downloads()
         logging.info("Download process complete!")
         return True
+
+    def start_task(self):
+        """Start the task by creating a task on the Cver Api and getting the Task ID."""
+        task = Task()
+        task.name = "engine-download"
 
     def handle_downloads(self):
         ibws = self.get_image_build_waitings()
@@ -48,24 +55,43 @@ class EngineDownload:
             return True
 
         for ibw in ibws:
-            self.ibws_processed += 1
-            logging.info("Starting ImageBuild %s waiting. Processing: %s" % (
-                self.ibws_processed,
-                ibw
-            ))
-            downloaded = self.run_download(ibw)
-            if not downloaded:
-                logging.warning("Did not complete download for: %s" % ibw)
-                continue
-            self.downloaded += 1
+            self.handle_single_download(ibw)
             if self.downloaded >= self.download_limit:
                 logging.info("Completed %s of %s downloads" % (
                     self.downloaded,
                     self.download_limit))
                 break
+
         if self.downloaded < self.download_limit:
             self.handle_downloads()
         return True
+
+    def handle_single_download(self, ibw):
+        task = Task()
+        task.name = "engine-download"
+        task.image_id = ibw.image_id
+        task.image_build_id = ibw.image_build_id
+        task.image_build_waiting_id = ibw.id
+        task.start_ts = date_utils.now()
+        task.status = True
+        task.status_reason = "downloading"
+        task.save()
+        self.ibws_processed += 1
+        logging.info("Starting ImageBuild %s waiting. Processing: %s" % (
+            self.ibws_processed,
+            ibw
+        ))
+        downloaded = self.run_download(ibw, task)
+        if not downloaded:
+            task.status = False
+            task.status_reason = "failed to download: unknown error"
+            task.end_ts = date_utils.json_date_out()
+            task.save()
+            logging.warning("Did not complete download for: %s" % ibw)
+            return False
+        task.status = "success"
+        task.end_ts = date_utils.now()
+        self.downloaded += 1
 
     def get_configs(self):
         """Get the registry URL and the pull through locations for registries."""
@@ -78,8 +104,12 @@ class EngineDownload:
         self.pull_thru_registries["docker.io"] = reg_pull_thru_docker.value
         return True
 
-    def run_download(self, ibw: ImageBuildWaiting):
+    def run_download(self, ibw: ImageBuildWaiting, task: Task) -> bool:
         if ibw.status == "Failed":
+            task.status = False
+            task.status_reason = "failed to download"
+            task.end_ts = date_utils.json_date_out()
+            task.save()
             logging.warning("Skipping: %s, image has already experienced download failures")
             return False
         logging.info("Starting downloaded process %s of %s" % (
@@ -87,6 +117,10 @@ class EngineDownload:
             self.download_limit))
         image = Image()
         if not image.get_by_id(ibw.image_id):
+            task.status = False
+            task.status_reason = "failed to download"
+            task.end_ts = date_utils.json_date_out()
+            task.save()
             logging.error("Cannot find Image by ID: %s" % ibw.image_id)
             return False
         logging.info("Working on: %s" % image)
@@ -96,6 +130,10 @@ class EngineDownload:
                 image,
                 image.registry
             ))
+            task.status = False
+            task.status_reason = "failed to download"
+            task.end_ts = date_utils.json_date_out()
+            task.save()
             return False
 
         image_loc = self._get_docker_pull_url(image, ibw)
@@ -108,6 +146,10 @@ class EngineDownload:
             ibw.status = "Failed"
             ibw.status_ts = date_utils.json_date_now()
             ibw.status_reason = "Failed download"
+            task.status = False
+            task.status_reason = "failed to download"
+            task.end_ts = date_utils.now()
+            task.save()
             if ibw.save():
                 logging.info("Saved ibw failed download status")
             else:
