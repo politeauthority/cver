@@ -33,7 +33,7 @@ jobs:
             CRON_JOB="cver-ingest-test-${{ inputs.run-number }}"
             NAMESPACE="cver-test"
           else
-            CRON_JOB="cver-ingest-stage"
+            CRON_JOB="cver-ingest-stage-${{ inputs.run-number }}"
             NAMESPACE="cver-stage"
           fi
           mkdir ~/.kube
