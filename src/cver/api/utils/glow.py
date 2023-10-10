@@ -52,12 +52,17 @@ else:
 
 # Store Current User Info
 global user
-user = None
+user = {
+    "user_id": None,
+    "org_id": None,
+    "role_id": None,
+    "role_perms": None,
+}
 
 global session
 session = {
     "uuid": None,
-    "short-id": None
+    "short-id": None,
 }
 
 

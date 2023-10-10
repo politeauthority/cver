@@ -16,6 +16,7 @@ from werkzeug import security
 
 from cver.shared.utils import date_utils
 from cver.api.models.api_key import ApiKey
+from cver.api.models.user import User
 from cver.api.utils import rbac
 from cver.api.utils import glow
 
@@ -25,6 +26,7 @@ SECRET_KEY = os.environ.get("CVER_SECRET_KEY")
 def auth_request(f):
     """Authentication decorator, which gates HTTP routes. This method used to validate user access
     via a JWT.
+    @todo: Harden this method, checking for jwt values.
     """
     @wraps(f)
     def decorator(*args, **kwargs):
@@ -40,6 +42,9 @@ def auth_request(f):
         if jwt_value:
             # User has valid JWT
             logging.info("Authenticated User")
+            glow.user["user_id"] = jwt_value["user_id"]
+            glow.user["org_id"] = jwt_value["org_id"]
+            glow.user["role_perms"] = jwt_value["role_perms"]
             # Check if user has access to this resource
             if "role_perms" not in jwt_value:
                 data["message"] = "Invalid token"
@@ -80,18 +85,21 @@ def validate_jwt(token: str) -> dict:
 
 
 def mint_jwt():
-    """Mint a JWT token for a User with the given expiration time."""
+    """Mint a JWT token for a User with the given expiration time.
+    @todo: Harden this with more failure scenarios around shitty input data.
+    """
     if not glow.user:
         data = {
             "status": "Error",
             "message": "Couldnt find user"
         }
         return make_response(jsonify(data), 503)
-    role_perms = rbac.get_perms_by_role_id(glow.user.role_id)
+    role_perms = rbac.get_perms_by_role_id(glow.user["role_id"])
     expiration_minutes = int(glow.general["CVER_JWT_EXPIRE_MINUTES"])
     payload = {
-        "user_id": glow.user.id,
+        "user_id": glow.user["user_id"],
         "role_perms": role_perms,
+        "org_id": glow.user["org_id"],
         "iat": datetime.datetime.utcnow(),
         "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=expiration_minutes)
     }
@@ -103,7 +111,8 @@ def mint_jwt():
     return jwt_token
 
 
-def record_last_access(api_key: str) -> bool:
+def record_last_access(user: User, api_key: ApiKey) -> bool:
+    """Records the User and ApiKey's last access."""
     if not glow.user:
         data = {
             "status": "Error",
@@ -112,8 +121,8 @@ def record_last_access(api_key: str) -> bool:
         return make_response(jsonify(data), 503)
     logging.info("Recording User/ApiKey last access")
 
-    glow.user.last_access = date_utils.now()
-    glow.user.save()
+    user.last_access = date_utils.now()
+    user.save()
 
     api_key.last_access = date_utils.now()
     logging.debug("Updating apikey last access.")

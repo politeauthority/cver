@@ -15,6 +15,7 @@ from cver.cver_client.models.image import Image
 from cver.cver_client.models.image_build import ImageBuild
 from cver.cver_client.models.image_build_waiting import ImageBuildWaiting
 from cver.cver_client.collections.scans import Scans
+from cver.cver_client import CverClient
 
 logging.config.dictConfig(log_config)
 logger = logging.getLogger(__name__)
@@ -23,14 +24,20 @@ logger.propagate = True
 
 class Cver:
 
-    def run(self, verb, noun, entity_id: int):
+    def run(self, verb, noun, entity_id: int = None):
 
+        if noun == "info":
+            self.get_info()
         if noun == "image":
             self.get_image(entity_id)
         elif noun in ["ib", "image-build"]:
             self.get_image_buld(entity_id)
         elif noun in ["ibw", "image-build-waiting"]:
             self.get_image_buld_waiting(entity_id)
+
+    def get_info(self):
+        client = CverClient()
+        print(client.info())
 
     def get_image(self, image_id):
         """Get a single Image."""
@@ -133,6 +140,11 @@ class Cver:
 
 
 if __name__ == "__main__":
-    Cver().run(sys.argv[1], sys.argv[2], sys.argv[3])
+    verb = sys.argv[1]
+    noun = sys.argv[2]
+    entity_id = None
+    if len(sys.argv) > 3:
+        entity_id = sys.argv[3]
+    Cver().run(verb, noun, entity_id)
 
 # End File: cver/src/cver/cli/__init__.py
