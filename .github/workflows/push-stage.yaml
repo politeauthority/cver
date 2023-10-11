@@ -4,7 +4,7 @@ name: Push Stage
 
 on:
   push:
-    branches: ["stage"]
+    branches: ["stage", "cver-test"]
 
 concurrency:
   group: "staging"
@@ -67,6 +67,19 @@ jobs:
       tag-name: "${{ github.sha }}"
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
+
+    build-test:
+      uses: ./.github/workflows/build-container-test.yaml
+      secrets: inherit 
+      permissions:
+        pull-requests: read
+        contents: read
+      with:
+        tag-prefix: "stage"
+        tag-name: "${{ github.sha }}"
+        cicd-version: "${{ vars.CICD_VERSION }}"
+        harbor-user: "${{ vars.HARBOR_USER }}"
+
 
   deploy-api:
     needs: [build-api]

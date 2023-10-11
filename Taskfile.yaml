@@ -61,6 +61,23 @@ tasks:
       - echo "Completed build cver/cver-engine"
     silent: false
 
+  build-test:
+    cmds:
+      - |
+        cp src/requirements.txt docker/test/requirements-src.txt
+        cp tests/requirements.txt docker/test/requirements-test.txt
+        echo "Building Target: ${TARGET}"
+        docker build \
+          -t cver/cver-api:${CVER_API_TAG} \
+          --build-arg CVER_BUILD="${CVER_API_TAG}" \
+          --build-arg DOCKER_REGISTRY="harbor.squid-ink.us/cver-docker-hub" \
+          --target ${TARGET} \
+          {{.CVER_DIR}}/docker/api
+      - rm -rf {{.CVER_DIR}}/docker/api/src
+      - rm -rf {{.CVER_DIR}}/docker/api/tests
+      - echo "Completed build cver/cver-api"
+    silent: false
+
   build-ingest:
     cmds:
       - cp -r {{.CVER_DIR}}/src {{.CVER_DIR}}/docker/ingest/
