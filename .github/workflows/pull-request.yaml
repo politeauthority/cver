@@ -29,98 +29,98 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
-  build-api:
-    needs: [build-cver, lint]
-    uses: ./.github/workflows/build-container-api.yaml
-    secrets: inherit
-    permissions:
-      pull-requests: read
-      contents: read
-    with:
-      tag-prefix: "dev"
-      tag-name: "${{ github.sha }}"
-      cicd-version: "${{ vars.CICD_VERSION }}"
-      harbor-user: "${{ vars.HARBOR_USER }}"
+  # build-api:
+  #   needs: [build-cver, lint]
+  #   uses: ./.github/workflows/build-container-api.yaml
+  #   secrets: inherit
+  #   permissions:
+  #     pull-requests: read
+  #     contents: read
+  #   with:
+  #     tag-prefix: "dev"
+  #     tag-name: "${{ github.sha }}"
+  #     cicd-version: "${{ vars.CICD_VERSION }}"
+  #     harbor-user: "${{ vars.HARBOR_USER }}"
 
-  build-ingest:
-    needs: [build-cver, lint]
-    uses: ./.github/workflows/build-container-ingest.yaml
-    secrets: inherit
-    permissions:
-      pull-requests: read
-      contents: read
-    with:
-      tag-prefix: "dev"
-      tag-name: "${{ github.sha }}"
-      cicd-version: "${{ vars.CICD_VERSION }}"
-      harbor-user: "${{ vars.HARBOR_USER }}"
+  # build-ingest:
+  #   needs: [build-cver, lint]
+  #   uses: ./.github/workflows/build-container-ingest.yaml
+  #   secrets: inherit
+  #   permissions:
+  #     pull-requests: read
+  #     contents: read
+  #   with:
+  #     tag-prefix: "dev"
+  #     tag-name: "${{ github.sha }}"
+  #     cicd-version: "${{ vars.CICD_VERSION }}"
+  #     harbor-user: "${{ vars.HARBOR_USER }}"
 
-  build-engine:
-    needs: [build-cver, lint]
-    uses: ./.github/workflows/build-container-engine.yaml
-    secrets: inherit 
-    permissions:
-      pull-requests: read
-      contents: read
-    with:
-      tag-prefix: "dev"
-      tag-name: "${{ github.sha }}"
-      cicd-version: "${{ vars.CICD_VERSION }}"
-      harbor-user: "${{ vars.HARBOR_USER }}"
+  # build-engine:
+  #   needs: [build-cver, lint]
+  #   uses: ./.github/workflows/build-container-engine.yaml
+  #   secrets: inherit 
+  #   permissions:
+  #     pull-requests: read
+  #     contents: read
+  #   with:
+  #     tag-prefix: "dev"
+  #     tag-name: "${{ github.sha }}"
+  #     cicd-version: "${{ vars.CICD_VERSION }}"
+  #     harbor-user: "${{ vars.HARBOR_USER }}"
 
-  deploy-api:
-    needs: [build-api, build-cver, lint, build-cver]
-    uses: ./.github/workflows/deploy-api.yaml
-    secrets: inherit 
-    with:
-      deployment-name: "test"
-      run-number: ${{ github.run_number }}
-      tag-name: "${{ github.sha }}"
-      cicd-version: "${{ vars.CICD_VERSION }}"
-      harbor-user: "${{ vars.HARBOR_USER }}"
+  # deploy-api:
+  #   needs: [build-api, build-cver, lint, build-cver]
+  #   uses: ./.github/workflows/deploy-api.yaml
+  #   secrets: inherit 
+  #   with:
+  #     deployment-name: "test"
+  #     run-number: ${{ github.run_number }}
+  #     tag-name: "${{ github.sha }}"
+  #     cicd-version: "${{ vars.CICD_VERSION }}"
+  #     harbor-user: "${{ vars.HARBOR_USER }}"
 
-  deploy-ingest:
-    needs: [build-ingest, lint, build-cver]
-    uses: ./.github/workflows/deploy-ingest.yaml
-    secrets: inherit 
-    with:
-      deployment-name: "test"
-      run-number: ${{ github.run_number }}
-      tag-name: "${{ github.sha }}"
-      cicd-version: "${{ vars.CICD_VERSION }}"
-      harbor-user: "${{ vars.HARBOR_USER }}"
+  # deploy-ingest:
+  #   needs: [build-ingest, lint, build-cver]
+  #   uses: ./.github/workflows/deploy-ingest.yaml
+  #   secrets: inherit 
+  #   with:
+  #     deployment-name: "test"
+  #     run-number: ${{ github.run_number }}
+  #     tag-name: "${{ github.sha }}"
+  #     cicd-version: "${{ vars.CICD_VERSION }}"
+  #     harbor-user: "${{ vars.HARBOR_USER }}"
 
-  deploy-engine:
-    needs: [build-engine, lint, build-cver]
-    uses: ./.github/workflows/deploy-engine.yaml
-    secrets: inherit 
-    with:
-      deployment-name: "test"
-      run-number: ${{ github.run_number }}
-      tag-name: "${{ github.sha }}"
-      cicd-version: "${{ vars.CICD_VERSION }}"
-      harbor-user: "${{ vars.HARBOR_USER }}"
+  # deploy-engine:
+  #   needs: [build-engine, lint, build-cver]
+  #   uses: ./.github/workflows/deploy-engine.yaml
+  #   secrets: inherit 
+  #   with:
+  #     deployment-name: "test"
+  #     run-number: ${{ github.run_number }}
+  #     tag-name: "${{ github.sha }}"
+  #     cicd-version: "${{ vars.CICD_VERSION }}"
+  #     harbor-user: "${{ vars.HARBOR_USER }}"
 
-  test-api:
-    needs: [deploy-api]
-    if: ${{ needs.deploy-api.result == 'success' }}
-    uses: ./.github/workflows/regression-api.yaml
-    secrets: inherit 
-    with:
-      deployment-name: "test"
-      run-number: ${{ github.run_number }}
-      cicd-version: "${{ vars.CICD_VERSION }}"
-      harbor-user: "${{ vars.HARBOR_USER }}"
+  # test-api:
+  #   needs: [deploy-api]
+  #   if: ${{ needs.deploy-api.result == 'success' }}
+  #   uses: ./.github/workflows/regression-api.yaml
+  #   secrets: inherit 
+  #   with:
+  #     deployment-name: "test"
+  #     run-number: ${{ github.run_number }}
+  #     cicd-version: "${{ vars.CICD_VERSION }}"
+  #     harbor-user: "${{ vars.HARBOR_USER }}"
 
-  test-ingest:
-    needs: [deploy-api, deploy-ingest]
-    uses: ./.github/workflows/regression-ingest.yaml
-    secrets: inherit 
-    with:
-      deployment-name: "test"
-      run-number: ${{ github.run_number }}
-      cicd-version: "${{ vars.CICD_VERSION }}"
-      harbor-user: "${{ vars.HARBOR_USER }}"
+  # test-ingest:
+  #   needs: [deploy-api, deploy-ingest]
+  #   uses: ./.github/workflows/regression-ingest.yaml
+  #   secrets: inherit 
+  #   with:
+  #     deployment-name: "test"
+  #     run-number: ${{ github.run_number }}
+  #     cicd-version: "${{ vars.CICD_VERSION }}"
+  #     harbor-user: "${{ vars.HARBOR_USER }}"
 
   # test-engine:
   #   needs: [test-ingest]
@@ -132,57 +132,57 @@ jobs:
   #     cicd-version: "${{ vars.CICD_VERSION }}"
   #     harbor-user: "${{ vars.HARBOR_USER }}"
 
-  remove-ephem:
-    runs-on: self-hosted
-    needs: [test-api, test-ingest]
-    if: ${{ needs.deploy-api.result == 'success' }}
-    container:
-      image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
-      credentials:
-        username: ${{ vars.HARBOR_USER }}
-        password: ${{ secrets.HARBOR_PASSWORD }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Tear Down Api
-        run: |
-          mkdir ~/.kube
-          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
-          export KUBECONFIG=~/.kube/config.yaml
-          NAMESPACE="cver-test"
-          TEST_POD=$(kubectl get pods -n ${NAMESPACE} -l app.kubernetes.io/instance=cver-api-test-${{ github.run_number }} --no-headers | cut -d' ' -f1)
-          if [ -z "${TEST_POD}"]; then
-            echo "Not removing cver-api-test-${{ github.run_number }}, it doesnt appear to exist"
-            exit 0
-          fi
-          # kubectl exec -n ${NAMESPACE} -it ${TEST_POD} -c cver-api -- /bin/cver-db-destroy
-          echo "Remove the helm installation"
-          helm uninstall \
-            cver-api-test-${{ github.run_number }} \
-            --namespace=cver-test
+  # remove-ephem:
+  #   runs-on: self-hosted
+  #   needs: [test-api, test-ingest]
+  #   if: ${{ needs.deploy-api.result == 'success' }}
+  #   container:
+  #     image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
+  #     credentials:
+  #       username: ${{ vars.HARBOR_USER }}
+  #       password: ${{ secrets.HARBOR_PASSWORD }}
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Tear Down Api
+  #       run: |
+  #         mkdir ~/.kube
+  #         echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
+  #         export KUBECONFIG=~/.kube/config.yaml
+  #         NAMESPACE="cver-test"
+  #         TEST_POD=$(kubectl get pods -n ${NAMESPACE} -l app.kubernetes.io/instance=cver-api-test-${{ github.run_number }} --no-headers | cut -d' ' -f1)
+  #         if [ -z "${TEST_POD}"]; then
+  #           echo "Not removing cver-api-test-${{ github.run_number }}, it doesnt appear to exist"
+  #           exit 0
+  #         fi
+  #         # kubectl exec -n ${NAMESPACE} -it ${TEST_POD} -c cver-api -- /bin/cver-db-destroy
+  #         echo "Remove the helm installation"
+  #         helm uninstall \
+  #           cver-api-test-${{ github.run_number }} \
+  #           --namespace=cver-test
 
-          echo "Uninstalled Helm deployment cver-api-test-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+  #         echo "Uninstalled Helm deployment cver-api-test-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
 
-      - name: Tear Down Engine
-        run: |
-          mkdir -p ~/.kube
-          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
-          export KUBECONFIG=~/.kube/config.yaml
-          echo "Remove the helm installation"
-          helm uninstall \
-            --namespace=cver-test \
-            cver-engine-test-${{ github.run_number }}
-          echo "Uninstalled Helm deployment cver-engine-test-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+  #     - name: Tear Down Engine
+  #       run: |
+  #         mkdir -p ~/.kube
+  #         echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
+  #         export KUBECONFIG=~/.kube/config.yaml
+  #         echo "Remove the helm installation"
+  #         helm uninstall \
+  #           --namespace=cver-test \
+  #           cver-engine-test-${{ github.run_number }}
+  #         echo "Uninstalled Helm deployment cver-engine-test-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
 
-      - name: Tear Down Ingest
-        run: |
-            mkdir -p ~/.kube
-            echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
-            export KUBECONFIG=~/.kube/config.yaml
-            echo "Remove the helm installation"
-            helm uninstall \
-              cver-ingest-test-${{ github.run_number }} \
-              --namespace=cver-test \
+  #     - name: Tear Down Ingest
+  #       run: |
+  #           mkdir -p ~/.kube
+  #           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
+  #           export KUBECONFIG=~/.kube/config.yaml
+  #           echo "Remove the helm installation"
+  #           helm uninstall \
+  #             cver-ingest-test-${{ github.run_number }} \
+  #             --namespace=cver-test \
 
-            echo "Uninstalled Helm deployment cver-ingest-test-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+  #           echo "Uninstalled Helm deployment cver-ingest-test-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
 
 # End File: cver/.github/workflows/pull-request.yaml

@@ -33,7 +33,7 @@ jobs:
         id: changes
         with:
             token: ${{ secrets.PAT }}
-            filters: |
+            filters: |s
               helm:
                 - 'helm/**'
       - name: Decider
@@ -59,4 +59,10 @@ jobs:
         run: |
           helm lint ./helm/cver-ingest
     
+      - name: Lint Helm - Cver-Ingest
+        if: steps.changes.outputs.helm == 'true'
+        run: |
+          helm lint ./helm/cver-test
+      
+      
   
