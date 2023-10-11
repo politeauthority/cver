@@ -732,4 +732,16 @@ class TestApiModelBase:
         }
         assert base._is_model_json()
 
+    def test____get_datetime(self):
+        """
+        :method: Base()._get_date_time
+        """
+        base = Base()
+        longtime = "2023-10-11 14:21:14 +00:00"
+        assert isinstance(base._get_date_time(longtime), datetime)
+        short_time = "2023-10-11 14:21:14"
+        assert isinstance(base._get_date_time(short_time), datetime)
+        assert not base._get_date_time("nothing")
+
+
 # End File: cver/tests/unit/api/models/test_base.py
