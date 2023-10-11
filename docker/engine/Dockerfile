@@ -35,6 +35,7 @@ WORKDIR /app/cver
 
 ADD src/ /app
 ADD scripts/entrypoint.sh /entrypoint.sh
+ADD scripts/cver-build /bin/cver-build
 
 # Install Cver
 RUN pip install --upgrade pip --break-system-packages
