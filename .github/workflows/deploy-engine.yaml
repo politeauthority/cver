@@ -49,7 +49,7 @@ jobs:
             --namespace=${NAMESPACE} \
             --install \
             --wait \
-            --timeout=240s \
+            --timeout=300s \
             -f helm/cver-engine/values-quigley-${{ inputs.deployment-name }}.yaml \
             --set "app.dbName=${DB_NAME}" \
             --set "app.deployedAt=${DEPLOYED_AT}"

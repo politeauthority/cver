@@ -85,7 +85,7 @@ class EngineDownload:
         if not downloaded:
             task.status = False
             task.status_reason = "failed to download: unknown error"
-            task.end_ts = date_utils.json_date_out()
+            task.end_ts = date_utils.json_date_now()
             task.save()
             logging.warning("Did not complete download for: %s" % ibw)
             return False
@@ -108,7 +108,7 @@ class EngineDownload:
         if ibw.status == "Failed":
             task.status = False
             task.status_reason = "failed to download"
-            task.end_ts = date_utils.json_date_out()
+            task.end_ts = date_utils.json_date_now()
             task.save()
             logging.warning("Skipping: %s, image has already experienced download failures")
             return False
@@ -119,7 +119,7 @@ class EngineDownload:
         if not image.get_by_id(ibw.image_id):
             task.status = False
             task.status_reason = "failed to download"
-            task.end_ts = date_utils.json_date_out()
+            task.end_ts = date_utils.json_date_now()
             task.save()
             logging.error("Cannot find Image by ID: %s" % ibw.image_id)
             return False
@@ -132,7 +132,7 @@ class EngineDownload:
             ))
             task.status = False
             task.status_reason = "failed to download"
-            task.end_ts = date_utils.json_date_out()
+            task.end_ts = date_utils.json_date_now()
             task.save()
             return False
 

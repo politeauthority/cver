@@ -44,13 +44,6 @@ tasks:
         if [ -z ${CVER_ENGINE_TAG} ]; then
           CVER_ENGINE_TAG="dev"
         fi
-        CLI_ARGS="{{ .CLI_ARGS }}"
-        if [ -z ${CLI_ARGS} ]; then
-          TARGET="tests"
-        else
-          TARGET=$CLI_ARGS
-        fi
-        echo "Building Target: ${TARGET}"
         docker build \
           -t cver/cver-engine:${CVER_ENGINE_TAG} \
           --build-arg CVER_BUILD="${CVER_ENGINE_TAG}" \

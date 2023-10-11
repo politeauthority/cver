@@ -3,11 +3,11 @@ kind: CronJob
 metadata:
   name: {{ include "cver-engine.fullname" . }}
 spec:
-  schedule: "{{ .Values.app.schedule }}"
+  schedule: "{{ .Values.app.cron.schedule }}"
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 2
   failedJobsHistoryLimit: 2
-  suspend: {{ .Values.app.suspendCron }}
+  suspend: {{ .Values.app.cron.suspend }}
   jobTemplate:
     spec:
       template:

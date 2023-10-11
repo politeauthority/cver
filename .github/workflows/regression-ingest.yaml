@@ -41,7 +41,7 @@ jobs:
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
           export KUBECONFIG=~/.kube/config.yaml
-          echo "Creating job: ${CRON_JOB}"
+          echo "Creating job: ${CRON_JOB}/${JOB_NAME}"
           kubectl create job -n ${NAMESPACE} --from=cronjob/${CRON_JOB} ${JOB_NAME}
           elapsed_time=0
           # Loop until the elapsed time reaches 300 seconds

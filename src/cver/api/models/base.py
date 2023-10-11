@@ -8,7 +8,7 @@ The Base Model SQL driver can work with both SQLite3 and MySQL database.
 
 Testing:
     Unit test file  cver/tests/unit/api/models/test_base.py
-    Unit tested     37/45
+    Unit tested     38/46
 
 """
 from datetime import datetime
@@ -16,7 +16,7 @@ import json
 import logging
 
 import arrow
-from pymysql.err import ProgrammingError
+from pymysql.err import ProgrammingError, IntegrityError
 
 from cver.shared.utils import xlate
 from cver.shared.utils import date_utils
@@ -106,7 +106,11 @@ class Base:
             logging.error("Save failed, missing %s.id or where list" % __class__.__name_)
             raise AttributeError("Save failed, missing %s.id or where list" % __class__.__name_)
         update_sql = self._gen_update_sql(["id", "created_ts"])
-        self.cursor.execute(update_sql)
+        try:
+            self.cursor.execute(update_sql)
+        except IntegrityError as e:
+            logging.error("Mysql Integrity Error for %s: %s" % (self, e))
+            return False
         self.conn.commit()
         return True
 
@@ -759,7 +763,7 @@ class Base:
                 setattr(
                     self,
                     class_var_name,
-                    arrow.get(class_var_value).datetime)
+                    self._get_datetime(class_var_value))
                 continue
 
     def _generate_create_table_feilds(self) -> str:
@@ -854,5 +858,38 @@ class Base:
             if field_info["type"] == "json":
                 return True
         return False
+
+    def _get_date_time(self, date_string: str) -> datetime:
+        """Attempt to get a Python native datetime from a date string.
+        :unit-test: TestApiModelBase:test____get_datetime
+        """
+        if len(date_string) == 26:
+            try:
+                parse_format = "YYYY-MM-DD HH:mm:ss ZZ"
+                parsed_date = arrow.get(date_string, parse_format)
+                return parsed_date.datetime
+            except arrow.parser.ParserMatchError:
+                logging.error("Couldnt parse date str: %s with with format: %s" % (
+                    date_string,
+                    parse_format))
+        elif len(date_string) == 19:
+            try:
+                parse_format = "YYYY-MM-DD HH:mm:ss"
+                parsed_date = arrow.get(date_string, parse_format)
+                return parsed_date.datetime
+            except arrow.parser.ParserMatchError:
+                logging.error("Couldnt parse date str: %s with format: %s " % (
+                    date_string,
+                    parse_format))
+        else:
+            try:
+                parsed_date = arrow.get(date_string)
+                return parsed_date.datetime
+            except arrow.parser.ParserMatchError:
+                logging.error("Couldnt parse date str: %s" % date_string)
+                return None
+            except arrow.parser.ParserError:
+                logging.error("Couldnt parse date str: %s" % date_string)
+                return None
 
 # End File: cver/src/cver/api/models/base.py
