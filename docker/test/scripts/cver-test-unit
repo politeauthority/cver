@@ -1,0 +1,25 @@
+#!/bin/sh -l
+# Cver Test - Unit
+set -e
+echo "Cver Test Suite Starting"
+mkdir /workdir
+cd /workdir
+git clone https://github.com/politeauthority/cver.git
+cd  cver
+
+git fetch origin
+git checkout origin/cver-test
+
+cd src
+python3 setup.py build
+python3 setup.py install
+pip3 install -r requirements.txt
+
+cd ../tests
+
+python3 setup.py build
+python3 setup.py install
+pip3 install -r requirements.txt
+
+cd unit/api
+pytest --md report.md

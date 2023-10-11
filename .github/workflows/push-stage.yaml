@@ -12,12 +12,12 @@ concurrency:
 
 jobs:
 
-  # build-cver:
-  #   uses: ./.github/workflows/build-python.yaml
-  #   secrets: inherit 
-  #   permissions:
-  #     pull-requests: read
-  #     contents: read
+  build-cver:
+    uses: ./.github/workflows/build-python.yaml
+    secrets: inherit 
+    permissions:
+      pull-requests: read
+      contents: read
 
   lint:
     uses: ./.github/workflows/lint.yaml
@@ -41,107 +41,117 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
-  # build-api:
-  #   needs: [build-cver, lint]
-  #   uses: ./.github/workflows/build-container-api.yaml
-  #   secrets: inherit
-  #   permissions:
-  #     pull-requests: read
-  #     contents: read
-  #   with:
-  #     tag-prefix: "stage"
-  #     tag-name: "${{ github.sha }}"
-  #     cicd-version: "${{ vars.CICD_VERSION }}"
-  #     harbor-user: "${{ vars.HARBOR_USER }}"
+  build-api:
+    needs: [build-cver, lint]
+    uses: ./.github/workflows/build-container-api.yaml
+    secrets: inherit
+    permissions:
+      pull-requests: read
+      contents: read
+    with:
+      tag-prefix: "stage"
+      tag-name: "${{ github.sha }}"
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
 
-  # build-engine:
-  #   needs: [build-cver, lint]
-  #   uses: ./.github/workflows/build-container-engine.yaml
-  #   secrets: inherit 
-  #   permissions:
-  #     pull-requests: read
-  #     contents: read
-  #   with:
-  #     tag-prefix: "stage"
-  #     tag-name: "${{ github.sha }}"
-  #     cicd-version: "${{ vars.CICD_VERSION }}"
-  #     harbor-user: "${{ vars.HARBOR_USER }}"
+  build-engine:
+    needs: [build-cver, lint]
+    uses: ./.github/workflows/build-container-engine.yaml
+    secrets: inherit 
+    permissions:
+      pull-requests: read
+      contents: read
+    with:
+      tag-prefix: "stage"
+      tag-name: "${{ github.sha }}"
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
 
-  # build-ingest:
-  #   needs: [build-cver, lint]
-  #   uses: ./.github/workflows/build-container-ingest.yaml
-  #   secrets: inherit 
-  #   permissions:
-  #     pull-requests: read
-  #     contents: read
-  #   with:
-  #     tag-prefix: "stage"
-  #     tag-name: "${{ github.sha }}"
-  #     cicd-version: "${{ vars.CICD_VERSION }}"
-  #     harbor-user: "${{ vars.HARBOR_USER }}"
+  build-ingest:
+    needs: [build-cver, lint]
+    uses: ./.github/workflows/build-container-ingest.yaml
+    secrets: inherit 
+    permissions:
+      pull-requests: read
+      contents: read
+    with:
+      tag-prefix: "stage"
+      tag-name: "${{ github.sha }}"
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
 
-#   deploy-api:
-#     needs: [build-api]
-#     uses: ./.github/workflows/deploy-api.yaml
-#     secrets: inherit 
-#     with:
-#       deployment-name: "stage"
-#       run-number: ${{ github.run_number }}
-#       tag-name: "${{ github.sha }}"
-#       cicd-version: "${{ vars.CICD_VERSION }}"
-#       harbor-user: "${{ vars.HARBOR_USER }}"
+  run-unit-tests:
+    needs: [build-test]
+    uses: ./.github/workflows/run-unit-tests.yaml
+    secrets: inherit 
+    with:
+      run-number: ${{ github.run_number }}
+      tag-name: "${{ github.sha }}"
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
 
-#   deploy-ingest:
-#     needs: [build-ingest]
-#     uses: ./.github/workflows/deploy-ingest.yaml
-#     secrets: inherit 
-#     with:
-#       deployment-name: "stage"
-#       run-number: ${{ github.run_number }}
-#       tag-name: "${{ github.sha }}"
-#       cicd-version: "${{ vars.CICD_VERSION }}"
-#       harbor-user: "${{ vars.HARBOR_USER }}"
+  deploy-api:
+    needs: [build-api, run-unit-tests]
+    uses: ./.github/workflows/deploy-api.yaml
+    secrets: inherit 
+    with:
+      deployment-name: "stage"
+      run-number: ${{ github.run_number }}
+      tag-name: "${{ github.sha }}"
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
 
-#   deploy-engine:
-#     needs: [build-engine]
-#     uses: ./.github/workflows/deploy-engine.yaml
-#     secrets: inherit
-#     with:
-#       deployment-name: "stage"
-#       run-number: ${{ github.run_number }}
-#       tag-name: "${{ github.sha }}"
-#       cicd-version: "${{ vars.CICD_VERSION }}"
-#       harbor-user: "${{ vars.HARBOR_USER }}"
+  deploy-ingest:
+    needs: [build-ingest, run-unit-tests]
+    uses: ./.github/workflows/deploy-ingest.yaml
+    secrets: inherit 
+    with:
+      deployment-name: "stage"
+      run-number: ${{ github.run_number }}
+      tag-name: "${{ github.sha }}"
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
 
-#   test-ingest:
-#     needs: [deploy-api, deploy-ingest]
-#     uses: ./.github/workflows/regression-ingest.yaml
-#     secrets: inherit 
-#     with:
-#       deployment-name: "stage"
-#       run-number: ${{ github.run_number }}
-#       cicd-version: "${{ vars.CICD_VERSION }}"
-#       harbor-user: "${{ vars.HARBOR_USER }}"
+  deploy-engine:
+    needs: [build-engine, run-unit-tests]
+    uses: ./.github/workflows/deploy-engine.yaml
+    secrets: inherit
+    with:
+      deployment-name: "stage"
+      run-number: ${{ github.run_number }}
+      tag-name: "${{ github.sha }}"
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
 
-#   test-api:
-#     needs: deploy-api
-#     runs-on: self-hosted
-#     container:
-#       image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
-#       credentials:
-#         username: ${{ vars.HARBOR_USER }}
-#         password: ${{ secrets.HARBOR_PASSWORD }}
-#     steps:
-#       - uses: actions/checkout@v3
-#       - name: Execute Tests
-#         run: |
-#           mkdir ~/.kube
-#           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
-#           export KUBECONFIG=~/.kube/config.yaml
-#           TEST_POD=$(kubectl get -n cver-stage pods -l app.kubernetes.io/instance=cver-api-stage --no-headers | cut -d' ' -f1)
-#           kubectl exec -n cver-stage -it ${TEST_POD} -c cver-api -- pytest -vvv /tests/regression --md regression-report.md
-#           REPORT=$(kubectl exec -n cver-stage -it ${TEST_POD} -c cver-api -- cat /app/cver/regression-report.md)
-#           echo "$REPORT"
-#           echo "${REPORT}" >> $GITHUB_STEP_SUMMARY
+  test-ingest:
+    needs: [deploy-api, deploy-ingest]
+    uses: ./.github/workflows/regression-ingest.yaml
+    secrets: inherit 
+    with:
+      deployment-name: "stage"
+      run-number: ${{ github.run_number }}
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
+
+  test-api:
+    needs: deploy-api
+    runs-on: self-hosted
+    container:
+      image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
+      credentials:
+        username: ${{ vars.HARBOR_USER }}
+        password: ${{ secrets.HARBOR_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Execute Tests
+        run: |
+          mkdir ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
+          export KUBECONFIG=~/.kube/config.yaml
+          TEST_POD=$(kubectl get -n cver-stage pods -l app.kubernetes.io/instance=cver-api-stage --no-headers | cut -d' ' -f1)
+          kubectl exec -n cver-stage -it ${TEST_POD} -c cver-api -- pytest -vvv /tests/regression --md regression-report.md
+          REPORT=$(kubectl exec -n cver-stage -it ${TEST_POD} -c cver-api -- cat /app/cver/regression-report.md)
+          echo "$REPORT"
+          echo "${REPORT}" >> $GITHUB_STEP_SUMMARY
 
 # # End File: cver/.github/workflows/push-stage.yaml

@@ -1,4 +1,4 @@
-# Quigely test values for cver-api.
+# Quigely test values for cver-test.
 
 replicaCount: 1
 
@@ -6,17 +6,11 @@ nameOverride: "test"
 
 app:
   logLevel: "DEBUG"
-  dbName: "cver_test"
-  dbHost: "cver-mysql.cver.svc.cluster.local"
-  dbUser: "cver"
-  runMigrations: true
   envName: "test"
-
-test:
-  test: true
+  debug: true
 
 image:
-  repository: harbor.squid-ink.us/cver/cver-api
+  repository: harbor.squid-ink.us/cver/cver-test
   pullPolicy: Always
   tag: "dev-latest"
 

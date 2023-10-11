@@ -1,0 +1,33 @@
+name: Run Unit Tests
+
+on:
+  workflow_call:
+    inputs:
+      run-number:
+        required: true
+        type: string
+      tag-name:
+        required: true
+        type: string
+      cicd-version:
+        required: true
+        type: string
+      harbor-user:
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    continue-on-error: false
+    container:
+      image: harbor.squid-ink.us/cver/cver-test:0.0.3
+      credentials:
+        username: ${{ inputs.harbor-user }}
+        password: ${{ secrets.HARBOR_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy
+        run: |
+          export GIT_CHECKOUT=""
+          cver-test-unit

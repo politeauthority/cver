@@ -5,32 +5,14 @@ replicaCount: 1
 nameOverride: "dev"
 
 app:
-  runApiOnStart: true
   logLevel: "DEBUG"
-  dbName: "cver_dev"
-  dbHost: "cver-mysql.cver.svc.cluster.local"
-  dbUser: "cver"
-  runMigrations: true
-  envName: "dev"
+  envName: "test"
   debug: true
-  jwtExpireMinutes: 4320
-
-test:
-  test: true
 
 image:
-  repository: harbor.squid-ink.us/cver/cver-api
+  repository: harbor.squid-ink.us/cver/cver-test
   pullPolicy: Always
   tag: "dev-latest"
 
 imagePullSecrets:
   - name: harbor
-
-ingress:
-  enabled: true
-  className: nginx-private
-  hosts:
-    - host: dev.cver.colfax.int
-      paths:
-        - path: /
-          pathType: Prefix
