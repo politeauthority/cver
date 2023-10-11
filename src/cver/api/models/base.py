@@ -859,7 +859,7 @@ class Base:
                 return True
         return False
 
-    def _get_date_time(self, date_string: str) -> datetime:
+    def _get_datetime(self, date_string: str) -> datetime:
         """Attempt to get a Python native datetime from a date string.
         :unit-test: TestApiModelBase:test____get_datetime
         """
