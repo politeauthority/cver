@@ -8,6 +8,8 @@ ENV CVER_BUILD="${CVER_BUILD}"
 ENV CVER_VERSION="0.0.0"
 ENV CVER_ENV=""
 ENV TIMEOUT_SECONDS="300"
+ENV PS1="cver-engine# "
+
 RUN apt-get update
 RUN apt-get install curl gpg -y
 # Install pip
@@ -40,12 +42,3 @@ RUN cd /app && pip install --break-system-packages -r /app/requirements.txt
 RUN cd /app && pip install --break-system-packages .
 
 CMD /entrypoint.sh
-
-# --- Tests Node ---
-FROM base AS tests
-ENV PS1="cver-engine# "
-ADD scripts/cver-build /bin
-ADD scripts/cver-build-tests /bin
-ADD tests/ /tests
-# RUN cd /tests/ && python3 setup.py build && python3 setup.py install
-# RUN pip install -r /tests/requirements.txt
