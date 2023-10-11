@@ -38,7 +38,7 @@ def json_date_out(the_datetime: datetime) -> str:
 
 
 def json_date_now() -> str:
-    """Get a JSON returnable value from now in UTC. Use this method for sending dates to the 
+    """Get a JSON returnable value from now in UTC. Use this method for sending dates to the
     Cver Api
     :unit-test: TestSharedUtilsDateUtils.test__json_date_now
     """
