@@ -33,7 +33,7 @@ jobs:
         id: changes
         with:
             token: ${{ secrets.PAT }}
-            filters: |s
+            filters: |
               helm:
                 - 'helm/**'
       - name: Decider
