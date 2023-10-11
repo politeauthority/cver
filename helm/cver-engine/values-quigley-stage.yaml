@@ -6,12 +6,14 @@ nameOverride: "stage"
 
 app:
   envName: "stage"
-  schedule:  "22,52 * * * *"
   logLevel: "DEBUG"
   envName: "test"
   debug: false
-  engineDownloadLimit: 1
-  engineScanLimit: 1
+  cron:
+    schedule:  "22,52 * * * *"
+    suspend: true
+    engineDownloadLimit: 1
+    engineScanLimit: 1
 
 test:
   test: true
