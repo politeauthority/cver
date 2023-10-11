@@ -4,15 +4,16 @@ replicaCount: 1
 fullname: "cver-engine"
 
 app:
-  schedule:  "15,45 * * * *"
-  timeoutSeconds: 300
-  suspendCron: false
   logLevel: "INFO"
-  engineDownloadLimit: 1
-  engineScanLimit: 1
   debug: false
   envName: "prod"
   deployedAt: "unknown"
+  cron:
+    schedule:  "15,45 * * * *"
+    suspend: true
+    timeoutSeconds: 300
+    engineDownloadLimit: 1
+    engineScanLimit: 1
 
 image:
   repository: politeauthority/cver-engine

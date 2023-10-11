@@ -7,8 +7,8 @@ metadata:
 spec:
   schedule: "{{ .Values.app.schedule }}"
   concurrencyPolicy: Forbid
-  successfulJobsHistoryLimit: 2
-  failedJobsHistoryLimit: 2
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
   suspend: {{ .Values.app.suspendCron }}
   jobTemplate:
     spec:

@@ -5,13 +5,15 @@ replicaCount: 1
 nameOverride: "dev"
 
 app:
-  schedule:  "5,35 * * * *"
   logLevel: "INFO"
   envName: "dev"
   debug: false
-  engineDownloadLimit: 1
-  engineScanLimit: 1
-  suspendCron: true
+  cron:
+    schedule:  "5,35 * * * *"
+    suspend: true
+    engineDownloadLimit: 1
+    engineScanLimit: 1
+
 
 test:
   test: true
