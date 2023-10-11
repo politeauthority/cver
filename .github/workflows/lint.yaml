@@ -59,7 +59,7 @@ jobs:
         run: |
           helm lint ./helm/cver-ingest
     
-      - name: Lint Helm - Cver-Ingest
+      - name: Lint Helm - Cver-Test
         if: steps.changes.outputs.helm == 'true'
         run: |
           helm lint ./helm/cver-test
