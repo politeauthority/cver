@@ -97,14 +97,11 @@ tasks:
         fi
         echo "Building Target: ${TARGET}"
         docker build \
-          -t cver/cver-ingest \
-          --build-arg CVER_BUILD="${CVER_INGEST_TAG}" \
+          -t cver/cver-test \
           --build-arg DOCKER_REGISTRY="harbor.squid-ink.us/cver-docker-hub" \
           --target ${TARGET} \
           {{.CVER_DIR}}/docker/ingest
-      - rm -rf {{.CVER_DIR}}/docker/ingest/src
-      - rm -rf {{.CVER_DIR}}/docker/ingest/tests
-      - echo "Completed build cver/cver-ingest"
+      - echo "Completed build cver/cver-test"
     silent: false
 
   dev-run-api:
