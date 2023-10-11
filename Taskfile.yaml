@@ -73,6 +73,8 @@ tasks:
           -t cver/cver-test:${VERSION} \
           --build-arg DOCKER_REGISTRY="harbor.squid-ink.us/cver-docker-hub" \
           {{.CVER_DIR}}/docker/test
+        rm docker/test/requirements-src.txt
+        rm docker/test/requirements-test.txt
       - echo "Completed build cver/cver-test"
     silent: false
 

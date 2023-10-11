@@ -13,7 +13,7 @@ ENV CVER_TEST_USER_API_KEY=""
 
 WORKDIR /tests/
 ADD requirements-src.txt /test/requirements-test.txt
-ADD requirements-test.txt /test/requirements-test.txt
+ADD requirements-test.txt /test/requirements-src.txt
 
 RUN apk add --update --no-cache --virtual .tmp-build-deps \
     gcc libc-dev linux-headers bash curl git \
