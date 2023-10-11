@@ -7,6 +7,7 @@ ARG CVER_BUILD=""
 ENV CVER_BUILD="${CVER_BUILD}"
 ENV CVER_VERSION="0.0.0"
 ENV CVER_ENV=""
+ENV TIMEOUT_SECONDS="300"
 RUN apt-get update
 RUN apt-get install curl gpg -y
 # Install pip
@@ -31,11 +32,14 @@ RUN apt-get install -y trivy
 WORKDIR /app/cver
 
 ADD src/ /app
+ADD scripts/entrypoint.sh /entrypoint.sh
 
 # Install Cver
 RUN pip install --upgrade pip --break-system-packages
 RUN cd /app && pip install --break-system-packages -r /app/requirements.txt
 RUN cd /app && pip install --break-system-packages .
+
+CMD /entrypoint.sh
 
 # --- Tests Node ---
 FROM base AS tests
