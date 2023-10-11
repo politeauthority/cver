@@ -64,17 +64,16 @@ tasks:
   build-test:
     cmds:
       - |
+        VERSION_FILE="src/cver/api/version.py"
+        VERSION=$(grep -o 'version = "[^"]*"' src/cver/api/version.py | cut -d '"' -f 2)
         cp src/requirements.txt docker/test/requirements-src.txt
         cp tests/requirements.txt docker/test/requirements-test.txt
         echo "Building Target: ${TARGET}"
         docker build \
-          -t cver/cver-api:${CVER_API_TAG} \
-          --build-arg CVER_BUILD="${CVER_API_TAG}" \
+          -t cver/cver-test:${VERSION} \
           --build-arg DOCKER_REGISTRY="harbor.squid-ink.us/cver-docker-hub" \
           {{.CVER_DIR}}/docker/cver-test
-      - rm -rf {{.CVER_DIR}}/docker/api/src
-      - rm -rf {{.CVER_DIR}}/docker/api/tests
-      - echo "Completed build cver/cver-api"
+      - echo "Completed build cver/cver-test"
     silent: false
 
   build-ingest:
