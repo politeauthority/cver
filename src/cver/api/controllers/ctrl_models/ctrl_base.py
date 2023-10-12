@@ -122,7 +122,8 @@ def post_model(model, entity_id: int = None, generated_data: dict = {}):
     # Attempt to get the entity thoguh unqiue keys
     if not entity_found:
         entity_found = get_entity_by_unqiue_keys(entity, request_data)
-        logging.info("Found entity: %s through unique keys" % entity)
+        if entity_found:
+            logging.info("Found entity: %s through unique keys" % entity)
 
     # Check through the fields and see if they should be applied to the entity.
     for field_name, field_value in request_data.items():
@@ -142,6 +143,7 @@ def post_model(model, entity_id: int = None, generated_data: dict = {}):
                 field_name,
                 field_value))
             setattr(entity, field_name, field_value)
+
     entity.save()
     data["status"] = "success"
     data["object"] = entity.json()

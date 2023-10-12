@@ -51,8 +51,12 @@ def _get_where_and(raw_args: dict, field_map: dict) -> list:
     if not raw_args:
         return []
     for raw_arg_field, raw_arg_data in raw_args.items():
-        if raw_arg_field not in field_map or not field_map[raw_arg_field]["api_searchable"]:
-            logging.warning("Field %s not in %s or not api-searchable" % (raw_arg_field, "entity"))
+        fn = raw_arg_field
+        if fn not in field_map:
+            logging.warning("Field %s not in %s" % (fn, "entity"))
+            continue
+        if "api_searchable" not in field_map[fn] or not field_map[fn]["api_searchable"]:
+            logging.warning("Field %s not api searchable in %s" % (fn, "entity"))
             continue
         field_data = {}
         field_data["field"] = raw_arg_field

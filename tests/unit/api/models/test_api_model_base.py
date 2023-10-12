@@ -680,11 +680,21 @@ class TestApiModelBase:
             "type": "bool",
             "default": True
         }
+        FIELD_MAP["long_number"] = {
+            "name": "long_number",
+            "type": "int",
+            "default": 0
+        }
         base = Base()
         base.field_map = FIELD_MAP
         set_detaults = base._set_defaults()
         assert set_detaults
         assert base.new
+        assert 0 == base.long_number
+        base.long_number = 25426
+        set_detaults = base._set_defaults()
+        assert set_detaults
+        assert 25426 == base.long_number
 
     def test___set_types(self):
         """
