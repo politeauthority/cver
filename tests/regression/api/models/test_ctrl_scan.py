@@ -69,7 +69,23 @@ class TestApiModelScan(TestApiBase):
         }
         request_args["data"] = json.dumps(request_args["data"])
         response = requests.request(**request_args)
+        rj = response.json()
         assert response.status_code == 201
+        assert rj["object"]["user_id"] == data["user_id"]
+        assert rj["object"]["image_id"] == data["image_id"]
+        assert rj["object"]["image_build_id"] == data["image_build_id"]
+        assert rj["object"]["scanner_id"] == data["scanner_id"]
+        assert rj["object"]["cve_critical_int"] == data["cve_critical_int"]
+        assert rj["object"]["cve_critical_nums"] == data["cve_critical_nums"]
+        assert rj["object"]["cve_high_int"] == data["cve_high_int"]
+        assert rj["object"]["cve_high_nums"] == data["cve_high_nums"]
+        assert rj["object"]["cve_medium_int"] == data["cve_medium_int"]
+        assert rj["object"]["cve_medium_nums"] == data["cve_medium_nums"]
+        assert rj["object"]["cve_low_int"] == data["cve_low_int"]
+        assert rj["object"]["cve_low_nums"] == data["cve_low_nums"]
+        assert rj["object"]["cve_unknown_int"] == data["cve_unknown_int"]
+        assert rj["object"]["cve_unknown_nums"] == data["cve_unknown_nums"]
+        assert rj["object"]["pending_parse"] == data["pending_parse"]
 
     def test_scan_get_200(self):
         """ Test that we can create a new Role model.
