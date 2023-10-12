@@ -16,4 +16,12 @@ class Image(Base):
         self.model_name = "image"
         self.setup()
 
+    def __repr__(self):
+        """Image model representation."""
+        if hasattr(self, "name") and self.name and hasattr(self, "id") and self.id:
+            return "<Image: %s %s>" % (self.id, self.name)
+        if hasattr(self, "id") and self.id:
+            return "<%s: %s>" % (self.__class__.__name__, self.id)
+        return "<%s>" % self.__class__.__name__
+
 # End File: cver/src/cver_client/models/image.py

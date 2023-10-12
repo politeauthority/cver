@@ -105,12 +105,7 @@ FIELD_MAP = {
         "name": "scan_last_ts",
         "type": "datetime",
         "api_writeable": True
-    },
-    "pending_operation": {
-        "name": "pending_operation",
-        "type": "str",
-        "api_writeable": True
-    },
+    }
 }
 
 # End File: cver/src/shared/models/image_build.py
