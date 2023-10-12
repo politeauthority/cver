@@ -13,7 +13,7 @@ registry_info = {
         "pass": None
     },
     "pull_thrus": {
-        "docker.io": None,
+        "docker.io": "cver-docker-hub",
         "quay.io": "cver-quay",
         "ghcr.io": "cver-ghcr"
     }
