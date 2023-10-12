@@ -744,6 +744,8 @@ class Base:
                     setattr(self, field_name, True)
                 else:
                     setattr(self, field_name, default)
+            elif field["type"] == "list":
+                setattr(self, field_name, [])
             elif not field_value:
                 setattr(self, field_name, default)
 

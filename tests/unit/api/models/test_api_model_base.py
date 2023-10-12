@@ -685,6 +685,10 @@ class TestApiModelBase:
             "type": "int",
             "default": 0
         }
+        FIELD_MAP["list_field"] = {
+            "name": "list_field",
+            "type": "list",
+        }
         base = Base()
         base.field_map = FIELD_MAP
         set_detaults = base._set_defaults()
@@ -695,6 +699,8 @@ class TestApiModelBase:
         set_detaults = base._set_defaults()
         assert set_detaults
         assert 25426 == base.long_number
+        assert isinstance(base.list_field, list)
+        assert [] == base.list_field
 
     def test___set_types(self):
         """
