@@ -10,7 +10,7 @@ app:
   debug: false
   cron:
     schedule:  "5,35 * * * *"
-    suspend: true
+    suspend: false
     engineDownloadLimit: 1
     engineScanLimit: 1
 

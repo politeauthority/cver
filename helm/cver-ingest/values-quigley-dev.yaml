@@ -6,10 +6,12 @@ nameOverride: "dev"
 
 app:
   envName: "dev"
-  schedule:  "10,45 * * * *"
-  debug: true
-  suspendCron: false
   apiUrl: "http://cver-api-dev"
+  debug: true
+  cron:
+    suspend: false
+    schedule:  "10,45 * * * *"
+
 
 test:
   test: true
