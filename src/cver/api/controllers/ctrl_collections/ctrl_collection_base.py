@@ -4,6 +4,8 @@
     Collection Base
 
 """
+import logging
+
 from cver.api.utils import api_util
 
 
@@ -48,14 +50,26 @@ def _get_where_and(raw_args: dict, field_map: dict) -> list:
     where_and = []
     if not raw_args:
         return []
-    for raw_arg_field, raw_arg_value in raw_args.items():
-        if raw_arg_field in field_map and field_map[raw_arg_field]["api_searchable"]:
-            where = {
+    for raw_arg_field, raw_arg_data in raw_args.items():
+        if raw_arg_field not in field_map or not field_map[raw_arg_field]["api_searchable"]:
+            logging.warning("Field %s not in %s or not api-searchable" % (raw_arg_field, "entity"))
+            continue
+        field_data = {}
+        field_data["field"] = raw_arg_field
+
+        if not isinstance(raw_arg_data, dict):
+            field_data = {
                 "field": raw_arg_field,
-                "value": raw_arg_value,
-                "op": "="
+                "value": raw_arg_data,
+                "op": "=",
             }
-            where_and.append(where)
+        else:
+            field_data["value"] = raw_arg_data["value"]
+            if "op" not in raw_arg_data or not raw_arg_data["op"]:
+                field_data["op"] = "="
+            else:
+                field_data["op"] = raw_arg_data["op"]
+        where_and.append(field_data)
     return where_and
 
 

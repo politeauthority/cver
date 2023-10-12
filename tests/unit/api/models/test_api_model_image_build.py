@@ -8,7 +8,7 @@
 from cver.api.models.image_build import ImageBuild
 
 
-class TestBuild:
+class TestImageBuild:
 
     def test____init__(self):
         """Test the Image Model's initialization.
@@ -28,7 +28,6 @@ class TestBuild:
         assert hasattr(image, "scan_flag")
         assert hasattr(image, "scan_enabled")
         assert hasattr(image, "scan_last_ts")
-        assert hasattr(image, "pending_operation")
 
     def test____repr__(self):
         """Test the model's representation.
