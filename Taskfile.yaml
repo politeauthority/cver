@@ -217,6 +217,14 @@ tasks:
         kubectl exec -n cver-dev -it ${POD} -- bash
     silent: True
 
+  dev-exec-test:
+    cmds:
+      - |
+        POD=$(kubectl get pods -n cver-dev -l app.kubernetes.io/instance=cver-test-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
+        echo "Logging into to pod: ${POD}"
+        kubectl exec -n cver-dev -it ${POD} -- bash
+    silent: True
+
   dev-helm-api:
     cmds:
       - helm uninstall cver-api-dev -n cver-dev
@@ -253,6 +261,18 @@ tasks:
             -f helm/cver-ingest/values.yaml \
             -f helm/cver-ingest/values-quigley-dev.yaml \
             --set "app.deployedAt=${DEPLOYED_AT}"
+
+  dev-helm-test:
+    cmds:
+      - |
+        DEPLOYED_AT=$(date +"%Y-%m-%d %T")
+        helm upgrade --install \
+            cver-test-dev \
+            helm/cver-test \
+            --namespace=cver-dev \
+            --set "app.deployedAt=${DEPLOYED_AT}" \
+            -f helm/cver-test/values.yaml \
+            -f helm/cver-test/values-quigley-dev.yaml
 
   dev-logs-api:
     cmds:

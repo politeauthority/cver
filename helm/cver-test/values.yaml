@@ -6,6 +6,7 @@ app:
   logLevel: "DEBUG"
   envName: "prod"
   debug: false
+  deployedAt: Unknown
 
 image:
   repository: politeauthority/cver-test
