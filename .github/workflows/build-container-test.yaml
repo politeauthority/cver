@@ -70,6 +70,7 @@ jobs:
         if: steps.changes.outputs.src == 'true'
         run: |
           IMAGE_ID=$(docker images --filter "reference=cver/cver-test" --format "{{.ID}}")
+          docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-test:0.0.3
           docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-test:${{ inputs.tag-name }}
           docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-test:${{ inputs.tag-prefix }}-latest
           docker push harbor.squid-ink.us/cver/cver-test:${{ inputs.tag-name }}
