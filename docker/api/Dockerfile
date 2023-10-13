@@ -48,6 +48,7 @@ ADD scripts/cver-build-tests /bin
 ADD scripts/cver-cli /bin
 ADD scripts/cver-run-api /bin
 ADD scripts/cver-test-unit /bin
+ADD scripts/cver-test-unit-cov /bin
 ADD scripts/cver-test-regression /bin
 ADD scripts/cver-test-all /bin
 ADD scripts/cver-db-login /bin

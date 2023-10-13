@@ -18,6 +18,7 @@ class ImageBuildWaiting(BaseEntityMeta):
         self.field_map = FIELD_MAP
         self.field_meta = FIELD_META
         self.createable = True
+        self.insert_iodku = True
         self.setup()
 
     def get_by_sha(self, sha: str = None) -> bool:
