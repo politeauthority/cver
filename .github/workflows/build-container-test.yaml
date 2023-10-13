@@ -73,6 +73,7 @@ jobs:
           docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-test:0.0.3
           docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-test:${{ inputs.tag-name }}
           docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-test:${{ inputs.tag-prefix }}-latest
+          docker push harbor.squid-ink.us/cver/cver-test:0.0.3
           docker push harbor.squid-ink.us/cver/cver-test:${{ inputs.tag-name }}
           docker push harbor.squid-ink.us/cver/cver-test:${{ inputs.tag-prefix }}-latest
           echo "**Built:** harbor.squid-ink.us/cver/cver-test:${{ inputs.tag-name }}" >> $GITHUB_STEP_SUMMARY
