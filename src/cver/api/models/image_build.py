@@ -26,4 +26,4 @@ class ImageBuild(BaseEntityMeta):
             self.sha = sha
         return self.get_by_field("sha", self.sha)
 
-# End File: cver/src/api/modles/image_build.py
+# End File: cver/src/api/models/image_build.py
