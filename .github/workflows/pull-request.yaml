@@ -42,7 +42,7 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   unit-tests:
-    needs: [build-test]
+    needs: [build-test, build-cver, lint]
     uses: ./.github/workflows/unit-tests.yaml
     secrets: inherit 
     with:
