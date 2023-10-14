@@ -44,13 +44,6 @@ tasks:
         if [ -z ${CVER_ENGINE_TAG} ]; then
           CVER_ENGINE_TAG="dev"
         fi
-        CLI_ARGS="{{ .CLI_ARGS }}"
-        if [ -z ${CLI_ARGS} ]; then
-          TARGET="tests"
-        else
-          TARGET=$CLI_ARGS
-        fi
-        echo "Building Target: ${TARGET}"
         docker build \
           -t cver/cver-engine:${CVER_ENGINE_TAG} \
           --build-arg CVER_BUILD="${CVER_ENGINE_TAG}" \
@@ -234,6 +227,22 @@ tasks:
             cver-api-dev \
             helm/cver-api \
             --namespace=cver-dev \
+            -f helm/cver-api/values.yaml \
+            -f helm/cver-api/values-quigley-dev.yaml \
+            --set "app.deployedAt=${DEPLOYED_AT}"
+
+  dev-helm-api-dead:
+    cmds:
+      - helm uninstall cver-api-dev -n cver-dev
+
+      - |
+        DEPLOYED_AT=$(date +"%Y-%m-%d %T")
+        helm upgrade --install \
+            cver-api-dev \
+            helm/cver-api \
+            --namespace=cver-dev \
+            --set "app.deployedAt=${DEPLOYED_AT}" \
+            --set "app.runApionStart=False" \
             -f helm/cver-api/values.yaml \
             -f helm/cver-api/values-quigley-dev.yaml \
             --set "app.deployedAt=${DEPLOYED_AT}"

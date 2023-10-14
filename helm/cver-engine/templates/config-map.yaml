@@ -3,5 +3,5 @@ kind: ConfigMap
 metadata:
   name: cver-engine-{{- if .Values.test.test }}{{.Release.Name}}{{- end }}
 data:
-  CVER_ENGINE_DOWNLOAD_LIMIT: "{{ .Values.app.engineDownloadLimit }}"
-  CVER_ENGINE_SCAN_LIMIT: "{{ .Values.app.engineScanLimit }}"
+  CVER_ENGINE_DOWNLOAD_LIMIT: "{{ .Values.app.cron.engineDownloadLimit }}"
+  CVER_ENGINE_SCAN_LIMIT: "{{ .Values.app.cron.engineScanLimit }}"

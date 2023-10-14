@@ -16,6 +16,7 @@ class Option(Base):
         self.table_name = 'options'
         self.field_map = FIELD_MAP
         self.createable = False
+        self.insert_iodku = True
         self.setup()
 
     def __repr__(self):

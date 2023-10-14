@@ -51,9 +51,9 @@ jobs:
             src:
               - 'docker/ingest/**'
               - 'src/setup.py'
-              - 'src/shared/**'
-              - 'src/cver_client/**'
-              - 'src/ingest/**'
+              - 'src/cver/shared/**'
+              - 'src/cver/cver_client/**'
+              - 'src/cver/ingest/**'
               - 'tests/regression/ingest/**'
 
       - name: Decider

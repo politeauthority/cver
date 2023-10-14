@@ -94,7 +94,9 @@ class CverClient:
 
     def make_request(self, url: str, method: str = "GET", payload: dict = {}):
         """Make a generic request to the Cver Api. If we don't have a token attempt to login. Return
-        the response json back."""
+        the response json back.
+        @todo: Break this apart - too complex
+        """
         self.login()
         # if not self.token:
         #     self.login()
@@ -128,12 +130,14 @@ class CverClient:
         # If our token has expired, attempt to get a new one, skipping using the current one.
         if response.status_code in [412, 401]:
             self.destroy_token()
+            # @todo we need to retry here
 
-        if response.status_code > 399 and response.status_code < 500:
+        if response.status_code > 399:
             if response.status_code == 404:
                 logging.debug(f"Got 404: {response.url}")
             else:
-                logging.error(f"ISSUE WITH REQUEST: {response} - {url}\n{response.text}")
+                self._handle_error(response, request_args)
+                return {}
 
         try:
             response_json = response.json()
@@ -201,6 +205,18 @@ class CverClient:
             token_data = temp_file.read()
         self.token = token_data
         return True
+
+    def _handle_error(self, response, request_args) -> bool:
+        url = request_args["url"]
+        if "token" in request_args:
+            request_args.pop("token")
+        if "x-api-key" in request_args:
+            request_args.pop("x-api-key")
+        msg = f"\nISSUE WITH REQUEST: {response.status_code} - {url}\n"
+        msg += f"Api was sent: {request_args}\n"
+        msg += f"API Repsonsed: {response.text}\n"
+        logging.error(msg)
+        return False
 
 
 # End File: cver/src/shared/cver_client/__init__.py

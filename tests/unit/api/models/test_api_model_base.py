@@ -680,11 +680,27 @@ class TestApiModelBase:
             "type": "bool",
             "default": True
         }
+        FIELD_MAP["long_number"] = {
+            "name": "long_number",
+            "type": "int",
+            "default": 0
+        }
+        FIELD_MAP["list_field"] = {
+            "name": "list_field",
+            "type": "list",
+        }
         base = Base()
         base.field_map = FIELD_MAP
         set_detaults = base._set_defaults()
         assert set_detaults
         assert base.new
+        assert 0 == base.long_number
+        base.long_number = 25426
+        set_detaults = base._set_defaults()
+        assert set_detaults
+        assert 25426 == base.long_number
+        assert isinstance(base.list_field, list)
+        assert [] == base.list_field
 
     def test___set_types(self):
         """
@@ -731,5 +747,17 @@ class TestApiModelBase:
             }
         }
         assert base._is_model_json()
+
+    def test____get_datetime(self):
+        """
+        :method: Base()._get_date_time
+        """
+        base = Base()
+        longtime = "2023-10-11 14:21:14 +00:00"
+        assert isinstance(base._get_datetime(longtime), datetime)
+        short_time = "2023-10-11 14:21:14"
+        assert isinstance(base._get_datetime(short_time), datetime)
+        assert not base._get_datetime("nothing")
+
 
 # End File: cver/tests/unit/api/models/test_base.py

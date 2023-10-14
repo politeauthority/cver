@@ -57,7 +57,7 @@ FIELD_MAP = {
     },
     "status": {
         "name": "status",
-        "type": "str",
+        "type": "bool",
         "api_writeable": True,
         "api_searchable": True,
     },
@@ -73,10 +73,16 @@ FIELD_MAP = {
         "api_writeable": True,
         "api_searchable": True,
     },
+    "fail_count": {
+        "name": "fail_count",
+        "type": "int",
+        "api_writeable": True,
+        "api_searchable": True,
+    },
 }
 
 FIELD_META = {
-    "unique_key": ["image_id", "image_build_id", "tag"]
+    "unique_key": ["image_id", "image_build_id"]
 }
 
 # End File: cver/src/shared/models/image_build_waiting.py

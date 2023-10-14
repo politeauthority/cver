@@ -90,6 +90,7 @@ class Ingest:
             if response["status"] != "success":
                 logging.critical("Error submitting image to Cver Api: %s" % response["message"])
                 break
+        return True
 
 
 if __name__ == "__main__":

@@ -69,6 +69,7 @@ session = {
 def start_session():
     session["uuid"] = str(uuid.uuid1())
     session["short_id"] = session["uuid"][:8]
+    return True
 
 
 # End File: cver/src/cver/api/utils/glow.py

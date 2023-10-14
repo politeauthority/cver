@@ -31,21 +31,23 @@ jobs:
         run: |
           if [ "${{ inputs.deployment-name }}" = "test" ]; then
             CRON_JOB="cver-ingest-test-${{ inputs.run-number }}"
+            JOB_NAME=$CRON_JOB
             NAMESPACE="cver-test"
           else
             CRON_JOB="cver-ingest-stage"
+            JOB_NAME="cver-ingest-stage-${{ inputs.run-number }}"
             NAMESPACE="cver-stage"
           fi
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
           export KUBECONFIG=~/.kube/config.yaml
-          echo "Creating job: ${CRON_JOB}"
-          kubectl create job -n ${NAMESPACE} --from=cronjob/${CRON_JOB} ${CRON_JOB}
+          echo "Creating job: ${CRON_JOB}/${JOB_NAME}"
+          kubectl create job -n ${NAMESPACE} --from=cronjob/${CRON_JOB} ${JOB_NAME}
           elapsed_time=0
           # Loop until the elapsed time reaches 300 seconds
           while [ $elapsed_time -lt 300 ]; do
               echo "Executing the command..."
-              TEST_POD=$(kubectl get -n ${NAMESPACE} pods -l job-name=${CRON_JOB} --no-headers | awk '{print $3}')
+              TEST_POD=$(kubectl get -n ${NAMESPACE} pods -l job-name=${JOB_NAME} --no-headers | awk '{print $3}')
               echo $TEST_POD
               if [ "${TEST_POD}" = "Completed" ]; then
                   echo "Job executed successfully: ${TEST_POD}"

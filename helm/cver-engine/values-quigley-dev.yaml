@@ -9,9 +9,11 @@ app:
   logLevel: "INFO"
   envName: "dev"
   debug: false
-  engineDownloadLimit: 1
-  engineScanLimit: 1
-  suspendCron: true
+  cron:
+    schedule:  "5,35 * * * *"
+    suspend: false
+    engineDownloadLimit: 1
+    engineScanLimit: 1
 
 test:
   test: true

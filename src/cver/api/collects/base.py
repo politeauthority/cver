@@ -4,10 +4,11 @@
 
     Testing:
         Unit test file  cver/tests/unit/api/collects/test_base.py
-        Unit tested     7/25
+        Unit tested     11/29
 
 """
 from datetime import timedelta
+import logging
 import math
 
 import arrow
@@ -22,7 +23,7 @@ class Base:
 
     def __init__(self, conn=None, cursor=None):
         """Class constructor, set the db connection vars.
-        :unit-test: TestBase.test____init__
+        :unit-test: TestApiCollectsBase.test____init__
         """
         self.conn = conn
         if not self.conn:
@@ -36,19 +37,11 @@ class Base:
 
     def get_by_ids(self, model_ids: list) -> list:
         """Get models instances by their ids from the database.
-        :unit-test: TestBase.test__get_by_ids
+        :unit-test: TestApiCollectsBase.test__get_by_ids
         """
         if not model_ids:
             return []
-        model_ids = list(set(model_ids))
-        sql_ids = self._int_list_to_sql(model_ids)
-        sql = """
-            SELECT *
-            FROM %(table_name)s
-            WHERE id IN (%(ids)s); """ % {
-            'table_name': self.table_name,
-            'ids': sql_ids,
-        }
+        sql = self._gen_get_by_ids_sql(model_ids)
         self.cursor.execute(sql)
         raws = self.cursor.fetchall()
         prestines = self.build_from_lists(raws)
@@ -147,6 +140,9 @@ class Base:
         if limit == 0:
             limit = per_page
         sql = self._generate_paginated_sql(page, where_and, order_by, limit)
+        logging.info("\nPAGINATIED SQL\n")
+        logging.info("WHERE AND: %s" % where_and)
+        logging.info("%s\n\n" % sql)
         self.cursor.execute(sql)
         raw = self.cursor.fetchall()
         prestines = []
@@ -233,7 +229,6 @@ class Base:
             SELECT COUNT(*)
             FROM `%s`;
             """ % self.table_name
-
         self.cursor.execute(sql)
         raw_scans_count = self.cursor.fetchone()
         return raw_scans_count[0]
@@ -288,11 +283,7 @@ class Base:
 
     def get_last(self, num_units: int = 10) -> list:
         """Get last `num_units` created models descending. """
-        sql = """
-            SELECT *
-            FROM %s
-            ORDER BY created_ts DESC
-            LIMIT %s;""" % (self.table_name, num_units)
+        sql = self.__gen_sql_get_last(num_units)
         self.cursor.execute(sql)
         raw = self.cursor.fetchall()
         prestines = self.build_from_lists(raw)
@@ -309,11 +300,11 @@ class Base:
 
     def _int_list_to_sql(self, item_list: list) -> str:
         """Transform a list of ints to a sql safe comma separated string.
-        :unit-test: TestBase::test___int_list_to_sql
+        :unit-test: TestApiCollectsBase::test___int_list_to_sql
         """
         sql_ids = ""
         for i in item_list:
-            sql_ids += "%s," % i
+            sql_ids += "%s," % xlate.sql_safe(i)
         sql_ids = sql_ids[:-1]
         return sql_ids
 
@@ -368,8 +359,10 @@ class Base:
                 continue
             where = True
             op = "="
-            if 'op' in where_a:
-                op = where_a['op']
+            if "op" in where_a:
+                op = where_a["op"]
+            if "op" not in ["=", "<", ">"]:
+                op = "="
             if isinstance(where_a["value"], str):
                 where_a["value"] = '"%s"' % xlate.sql_safe(where_a["value"])
             where_and_sql += '`%s` %s %s AND ' % (
@@ -420,5 +413,30 @@ class Base:
         next_page = page + 1
         return next_page
 
+    def _gen_sql_get_last(self, num_units: int) -> str:
+        """Generate the get last SQL statement.
+        :unit-test: TestApiCollectsBase:test___gen_sql_get_last
+        """
+        sql = """
+            SELECT *
+            FROM `%s`
+            ORDER BY created_ts DESC
+            LIMIT %s;""" % (self.table_name, xlate.sql_safe(num_units))
+        return sql
+
+    def _gen_get_by_ids_sql(self, model_ids: list) -> str:
+        """Generate the get_by_ids SQL statement.
+        :method: TestApiCollectsBase::test___gen_sql_get_last
+        """
+        model_ids = list(set(model_ids))
+        sql_ids = self._int_list_to_sql(model_ids)
+        sql = """
+            SELECT *
+            FROM %(table_name)s
+            WHERE id IN (%(ids)s);""" % {
+            'table_name': self.table_name,
+            'ids': sql_ids,
+        }
+        return sql
 
 # End File: cver/src/api/collections/base.py

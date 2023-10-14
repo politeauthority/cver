@@ -8,7 +8,7 @@ The Base Model SQL driver can work with both SQLite3 and MySQL database.
 
 Testing:
     Unit test file  cver/tests/unit/api/models/test_base.py
-    Unit tested     37/45
+    Unit tested     38/46
 
 """
 from datetime import datetime
@@ -16,7 +16,7 @@ import json
 import logging
 
 import arrow
-from pymysql.err import ProgrammingError
+from pymysql.err import ProgrammingError, IntegrityError
 
 from cver.shared.utils import xlate
 from cver.shared.utils import date_utils
@@ -38,6 +38,7 @@ class Base:
         self.field_map = {}
         self.field_meta = {}
         self.immutable = False
+        self.insert_iodku = False
         self.id = None
         self.setup()
 
@@ -98,15 +99,23 @@ class Base:
         """
         self.setup()
         self.check_required_class_vars()
+
         if self._is_model_json():
             return self.insert()
-        if self.backed_iodku and not self.id:
-            return self.iodku()
+        if not self.id:
+            if self.backed_iodku and self.insert_iodku:
+                return self.iodku()
+            else:
+                return self.insert()
         if not self.id:
             logging.error("Save failed, missing %s.id or where list" % __class__.__name_)
             raise AttributeError("Save failed, missing %s.id or where list" % __class__.__name_)
         update_sql = self._gen_update_sql(["id", "created_ts"])
-        self.cursor.execute(update_sql)
+        try:
+            self.cursor.execute(update_sql)
+        except IntegrityError as e:
+            logging.error("Mysql Integrity Error for %s: %s" % (self, e))
+            return False
         self.conn.commit()
         return True
 
@@ -116,7 +125,7 @@ class Base:
         """
         sql = self._gen_insert_sql()
         try:
-            # logging.info("\n\n%s\n\n" % sql)
+            logging.info("\n\nINSERT\n%s\n\n" % sql)
             self.cursor.execute(sql)
             self.conn.commit()
         except ProgrammingError as e:
@@ -132,7 +141,7 @@ class Base:
         :unit-test: TestApiModelBase::test__iodku
         """
         sql = self._gen_iodku_sql()
-        # logging.info("\n\n%s\n\n" % sql)
+        logging.info("\n\nIODKU\n%s\n\n" % sql)
         self.cursor.execute(sql)
         self.conn.commit()
         self.id = self.cursor.lastrowid
@@ -374,6 +383,7 @@ class Base:
         """Generate the insert SQL statement.
         :unit-test: TestApiModelBase::test___gen_insert_sql
         """
+        # import ipdb; ipdb.set_trace()
         insert_sql = "INSERT INTO `%s` (%s) VALUES (%s)" % (
             self.table_name,
             self._sql_fields_sanitized(skip_fields=skip_fields),
@@ -606,6 +616,7 @@ class Base:
         example: "2021-12-12", "a string", 1.
         :unit-test: TestApiModelBase::test___sql_insert_values_santized
         """
+        # import ipdb; ipdb.set_trace()
         if not skip_fields:
             skip_fields = {}
         sql_values = ""
@@ -655,8 +666,11 @@ class Base:
         """Convert values to a safe santized value based on it's type.
         :unit-test: TestApiModelBase::test___get_sql_value_santized_typed
         """
+        # if value == 20497:
+        #     import ipdb; ipdb.set_trace()
         # Handle converting int value
         if field["type"] == "int":
+
             value = int(value)
             value = xlate.sql_safe(value)
 
@@ -709,6 +723,7 @@ class Base:
         :unit-test: TestApiModelBase::test___set_defaults
         """
         self.field_list = []
+        # import ipdb; ipdb.set_trace()
         for field_name, field in self.field_map.items():
             field_name = field['name']
             self.field_list.append(field_name)
@@ -717,11 +732,11 @@ class Base:
             if 'default' in field:
                 default = field['default']
 
-            if field["type"] == "list":
-                default = []
-
             # Sets all class field vars with defaults.
             field_value = getattr(self, field_name, None)
+            if field_value:
+                continue
+
             if field["type"] == "bool":
                 if field_value == False:
                     setattr(self, field_name, False)
@@ -729,6 +744,8 @@ class Base:
                     setattr(self, field_name, True)
                 else:
                     setattr(self, field_name, default)
+            elif field["type"] == "list":
+                setattr(self, field_name, [])
             elif not field_value:
                 setattr(self, field_name, default)
 
@@ -759,7 +776,7 @@ class Base:
                 setattr(
                     self,
                     class_var_name,
-                    arrow.get(class_var_value).datetime)
+                    self._get_datetime(class_var_value))
                 continue
 
     def _generate_create_table_feilds(self) -> str:
@@ -854,5 +871,38 @@ class Base:
             if field_info["type"] == "json":
                 return True
         return False
+
+    def _get_datetime(self, date_string: str) -> datetime:
+        """Attempt to get a Python native datetime from a date string.
+        :unit-test: TestApiModelBase:test____get_datetime
+        """
+        if len(date_string) == 26:
+            try:
+                parse_format = "YYYY-MM-DD HH:mm:ss ZZ"
+                parsed_date = arrow.get(date_string, parse_format)
+                return parsed_date.datetime
+            except arrow.parser.ParserMatchError:
+                logging.error("Couldnt parse date str: %s with with format: %s" % (
+                    date_string,
+                    parse_format))
+        elif len(date_string) == 19:
+            try:
+                parse_format = "YYYY-MM-DD HH:mm:ss"
+                parsed_date = arrow.get(date_string, parse_format)
+                return parsed_date.datetime
+            except arrow.parser.ParserMatchError:
+                logging.error("Couldnt parse date str: %s with format: %s " % (
+                    date_string,
+                    parse_format))
+        else:
+            try:
+                parsed_date = arrow.get(date_string)
+                return parsed_date.datetime
+            except arrow.parser.ParserMatchError:
+                logging.error("Couldnt parse date str: %s" % date_string)
+                return None
+            except arrow.parser.ParserError:
+                logging.error("Couldnt parse date str: %s" % date_string)
+                return None
 
 # End File: cver/src/cver/api/models/base.py

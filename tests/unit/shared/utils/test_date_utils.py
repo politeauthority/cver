@@ -34,6 +34,7 @@ class TestSharedUtilsDateUtils:
         """
         assert isinstance(date_utils.json_date_now(), str)
         assert 19 == len(date_utils.json_date_now())
+        assert arrow.get(date_utils.json_date_now())
 
     def test__human_date(self):
         """
