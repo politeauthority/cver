@@ -36,7 +36,7 @@ jobs:
       pull-requests: read
       contents: read
     with:
-      tag-prefix: "stage"
+      tag-prefix: "dev"
       tag-name: "${{ github.sha }}"
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
