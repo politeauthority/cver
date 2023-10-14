@@ -7,7 +7,7 @@ on:
     branches: ["stage", "cver-cli"]
 
 concurrency:
-  group: ${{github.ref }}
+  group: "all"
   cancel-in-progress: false
 
 jobs: 
@@ -52,7 +52,7 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   build-api:
-    needs: [build-cver, lint]
+    needs: [unit-tests]
     uses: ./.github/workflows/build-container-api.yaml
     secrets: inherit
     permissions:
@@ -65,7 +65,7 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   build-ingest:
-    needs: [build-cver, lint]
+    needs: [unit-tests]
     uses: ./.github/workflows/build-container-ingest.yaml
     secrets: inherit
     permissions:
@@ -78,7 +78,7 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   build-engine:
-    needs: [build-cver, lint]
+    needs: [unit-tests]
     uses: ./.github/workflows/build-container-engine.yaml
     secrets: inherit 
     permissions:
@@ -91,7 +91,7 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   deploy-api:
-    needs: [build-api, build-cver, lint, build-cver]
+    needs: [unit-tests]
     uses: ./.github/workflows/deploy-api.yaml
     secrets: inherit 
     with:
@@ -102,7 +102,7 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   deploy-ingest:
-    needs: [build-ingest, lint, build-cver]
+    needs: [unit-tests]
     uses: ./.github/workflows/deploy-ingest.yaml
     secrets: inherit 
     with:
@@ -113,7 +113,7 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   deploy-engine:
-    needs: [build-engine, lint, build-cver]
+    needs: [unit-tests]
     uses: ./.github/workflows/deploy-engine.yaml
     secrets: inherit 
     with:

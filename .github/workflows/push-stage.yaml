@@ -7,8 +7,8 @@ on:
     branches: ["stage"]
 
 concurrency:
-  group: "staging"
-  cancel-in-progress: true
+  group: "all"
+  cancel-in-progress: false
 
 jobs:
 
