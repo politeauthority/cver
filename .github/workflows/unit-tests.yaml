@@ -1,0 +1,55 @@
+name: Run Unit Tests
+
+on:
+  workflow_call:
+    inputs:
+      run-number:
+        required: true
+        type: string
+      tag-name:
+        required: true
+        type: string
+      cicd-version:
+        required: true
+        type: string
+      harbor-user:
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    continue-on-error: false
+    container:
+      image: harbor.squid-ink.us/cver/cver-test:0.0.3
+      credentials:
+        username: ${{ inputs.harbor-user }}
+        password: ${{ secrets.HARBOR_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install -r src/requirements.txt
+          pip install -r tests/requirements.txt
+      - name: Build Cver Packages
+        run: |
+          cd src/
+          python3 setup.py build
+          pip install .
+          cd ../tests
+          python3 setup.py build
+          pip install .
+      - name: Run Unit Tests
+        run: |
+          cd src/
+          python3 setup.py build
+          pip install .
+          cd ../
+          cd tests/
+          pip install -r requirements.txt
+          python3 setup.py build
+          python3 setup.py install
+          export CVER_API_URL="http://localhost/"
+          pytest unit/ --md report.md --vcr-record=none
+          cat report.md >> $GITHUB_STEP_SUMMARY

@@ -83,6 +83,23 @@ tasks:
       - echo "Completed build cver/cver-ingest"
     silent: false
 
+  build-test:
+    cmds:
+      - |
+        VERSION_FILE="src/cver/api/version.py"
+        VERSION=$(grep -o 'version = "[^"]*"' src/cver/api/version.py | cut -d '"' -f 2)
+        cp src/requirements.txt docker/test/requirements-src.txt
+        cp tests/requirements.txt docker/test/requirements-test.txt
+        echo "Building Target: ${TARGET}"
+        docker build \
+          -t cver/cver-test:${VERSION} \
+          --build-arg DOCKER_REGISTRY="harbor.squid-ink.us/cver-docker-hub" \
+          {{.CVER_DIR}}/docker/test
+        rm docker/test/requirements-src.txt
+        rm docker/test/requirements-test.txt
+      - echo "Completed build cver/cver-test"
+    silent: false
+
   dev-run-api:
     cmds:
       - |
@@ -192,6 +209,14 @@ tasks:
     cmds:
       - |
         POD=$(kubectl get pods -n cver-dev -l app.kubernetes.io/instance=cver-ingest-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
+        echo "Logging into to pod: ${POD}"
+        kubectl exec -n cver-dev -it ${POD} -- bash
+    silent: True
+
+  dev-exec-test:
+    cmds:
+      - |
+        POD=$(kubectl get pods -n cver-dev -l app.kubernetes.io/instance=cver-test-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
         echo "Logging into to pod: ${POD}"
         kubectl exec -n cver-dev -it ${POD} -- bash
     silent: True

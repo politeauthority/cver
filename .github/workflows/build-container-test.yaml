@@ -1,4 +1,4 @@
-name: Build Cver Api Container
+name: Build Cver Test Container
 
 on:
   workflow_call:
@@ -41,43 +41,42 @@ jobs:
           token: ${{ secrets.PAT }}
           filters: |
             src:
-              - 'docker/api/**'
-              - 'src/setup.py'
-              - 'src/cver/api/**'
-              - 'src/cver/migrate/**'
-              - 'src/cver/shared/**'
-              - 'src/cver/cver_client/**'
-              - 'tests/regression/**'
+              - 'docker/test/**'
+              - 'src/requirements.txt'
+              - 'tests/requirements.txt'
       - uses: docker/login-action@v2
         with:
           registry: harbor.squid-ink.us
           username: ${{ inputs.harbor-user }}
           password: ${{ secrets.HARBOR_PASSWORD }}
-
       - name: Decider
         run: |
-          echo "# Docker Build: Api" >> $GITHUB_STEP_SUMMARY
+          echo "# Docker Build: Test" >> $GITHUB_STEP_SUMMARY
           echo "ALIX DEBUG: CHANGES-OUTPUT: ${{steps.changes.outputs.src}}"
           if [ "${{steps.changes.outputs.src}}" = "false" ]; then
-            echo "Skipping Api Build. No changes detected." >> $GITHUB_STEP_SUMMARY
+            echo "Skipping Test Build. No changes detected." >> $GITHUB_STEP_SUMMARY
           else
-            echo "Running Api Build" >> $GITHUB_STEP_SUMMARY
+            echo "Running Test Build" >> $GITHUB_STEP_SUMMARY
           fi
 
       - name: Build Container
         if: steps.changes.outputs.src == 'true'
         run: |
           echo "Run Task: Build"
-          export CVER_API_TAG="${{ inputs.tag-name }}"
-          task build-api
+          export CVER_TEST_TAG="${{ inputs.tag-name }}"
+          task build-test
 
       - name: Push Container
         if: steps.changes.outputs.src == 'true'
         run: |
-          IMAGE_ID=$(docker images --filter "reference=cver/cver-api" --format "{{.ID}}")
-          docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-name }}
-          docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-prefix }}-latest
-          docker push harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-name }}
-          docker push harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-prefix }}-latest
-          echo "**Built:** harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-name }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Built:** harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-prefix }}-latest" >> $GITHUB_STEP_SUMMARY
+          CVER_VERSION="0.0.3"
+          IMAGE_ID=$(docker images --filter "reference=cver/cver-test" --format "{{.ID}}")
+          docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-test:${CVER_VERSION}
+          docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-test:${{ inputs.tag-name }}
+          docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-test:${{ inputs.tag-prefix }}-latest
+          docker push harbor.squid-ink.us/cver/cver-test:0.0.3
+          docker push harbor.squid-ink.us/cver/cver-test:${{ inputs.tag-name }}
+          docker push harbor.squid-ink.us/cver/cver-test:${{ inputs.tag-prefix }}-latest
+          echo "**Built:** harbor.squid-ink.us/cver/cver-test:${CVER_VERSION}" >> $GITHUB_STEP_SUMMARY
+          echo "**Built:** harbor.squid-ink.us/cver/cver-test:${{ inputs.tag-name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Built:** harbor.squid-ink.us/cver/cver-test:${{ inputs.tag-prefix }}-latest" >> $GITHUB_STEP_SUMMARY
