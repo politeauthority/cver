@@ -35,6 +35,7 @@ def vcr_config():
             ('x-api-key', 'dummy'),
             ('client-id', 'dummy')
         ],
+        "allow_playback_repeats": True
     }
 
 
