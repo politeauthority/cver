@@ -29,6 +29,28 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
+  build-test:
+    uses: ./.github/workflows/build-container-test.yaml
+    secrets: inherit 
+    permissions:
+      pull-requests: read
+      contents: read
+    with:
+      tag-prefix: "stage"
+      tag-name: "${{ github.sha }}"
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
+
+  unit-tests:
+    needs: [build-test]
+    uses: ./.github/workflows/unit-tests.yaml
+    secrets: inherit 
+    with:
+      run-number: ${{ github.run_number }}
+      tag-name: "${{ github.sha }}"
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
+
   build-api:
     needs: [build-cver, lint]
     uses: ./.github/workflows/build-container-api.yaml
