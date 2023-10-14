@@ -50,6 +50,6 @@ jobs:
           pip install -r requirements.txt
           python3 setup.py build
           python3 setup.py install
-          export CVER_API_URL = "http://localhost"
+          export CVER_API_URL="http://localhost"
           pytest unit/ --md report.md --vcr-record=none
           cat report.md >> $GITHUB_STEP_SUMMARY
