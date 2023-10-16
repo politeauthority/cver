@@ -652,11 +652,19 @@ class TestApiModelBase:
             "name": "bool_field",
             "type": "bool",
         }
+        str_field = {
+            "name": "str_field",
+            "type": "str",
+        }
         assert base._get_sql_value_santized_typed(bool_field, True) == 1
         assert base._get_sql_value_santized_typed(bool_field, "true") == 1
         assert base._get_sql_value_santized_typed(bool_field, "True") == 1
         assert base._get_sql_value_santized_typed(bool_field, False) == 0
         assert base._get_sql_value_santized_typed(bool_field, "False") == 0
+        long_str = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        long_str += "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        long_str += "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        assert 202 == len(base._get_sql_value_santized_typed(str_field, long_str))
 
     def test__check_required_class_vars(self):
         """
