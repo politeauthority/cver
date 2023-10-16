@@ -4,14 +4,12 @@
     Scans a single Image
 """
 import logging
-import subprocess
 
 from cver.shared.utils import date_utils
 from cver.cver_client.models.image import Image
 from cver.cver_client.models.image_build import ImageBuild
 from cver.cver_client.models.task import Task
 from cver.cver_client.models.scan import Scan
-from cver.engine.utils import glow
 from cver.engine.utils import scan as scan_util
 
 
