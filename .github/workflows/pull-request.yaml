@@ -144,20 +144,19 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
-  # test-engine:
-  #   needs: [test-ingest]
-  #   uses: ./.github/workflows/regression-enigne.yaml
-  #   secrets: inherit 
-  #   with:
-  #     deployment-name: "test"
-  #     run-number: ${{ github.run_number }}
-  #     cicd-version: "${{ vars.CICD_VERSION }}"
-  #     harbor-user: "${{ vars.HARBOR_USER }}"
+  test-engine:
+    needs: [test-ingest]
+    uses: ./.github/workflows/regression-enigne.yaml
+    secrets: inherit 
+    with:
+      deployment-name: "test"
+      run-number: ${{ github.run_number }}
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
 
   remove-ephem:
     runs-on: self-hosted
-    needs: [test-api, test-ingest, deploy-engine]
-    if: ${{ needs.deploy-api.result == 'success' }}
+    needs: [test-api, test-ingest, test-engine]
     container:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
       credentials:
