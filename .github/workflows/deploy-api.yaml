@@ -48,7 +48,7 @@ jobs:
           chmod 600 ~/.kube/config.yaml
           DEPLOYED_AT=$(date +"%Y-%m-%d %T")
           helm dependency build helm/cver-api
-          cd helm/api
+          cd helm/cver-api
           helm upgrade \
             ${RELEASE_NAME} ./ \
             --namespace=${NAMESPACE} \
