@@ -1,0 +1,3 @@
+#!/bin/sh -l
+# Cver Unit Test Coverage
+pytest --cov=cver /tests/unit

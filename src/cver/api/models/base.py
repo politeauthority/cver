@@ -38,6 +38,7 @@ class Base:
         self.field_map = {}
         self.field_meta = {}
         self.immutable = False
+        self.insert_iodku = False
         self.id = None
         self.setup()
 
@@ -98,10 +99,14 @@ class Base:
         """
         self.setup()
         self.check_required_class_vars()
+
         if self._is_model_json():
             return self.insert()
-        if self.backed_iodku and not self.id:
-            return self.iodku()
+        if not self.id:
+            if self.backed_iodku and self.insert_iodku:
+                return self.iodku()
+            else:
+                return self.insert()
         if not self.id:
             logging.error("Save failed, missing %s.id or where list" % __class__.__name_)
             raise AttributeError("Save failed, missing %s.id or where list" % __class__.__name_)
@@ -120,7 +125,7 @@ class Base:
         """
         sql = self._gen_insert_sql()
         try:
-            # logging.info("\n\n%s\n\n" % sql)
+            logging.info("\n\nINSERT\n%s\n\n" % sql)
             self.cursor.execute(sql)
             self.conn.commit()
         except ProgrammingError as e:
@@ -136,7 +141,7 @@ class Base:
         :unit-test: TestApiModelBase::test__iodku
         """
         sql = self._gen_iodku_sql()
-        # logging.info("\n\n%s\n\n" % sql)
+        logging.info("\n\nIODKU\n%s\n\n" % sql)
         self.cursor.execute(sql)
         self.conn.commit()
         self.id = self.cursor.lastrowid
@@ -378,6 +383,7 @@ class Base:
         """Generate the insert SQL statement.
         :unit-test: TestApiModelBase::test___gen_insert_sql
         """
+        # import ipdb; ipdb.set_trace()
         insert_sql = "INSERT INTO `%s` (%s) VALUES (%s)" % (
             self.table_name,
             self._sql_fields_sanitized(skip_fields=skip_fields),
@@ -661,6 +667,7 @@ class Base:
         """
         # Handle converting int value
         if field["type"] == "int":
+
             value = int(value)
             value = xlate.sql_safe(value)
 
@@ -673,6 +680,13 @@ class Base:
         # Handle converting a bool
         elif field["type"] == "bool":
             value = xlate.sql_safe(xlate.convert_bool_to_int(value))
+
+        elif field["type"] == "str":
+            value = str(value)
+            if value and len(value) > 200:
+                value = value[:200]
+                logging.warning("Truncating value for %s in field: %s" % (self, field["name"]))
+            value = '"%s"' % xlate.sql_safe(value)
 
         # Handle converting a json value
         elif field["type"] == "json":
@@ -713,6 +727,7 @@ class Base:
         :unit-test: TestApiModelBase::test___set_defaults
         """
         self.field_list = []
+        # import ipdb; ipdb.set_trace()
         for field_name, field in self.field_map.items():
             field_name = field['name']
             self.field_list.append(field_name)
@@ -721,11 +736,11 @@ class Base:
             if 'default' in field:
                 default = field['default']
 
-            if field["type"] == "list":
-                default = []
-
             # Sets all class field vars with defaults.
             field_value = getattr(self, field_name, None)
+            if field_value:
+                continue
+
             if field["type"] == "bool":
                 if field_value == False:
                     setattr(self, field_name, False)
@@ -733,6 +748,8 @@ class Base:
                     setattr(self, field_name, True)
                 else:
                     setattr(self, field_name, default)
+            elif field["type"] == "list":
+                setattr(self, field_name, [])
             elif not field_value:
                 setattr(self, field_name, default)
 
@@ -859,7 +876,7 @@ class Base:
                 return True
         return False
 
-    def _get_date_time(self, date_string: str) -> datetime:
+    def _get_datetime(self, date_string: str) -> datetime:
         """Attempt to get a Python native datetime from a date string.
         :unit-test: TestApiModelBase:test____get_datetime
         """

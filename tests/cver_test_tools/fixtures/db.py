@@ -30,6 +30,9 @@ class Cursor:
     def fetchone(self):
         return self.result_to_return
 
+    def fetchall(self):
+        return self.result_to_return
+
     def commit(self):
         return True
 

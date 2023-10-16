@@ -4,14 +4,15 @@ replicaCount: 1
 fullname: "cver-ingest"
 
 app:
-  schedule:  "*/30 * * * *"
   envName: "prod"
   logLevel: "INFO"
   timeoutSeconds: 300
-  suspendCron: false
   debug: true
   deployedAt: "unknown"
   apiUrl: "http://cver-api"
+  cron:
+    suspend: false
+    schedule:  "10,45 * * * *"
 
 image:
   repository: politeauthority/cver-ingest

@@ -16,6 +16,7 @@ class Option(Base):
         self.table_name = 'options'
         self.field_map = FIELD_MAP
         self.createable = False
+        self.insert_iodku = True
         self.setup()
 
     def __repr__(self):
@@ -70,7 +71,7 @@ class Option(Base):
 
             # Handle bool type Options
             if self.type == 'int':
-                if not self.value.isdigit():
+                if not isinstance(self.value, int) and not self.value.isdigit():
                     self.value = None
                 else:
                     self.value = int(self.value)

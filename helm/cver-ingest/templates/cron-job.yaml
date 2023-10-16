@@ -5,11 +5,11 @@ metadata:
   labels:
     {{- include "cver-ingest.labels" . | nindent 4 }}
 spec:
-  schedule: "{{ .Values.app.schedule }}"
+  schedule: "{{ .Values.app.cron.schedule }}"
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 3
-  suspend: {{ .Values.app.suspendCron }}
+  suspend: {{ .Values.app.cron.suspend }}
   jobTemplate:
     spec:
       template:

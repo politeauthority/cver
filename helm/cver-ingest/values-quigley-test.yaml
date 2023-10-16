@@ -8,7 +8,8 @@ app:
   envName: "test"
   logLevel: "DEBUG"
   debug: true
-  suspendCron: true
+  cron:
+    suspend: true
   apiUrl: "http://cver-api-test-{REPLACE}"
 
 test:

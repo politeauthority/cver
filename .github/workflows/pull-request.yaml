@@ -7,8 +7,8 @@ on:
     branches: ["stage", "cver-cli"]
 
 concurrency:
-  group: ${{github.ref }}
-  cancel-in-progress: false
+  group: ${{ github.ref }}
+  cancel-in-progress: true
 
 jobs: 
   
@@ -29,8 +29,30 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
+  build-test:
+    uses: ./.github/workflows/build-container-test.yaml
+    secrets: inherit 
+    permissions:
+      pull-requests: read
+      contents: read
+    with:
+      tag-prefix: "dev"
+      tag-name: "${{ github.sha }}"
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
+
+  unit-tests:
+    needs: [build-test, build-cver, lint]
+    uses: ./.github/workflows/unit-tests.yaml
+    secrets: inherit 
+    with:
+      run-number: ${{ github.run_number }}
+      tag-name: "${{ github.sha }}"
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
+
   build-api:
-    needs: [build-cver, lint]
+    needs: [unit-tests]
     uses: ./.github/workflows/build-container-api.yaml
     secrets: inherit
     permissions:
@@ -43,7 +65,7 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   build-ingest:
-    needs: [build-cver, lint]
+    needs: [unit-tests]
     uses: ./.github/workflows/build-container-ingest.yaml
     secrets: inherit
     permissions:
@@ -56,7 +78,7 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   build-engine:
-    needs: [build-cver, lint]
+    needs: [unit-tests]
     uses: ./.github/workflows/build-container-engine.yaml
     secrets: inherit 
     permissions:
@@ -69,7 +91,7 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   deploy-api:
-    needs: [build-api, build-cver, lint, build-cver]
+    needs: [unit-tests, build-api]
     uses: ./.github/workflows/deploy-api.yaml
     secrets: inherit 
     with:
@@ -80,7 +102,7 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   deploy-ingest:
-    needs: [build-ingest, lint, build-cver]
+    needs: [unit-tests, build-ingest]
     uses: ./.github/workflows/deploy-ingest.yaml
     secrets: inherit 
     with:
@@ -91,7 +113,7 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   deploy-engine:
-    needs: [build-engine, lint, build-cver]
+    needs: [unit-tests, build-engine]
     uses: ./.github/workflows/deploy-engine.yaml
     secrets: inherit 
     with:
@@ -134,7 +156,7 @@ jobs:
 
   remove-ephem:
     runs-on: self-hosted
-    needs: [test-api, test-ingest]
+    needs: [test-api, test-ingest, deploy-engine]
     if: ${{ needs.deploy-api.result == 'success' }}
     container:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}

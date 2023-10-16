@@ -7,7 +7,7 @@ on:
     branches: ["stage"]
 
 concurrency:
-  group: "staging"
+  group: "stage"
   cancel-in-progress: true
 
 jobs:
@@ -68,8 +68,30 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
+  build-test:
+    uses: ./.github/workflows/build-container-test.yaml
+    secrets: inherit 
+    permissions:
+      pull-requests: read
+      contents: read
+    with:
+      tag-prefix: "stage"
+      tag-name: "${{ github.sha }}"
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
+
+  unit-tests:
+    needs: [build-test]
+    uses: ./.github/workflows/unit-tests.yaml
+    secrets: inherit 
+    with:
+      run-number: ${{ github.run_number }}
+      tag-name: "${{ github.sha }}"
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
+
   deploy-api:
-    needs: [build-api]
+    needs: [build-api, unit-tests]
     uses: ./.github/workflows/deploy-api.yaml
     secrets: inherit 
     with:
@@ -80,7 +102,7 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   deploy-ingest:
-    needs: [build-ingest]
+    needs: [build-ingest, unit-tests]
     uses: ./.github/workflows/deploy-ingest.yaml
     secrets: inherit 
     with:
@@ -91,7 +113,7 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   deploy-engine:
-    needs: [build-engine]
+    needs: [build-engine, unit-tests]
     uses: ./.github/workflows/deploy-engine.yaml
     secrets: inherit
     with:

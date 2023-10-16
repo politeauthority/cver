@@ -44,13 +44,14 @@ jobs:
           export KUBECONFIG=~/.kube/config.yaml
           chmod 600 ~/.kube/config.yaml
           DEPLOYED_AT=$(date +"%Y-%m-%d %T")
+          cd helm/cver-engine
           helm upgrade \
-            ${RELEASE_NAME} helm/cver-engine/ \
+            ${RELEASE_NAME} ./ \
             --namespace=${NAMESPACE} \
             --install \
             --wait \
             --timeout=300s \
-            -f helm/cver-engine/values-quigley-${{ inputs.deployment-name }}.yaml \
+            -f values-quigley-${{ inputs.deployment-name }}.yaml \
             --set "app.dbName=${DB_NAME}" \
             --set "app.deployedAt=${DEPLOYED_AT}"
           echo "# Deployed: Engine" >> $GITHUB_STEP_SUMMARY

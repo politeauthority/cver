@@ -57,7 +57,7 @@ FIELD_MAP = {
     },
     "status": {
         "name": "status",
-        "type": "str",
+        "type": "bool",
         "api_writeable": True,
         "api_searchable": True,
     },
@@ -70,6 +70,12 @@ FIELD_MAP = {
     "status_reason": {
         "name": "status_reason",
         "type": "str",
+        "api_writeable": True,
+        "api_searchable": True,
+    },
+    "fail_count": {
+        "name": "fail_count",
+        "type": "int",
         "api_writeable": True,
         "api_searchable": True,
     },

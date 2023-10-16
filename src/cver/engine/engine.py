@@ -14,6 +14,7 @@ from cver.shared.utils import docker
 from cver.cver_client.models.option import Option
 from cver.engine.modules.engine_download import EngineDownload
 from cver.engine.modules.engine_scan import EngineScan
+from cver.engine.utils import glow
 
 logging.config.dictConfig(log_config)
 logger = logging.getLogger(__name__)
@@ -21,62 +22,68 @@ logger.propagate = True
 
 
 class Engine:
+
     def __init__(self):
-        self.registry_url = None
-        self.registry_user = None
-        self.registry_password = None
-        self.download_limit = 1
-        self.downloaded = 0
-        self.scan_limit = 1
-        self.scanned = 0
+        self.engine_report = {}
+        self.scan_report = {}
 
     def run(self):
         if not self.preflight():
             logging.critical("Pre flight checks failed.")
             exit(1)
         self.run_downloads()
-        self.run_scans()
+        # self.run_scans()
+        logging.info("Engine Process Complete")
+        msg = "\n\nEngine\n"
+        self._draw_engine_report()
+        logging.info(msg)
 
     def preflight(self):
         """Check that have a registry to push/pull to/from."""
         reg_url = Option()
         reg_url.get_by_name("registry_url")
-        self.registry_url = reg_url.value
-        if not self.registry_url:
+        glow.registry_info["local"]["url"] = reg_url.value
+        if not glow.registry_info["local"]["url"]:
             logging.error("No registry url found on Cver")
             return False
 
         reg_user = Option()
         reg_user.get_by_name("registry_user")
-        self.registry_user = reg_user.value
-        if not self.registry_user:
+        glow.registry_info["local"]["user"] = reg_user.value
+        if not glow.registry_info["local"]["user"]:
             logging.error("No registry user found on Cver")
             return False
 
         reg_pass = Option()
         reg_pass.get_by_name("registry_password")
-        self.registry_password = reg_pass.value
-        if not self.registry_password:
+        glow.registry_info["local"]["pass"] = reg_pass.value
+        if not glow.registry_info["local"]["pass"]:
             logging.error("No registry password found on Cver")
             return False
 
-        reg_pull_thru_docker = Option()
-        reg_pull_thru_docker.get_by_name("registry_pull_thru_docker_io")
-        self.registry_pull_thru_docker_io = reg_pull_thru_docker.value
-        if not self.registry_pull_thru_docker_io:
-            logging.error("No registry pull through found on Cver")
-            return False
+        docker.registry_login(
+            glow.registry_info["local"]["url"],
+            glow.registry_info["local"]["user"],
+            glow.registry_info["local"]["pass"])
 
-        docker.registry_login(self.registry_url, self.registry_user, self.registry_password)
         return True
 
     def run_downloads(self):
         """Engine Download runner. Here we'll download images waiting to be pulled down."""
-        EngineDownload().run()
+        self.engine_report = EngineDownload().run()
 
     def run_scans(self):
         logging.info("Running Engine Scan")
         EngineScan().run()
+
+    def _draw_engine_report(self) -> bool:
+        """Log out the relevant info from the Engine Download report."""
+        msg = "\tDownloaded: %s/%s" % (
+            self.engine_report["downloaded"],
+            self.engine_report["download_limit"]
+        )
+        logging.info(msg)
+        return True
 
 
 def parse_args(args):

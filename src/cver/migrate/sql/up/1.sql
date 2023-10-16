@@ -90,8 +90,7 @@ CREATE TABLE IF NOT EXISTS image_builds (
     `sync_last_ts` DATETIME,
     `scan_flag` TINYINT(1),
     `scan_enabled` TINYINT(1) DEFAULT True,
-    `scan_last_ts` DATETIME,
-    `pending_operation` VARCHAR(200)
+    `scan_last_ts` DATETIME
 );
 
 --- 
@@ -107,9 +106,10 @@ CREATE TABLE IF NOT EXISTS image_build_waitings (
     `tag` TEXT,
     `waiting` TINYINT(1) DEFAULT True,
     `waiting_for` VARCHAR(200),
-    `status` VARCHAR(200),
+    `status` TINYINT(1),
     `status_ts` DATETIME,
     `status_reason` VARCHAR(200),
+    `fail_count` INTEGER DEFAULT 0,
      UNIQUE image_id_build_tag (image_id, image_build_id)
 );
 
@@ -250,5 +250,24 @@ CREATE TABLE IF NOT EXISTS users (
     `org_id` INTEGER,
     `last_access` DATETIME
 );
+
+---
+--- Create tasks
+---
+CREATE TABLE IF NOT EXISTS tasks (
+    `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
+    `created_ts` DATETIME,
+    `updated_ts` DATETIME,
+    `user_id` INTEGER,
+    `name` VARCHAR(200),
+    `image_id` INTEGER,
+    `image_build_id` INTEGER,
+    `image_build_waiting_id` INTEGER,
+    `status` TINYINT(1),
+    `status_reason` VARCHAR(200),
+    `start_ts` DATETIME,
+    `end_ts` DATETIME
+);
+
 
 --- End File: cver/src/migrate/sql/up/1.sql
