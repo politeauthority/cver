@@ -2,7 +2,7 @@
 # The work horse running syncs and scans
 #
 ARG DOCKER_REGISTRY="docker.io/library"
-FROM ${DOCKER_REGISTRY}/python:3.10-slim as base
+FROM ${DOCKER_REGISTRY}/daangn/dind:debian-10.0-slim as base
 ARG CVER_BUILD=""
 ENV CVER_BUILD="${CVER_BUILD}"
 ENV CVER_VERSION="0.0.0"
@@ -17,12 +17,12 @@ RUN apt install python3-pip -y
 
 
 # Install Docker
-RUN mkdir -m 0755 -p /etc/apt/keyrings && curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-RUN echo \
-  "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
-  "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
-  tee /etc/apt/sources.list.d/docker.list > /dev/null
-RUN apt-get update && apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+# RUN mkdir -m 0755 -p /etc/apt/keyrings && curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+# RUN echo \
+#   "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
+#   "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
+#   tee /etc/apt/sources.list.d/docker.list > /dev/null
+# RUN apt-get update && apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 # Install trivy
 RUN apt-get -y install wget apt-transport-https gnupg lsb-release
