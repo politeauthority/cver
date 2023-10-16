@@ -10,6 +10,8 @@ from cver.cver_client.models.image import Image
 from cver.cver_client.models.image_build import ImageBuild
 from cver.cver_client.models.task import Task
 from cver.cver_client.models.scan import Scan
+from cver.engine.utils import glow
+
 from cver.engine.utils import scan as scan_util
 
 
@@ -152,7 +154,6 @@ class ImageScan:
         else:
             self.ibw.fail_count += 1
         self.ibw.status_reason = self.data["status_reason"]
-
         self.task.status_reason = self.data["status_reason"]
         self.task.end_ts = date_utils.now()
         self.task.save()
