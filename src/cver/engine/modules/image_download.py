@@ -176,6 +176,7 @@ class ImageDownload:
         self.ibw.save()
         # Handle IB
         self.ib.sync_last_ts = date_utils.json_date_now()
+        self.ib.registry_imported = glow.registry_info["local"]["url"]
         self.ib.save()
         # Handle Task
         self.task.end_ts = date_utils.now()
