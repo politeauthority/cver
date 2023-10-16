@@ -78,6 +78,8 @@ class Engine:
 
     def _draw_engine_report(self) -> bool:
         """Log out the relevant info from the Engine Download report."""
+        if "downloaded" not in self.engine_report:
+            return True
         msg = "\tDownloaded: %s/%s" % (
             self.engine_report["downloaded"],
             self.engine_report["download_limit"]
