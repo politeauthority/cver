@@ -305,6 +305,7 @@ tasks:
       - |
         rm -rf /opt/homebrew/lib/python3.11/site-packages/cver*
         cd src
+        rm -rf /opt/homebrew/lib/python3.11/site-packages/cver-*
         python3 setup.py build
         python3 setup.py install
 
