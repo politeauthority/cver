@@ -616,7 +616,6 @@ class Base:
         example: "2021-12-12", "a string", 1.
         :unit-test: TestApiModelBase::test___sql_insert_values_santized
         """
-        # import ipdb; ipdb.set_trace()
         if not skip_fields:
             skip_fields = {}
         sql_values = ""
@@ -666,8 +665,6 @@ class Base:
         """Convert values to a safe santized value based on it's type.
         :unit-test: TestApiModelBase::test___get_sql_value_santized_typed
         """
-        # if value == 20497:
-        #     import ipdb; ipdb.set_trace()
         # Handle converting int value
         if field["type"] == "int":
 
@@ -685,7 +682,6 @@ class Base:
             value = xlate.sql_safe(xlate.convert_bool_to_int(value))
 
         elif field["type"] == "str":
-            value = str(value)
             if value and len(value) > 200:
                 value = value[:200]
                 logging.warning("Truncating value for %s in field: %s" % (self, field["name"]))
