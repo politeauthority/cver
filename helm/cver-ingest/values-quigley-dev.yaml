@@ -12,7 +12,6 @@ app:
     suspend: false
     schedule:  "10,45 * * * *"
 
-
 test:
   test: true
 
