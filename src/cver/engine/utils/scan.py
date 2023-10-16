@@ -16,6 +16,7 @@ from cver.engine.utils import glow
 
 def run_trivy(image: Image, ib: ImageBuild) -> str:
     cmd = get_trivy_cmd(image, ib)
+    import ipdb; ipdb.set_trace()
     if not cmd:
         logging.error("Cannot run scan for: %s" % ib)
         return False
