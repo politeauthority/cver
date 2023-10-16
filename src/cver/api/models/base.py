@@ -682,6 +682,7 @@ class Base:
             value = xlate.sql_safe(xlate.convert_bool_to_int(value))
 
         elif field["type"] == "str":
+            value = str(value)
             if value and len(value) > 200:
                 value = value[:200]
                 logging.warning("Truncating value for %s in field: %s" % (self, field["name"]))
