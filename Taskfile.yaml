@@ -233,6 +233,7 @@ tasks:
             -f helm/cver-api/values.yaml \
             -f helm/cver-api/values-quigley-dev.yaml \
             --set "app.deployedAt=${DEPLOYED_AT}"
+    slient: True
 
   dev-helm-api-dead:
     cmds:
@@ -243,10 +244,11 @@ tasks:
             cver-api-dev \
             helm/cver-api \
             --namespace=cver-dev \
-            --set "app.deployedAt=${DEPLOYED_AT}" \
-            --set "app.runApionStart=False" \
             -f helm/cver-api/values.yaml \
-            -f helm/cver-api/values-quigley-dev.yaml
+            -f helm/cver-api/values-quigley-dev.yaml \
+            --set "app.deployedAt=${DEPLOYED_AT}" \
+            --set app.runApionStart=false
+    slient: True
 
   dev-helm-engine:
     cmds:
