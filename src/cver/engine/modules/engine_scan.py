@@ -9,10 +9,8 @@ import os
 from cver.cver_client.models.image import Image
 from cver.cver_client.models.image_build import ImageBuild
 from cver.cver_client.collections.image_build_waitings import ImageBuildWaitings
-from cver.cver_client.models.scan import Scan
 from cver.cver_client.models.image_build_waiting import ImageBuildWaiting
 from cver.engine.modules.image_scan import ImageScan
-
 
 
 class EngineScan:
@@ -94,38 +92,6 @@ class EngineScan:
             logging.error("Failed to Save: %s" % ibw)
             return False
 
-    def save_scan(self, ib: ImageBuild, scan_result: dict) -> bool:
-        """Parse and save a scan to the Cver api."""
-        logging.info("Parsing scan results from Trivy")
-        scan = Scan()
-        scan.user_id = 1
-        scan.image_id = ib.image_id
-        scan.image_build_id = ib.id
-        scan.scanner_id = 1
-        if "Vulnerabilities" not in scan_result["Results"][0]:
-            logging.warning("No vulnerabilities found in: %s" % ib)
-            scan.save()
-            return True
-
-        vulns = scan_result["Results"][0]["Vulnerabilities"]
-        vuln_data = self._parse_scan_vulns(vulns)
-        scan.cve_critical_int = vuln_data["cve_critical_int"]
-        scan.cve_crticial_nums = vuln_data["cve_high_nums"]
-        scan.cve_high_int = vuln_data["cve_high_int"]
-        scan.cve_high_nums = vuln_data["cve_high_nums"]
-        scan.cve_medium_int = vuln_data["cve_medium_int"]
-        scan.cve_medium_nums = vuln_data["cve_medium_nums"]
-        scan.cve_low_int = vuln_data["cve_low_int"]
-        scan.cve_low_nums = vuln_data["cve_low_nums"]
-        scan.cve_unknown_int = vuln_data["cve_unknown_int"]
-        scan.cve_unknown_nums = vuln_data["cve_unknown_nums"]
-        if scan.save():
-            logging.info("Saved Scan results successfully")
-            return True
-        else:
-            logging.warning("Failed to save scan for %s" % ib)
-            return False
-
     def get_image_build_waitings(self) -> list:
         self.api_ibws_current_page += 1
         ibw_collect = ImageBuildWaitings()
@@ -161,48 +127,6 @@ class EngineScan:
             return []
         return [ib]
 
-    def _parse_scan_vulns(self, vulns: list) -> dict:
-        """Parses the scan results for vulnerabilities and hydrates a dict to be used for saving
-        them.
-        """
-        data = {
-            "cve_critical_int": 0,
-            "cve_critical_nums": [],
-            "cve_high_int": 0,
-            "cve_high_nums": [],
-            "cve_medium_int": 0,
-            "cve_medium_nums": [],
-            "cve_low_int": 0,
-            "cve_low_nums": [],
-            "cve_unknown_int": 0,
-            "cve_unknown_nums": [],
-        }
-        for vuln in vulns:
-            cve_num = vuln["VulnerabilityID"]
-            cve_sev = vuln["Severity"]
-            if cve_sev == "CRITICAL":
-                if cve_num not in data["cve_critical_nums"]:
-                    data["cve_critical_int"] += 1
-                    data["cve_critical_nums"].append(cve_num)
-            elif cve_sev == "HIGH":
-                if cve_num not in data["cve_high_nums"]:
-                    data["cve_high_int"] += 1
-                    data["cve_medium_nums"].append(cve_num)
-            elif cve_sev == "MEDIUM":
-                if cve_num not in data["cve_medium_nums"]:
-                    data["cve_medium_int"] += 1
-                    data["cve_medium_nums"].append(cve_num)
-            elif cve_sev == "LOW":
-                if cve_num not in data["cve_low_nums"]:
-                    data["cve_low_int"] += 1
-                    data["cve_unknown_nums"].append(cve_num)
-            elif cve_sev == "UNKNOWN":
-                if cve_num not in data["cve_unknown_nums"]:
-                    data["cve_unknown_int"] += 1
-                    data["cve_unknown_nums"].append(cve_num)
-            else:
-                logging.warning("Uknown CVE severity: %s\n%s" % (cve_sev, vuln))
-        return data
 
 
 # End File: cver/src/cver/engine/modules/engine_scan.py
