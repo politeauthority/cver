@@ -71,7 +71,7 @@ class Option(Base):
 
             # Handle bool type Options
             if self.type == 'int':
-                if not self.value.isdigit():
+                if not isinstance(self.value, int) and not self.value.isdigit():
                     self.value = None
                 else:
                     self.value = int(self.value)
