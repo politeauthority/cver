@@ -6,8 +6,6 @@
 import logging
 import os
 
-from cver.cver_client.models.image import Image
-from cver.cver_client.models.image_build import ImageBuild
 from cver.cver_client.collections.image_build_waitings import ImageBuildWaitings
 from cver.cver_client.models.image_build_waiting import ImageBuildWaiting
 from cver.engine.modules.image_scan import ImageScan
@@ -68,30 +66,6 @@ class EngineScan:
             self.handle_scans()
         return True
 
-    def run_scan(self, ibw: ImageBuildWaiting) -> bool:
-        """Run a single scan."""
-        image = Image()
-        if not image.get_by_id(ibw.image_id):
-            logging.error("Cant find Image by ID: %s" % ibw.image_id)
-            return False
-
-        ib = ImageBuild()
-        if not ib.get_by_id(ibw.image_build_id):
-            logging.error("Cant find ImageBuild by ID: %s" % ibw.image_build_id)
-            return False
-        scan_result = scan_util.run_trivy(image, ib)
-        if not scan_result:
-            logging.error("Scan failed")
-            return False
-        self.save_scan(ib, scan_result)
-        ibw.delete()
-        if ibw.save():
-            logging.info("Saved: %s" % ibw)
-            return True
-        else:
-            logging.error("Failed to Save: %s" % ibw)
-            return False
-
     def get_image_build_waitings(self) -> list:
         self.api_ibws_current_page += 1
         ibw_collect = ImageBuildWaitings()
@@ -126,7 +100,5 @@ class EngineScan:
             logging.info("Image Build Waiting not found!")
             return []
         return [ib]
-
-
 
 # End File: cver/src/cver/engine/modules/engine_scan.py
