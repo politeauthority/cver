@@ -68,7 +68,6 @@ class EngineScan:
                 self.ibws_processed,
                 ibw
             ))
-<<<<<<< HEAD
             image_scanned = ImageScan(ibw=ibw).run()
             if image_scanned["status"]:
                 self.scanned += 1
@@ -77,11 +76,6 @@ class EngineScan:
                 self.scanned_images_failed.append(image_scanned["image"])
 
             if not image_scanned:
-=======
-            scanned = ImageScan(ibw=ibw).run()
-
-            if not scanned:
->>>>>>> 34a120d (working on engine-scans)
                 logging.warning("Did not complete scan for: %s" % ibw)
                 self.attemped_ibws[ibw.id] = ibw
                 continue
