@@ -224,55 +224,60 @@ tasks:
 
   dev-helm-api:
     cmds:
-      - helm uninstall cver-api-dev -n cver-dev
       - |
+        cd helm/cver-api
         DEPLOYED_AT=$(date +"%Y-%m-%d %T")
         helm upgrade --install \
             cver-api-dev \
-            helm/cver-api \
+            ./ \
             --namespace=cver-dev \
-            -f helm/cver-api/values.yaml \
-            -f helm/cver-api/values-quigley-dev.yaml \
+            -f values.yaml \
+            -f values-quigley-dev.yaml \
             --set "app.deployedAt=${DEPLOYED_AT}"
+    slient: True
 
   dev-helm-api-dead:
     cmds:
-      - helm uninstall cver-api-dev -n cver-dev
       - |
+        cd helm/cver-api
         DEPLOYED_AT=$(date +"%Y-%m-%d %T")
         helm upgrade --install \
             cver-api-dev \
-            helm/cver-api \
+            ./ \
             --namespace=cver-dev \
+            -f values.yaml \
+            -f values-quigley-dev.yaml \
             --set "app.deployedAt=${DEPLOYED_AT}" \
-            --set "app.runApionStart=False" \
-            -f helm/cver-api/values.yaml \
-            -f helm/cver-api/values-quigley-dev.yaml
+            --set app.runApionStart=false
+    slient: True
 
   dev-helm-engine:
     cmds:
       - |
+        cd helm/cver-engine
         DEPLOYED_AT=$(date +"%Y-%m-%d %T")
         helm upgrade --install \
             cver-engine-dev \
-            helm/cver-engine \
+            ./ \
             --namespace=cver-dev \
-            -f helm/cver-engine/values.yaml \
-            -f helm/cver-engine/values-quigley-dev.yaml \
+            -f values.yaml \
+            -f values-quigley-dev.yaml \
             --set "app.deployedAt=${DEPLOYED_AT}"
+    silent: True
 
   dev-helm-ingest:
     cmds:
       - |
+        cd helm/cver-ingest
         DEPLOYED_AT=$(date +"%Y-%m-%d %T")
         helm upgrade --install \
             cver-ingest-dev \
-            helm/cver-ingest \
+            ./ \
             --namespace=cver-dev \
-            -f helm/cver-ingest/values.yaml \
-            -f helm/cver-ingest/values-quigley-dev.yaml \
+            -f values.yaml \
+            -f values-quigley-dev.yaml \
             --set "app.deployedAt=${DEPLOYED_AT}"
-
+    silent: True
   dev-logs-api:
     cmds:
       - |

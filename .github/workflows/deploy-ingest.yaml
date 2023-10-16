@@ -48,12 +48,13 @@ jobs:
           chmod 600 ~/.kube/config.yaml
           DEPLOYED_AT=$(date +"%Y-%m-%d %T")
           echo "RELEASE_NAME: ${RELEASE_NAME}"
-          helm upgrade ${RELEASE_NAME} helm/cver-ingest \
+          cd helm/cver-ingest
+          helm upgrade ${RELEASE_NAME} ./ \
             --namespace=${NAMESPACE} \
             --install \
             --wait \
             --timeout=240s \
-            -f helm/cver-ingest/values-quigley-${{ inputs.deployment-name }}.yaml \
+            -f values-quigley-${{ inputs.deployment-name }}.yaml \
             --set "app.apiUrl=${API_URL}"
 
           echo "# Deployed: Ingest" >> $GITHUB_STEP_SUMMARY

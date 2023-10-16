@@ -18,6 +18,7 @@ class ImageBuild(BaseEntityMeta):
         self.table_name = "image_builds"
         self.field_map = FIELD_MAP
         self.createable = True
+        self.insert_iodku = False
         self.setup()
 
     def get_by_sha(self, sha: str = None) -> bool:
