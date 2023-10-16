@@ -13,6 +13,7 @@ class DataOptions:
     def create(self) -> bool:
         """Create the Options."""
         self.create_registry_options()
+        self.create_engine_options()
 
     def create_registry_options(self):
         """Create container registry details."""
@@ -53,6 +54,27 @@ class DataOptions:
             registry_pull_through.acl_read = ["read-all"]
             registry_pull_through.save()
 
-        logging.info("Options create successful")
+        logging.info("Registry options create successful")
+
+    def create_engine_options(self):
+        """Create scan and limit option details."""
+        # Registry URL
+        opt = Option()
+        opt.name = "engine_download_limit"
+        if not opt.get_by_name():
+            opt.type = "int"
+            opt.acl_write = ["write-all"]
+            opt.acl_read = ["read-all"]
+            opt.value = 1
+            opt.save()
+        opt = Option()
+        opt.name = "engine_scan_limit"
+        if not opt.get_by_name():
+            opt.type = "int"
+            opt.acl_write = ["write-all"]
+            opt.acl_read = ["read-all"]
+            opt.value = 1
+            opt.save()
+        logging.info("Engine options create successful")
 
 # End File: cver/src/migrate/data/data_options.py
