@@ -48,13 +48,14 @@ jobs:
           chmod 600 ~/.kube/config.yaml
           DEPLOYED_AT=$(date +"%Y-%m-%d %T")
           helm dependency build helm/cver-api
+          cd helm/api
           helm upgrade \
-            ${RELEASE_NAME} helm/cver-api/ \
+            ${RELEASE_NAME} ./ \
             --namespace=${NAMESPACE} \
             --install \
             --wait \
             --timeout=300s \
-            -f helm/cver-api/values-quigley-${{ inputs.deployment-name }}.yaml \
+            -f values-quigley-${{ inputs.deployment-name }}.yaml \
             --set "app.dbName=${DB_NAME}" \
             --set "app.deployedAt=${DEPLOYED_AT}"
           echo "# Deployed: Api" >> $GITHUB_STEP_SUMMARY
