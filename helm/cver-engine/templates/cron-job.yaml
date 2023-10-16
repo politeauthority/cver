@@ -21,7 +21,7 @@ spec:
               privileged: true
             image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
             imagePullPolicy: {{ .Values.image.pullPolicy }}
-            command: ["dockerd"]
+            command: ["/entrypoint.sh"]
             env:
               - name: CVER_ENV
                 value: "{{ .Values.app.envName }}"

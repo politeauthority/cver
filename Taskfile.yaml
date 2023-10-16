@@ -262,6 +262,7 @@ tasks:
             -f values.yaml \
             -f values-quigley-dev.yaml \
             --set "app.deployedAt=${DEPLOYED_AT}"
+    silent: True
 
   dev-helm-ingest:
     cmds:
@@ -275,7 +276,7 @@ tasks:
             -f values.yaml \
             -f values-quigley-dev.yaml \
             --set "app.deployedAt=${DEPLOYED_AT}"
-
+    silent: True
   dev-logs-api:
     cmds:
       - |
