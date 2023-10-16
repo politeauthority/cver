@@ -11,7 +11,8 @@ from cver.cver_client.models.image_build import ImageBuild
 from cver.cver_client.collections.image_build_waitings import ImageBuildWaitings
 from cver.cver_client.models.scan import Scan
 from cver.cver_client.models.image_build_waiting import ImageBuildWaiting
-from cver.engine.utils import scan as scan_util
+from cver.engine.modules.image_scan import ImageScan
+
 
 
 class EngineScan:
@@ -34,7 +35,6 @@ class EngineScan:
         return True
 
     def handle_scans(self) -> bool:
-        # ibws = self.get_image_build_waitings()
         ibws = self.get_image_build_waitings()
         logging.info("Found %s" % len(ibws))
         if not ibws:
@@ -50,7 +50,8 @@ class EngineScan:
                 self.ibws_processed,
                 ibw
             ))
-            scanned = self.run_scan(ibw)
+            scanned = ImageScan(ibw=ibw).run()
+
             if not scanned:
                 logging.warning("Did not complete scan for: %s" % ibw)
                 self.attemped_ibws[ibw.id] = ibw

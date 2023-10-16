@@ -31,8 +31,8 @@ class Engine:
         if not self.preflight():
             logging.critical("Pre flight checks failed.")
             exit(1)
-        self.run_downloads()
-        # self.run_scans()
+        # self.run_downloads()
+        self.run_scans()
         logging.info("Engine Process Complete")
         msg = "\n\nEngine\n"
         self._draw_engine_report()
