@@ -21,7 +21,7 @@ spec:
               privileged: true
             image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
             imagePullPolicy: {{ .Values.image.pullPolicy }}
-            command: ["dockerd"]
+            command: ["/entrypoint.sh"]
             env:
               - name: CVER_ENV
                 value: "{{ .Values.app.envName }}"
@@ -39,6 +39,8 @@ spec:
                   configMapKeyRef:
                     key: CVER_ENGINE_SCAN_LIMIT
                     name: cver-engine-{{- if .Values.test.test }}{{.Release.Name}}{{- end }}
+              - name: TIMEOUT_SECONDS
+                value: "{{ .Values.app.cron.timeoutSeconds }}"
               - name: CVER_DEPLOYED_AT
                 value: "{{ .Values.app.deployedAt }}"
               {{- if .Values.test.test }}

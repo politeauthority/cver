@@ -11,7 +11,7 @@ app:
   cron:
     schedule:  "15,45 * * * *"
     suspend: true
-    timeoutSeconds: 300
+    timeoutSeconds: 1200
     engineDownloadLimit: 1
     engineScanLimit: 1
 
