@@ -43,6 +43,6 @@ RUN cd /app && pip install --break-system-packages -r /app/requirements.txt
 RUN cd /app && pip install --break-system-packages .
 
 FROM base AS dev
-RUN pip install ipdb && pip install flake8
+# RUN pip install ipdb && pip install flake8
 
 CMD /entrypoint.sh
