@@ -61,6 +61,9 @@ class Engine:
             logging.error("No registry password found on Cver")
             return False
 
+        engine_scan_limit = Option()
+        engine_scan_limit.get_by_name()
+
         docker.registry_login(
             glow.registry_info["local"]["url"],
             glow.registry_info["local"]["user"],
