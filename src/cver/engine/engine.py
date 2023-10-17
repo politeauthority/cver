@@ -31,7 +31,7 @@ class Engine:
         if not self.preflight():
             logging.critical("Pre flight checks failed.")
             exit(1)
-        self.run_downloads()
+        # self.run_downloads()
         self.run_scans()
         logging.info("Engine Process Complete")
         msg = "\n\nEngine\n"
@@ -94,7 +94,7 @@ class Engine:
 
     def _draw_download_report(self) -> bool:
         """Log out the relevant info from the Engine Download report."""
-        if "downloaded" not in self.engine_report:
+        if "downloaded" not in self.download_report:
             return True
         msg = "\tDownloaded: %s/%s" % (
             self.download_report["downloaded"],
