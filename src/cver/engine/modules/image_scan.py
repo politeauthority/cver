@@ -177,19 +177,6 @@ class ImageScan:
         self.ib.scan_last_ts = date_utils.json_date_now()
         self.ib.save()
 
-    def _handle_success_scan(self) -> bool:
-        """Handle a success scanning an image."""
-        # Handle class data
-        self.data["status"] = True
-        self.data["status_reason"] = "Succeed scanning"
-
-        # Handle IBW
-        self.ibw.delete()
-
-        # Handle IB
-        self.ib.scan_last_ts = date_utils.json_date_now()
-        self.ib.save()
-
         # Handle Task
         self.task.end_ts = date_utils.now()
         self.task.save()
