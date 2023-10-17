@@ -90,7 +90,7 @@ class Engine:
 
     def run_scans(self):
         logging.info("Running Engine Scan")
-        self.engine_scan = EngineScan().run()
+        self.scan_report = EngineScan().run()
 
     def _draw_download_report(self) -> bool:
         """Log out the relevant info from the Engine Download report."""
@@ -105,7 +105,8 @@ class Engine:
 
     def _draw_scan_report(self) -> bool:
         """Log out the relevant info from the Engine Download report."""
-        if "downloaded" not in self.scan_report:
+        print(self.scan_report)
+        if not self.scan_report:
             return True
         msg = "\Scanned: %s/%s" % (
             self.scan_report["downloaded"],

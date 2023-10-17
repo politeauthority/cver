@@ -18,7 +18,7 @@ class EngineScan:
         self.api_ibws = {}
         self.api_ibws_current_page = 0
         self.ibws_processed = 0
-        self.fail_threshold = 1
+        self.fail_threshold = 3
         self.registry_pull_thru_docker_io = None
         self.run_once = False
         self.attemped_ibws = {}
@@ -58,11 +58,10 @@ class EngineScan:
 
         for ibw in ibws:
             if ibw.fail_count >= self.fail_threshold:
-                logging.warning("IBW pass fail thresshodl of %s, has %s: %s" % (
+                logging.warning("IBW pass fail threshold of %s, has %s: %s" % (
                     self.fail_threshold,
                     ibw.fail_count,
-                    ibw
-                    ))
+                    ibw))
                 continue
             self.ibws_processed += 1
             logging.info("Starting ImageBuild %s waiting. Processing: %s" % (

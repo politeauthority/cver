@@ -173,6 +173,7 @@ class ImageDownload:
         self.ibw.status = True
         self.ibw.status_ts = date_utils.json_date_now()
         self.ibw.waiting_for = "scan"
+        self.ibw.fail_count = 0
         self.ibw.save()
         # Handle IB
         self.ib.sync_last_ts = date_utils.json_date_now()
