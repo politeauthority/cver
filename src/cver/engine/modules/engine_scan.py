@@ -14,21 +14,37 @@ from cver.engine.modules.image_scan import ImageScan
 class EngineScan:
     def __init__(self):
         self.scan_limit = int(os.environ.get("CVER_ENGINE_SCAN_LIMIT", 1))
-        self.downloaded = 0
         self.scanned = 0
-
         self.api_ibws = {}
         self.api_ibws_current_page = 0
         self.ibws_processed = 0
+        self.fail_threshold = 1
         self.registry_pull_thru_docker_io = None
         self.run_once = False
         self.attemped_ibws = {}
+        self.scanned_images_success = []
+        self.scanned_images_failed = []
+        self.data = {
+            "scanned": self.scanned,
+            "scan_limit": self.scan_limit,
+            "proccessed_ibws": self.ibws_processed,
+            "scanned_images_success": self.scanned_images_success,
+            "scanned_images_failed": self.scanned_images_failed,
+            "status": None
+        }
 
     def run(self):
         logging.info("Running Engine Scan")
         self.handle_scans()
         logging.info("Scan process complete!")
-        return True
+        ret = {
+            "scanned": self.scanned,
+            "scan_limit": self.scan_limit,
+            "proccessed_ibws": self.ibws_processed,
+            "scanned_images_success": self.scanned_images_success,
+            "scanned_images_failed": self.scanned_images_failed,
+        }
+        return ret
 
     def handle_scans(self) -> bool:
         ibws = self.get_image_build_waitings()
@@ -41,20 +57,32 @@ class EngineScan:
             return True
 
         for ibw in ibws:
+            if ibw.fail_count >= self.fail_threshold:
+                logging.warning("IBW pass fail thresshodl of %s, has %s: %s" % (
+                    self.fail_threshold,
+                    ibw.fail_count,
+                    ibw
+                    ))
+                continue
             self.ibws_processed += 1
             logging.info("Starting ImageBuild %s waiting. Processing: %s" % (
                 self.ibws_processed,
                 ibw
             ))
-            scanned = ImageScan(ibw=ibw).run()
+            image_scanned = ImageScan(ibw=ibw).run()
+            if image_scanned["status"]:
+                self.scanned += 1
+                self.scanned_images_success.append(image_scanned["image"])
+            else:
+                self.scanned_images_failed.append(image_scanned["image"])
 
-            if not scanned:
+            if not image_scanned:
                 logging.warning("Did not complete scan for: %s" % ibw)
                 self.attemped_ibws[ibw.id] = ibw
                 continue
-            self.scanned += 1
+
             if self.scanned >= self.scan_limit:
-                logging.info("Completed %s of %s downloads" % (
+                logging.info("Completed %s of %s scans" % (
                     self.scanned,
                     self.scan_limit))
                 break
@@ -62,8 +90,9 @@ class EngineScan:
         if self.run_once:
             return True
 
-        if self.scanned < self.scan_limit:
-            self.handle_scans()
+        # if self.scanned < self.scan_limit:
+        #     self.handle_scans()
+        self.data["status"] = True
         return True
 
     def get_image_build_waitings(self) -> list:
