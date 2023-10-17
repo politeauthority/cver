@@ -11,6 +11,7 @@ helpers/
 src/cver/cli_debug.py
 helm/cver-api/secrets
 helm/secrets
+examples
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
