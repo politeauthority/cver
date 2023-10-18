@@ -152,7 +152,6 @@ class ImageScan:
         else:
             self.ibw.fail_count += 1
         self.ibw.status_reason = self.data["status_reason"]
-
         self.task.status_reason = self.data["status_reason"]
         self.task.end_ts = date_utils.now()
         self.task.save()
