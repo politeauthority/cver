@@ -97,12 +97,20 @@ class EngineScan:
     def get_image_build_waitings(self) -> list:
         self.api_ibws_current_page += 1
         ibw_collect = ImageBuildWaitings()
+
         if "last_page" in self.api_ibws:
             if self.api_ibws_current_page > self.api_ibws["last_page"]:
                 logging.info("At the end of ImageBuild's Waiting for scan.")
                 return []
         the_args = {
             "waiting_for": "scan",
+            "fields": {
+                "waiting_for": "scan",
+                "fail_count": {
+                    "op": "lt",
+                    "value": self.fail_threshold
+                }
+            },
             "page": self.api_ibws_current_page
         }
         ibws = ibw_collect.get(the_args)
