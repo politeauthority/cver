@@ -15,6 +15,7 @@ class TestApiModelApiKey:
         :method: ApiKey().__init__
         """
         entity = ApiKey()
+        entity.setup()
         assert hasattr(entity, "user_id")
         assert hasattr(entity, "client_id")
         assert hasattr(entity, "key")

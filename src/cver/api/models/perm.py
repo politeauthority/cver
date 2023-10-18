@@ -4,8 +4,8 @@
 
 """
 from cver.shared.models.perm import FIELD_MAP
-from cver.shared.utils import xlate
 from cver.api.models.base_entity_meta import BaseEntityMeta
+from cver.api.utils import sql_tools
 
 
 class Perm(BaseEntityMeta):
@@ -32,7 +32,7 @@ class Perm(BaseEntityMeta):
             FROM `perms`
             WHERE
                 `slug_name` = "%s"
-            LIMIT 1; """ % xlate.sql_safe(slug_name)
+            LIMIT 1; """ % sql_tools.sql_safe(slug_name)
         self.cursor.execute(sql)
         raw = self.cursor.fetchone()
         if not raw:

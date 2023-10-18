@@ -1,4 +1,5 @@
 """
+    Cver Api
     Api Utilities
 
 """
@@ -9,6 +10,9 @@ from flask import request, make_response
 
 
 def get_params() -> dict:
+    """Extract the parameters from an api request.
+    :unit-test: TestApiUtilApiUtil::test__get_params
+    """
     ret_args = {
         "page": 1,
         "per_page": 20,
@@ -30,6 +34,10 @@ def get_params() -> dict:
                 "value": arg_value,
                 "op": "="
             }
+    for key, item in raw_args.items():
+        if key not in ret_args["raw_args"]:
+            ret_args["raw_args"][key] = item
+
     if not request.data:
         return ret_args
     # @todo: clean this part up, make a better response and handling
