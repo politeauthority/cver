@@ -396,7 +396,7 @@ class Base:
         :param order: The ordering dict
             example: {
                 "field": "id"
-                "op": "DESC"
+                "direction": "DESC"
             }
         :unit-test: TestBase::test___pagination_order
         """
@@ -404,8 +404,10 @@ class Base:
         if not order:
             return order_sql
         order_field = order['field']
-        order_op = order['op']
-        order_sql = 'ORDER BY `%s` %s' % (order_field, order_op)
+        order_direction = order['direction']
+        order_sql = 'ORDER BY `%s` %s' % (
+            sql_tools.sql_safe(order_field),
+            sql_tools.sql_safe(order_direction))
         return order_sql
 
     def _get_previous_page(self, page: int) -> int:

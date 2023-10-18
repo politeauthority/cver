@@ -30,7 +30,8 @@ def get(collection) -> dict:
     # Get the data
     collect_data = collection().get_paginated(
         page=page,
-        where_and=parsed_body["where_and"]
+        where_and=parsed_body["where_and"],
+        order_by=parsed_body["order_by"]
     )
     for obj in collect_data["objects"]:
         data["objects"].append(obj.json())
@@ -55,16 +56,19 @@ def _parse_body(raw_args: dict, field_map: dict) -> dict:
     :param raw_args: Raw arguments coming in from the api body request
         example:
             {
-            "fields": {
-                "created_ts": {
-                    "op": ">",
-                    "value": "2023-10-13 01:00:00"
-                }
-            },
-            "order_by": "created_ts",
-            "limit": 5
-        }
-
+                "fields": {
+                    "cve_high_int": {
+                        "op": "gt",
+                        "value": 1
+                    }
+                },
+                "order_by": {
+                    "field": "id",
+                    "direction": "ASC"
+                },
+                "limit": 5
+            }
+    :unit-test: TestCtrlCollectionBase.test___parse_body
     """
     ret = {
         "where_and": [],
@@ -79,7 +83,8 @@ def _parse_body(raw_args: dict, field_map: dict) -> dict:
         if raw_arg_key == "fields":
             ret["where_and"] = _get_fields(raw_arg_data, field_map)
         elif raw_arg_key == "order_by":
-            if not isinstance(raw_arg_data, str):
+            ret["order_by"] = _get_order_by(raw_arg_data)
+            if not isinstance(raw_arg_data, dict):
                 logging.warning("order_by is not string, dropping.")
                 continue
             ret["order_by"] = raw_arg_data
@@ -103,6 +108,9 @@ def _get_object_type(collection) -> str:
 
 
 def _get_api_hidden_fields(field_map: dict) -> list:
+    """Get all fields that are not supposed to be displayed on the api.
+    :unit-test: TestCtrlCollectionBase.test___get_api_hidden_fields
+    """
     hidden_fields = []
     for field_name, field_info in field_map.items():
         if "api_display" in field_info and field_info["api_display"] == False:
@@ -121,6 +129,7 @@ def _get_fields(field_data: dict, field_map: dict) -> list:
                 "op": ">"
             }
         ]
+    :unit-test: TestCtrlCollectionBase.test___get_fields
     """
     where_and_fields = []
     for fn, query_data in field_data.items():
@@ -152,6 +161,29 @@ def _get_fields(field_data: dict, field_map: dict) -> list:
 
         where_and_fields.append(field_data)
     return where_and_fields
+
+
+def _get_order_by(order_data: dict) -> dict:
+    """Extract order by from the api request.
+
+    :returns:
+        example:
+            {
+                "field": "id",
+                "direction": "ASC"
+            }
+    :unit-test: TestCtrlCollectionBase.test___get_order_by
+    """
+    if not order_data:
+        return {}
+    for key, value in order_data.items():
+        if key not in ["field", "direction"]:
+            # @todo: add logging
+            return {}
+    return {
+        "field": order_data["field"],
+        "direction": order_data["direction"],
+    }
 
 
 def _field_queryable(field_name: str, field_map: dict) -> bool:
@@ -187,6 +219,9 @@ def _query_direct(field_name: str, query_data: str, field_map_field: dict) -> di
 
 
 def _get_operation(query_data: dict, field_map_field: dict) -> str:
+    """Get the operation for a single field.
+    :unit-test: TestCtrlCollectionBase.test___get_operation
+    """
     if "op" not in query_data:
         logging.warning("Operation not in query replacing with =")
         return "="

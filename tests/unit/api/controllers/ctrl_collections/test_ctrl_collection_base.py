@@ -39,11 +39,13 @@ FIELD_MAP = {
         "name": "key",
         "type": "str",
         "api_searchable": True,
+        "api_display": False
     },
     "not_queryable": {
         "name": "not_queryable",
         "type": "str",
         "api_searchable": False,
+        "api_display": False
     }
 }
 
@@ -60,12 +62,17 @@ class TestCtrlCollectionBase:
                     "value": 1,
                     "op": "="
                 }
+            },
+            "order_by": {
+                "field": "id",
+                "direction": "ASC"
             }
         }
         result = ctrl_collection_base._parse_body(raw_args, FIELD_MAP)
         assert isinstance(result, dict)
         assert isinstance(result["where_and"], list)
-        assert not result["order_by"]
+        assert "id" == result["order_by"]["field"]
+        assert "ASC" == result["order_by"]["direction"]
         assert not result["limit"]
         assert not result["page"]
         # assert result == [{'field': 'client_id', 'value': 1, 'op': '='}]
@@ -78,11 +85,11 @@ class TestCtrlCollectionBase:
         assert ctrl_collection_base._get_object_type(ClusterImages) == "cluster-image"
         assert ctrl_collection_base._get_object_type(Images) == "image"
 
-    # def test___get_api_hidden_fields(self):
-    #     """
-    #     :method: ctrl_collection_base._get_api_hidden_fields
-    #     """
-    #     assert ctrl_collection_base._get_api_hidden_fields(FIELD_MAP) == ["key"]
+    def test___get_api_hidden_fields(self):
+        """
+        :method: ctrl_collection_base._get_api_hidden_fields
+        """
+        assert ["key", "not_queryable"] == ctrl_collection_base._get_api_hidden_fields(FIELD_MAP)
 
     def test___get_fields(self):
         """
@@ -104,26 +111,38 @@ class TestCtrlCollectionBase:
         assert isinstance(result[0], dict)
         assert "created_ts" == result[0]["field"]
 
-    # def test___field_queryable(self):
-    #     """
-    #     :method: ctrl_collection_base._field_queryable
-    #     """
-    #     assert ctrl_collection_base._field_queryable("image_name", FIELD_MAP)
-    #     assert not ctrl_collection_base._field_queryable("image_namey", FIELD_MAP)
-    #     assert not ctrl_collection_base._field_queryable("not_queryable", FIELD_MAP)
+    def test___get_order_by(self):
+        """
+        :method: ctrl_collection_base._get_order_by
+        """
+        assert {} == ctrl_collection_base._get_order_by({})
 
-    # def test___query_direct(self):
-    #     """
-    #     ctrl_collection_base._query_direct
-    #     """
-    #     result = ctrl_collection_base._query_direct(
-    #         "image_name",
-    #         "hello-world",
-    #         FIELD_MAP["image_name"])
-    #     assert isinstance(result, dict)
-    #     assert "image_name" == result["field"]
-    #     assert "hello-world" == result["value"]
-    #     assert "=" == result["op"]
+        order_data = {
+            "field": "id",
+            "direction": "ASC",
+        }
+        assert order_data == ctrl_collection_base._get_order_by(order_data)
+
+    def test___field_queryable(self):
+        """
+        :method: ctrl_collection_base._field_queryable
+        """
+        assert ctrl_collection_base._field_queryable("image_name", FIELD_MAP)
+        assert not ctrl_collection_base._field_queryable("image_namey", FIELD_MAP)
+        assert not ctrl_collection_base._field_queryable("not_queryable", FIELD_MAP)
+
+    def test___query_direct(self):
+        """
+        ctrl_collection_base._query_direct
+        """
+        result = ctrl_collection_base._query_direct(
+            "image_name",
+            "hello-world",
+            FIELD_MAP["image_name"])
+        assert isinstance(result, dict)
+        assert "image_name" == result["field"]
+        assert "hello-world" == result["value"]
+        assert "=" == result["op"]
 
     def test___get_operation(self):
         query_data = {
