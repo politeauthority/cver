@@ -437,7 +437,6 @@ class Base:
             FROM `%s`
             ORDER BY created_ts DESC
             LIMIT %s;""" % (self.table_name, sql_tools.sql_safe(num_units))
-        return sql
 
     def _gen_get_by_ids_sql(self, model_ids: list) -> str:
         """Generate the get_by_ids SQL statement.
