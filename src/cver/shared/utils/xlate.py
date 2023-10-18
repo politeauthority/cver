@@ -1,17 +1,16 @@
-"""Utility Xlate
-A collection of misc trasnlation functions used all throuhout the Pignus platofrm.
+"""
+    Utility Xlate
+    Cver Shared
+    A collection of misc trasnlation functions used all throuhout the Pignus platofrm.
 
-Testing:
-    Unit test file  cver/tests/unit/shared/utils/test_xlate.py
-    Unit tested     10/15
+    Testing:
+        Unit test file  cver/tests/unit/shared/utils/test_xlate.py
+        Unit tested     10/15
 
 """
-from datetime import datetime
 import json
 import logging
 from urllib.parse import unquote, quote, quote_plus
-
-from sqlescapy import sqlescape
 
 
 def url_decode(encoded_str: str) -> str:
@@ -139,31 +138,6 @@ def convert_str_to_bool(value: str) -> bool:
         'Cannot convert "%s" of type "%s" to bool.' % (
             value,
             type(value)))
-
-
-def sql_safe(query_item):
-    """Covert any item to a sql safe value where possible.
-    :unit-test: TestXlate::test__sql_safe
-    """
-    if not query_item:
-        return query_item
-    if isinstance(query_item, str) and query_item.isdigit():
-        return query_item
-    elif isinstance(query_item, datetime):
-        return query_item
-    elif isinstance(query_item, int):
-        return query_item
-    elif isinstance(query_item, dict):
-        logging.warning("sql_safe cannot translate dict objects")
-        query_item = json.dumps(query_item)
-        return query_item
-    elif isinstance(query_item, list):
-        cleaned = []
-        for item in query_item:
-            cleaned.append(sqlescape(item))
-        return ", ".join(cleaned)
-    else:
-        return sqlescape(query_item)
 
 
 def get_digest(image_str: str):

@@ -66,10 +66,11 @@ class TestApiCollectionScans(TestApiBase):
             "method": "GET",
             "url": "%s%s" % (CVER_API_URL, URL_BASE),
             "data": {
-                "cve_critical_int": {
-                    "field": "cve_critical_int",
-                    "value": 10,
-                    "op": ">"
+                "fields": {
+                    "cve_critical_int": {
+                        "value": 10,
+                        "op": ">"
+                    }
                 }
             }
         }

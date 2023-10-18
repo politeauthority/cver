@@ -53,7 +53,8 @@ FIELD_MAP = {
     "status": {
         "name": "status",
         "type": "bool",
-        "api_writeable": True
+        "api_writeable": True,
+        "api_searchable": True,
     },
     "status_reason": {
         "name": "status_reason",
@@ -63,12 +64,14 @@ FIELD_MAP = {
     "start_ts": {
         "name": "start_ts",
         "type": "datetime",
-        "api_writeable": True
+        "api_writeable": True,
+        "api_searchable": True
     },
     "end_ts": {
         "name": "end_ts",
         "type": "datetime",
-        "api_writeable": True
+        "api_writeable": True,
+        "api_searchable": True
     },
 }
 
