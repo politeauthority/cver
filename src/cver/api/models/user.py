@@ -6,7 +6,7 @@
 """
 from cver.shared.models.user import FIELD_MAP
 from cver.api.models.base import Base
-from cver.shared.utils import xlate
+from cver.api.utils import sql_tools
 
 
 class User(Base):
@@ -37,7 +37,7 @@ class User(Base):
                 `email`="%(email)s"
             LIMIT 1; """ % {
             "table": self.table_name,
-            "email": xlate.sql_safe(email)
+            "email": sql_tools.sql_safe(email)
         }
         self.cursor.execute(sql)
         raw = self.cursor.fetchone()
