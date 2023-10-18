@@ -317,6 +317,7 @@ tasks:
   cver-build:
     cmds:
       - |
+        rm -rf /opt/homebrew/lib/python3.11/site-packages/cver*
         cd src
         python3 setup.py build
         python3 setup.py install
