@@ -1,4 +1,5 @@
 """
+    Cver Api
     Api Utilities
 
 """
@@ -9,6 +10,9 @@ from flask import request, make_response
 
 
 def get_params() -> dict:
+    """Extract the parameters from an api request.
+    :unit-test: TestApiUtilApiUtil::test__get_params
+    """
     ret_args = {
         "page": 1,
         "per_page": 20,

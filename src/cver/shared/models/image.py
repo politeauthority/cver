@@ -15,6 +15,7 @@ FIELD_MAP = {
     "created_ts": {
         "name": "created_ts",
         "type": "datetime",
+        "api_searchable": True,
     },
     "updated_ts": {
         "name": "updated_ts",

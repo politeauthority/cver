@@ -361,8 +361,8 @@ class Base:
             op = "="
             if "op" in where_a:
                 op = where_a["op"]
-            if "op" not in ["=", "<", ">"]:
-                op = "="
+            # if "op" not in ["=", "<", ">"]:
+            #     op = "="
             if not self.collect_model:
                 raise AttributeError("Model %s does not have a collect_model." % self)
 
