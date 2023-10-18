@@ -382,7 +382,7 @@ class Base:
                 sql_tools.sql_safe(where_a['field']),
                 op,
                 where_a['value'])
-            where_and_sql = where_and_sql.strip()
+            # where_and_sql = where_and_sql.strip()
 
         if where:
             where_and_sql = "WHERE " + where_and_sql

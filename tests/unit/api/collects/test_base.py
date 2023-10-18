@@ -71,7 +71,7 @@ class TestApiCollectsBase:
 
         result = base._generate_paginated_sql(page=1, where_and=[where_and], order_by={}, limit=20)
         expected = "\n            SELECT *\n            FROM `api_keys`\n            WHERE "
-        expected += "`user_id` = 1\n            ORDER BY `created_ts` DESC\n            LIMIT 20 "
+        expected += "`user_id` = 1 \n            ORDER BY `created_ts` DESC\n            LIMIT 20 "
         expected += "OFFSET 0;"
         assert expected == result
 

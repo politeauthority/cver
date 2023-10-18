@@ -16,5 +16,4 @@ class Clusters(ClientCollectionsBase):
         self.model_name = "cluster"
         self.collection_name = "clusters"
 
-
 # End File: cver/src/cver_client/collections/clusters.py
