@@ -108,7 +108,7 @@ class Engine:
         print(self.scan_report)
         if not self.scan_report:
             return True
-        msg = "\Scanned: %s/%s" % (
+        msg = "\nScanned: %s/%s" % (
             self.scan_report["downloaded"],
             self.scan_report["download_limit"]
         )
