@@ -30,6 +30,10 @@ def get_params() -> dict:
                 "value": arg_value,
                 "op": "="
             }
+    for key, item in raw_args.items():
+        if key not in ret_args["raw_args"]:
+            ret_args["raw_args"][key] = item
+
     if not request.data:
         return ret_args
     # @todo: clean this part up, make a better response and handling

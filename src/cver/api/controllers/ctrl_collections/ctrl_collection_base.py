@@ -7,6 +7,7 @@
 import logging
 
 from cver.api.utils import api_util
+from cver.shared.utils import xlate
 
 
 def get(collection) -> dict:
@@ -19,11 +20,13 @@ def get(collection) -> dict:
         "object_type": _get_object_type(collection)
     }
     page = 1
+    logging.info("\nREQUEST ARGS:\n%s" % request_args)
     if "page" in request_args:
         page = request_args["page"]
     field_map = collection().collect_model().field_map
     where_and = _get_where_and(request_args["raw_args"], field_map)
 
+    logging.info("\nGET:\n%s" % where_and)
     # Get the data
     collect_data = collection().get_paginated(page=page, where_and=where_and)
     for obj in collect_data["objects"]:
@@ -67,6 +70,10 @@ def _get_where_and(raw_args: dict, field_map: dict) -> list:
                 "value": raw_arg_data,
                 "op": "=",
             }
+            if field_map[fn]["type"] == "bool":
+                field_data["value"] = xlate.convert_str_to_bool(field_data["value"])
+                logging.info("modified value to bool")
+
         else:
             field_data["value"] = raw_arg_data["value"]
             if "op" not in raw_arg_data or not raw_arg_data["op"]:

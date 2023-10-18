@@ -13,8 +13,8 @@ import math
 
 import arrow
 
+from cver.api.utils import sql_tools
 from cver.shared.utils import log
-from cver.shared.utils import xlate
 
 from cver.api.utils import glow
 
@@ -80,7 +80,7 @@ class Base:
         sql = 'SELECT * FROM `%(table)s` WHERE `%(field)s` LIKE "%%'
         vals = {
             "table": self.table_name,
-            "field": xlate.sql_safe(like["field"]),
+            "field": sql_tools.sql_safe(like["field"]),
         }
         sql = sql % vals
         sql += like["value"]
@@ -304,7 +304,7 @@ class Base:
         """
         sql_ids = ""
         for i in item_list:
-            sql_ids += "%s," % xlate.sql_safe(i)
+            sql_ids += "%s," % sql_tools.sql_safe(i)
         sql_ids = sql_ids[:-1]
         return sql_ids
 
@@ -363,10 +363,23 @@ class Base:
                 op = where_a["op"]
             if "op" not in ["=", "<", ">"]:
                 op = "="
+            if not self.collect_model:
+                raise AttributeError("Model %s does not have a collect_model." % self)
+
+            if not self.collect_model().field_map:
+                raise AttributeError("%s model ." % self)
+
+            if where_a["field"] not in self.collect_model().field_map:
+                raise AttributeError("Model %s does not have field: %s" % (
+                    self,
+                    where_a["field"]))
+            # field = self.collect_model().field_map[where_a["field"]]
+            # if field["type"] == "bool":
+
             if isinstance(where_a["value"], str):
-                where_a["value"] = '"%s"' % xlate.sql_safe(where_a["value"])
+                where_a["value"] = '"%s"' % sql_tools.sql_safe(where_a["value"])
             where_and_sql += '`%s` %s %s AND ' % (
-                xlate.sql_safe(where_a['field']),
+                sql_tools.sql_safe(where_a['field']),
                 op,
                 where_a['value'])
             where_and_sql = where_and_sql.strip()
@@ -421,7 +434,7 @@ class Base:
             SELECT *
             FROM `%s`
             ORDER BY created_ts DESC
-            LIMIT %s;""" % (self.table_name, xlate.sql_safe(num_units))
+            LIMIT %s;""" % (self.table_name, sql_tools.sql_safe(num_units))
         return sql
 
     def _gen_get_by_ids_sql(self, model_ids: list) -> str:
