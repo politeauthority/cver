@@ -5,15 +5,12 @@ replicaCount: 1
 nameOverride: "stage"
 
 app:
-  envName: "stage"
   logLevel: "DEBUG"
-  envName: "test"
+  envName: "stage"
   debug: false
   cron:
-    schedule:  "22,52 * * * *"
-    suspend: true
-    engineDownloadLimit: 1
-    engineScanLimit: 1
+    schedule:  "22 * * * *"
+    suspend: false
 
 test:
   test: true

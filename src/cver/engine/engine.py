@@ -106,13 +106,13 @@ class Engine:
     def _draw_scan_report(self) -> bool:
         """Log out the relevant info from the Engine Download report."""
         print(self.scan_report)
-        if not self.scan_report:
-            return True
-        msg = "\nScanned: %s/%s" % (
-            self.scan_report["downloaded"],
-            self.scan_report["download_limit"]
-        )
-        logging.info(msg)
+        # if not self.scan_report:
+        #     return True
+        # msg = "\nScanned: %s/%s" % (
+        #     self.scan_report["downloaded"],
+        #     self.scan_report["download_limit"]
+        # )
+        # logging.info(msg)
         return True
 
 
