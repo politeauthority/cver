@@ -37,7 +37,31 @@ class Cver:
 
     def get_info(self):
         client = CverClient()
-        print(client.info())
+        info = client.info()
+        info_base = {
+            "env": info["env"],
+            "migration": info["migration"],
+        }
+        info_totals = {
+            "api-keys": info["model_totals"]["api-keys"],
+            "apps": info["model_totals"]["apps"],
+            "cluster-images": info["model_totals"]["cluster-images"],
+            "image-build-waitings": info["model_totals"]["image-build-waitings"],
+            "image-builds": info["model_totals"]["image-builds"],
+            "images": info["model_totals"]["images"],
+            "migrations": info["model_totals"]["migrations"],
+            "options": info["model_totals"]["options"],
+            "perms": info["model_totals"]["perms"],
+            "role_perms": info["model_totals"]["role_perms"],
+            "roles": info["model_totals"]["roles"],
+            "scanners": info["model_totals"]["scanners"],
+            "scans": info["model_totals"]["scans"],
+            "tasks": info["model_totals"]["tasks"],
+            "users": info["model_totals"]["users"],
+        }
+        display.print_dict(info_base)
+        print("Totals")
+        display.print_dict(info_totals, pad=2)
 
     def get_image(self, image_id):
         """Get a single Image."""

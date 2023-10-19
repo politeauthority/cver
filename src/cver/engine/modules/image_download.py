@@ -1,7 +1,7 @@
 """
     Cver Engine
-    Download Image
-    Download's a single Image
+    Image Download
+    Downloads a single Image
 """
 import logging
 import subprocess
@@ -13,7 +13,7 @@ from cver.cver_client.models.task import Task
 from cver.engine.utils import glow
 
 
-class DownloadImage:
+class ImageDownload:
 
     def __init__(self, **kwargs):
         self.image = None
@@ -173,9 +173,11 @@ class DownloadImage:
         self.ibw.status = True
         self.ibw.status_ts = date_utils.json_date_now()
         self.ibw.waiting_for = "scan"
+        self.ibw.fail_count = 0
         self.ibw.save()
         # Handle IB
         self.ib.sync_last_ts = date_utils.json_date_now()
+        self.ib.registry_imported = glow.registry_info["local"]["url"]
         self.ib.save()
         # Handle Task
         self.task.end_ts = date_utils.now()
@@ -201,4 +203,4 @@ class DownloadImage:
         #     "sha": sha
         # }
 
-# End File: cver/src/cver/engine/modules/download_image.py
+# End File: cver/src/cver/engine/modules/image_download.py

@@ -9,10 +9,8 @@ app:
   envName: "dev"
   debug: false
   cron:
-    schedule:  "42 * * * *"
-    suspend: false
-    engineDownloadLimit: 1
-    engineScanLimit: 1
+    schedule:  "45 * * * *"
+    suspend: true
 
 test:
   test: true

@@ -9,7 +9,7 @@ import logging
 import os
 
 from cver.cver_client.collections.image_build_waitings import ImageBuildWaitings
-from cver.engine.modules.download_image import DownloadImage
+from cver.engine.modules.image_download import ImageDownload
 
 
 class EngineDownload:
@@ -55,7 +55,7 @@ class EngineDownload:
         for ibw in ibws:
             self.processed += 1
             logging.info("Processing % of %s" % (self.processed, self.processed_limit))
-            image_download = DownloadImage(ibw=ibw).run()
+            image_download = ImageDownload(ibw=ibw).run()
             if image_download["status"]:
                 self.downloaded += 1
                 self.downloaded_images_success.append(image_download["image"])
