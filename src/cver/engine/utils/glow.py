@@ -19,4 +19,10 @@ registry_info = {
     }
 }
 
+global engine_info
+engine_info = {
+    "download_limit": 0,
+    "scan_limit": 0
+}
+
 # End File: cver/src/engine/utils/glow.py

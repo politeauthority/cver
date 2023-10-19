@@ -10,7 +10,6 @@ app:
   debug: true
   cron:
     suspend: true
-  apiUrl: "http://cver-api-test-{REPLACE}"
 
 test:
   test: true
