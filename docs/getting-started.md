@@ -6,9 +6,9 @@ You'll want to create your own `values.yaml` file. I've included a few examples 
 ```bash
 cd cver/helm/cver-api
 helm upgrade --install \
-    cver-api-prod \
-    helm/cver-api \
-    -f helm/cver-api/values-quigley-prod.yaml
+    cver-api \
+    ./ \
+    -f values-quigley-prod.yaml
 ```
 ### Mysql
 Once your service is up, log into Mysql and create a user

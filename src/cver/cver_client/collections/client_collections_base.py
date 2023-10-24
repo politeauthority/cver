@@ -5,7 +5,6 @@
 
 """
 import importlib
-import logging
 
 from cver.shared.utils import xlate
 from cver.cver_client import CverClient
@@ -30,7 +29,6 @@ class ClientCollectionsBase(CverClient):
             }
         elif args:
             payload = self._prepare_search(args)
-        print("PAYLOAD: %s" % payload)
         response = self.make_request(self.collection_name, payload=payload)
         self.response_last = response
         if response["status"] == "success":
@@ -102,7 +100,7 @@ class ClientCollectionsBase(CverClient):
                 payload["order_by"] = args["order_by"]
             elif arg_key == "limit":
                 payload["limit"] = args["limit"]
-        logging.debug("\nPARDED PAYLOAD:\n\t%s" % payload)
+        # logging.debug("\nPARDED PAYLOAD:\n\t%s" % payload)
         return payload
 
 
