@@ -5,6 +5,10 @@ vars:
 tasks:
 
   build-api:
+    # args:
+    #   - name: registry
+    #     desc: Description of arg1 (optional)
+    #     required: false
     cmds:
       - cp -r {{.CVER_DIR}}/src {{.CVER_DIR}}/docker/api/
       - cp -r {{.CVER_DIR}}/tests {{.CVER_DIR}}/docker/api/
@@ -22,10 +26,12 @@ tasks:
           TARGET=$CLI_ARGS
         fi
         echo "Building Target: ${TARGET}"
+        # DOCKER_REGISTRY="harbor.squid-ink.us/cver-docker-hub"
+        DOCKER_REGISTRY="docker.io"
         docker build \
           -t cver/cver-api:${CVER_API_TAG} \
           --build-arg CVER_BUILD="${CVER_API_TAG}" \
-          --build-arg DOCKER_REGISTRY="harbor.squid-ink.us/cver-docker-hub" \
+          --build-arg DOCKER_REGISTRY=${DOCKER_REGISTRY} \
           --target ${TARGET} \
           {{.CVER_DIR}}/docker/api
       - rm -rf {{.CVER_DIR}}/docker/api/src
@@ -72,11 +78,12 @@ tasks:
         else
           TARGET=$CLI_ARGS
         fi
+        # DOCKER_REGISTRY="harbor.squid-ink.us/cver-docker-hub"
+        DOCKER_REGISTRY="docker.io"
         echo "Building Target: ${TARGET}"
         docker build \
-          -t cver/cver-ingest \
-          --build-arg CVER_BUILD="${CVER_INGEST_TAG}" \
-          --build-arg DOCKER_REGISTRY="harbor.squid-ink.us/cver-docker-hub" \
+          -t cver/cver-ingest:${CVER_INGEST_TAG} \
+          --build-arg DOCKER_REGISTRY=${DOCKER_REGISTRY} \
           --target ${TARGET} \
           {{.CVER_DIR}}/docker/ingest
       - rm -rf {{.CVER_DIR}}/docker/ingest/src
@@ -124,7 +131,24 @@ tasks:
           -e CVER_JWT_EXPIRE_MINUTES=1440 \
           cver/cver-api:dev \
           tail -f /dev/null
-      - docker network connect cver cver-ap
+      - docker network connect cver cver-api
+      - echo "Success"
+    silent: false
+
+  dev-run-ingest:
+    cmds:
+      - |
+        docker rm -f cver-ingest
+        docker run --name="cver-ingest" -d \
+          -v {{.CVER_DIR}}/src:/app \
+          -v {{.CVER_DIR}}/tests:/tests \
+          -e CVER_CLIENT_ID="${CVER_TEST_CLIENT_ID}" \
+          -e CVER_API_KEY="${CVER_TEST_API_KEY}" \
+          -e CVER_API_URL="http://localhost/" \
+          -e CVER_TEST="true" \
+          cver/cver-ingest:dev \
+          tail -f /dev/null
+      - docker network connect cver cver-ingest
       - echo "Success"
     silent: false
 
