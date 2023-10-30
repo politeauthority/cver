@@ -72,6 +72,7 @@ jobs:
           BRANCH="${BRANCH//\//-}"
           echo "${BRANCH}"
           echo "${BRANCH}" >> $GITHUB_OUTPUT
+          echo "::set-output name=branch::${BRANCH}"
         id: extract_branch
 
       - name: Build Container
@@ -86,10 +87,12 @@ jobs:
         run: |
           BRANCH="${{ steps.extract_branch.outputs.branch }}"
           MAKE_BRANCH_TAG="false"
+          MAKE_VERSION_TAG="false"
           if [ "$BRANCH" = "stage" ]; then
             MAKE_BRANCH_TAG="false"
           elif [ "$BRANCH" = "main" ]; then
             MAKE_BRANCH_TAG="false"
+            MAKE_VERSION_TAG="true"
           else
             MAKE_BRANCH_TAG="true"
           fi
@@ -106,4 +109,10 @@ jobs:
             docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-api:${BRANCH}
             docker push harbor.squid-ink.us/cver/cver-api:${BRANCH}
             echo "**Built:** harbor.squid-ink.us/cver/cver-api:${BRANCH}" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ "$MAKE_VERSION_TAG" = "true" ]; then
+            VERSION=$(grep -o 'version = "[^"]*"' src/cver/api/version.py | cut -d '"' -f 2)
+            docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-api:${VERSION}
+            docker push harbor.squid-ink.us/cver/cver-api:${VERSION}
+            echo "**Built:** harbor.squid-ink.us/cver/cver-api:${VERSION}" >> $GITHUB_STEP_SUMMARY
           fi
