@@ -70,7 +70,8 @@ jobs:
         run: |
           BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
           BRANCH="${BRANCH//\//-}"
-          echo "${BRANCH }" >> $GITHUB_OUTPUT
+          echo "${BRANCH}"
+          echo "${BRANCH}" >> $GITHUB_OUTPUT
         id: extract_branch
 
       - name: Build Container
