@@ -145,7 +145,7 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   test-engine:
-    needs: [deploy-engine, test-ingest]
+    needs: [deploy-api, deploy-engine, test-ingest]
     uses: ./.github/workflows/regression-enigne.yaml
     secrets: inherit 
     with:
