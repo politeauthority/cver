@@ -18,11 +18,13 @@ class DataRbac:
         admin_role_id = self.create_admin_rbac()
         reader_role_id = self.create_reader_rbac()
         contributor_role_id = self.create_contributor_rbac()
+        ingestor_role_id = self.create_ingestor_rbac()
 
         return {
             "admin_role_id": admin_role_id,
             "reader_role_id": reader_role_id,
             "contributor_role_id": contributor_role_id,
+            "ingestor_role_id": ingestor_role_id
         }
 
     def create_admin_rbac(self) -> int:
@@ -65,6 +67,34 @@ class DataRbac:
 
         perm_read_image = self.create_perm("Read Image", "write-image")
         self.create_role_perm(role, perm_read_image)
+
+        return role.id
+
+    def create_ingestor_rbac(self) -> int:
+        """Create ingestor role with write scan and read info."""
+        # Create Role
+        role = self.create_role("Ingestor", "ingestor")
+
+        # Create the Perms and Bindings
+        perm_write_scan_info = self.create_perm("Write Scan", "write-ingest")
+        self.create_role_perm(role, perm_write_scan_info)
+
+        perm_read_info = self.create_perm("Read Info", "read-info")
+        self.create_role_perm(role, perm_read_info)
+
+        return role.id
+
+    def create_engine_rbac(self) -> int:
+        """Create ingestor role with write scan and read info."""
+        # Create Role
+        role = self.create_role("Engine", "engine")
+
+        # Create the Perms and Bindings
+        perm_write_scan_info = self.create_perm("Write Scan", "write-scan")
+        self.create_role_perm(role, perm_write_scan_info)
+
+        perm_read_info = self.create_perm("Read Info", "read-info")
+        self.create_role_perm(role, perm_read_info)
 
         return role.id
 

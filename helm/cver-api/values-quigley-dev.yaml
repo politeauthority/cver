@@ -7,13 +7,14 @@ nameOverride: "dev"
 app:
   runApiOnStart: false
   logLevel: "DEBUG"
-  dbName: "cver_dev"
-  dbHost: "cver-mysql.cver.svc.cluster.local"
-  dbUser: "cver"
   runMigrations: true
   envName: "dev"
   debug: true
   jwtExpireMinutes: 4320
+  database:
+    name: "cver_dev"
+    host: "cver-mysql.cver.svc.cluster.local"
+    user: "cver"
 
 test:
   test: true

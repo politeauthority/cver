@@ -653,7 +653,7 @@ class Base:
         if field["name"] == "created_ts" and not value:
             value = date_utils.now()
 
-        if field["name"] == "updated_ts" and not value:
+        if field["name"] == "updated_ts":
             value = date_utils.now()
 
         if value is None or value == []:
