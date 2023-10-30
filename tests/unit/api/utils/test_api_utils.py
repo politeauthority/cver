@@ -19,12 +19,10 @@ class TestApiUtilApiUtil:
             }
         }
         expected = {
-            "fields": {
-                "sync_enabled": {
-                    "field": "sync_enabled",
-                    "value": True,
-                    "op": "="
-                }
+            "sync_enabled": {
+                "field": "sync_enabled",
+                "value": True,
+                "op": "="
             }
         }
         assert expected == api_util._get_search_field_args(payload)
