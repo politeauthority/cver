@@ -18,6 +18,7 @@ class ClusterImages(Base):
         super(ClusterImages, self).__init__(conn, cursor)
         self.table_name = ClusterImage().table_name
         self.collect_model = ClusterImage
+        self.field_map = self.collect_model().field_map
         self.per_page = 20
 
 # End File: cver/src/api/collects/cluster_images.py

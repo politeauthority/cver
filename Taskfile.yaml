@@ -160,8 +160,8 @@ tasks:
     cmds:
       - |
         POD=$(kubectl get pods -n cver-dev -l app.kubernetes.io/instance=cver-ingest-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
-        kubectl cp  -n cver-dev {{ .CVER_DIR }}/src/cver/ ${POD}:/app/
-        kubectl exec -it ${POD} -- cver-build
+        kubectl cp -n cver-dev {{ .CVER_DIR }}/src/cver/ ${POD}:/app/
+        kubectl exec -n cver-dev -it ${POD} -- cver-build
       - echo "Copied and Built!"
     silent: True
 

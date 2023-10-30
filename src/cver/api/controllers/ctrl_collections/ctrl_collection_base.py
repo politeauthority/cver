@@ -24,8 +24,9 @@ def get(collection) -> dict:
     if "page" in request_args:
         page = request_args["page"]
     field_map = collection().collect_model().field_map
-    parsed_body = _parse_body(request_args["raw_args"], field_map)
+    parsed_body = _parse_body(request_args["clean_args"], field_map)
     logging.info("\nRaw Args:\n%s" % request_args["raw_args"])
+    logging.info("\nClean Args:\n%s" % request_args["clean_args"])
     logging.info("\nGET:\n%s" % parsed_body)
     # Get the data
     collect_data = collection().get_paginated(
@@ -33,6 +34,7 @@ def get(collection) -> dict:
         where_and=parsed_body["where_and"],
         order_by=parsed_body["order_by"]
     )
+
     for obj in collect_data["objects"]:
         data["objects"].append(obj.json())
 
@@ -195,7 +197,7 @@ def _field_queryable(field_name: str, field_map: dict) -> bool:
         return False
     if "api_searchable" not in field_map[field_name]:
         logging.warning("Field %s not api searchable in %s" % (field_name, "entity"))
-        False
+        return False
     if not field_map[field_name]["api_searchable"]:
         logging.warning("Field %s not api searchable in %s" % (field_name, "entity"))
         return False

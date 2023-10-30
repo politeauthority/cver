@@ -4,12 +4,27 @@
     Source: src/cver/api/utils/api_util.py
 
 """
-# import pytest
-# from pytest_mock import mocker
-# from flask import request
-# from cver.api.utils import api_util
-
-# # from .fixture.request import Request
+from cver.api.utils import api_util
 
 
-# class TestApiUtilApiUtil:
+class TestApiUtilApiUtil:
+
+    def test___get_search_field_args(self):
+        """
+        """
+        assert {} == api_util._get_search_field_args({})
+        payload = {
+            "fields": {
+                "sync_enabled": True
+            }
+        }
+        expected = {
+            "fields": {
+                "sync_enabled": {
+                    "field": "sync_enabled",
+                    "value": True,
+                    "op": "="
+                }
+            }
+        }
+        assert expected == api_util._get_search_field_args(payload)
