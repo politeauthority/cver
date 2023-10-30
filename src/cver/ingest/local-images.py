@@ -27,7 +27,6 @@ class LocalImages:
         images += static_images
         # local_images = self.get_local_images()
         # images = local_images
-        import ipdb; ipdb.set_trace()
         self.submit_images(images)
 
     def get_static_images(self):
