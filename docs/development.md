@@ -3,6 +3,7 @@
 ## Testing
 - Install the requirements (/tests/requirements.txt)[/tests/requirements.txt]
 - Set the env var `CVER_TEST_DIR` to be where the `/tests` path of the repostiroy is stored at.
+- Get pytest coverage `pytest --cov=cver /tests/unit/`
 
 ## Helpful Commands
 Drop All tables

@@ -3,12 +3,16 @@
     Primary entrypoint to cli script.
 
 """
+import argparse
 import logging
 import logging.config
-import sys
 
+from rich.console import Console
+
+from cver.api.version import version as cver_version
 from cver.shared.utils.log_config import log_config
 from cver.shared.utils import display
+from cver.cver_client.collections.images import Images
 from cver.cver_client.collections.image_builds import ImageBuilds
 from cver.cver_client.collections.image_build_waitings import ImageBuildWaitings
 from cver.cver_client.models.image import Image
@@ -17,23 +21,45 @@ from cver.cver_client.models.image_build_waiting import ImageBuildWaiting
 from cver.cver_client.collections.scans import Scans
 from cver.cver_client import CverClient
 
+LOGO = """
+   ______
+  / ____/   _____  _____
+ / /   | | / / _ \/ ___/
+/ /___ | |/ /  __/ /
+\____/ |___/\___/_/
+"""
+
 logging.config.dictConfig(log_config)
 logger = logging.getLogger(__name__)
 logger.propagate = True
 
+console = Console()
+
 
 class Cver:
 
-    def run(self, verb, noun, entity_id: int = None):
+    def __init__(self, cli_args):
+        self.args = cli_args
+        self.client = CverClient()
 
-        if noun == "info":
+    def run(self):
+        """Primary entrypoint to the Cver Cli."""
+        if self.args.verb == "get":
+            self.gets()
+
+    def gets(self):
+        if self.args.noun == "info":
             self.get_info()
-        if noun == "image":
-            self.get_image(entity_id)
-        elif noun in ["ib", "image-build"]:
-            self.get_image_buld(entity_id)
-        elif noun in ["ibw", "image-build-waiting"]:
-            self.get_image_buld_waiting(entity_id)
+        if self.args.noun == "image":
+            self.get_image()
+        if self.args.noun == "images":
+            self.get_images()
+        if self.args.noun == "image":
+            self.get_image()
+        elif self.args.noun in ["ib", "image-build"]:
+            self.get_image_build()
+        elif self.args.noun in ["ibw", "image-build-waiting"]:
+            self.get_image_buld_waiting()
 
     def get_info(self):
         client = CverClient()
@@ -63,14 +89,22 @@ class Cver:
         print("Totals")
         display.print_dict(info_totals, pad=2)
 
-    def get_image(self, image_id):
+    def get_image(self) -> bool:
         """Get a single Image."""
         image = Image()
-        image.get_by_id(image_id)
+        image_search = self.args.selector
+        if image_search and image_search.isdigit():
+            if not image.get_by_id(image_search):
+                print("Not Found")
+                return False
+        else:
+            if not image.get_by_name(image_search):
+                print("Not Found")
+                return False
         ibs_collect = ImageBuilds()
-        scans_collect = Scans()
-        ibs = ibs_collect.get_by_image_id(image_id)
-        ibws = ImageBuildWaitings().get_by_image_id(image_id)
+        # scans_collect = Scans()
+        ibs = ibs_collect.get_by_image_id(image.id)
+        ibws = ImageBuildWaitings().get_by_image_id(image.id)
         # scans = Scans().get({"image_id": image_id})
         image_dict = {
             "ID": image.id,
@@ -80,38 +114,54 @@ class Cver:
             "Image Builds": len(ibs),
             "Image Builds Waiting": len(ibws)
         }
+        console.print("Image", style="bold")
         display.print_dict(image_dict)
-        if ibs:
-            print("")
-            print("Image Builds")
-            for ib in ibs:
-                scans = scans_collect.get_by_image_build_id(ib.id)
-                ib_dict = {
-                    "ID": ib.id,
-                    "Sha": ib.sha,
-                    "Registry": ib.registry,
-                    "Registry Imported": ib.registry_imported,
-                    "Tags": ", ".join(ib.tags),
-                    "Scans": len(scans),
-                }
-                display.print_dict(ib_dict, 2)
-            print("")
-        if ibws:
-            print("")
-            print("Image Builds Waiting")
-            for ibw in ibws:
-                ibw_dict = {
-                    "ID": ibw.id,
-                    "Sha": ibw.sha,
-                    "Tag": ibw.tag,
-                    "Waiting": ibw.waiting,
-                    "Waiting For": ibw.waiting_for,
-                    "Status": ibw.status,
-                }
-                display.print_dict(ibw_dict, 2)
-            print("")
+        # if ibs:
+        #     print("")
+        #     print("Image Builds")
+        #     for ib in ibs:
+        #         scans = scans_collect.get_by_image_build_id(ib.id)
+        #         ib_dict = {
+        #             "ID": ib.id,
+        #             "Sha": ib.sha,
+        #             "Registry": ib.registry,
+        #             "Registry Imported": ib.registry_imported,
+        #             "Tags": ", ".join(ib.tags),
+        #             "Scans": len(scans),
+        #         }
+        #         display.print_dict(ib_dict, 2)
+        #     print("")
+        # if ibws:
+        #     print("")
+        #     print("Image Builds Waiting")
+        #     for ibw in ibws:
+        #         ibw_dict = {
+        #             "ID": ibw.id,
+        #             "Sha": ibw.sha,
+        #             "Tag": ibw.tag,
+        #             "Waiting": ibw.waiting,
+        #             "Waiting For": ibw.waiting_for,
+        #             "Status": ibw.status,
+        #         }
+        #         display.print_dict(ibw_dict, 2)
+        # import ipdb; ipdb.set_trace()
 
-    def get_image_buld(self, ibw_id: int):
+    def get_images(self):
+        """Get all Images."""
+        image_col = Images()
+        images = image_col.get(page=self.args.page)
+        response = image_col.response_last
+
+        print("Images (%s)" % response["info"]["total_objects"])
+        for image in images:
+            print("\t%s" % image.name)
+
+        print("\n")
+        print("Info")
+        print("\tPage: %s/%s" % (response["info"]["current_page"], response["info"]["last_page"]))
+        print("\tPer Page: %s" % response["info"]["per_page"])
+
+    def get_image_build(self, ibw_id: int):
         """Get a single ImageBuild."""
         ib = ImageBuild()
         ib.get_by_id(ibw_id)
@@ -163,12 +213,30 @@ class Cver:
             print(f"\t\tRegistry Imported: {ib.registry_imported}")
 
 
+def parse_args():
+    """Parse the CLI arguments."""
+    parser = argparse.ArgumentParser(description="Cver Cli")
+    parser.add_argument("verb", type=str)
+    parser.add_argument("noun", type=str)
+    parser.add_argument(
+        "selector",
+        nargs='?',
+        default=None,
+        help='Item selector (name or id)')
+    parser.add_argument(
+        "page",
+        nargs='?',
+        default=None,
+        help='Item selector (name or id)')
+    parser.add_argument('-p', '--page', default=None)
+    the_args = parser.parse_args()
+    return the_args
+
+
 if __name__ == "__main__":
-    verb = sys.argv[1]
-    noun = sys.argv[2]
-    entity_id = None
-    if len(sys.argv) > 3:
-        entity_id = sys.argv[3]
-    Cver().run(verb, noun, entity_id)
+    console.print(LOGO, style="bold red")
+    console.print("                  %s\n" % cver_version)
+    args = parse_args()
+    Cver(args).run()
 
 # End File: cver/src/cver/cli/__init__.py
