@@ -28,3 +28,5 @@ class TestApiUtilApiUtil:
             }
         }
         assert expected == api_util._get_search_field_args(payload)
+
+# End File: cver/tests/api/utils/test_api_utils.py
