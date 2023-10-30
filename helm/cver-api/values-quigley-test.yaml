@@ -6,11 +6,13 @@ nameOverride: "test"
 
 app:
   logLevel: "DEBUG"
-  dbName: "cver_test"
-  dbHost: "cver-mysql.cver.svc.cluster.local"
-  dbUser: "cver"
   runMigrations: true
   envName: "test"
+  database:
+    name: "cver_test"
+    host: "cver-mysql.cver.svc.cluster.local"
+    user: "cver"
+
 
 test:
   test: true

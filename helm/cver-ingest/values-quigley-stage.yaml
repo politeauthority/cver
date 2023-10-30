@@ -10,7 +10,7 @@ app:
   apiUrl: "http://cver-api-stage"
   cron:
     schedule:  "37 * * * *"
-    suspend: false
+    suspend: true
 
 test:
   test: true
