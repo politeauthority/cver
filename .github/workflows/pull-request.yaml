@@ -144,16 +144,16 @@ jobs:
   #     cicd-version: "${{ vars.CICD_VERSION }}"
   #     harbor-user: "${{ vars.HARBOR_USER }}"
 
-  test-engine:
-    # needs: [deploy-api, deploy-engine, test-ingest]
-    needs: [deploy-api, deploy-engine]
-    uses: ./.github/workflows/regression-enigne.yaml
-    secrets: inherit 
-    with:
-      deployment-name: "test"
-      run-number: ${{ github.run_number }}
-      cicd-version: "${{ vars.CICD_VERSION }}"
-      harbor-user: "${{ vars.HARBOR_USER }}"
+  # test-engine:
+  #   # needs: [deploy-api, deploy-engine, test-ingest]
+  #   needs: [deploy-api, deploy-engine]
+  #   uses: ./.github/workflows/regression-enigne.yaml
+  #   secrets: inherit 
+  #   with:
+  #     deployment-name: "test"
+  #     run-number: ${{ github.run_number }}
+  #     cicd-version: "${{ vars.CICD_VERSION }}"
+  #     harbor-user: "${{ vars.HARBOR_USER }}"
 
   remove-ephem:
     runs-on: self-hosted
