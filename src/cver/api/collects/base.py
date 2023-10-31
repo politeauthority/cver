@@ -34,6 +34,9 @@ class Base:
 
         self.table_name = None
         self.collect_model = None
+        self.field_map = {}
+        if self.collect_model:
+            self.field_map = self.collect_model().field_map
 
     def get_by_ids(self, model_ids: list) -> list:
         """Get models instances by their ids from the database.
@@ -353,41 +356,62 @@ class Base:
         """
         where = False
         where_and_sql = ""
+
         for where_a in where_and:
-            if not where_a["field"]:
-                log.warning("Collections - Invalid where option: %s" % where_a)
-                continue
-            where = True
-            op = "="
-            if "op" in where_a:
-                op = where_a["op"]
-            # if "op" not in ["=", "<", ">"]:
-            #     op = "="
-            if not self.collect_model:
-                raise AttributeError("Model %s does not have a collect_model." % self)
-
-            if not self.collect_model().field_map:
-                raise AttributeError("%s model ." % self)
-
-            if where_a["field"] not in self.collect_model().field_map:
-                raise AttributeError("Model %s does not have field: %s" % (
-                    self,
-                    where_a["field"]))
-            # field = self.collect_model().field_map[where_a["field"]]
-            # if field["type"] == "bool":
-
-            if isinstance(where_a["value"], str):
-                where_a["value"] = '"%s"' % sql_tools.sql_safe(where_a["value"])
-            where_and_sql += '`%s` %s %s AND ' % (
-                sql_tools.sql_safe(where_a['field']),
-                op,
-                where_a['value'])
-            # where_and_sql = where_and_sql.strip()
+            one_sql = self._pagination_where_and_one(where_a)
+            if one_sql:
+                where = True
+            where_and_sql += one_sql
 
         if where:
             where_and_sql = "WHERE " + where_and_sql
             where_and_sql = where_and_sql[:-4]
 
+        return where_and_sql
+
+    def _pagination_where_and_one(self, where_a: dict) -> str:
+        """Handles a single field's where and SQL statemnt portion.
+        Note: We append multiple statements with an AND in the sql statement.
+        """
+        field_info = self.field_map[where_a["field"]]
+        where_and_sql = ""
+        if not where_a["field"]:
+            log.warning("Collections - Invalid where option: %s" % where_a)
+            return ""
+
+        op = "="
+        if "op" in where_a:
+            op = where_a["op"]
+        # if "op" not in ["=", "<", ">"]:
+        #     op = "="
+        if not self.collect_model:
+            raise AttributeError("Model %s does not have a collect_model." % self)
+
+        if not self.collect_model().field_map:
+            raise AttributeError("%s model ." % self)
+
+        if where_a["field"] not in self.field_map:
+            raise AttributeError("Model %s does not have field: %s" % (
+                self,
+                where_a["field"]))
+        # field = self.collect_model().field_map[where_a["field"]]
+        # if field["type"] == "bool":
+
+        if field_info["type"] == "str":
+            where_a["value"] = '"%s"' % sql_tools.sql_safe(where_a["value"])
+        elif field_info["type"] == "bool":
+            value = where_a["value"]
+            if value == True:
+                value = 1
+            elif value == False:
+                value = 0
+            else:
+                value = 0
+            where_a["value"] = '%s' % sql_tools.sql_safe(value)
+        where_and_sql += '`%s` %s %s AND ' % (
+            sql_tools.sql_safe(where_a['field']),
+            op,
+            where_a['value'])
         return where_and_sql
 
     def _pagination_order(self, order: dict = None) -> str:
@@ -404,7 +428,10 @@ class Base:
         if not order:
             return order_sql
         order_field = order['field']
-        order_direction = order['direction']
+        if "direction" not in order:
+            order_direction = "ASC"
+        else:
+            order_direction = order['direction']
         order_sql = 'ORDER BY `%s` %s' % (
             sql_tools.sql_safe(order_field),
             sql_tools.sql_safe(order_direction))

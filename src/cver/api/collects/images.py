@@ -18,6 +18,7 @@ class Images(Base):
         super(Images, self).__init__(conn, cursor)
         self.table_name = Image().table_name
         self.collect_model = Image
+        self.field_map = self.collect_model().field_map
         self.per_page = 20
 
 # End File: cver/src/api/collects/images.py

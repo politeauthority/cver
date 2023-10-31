@@ -19,6 +19,7 @@ class ApiKeys(Base):
         super(ApiKeys, self).__init__(conn, cursor)
         self.table_name = ApiKey().table_name
         self.collect_model = ApiKey
+        self.field_map = self.collect_model().field_map
         self.per_page = 20
 
 # End File: cve/src/api/collects/api_keys.py
