@@ -8,6 +8,8 @@ import json
 
 from flask import request, make_response
 
+from cver.shared.utils import xlate
+
 
 def get_params() -> dict:
     """Extract the parameters from an api request.
@@ -27,16 +29,12 @@ def get_params() -> dict:
     elif "page" in raw_args and raw_args["page"].isdigit():
         ret_args["page"] = int(raw_args["page"])
 
-    for arg_key, arg_value in request.args.items():
-        if arg_key != "p":
-            ret_args["raw_args"][arg_key] = {
-                "field": arg_key,
-                "value": arg_value,
-                "op": "="
-            }
-    for key, item in raw_args.items():
-        if key not in ret_args["raw_args"]:
-            ret_args["raw_args"][key] = item
+    if "query" in raw_args:
+        query = xlate.url_decode_json(raw_args["query"])
+        ret_args["clean_args"]["fields"] = _get_search_field_args(query)
+        ret_args["clean_args"]["order_by"] = _get_search_order_args(query)
+        ret_args["clean_args"]["limit"] = _get_search_limit_args(query)
+        return ret_args
 
     if not request.data:
         return ret_args

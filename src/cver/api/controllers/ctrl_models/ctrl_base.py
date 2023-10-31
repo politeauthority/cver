@@ -24,21 +24,30 @@ def get_model(model, entity_id: int = None) -> dict:
         "object_type": entity.model_name
     }
     r_args = request.args
+    query = {}
+    if "query" in r_args:
+        query = xlate.url_decode_json_flask(r_args["query"])
 
     # Search for model base on searchable fields
     search_fields = []
-    for r_arg_key, r_arg_value in r_args.items():
-        for field_name, field in entity.field_map.items():
-            if field["name"] != r_arg_key:
+    if query:
+        logging.crticial("Expecting to run a query, but that has not been built yet.")
+        return make_response(jsonify(data), 501)
+    else:
+        for r_arg_key, r_arg_value in r_args.items():
+            if r_arg_key not in entity.field_map:
                 continue
-        if "api_searchable" not in entity.field_map[r_arg_key]:
-            continue
-        search_field = {
-            "field": r_arg_key,
-            "value": r_arg_value,
-            "op": "eq"
-        }
-        search_fields.append(search_field)
+            for field_name, field in entity.field_map.items():
+                if field["name"] != r_arg_key:
+                    continue
+            if "api_searchable" not in entity.field_map[r_arg_key]:
+                continue
+            search_field = {
+                "field": r_arg_key,
+                "value": r_arg_value,
+                "op": "eq"
+            }
+            search_fields.append(search_field)
 
     # Missing data to retrieve the model.
     if not entity_id and not search_fields:

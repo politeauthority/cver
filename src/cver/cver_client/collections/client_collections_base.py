@@ -4,6 +4,7 @@
     Base
 
 """
+import logging
 import importlib
 
 from cver.shared.utils import xlate
@@ -19,16 +20,21 @@ class ClientCollectionsBase(CverClient):
         self.collection_name = None
         self.response_last = None
 
-    def get(self, args: dict = {}, page: int = 1) -> list:
+    def get(self, request_args: dict = {}, page: int = 1) -> list:
         """Get a paginated list of entities."""
         payload = {}
         payload["page"] = page
-        if "search" in args:
+        query_fields = ["fields", "order_by", "limit"]
+        query_stmt = True
+        for arg_key in request_args:
+            if arg_key not in query_fields:
+                query_stmt = False
+        if query_stmt:
             payload = {
-                "search": xlate.url_encode_json(args["search"])
+                "query": xlate.url_encode_json(request_args)
             }
-        elif args:
-            payload = self._prepare_search(args)
+        elif request_args:
+            payload = self._prepare_search(request_args)
         response = self.make_request(self.collection_name, payload=payload)
         self.response_last = response
         if response["status"] == "success":
@@ -81,8 +87,13 @@ class ClientCollectionsBase(CverClient):
                     "limit": 5
                 }
         """
+        return args
         payload = {}
+        accepted_keys = ["fields", "order_by", "limit"]
         for arg_key, arg_value in args.items():
+            if arg_key not in accepted_keys:
+                logging.error("Key %s is not valid" % arg_key)
+                continue
             if arg_key == "fields":
                 if "fields" not in payload:
                     payload["fields"] = {}

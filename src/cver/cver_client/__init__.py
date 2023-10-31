@@ -11,6 +11,8 @@ import tempfile
 import requests
 
 from cver.shared.utils import misc as s_misc
+from cver.shared.utils import xlate
+from cver.api.version import version as __version__
 
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -34,20 +36,20 @@ class CverClient:
             self.api_key = os.environ.get("CVER_API_KEY")
 
         if api_url:
-            self.base_url = api_url
+            self.api_url = api_url
         else:
-            self.base_url = os.environ.get("CVER_API_URL")
-        self.base_url = s_misc.strip_trailing_slash(self.base_url)
-
+            self.api_url = os.environ.get("CVER_API_URL")
+        self.api_url = s_misc.strip_trailing_slash(self.api_url)
+        self.user_agent = "CverClient/%s" % __version__
         self.headers = {}
         self.api_host = os.environ.get("CVER_API_HOST")
-        self.base_url = s_misc.strip_trailing_slash(self.base_url)
+        self.api_url = s_misc.strip_trailing_slash(self.api_url)
 
         cver_api_host = os.environ.get("CVER_API_HOST")
         if cver_api_host:
             self.api_host = cver_api_host
             self.headers["Host"] = os.environ.get("CVER_API_URL")
-            self.base_url = s_misc.strip_trailing_slash(cver_api_host)
+            self.api_url = s_misc.strip_trailing_slash(cver_api_host)
             self.headers["Host"] = self.headers["Host"].replace("http://", "")
             self.headers["Host"] = self.headers["Host"].replace("https://", "")
 
@@ -62,7 +64,7 @@ class CverClient:
 
     def login(self, skip_local_token: bool = False) -> bool:
         """Login to the Cver API."""
-        logging.debug("Logging into Cver Api: %s" % self.api_host)
+        logging.debug("Logging into Cver Api: %s" % self.api_url)
         if not skip_local_token and self._open_valid_token():
             return True
         if not self._determine_if_login():
@@ -74,7 +76,7 @@ class CverClient:
                 "content-type": "application/json"
             },
             "method": "POST",
-            "url": f"{self.base_url}/auth",
+            "url": f"{self.api_url}/auth",
         }
         request_args["headers"].update(self.headers)
         response = requests.request(**request_args)
@@ -102,28 +104,37 @@ class CverClient:
         #     self.login()
         headers = {
             "token": self.token,
-            "content-type": "application/json"
+            "content-type": "application/json",
+            "User-Agent": self.user_agent
         }
         if self.api_host:
             headers["Host"] = self.api_host
         request_args = {
             "headers": headers,
             "method": method,
-            "url": f"{self.base_url}/{url}"
+            "url": f"{self.api_url}/{url}"
         }
 
         request_args["headers"].update(self.headers)
         # debug
-        # logging.info("\n%s - %s" % (request_args["method"], request_args["url"]))
-        # logging.info("%s\n" % request_args)
+        logging.info("\n\n%s - %s" % (request_args["method"], request_args["url"]))
         if request_args:
             if method == "GET":
-                request_args["params"] = payload
+                apply_query_field = False
+                if isinstance(payload, dict) and "query" in payload:
+                    apply_query_field = True
+                if apply_query_field:
+                    request_args["url"] += "?query=" + xlate.url_encode_json(
+                        "%s" % payload["query"])
+                else:
+                    request_args["params"] = payload
+
             elif method == "POST":
                 request_args["data"] = json.dumps(payload)
                 if "id" in payload:
                     request_args["url"] += "/%s" % payload["id"]
                     payload.pop("id")
+        logging.info("REQUEST ARGS\n%s\n" % request_args)
 
         response = requests.request(**request_args)
 

@@ -34,6 +34,7 @@ class Base:
 
         self.table_name = None
         self.collect_model = None
+        self.per_page = 20
         self.field_map = {}
         if self.collect_model:
             self.field_map = self.collect_model().field_map
@@ -343,6 +344,8 @@ class Base:
         if not raw:
             return 0
         count = raw[0]
+        if not user_limit:
+            return count
         if count > user_limit:
             return user_limit
         return count

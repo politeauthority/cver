@@ -31,7 +31,9 @@ def get(collection) -> dict:
 
     limit = parsed_body["limit"]
     collection_limit = collection().per_page
-    if limit >= collection_limit:
+    if not limit:
+        limit = collection_limit
+    elif limit >= collection_limit:
         limit = collection_limit
 
     # Get the data

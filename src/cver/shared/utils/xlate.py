@@ -31,9 +31,70 @@ def url_encode(slug: str) -> str:
     return butterfly
 
 
-def url_encode_json(self, data: dict) -> str:
+def url_encode_json(data: dict) -> str:
     """Ecode a dict into JSON, primarily used for collection search term requests."""
-    return quote_plus(json.dumps(data))
+    json_dump = json.dumps(data)
+    return quote_plus(json.dumps(json_dump))
+
+
+def url_decode_json_flask(encoded_str: str) -> dict:
+    """This is not the write name for this
+    """
+    if not encoded_str:
+        return {}
+    # Remove the outer double quotes
+    input_str = encoded_str.strip('"')
+
+    # Replace double-escaped double quotes with regular double quotes
+    input_str = input_str.replace('\\"', '"')
+
+    # Unescape single-escaped single quotes with regular single quotes
+    input_str = input_str.replace("\\'", "'")
+
+    try:
+        # Parse the string as JSON into a Python dictionary
+        output_dict = json.loads(input_str)
+        return output_dict
+    except json.decoder.JSONDecodeError as e:
+        logging.warning("Cant parse json: %s\nInput Data:\n %s\nParsed Data:\n%s" % (
+            e,
+            encoded_str,
+            input_str))
+        return {}
+    # Print the resulting dictionary
+    return output_dict
+    input_str = encoded_str.strip('"')
+    input_str = input_str.replace('\\"', '"')
+    try:
+        output_dict = json.loads(input_str)
+        return output_dict
+    except json.decoder.JSONDecodeError as e:
+        logging.warning("Cant parse json: %s\nInput Data:\n %s\nParsed Data:\n%s" % (
+            e,
+            encoded_str,
+            input_str))
+        return {}
+
+
+def url_decode_json(encoded_str: str) -> dict:
+    decoded_str = url_decode(encoded_str)
+    decoded_str = decoded_str.strip('"')
+    decoded_str = decoded_str.rstrip('"')
+    decoded_str = decoded_str.replace("+", " ")
+    decoded_str = decoded_str.replace('\\"', '"')
+    decoded_str = decoded_str.strip('"')
+    decoded_str = decoded_str.rstrip('""')
+    decoded_str = decoded_str.rstrip('"\\')
+    try:
+        # Parse the string as JSON into a Python dictionary
+        output_dict = json.loads(decoded_str)
+        return output_dict
+    except json.decoder.JSONDecodeError as e:
+        logging.warning("Cant parse json: %s\nInput Data:\n %s\nParsed Data:\n%s" % (
+            e,
+            encoded_str,
+            decoded_str))
+        return {}
 
 
 def convert_any_to_int(value) -> int:
