@@ -62,7 +62,7 @@ class Migrate:
         """Create the database for CVER.
         @todo: This could be done more securily by attempting to connect to the database first.
         """
-        conn, cursor = db.connect_no_db(glow.db)
+        conn, cursor = db.connect_no_db()
         sql = "CREATE DATABASE  IF NOT EXISTS `%s`;" % glow.db["NAME"]
         cursor.execute(sql)
         conn.commit()

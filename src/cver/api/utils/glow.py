@@ -15,7 +15,7 @@ db = {
     "conn": "",
     "cursor": "",
     "HOST": os.environ.get("CVER_DB_HOST"),
-    "PORT": os.environ.get("CVER_DB_PORT"),
+    "PORT": int(os.environ.get("CVER_DB_PORT", 3306)),
     "USER": os.environ.get("CVER_DB_USER"),
     "PASS": os.environ.get("CVER_DB_PASS"),
     "NAME": os.environ.get("CVER_DB_NAME"),
