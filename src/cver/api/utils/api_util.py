@@ -51,14 +51,7 @@ def get_params() -> dict:
     _validate_args(raw_args)
     ret_args["clean_args"]["fields"] = _get_search_field_args(request_data)
     ret_args["clean_args"]["order_by"] = _get_search_order_args(request_data)
-    # for field, args in request_data.items():
-    #     ret_args["raw_args"][field] = {}
-    #     ret_args["raw_args"][field]["field"] = field
-    #     ret_args["raw_args"][field]["value"] = args["value"]
-    #     if "op" not in args or not args["op"]:
-    #         ret_args["raw_args"][field]["op"] = "="
-    #     else:
-    #         ret_args["raw_args"][field]["op"] = args["op"]
+    ret_args["clean_args"]["limit"] = _get_search_limit_args(request_data)
 
     return ret_args
 
@@ -110,16 +103,27 @@ def _get_search_field_args(the_args: dict) -> dict:
 
 
 def _get_search_order_args(the_args: dict) -> dict:
+    """Get search field arguments from a request.
+    :unit-test: TestApiUtilApiUtil::test___get_search_field_args
     """
-    """
-    ret = {}
     if "order_by" not in the_args:
-        return ret
+        return {}
 
     ret = {
         "field": the_args["order_by"]["field"],
         "direction": the_args["order_by"]["direction"]
     }
     return ret
+
+
+def _get_search_limit_args(the_args: dict) -> dict:
+    """Get limit arg from the request.
+    """
+    if "limit" not in the_args:
+        return None
+    limit = the_args["limit"]
+    if not isinstance(limit, int):
+        return None
+    return limit
 
 # End File: cver/src/api/utils/api_util.py

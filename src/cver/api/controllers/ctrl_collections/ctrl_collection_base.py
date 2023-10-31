@@ -28,17 +28,25 @@ def get(collection) -> dict:
     logging.info("\nRaw Args:\n%s" % request_args["raw_args"])
     logging.info("\nClean Args:\n%s" % request_args["clean_args"])
     logging.info("\nGET:\n%s" % parsed_body)
+
+    limit = parsed_body["limit"]
+    collection_limit = collection().per_page
+    if limit >= collection_limit:
+        limit = collection_limit
+
     # Get the data
     collect_data = collection().get_paginated(
         page=page,
         where_and=parsed_body["where_and"],
-        order_by=parsed_body["order_by"]
+        order_by=parsed_body["order_by"],
+        limit=limit,
+        user_limit=parsed_body["limit"],
     )
 
     for obj in collect_data["objects"]:
         data["objects"].append(obj.json())
 
-    # Fuzz out data we wont show on the api keys
+    # Fuzz out data we wont show on the api keys or other hidden data.
     hidden_fields = _get_api_hidden_fields(field_map)
     if hidden_fields:
         c = 0
