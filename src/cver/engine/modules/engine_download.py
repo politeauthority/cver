@@ -11,7 +11,7 @@ import os
 from cver.cver_client.collections.image_builds import ImageBuilds
 from cver.cver_client.collections.image_build_waitings import ImageBuildWaitings
 from cver.engine.modules.image_download import ImageDownload
-from cver.engine.utils import glow
+# from cver.engine.utils import glow
 
 
 class EngineDownload:

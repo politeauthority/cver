@@ -44,7 +44,7 @@ class TestSharedUtilsXlate:
     #         "simple": "dictionary"
     #     }
     #     encoded_data  = quote_plus(json.dumps(data))
-    #     assert data = 
+    #     assert data =
     #     result = xlate.url_encode_json(data)
 
     def test__convert_any_to_int(self):
