@@ -73,38 +73,45 @@ FIELD_MAP = {
         "name": "maintained",
         "type": "bool",
         "default": True,
-        "api_writeable": True
+        "api_writeable": True,
+        "api_searchable": True,
     },
     "sync_flag": {
         "name": "sync_flag",
         "type": "bool",
-        "api_writeable": True
+        "api_writeable": True,
+        "api_searchable": True
     },
     "sync_enabled": {
         "name": "sync_enabled",
         "type": "bool",
-        "api_writeable": True
+        "api_writeable": True,
+        "api_searchable": True
     },
     "sync_last_ts": {
         "name": "sync_last_ts",
         "type": "datetime",
-        "api_writeable": True
+        "api_writeable": True,
+        "api_searchable": True
     },
     "scan_flag": {
         "name": "scan_flag",
         "type": "bool",
-        "api_writeable": True
+        "api_writeable": True,
+        "api_searchable": True
     },
     "scan_enabled": {
         "name": "scan_enabled",
         "type": "bool",
         "default": True,
-        "api_writeable": True
+        "api_writeable": True,
+        "api_searchable": True
     },
     "scan_last_ts": {
         "name": "scan_last_ts",
         "type": "datetime",
-        "api_writeable": True
+        "api_writeable": True,
+        "api_searchable": True
     }
 }
 

@@ -19,6 +19,7 @@ class ImageBuilds(Base):
         super(ImageBuilds, self).__init__(conn, cursor)
         self.table_name = ImageBuild().table_name
         self.collect_model = ImageBuild
+        self.field_map = self.collect_model().field_map
         self.per_page = 20
 
 # End File: cver/src/api/collects/image_builds.py

@@ -19,6 +19,7 @@ class ImageBuildWaitings(Base):
         super(ImageBuildWaitings, self).__init__(conn, cursor)
         self.table_name = ImageBuildWaiting().table_name
         self.collect_model = ImageBuildWaiting
+        self.field_map = self.collect_model().field_map
         self.per_page = 20
 
 # End File: cver/src/api/collects/image_build_waitings.py
