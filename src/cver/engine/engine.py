@@ -11,7 +11,6 @@ import logging.config
 
 from cver.shared.utils.log_config import log_config
 from cver.shared.utils import docker
-from cver.cver_client.collections.image_builds import ImageBuilds
 from cver.cver_client.models.option import Option
 from cver.engine.modules.engine_download import EngineDownload
 from cver.engine.modules.engine_scan import EngineScan
@@ -33,7 +32,6 @@ class Engine:
         if not self.preflight():
             logging.critical("Pre flight checks failed.")
             exit(1)
-        self.run_setup()
         self.run_downloads()
         self.run_scans()
         logging.info("Engine Process Complete")
@@ -87,9 +85,6 @@ class Engine:
 
         return True
 
-    def run_setup(self):
-        self._setup_download()
-
     def run_downloads(self):
         """Engine Download runner. Here we'll download images waiting to be pulled down."""
         self.download_report = EngineDownload().run()
@@ -97,23 +92,6 @@ class Engine:
     def run_scans(self):
         logging.info("Running Engine Scan")
         self.scan_report = EngineScan().run()
-
-    def _setup_download(self):
-        ib_col = ImageBuilds()
-        args = {
-            "feilds": {
-                "sync_enabled": {
-                    "value": True
-                }
-            },
-            "order_by": {
-                "field": "sync_last_ts",
-                "direction": "DESC"
-            },
-            "limit": glow.engine_info["download_limit"]
-        }
-        ibs = ib_col.get(args)
-        print(ibs)
 
     def _draw_download_report(self) -> bool:
         """Log out the relevant info from the Engine Download report."""

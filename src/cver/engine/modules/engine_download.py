@@ -8,8 +8,10 @@
 import logging
 import os
 
+from cver.cver_client.collections.image_builds import ImageBuilds
 from cver.cver_client.collections.image_build_waitings import ImageBuildWaitings
 from cver.engine.modules.image_download import ImageDownload
+from cver.engine.utils import glow
 
 
 class EngineDownload:
@@ -30,6 +32,7 @@ class EngineDownload:
         """Primary entrypoint for Cver Egnine Download.
         """
         logging.info("Running Engine Download")
+        self.set_ibws()
         self.handle_downloads()
         logging.info("Download process complete!")
         ret = {
@@ -41,6 +44,21 @@ class EngineDownload:
             "status": None
         }
         return ret
+
+    def set_ibws(self):
+        ib_col = ImageBuilds()
+        args = {
+            "fields": {
+                "sync_enabled": True
+            },
+            "order_by": {
+                "field": "sync_last_ts",
+                "direction": "DESC"
+            },
+            "limit": 1
+        }
+        ibs = ib_col.get(args)
+        # import ipdb; ipdb.set_trace()
 
     def handle_downloads(self):
         """Handle all downloads, fetching working to do and kicking off the individual download
