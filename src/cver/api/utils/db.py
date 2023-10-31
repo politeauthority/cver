@@ -55,7 +55,7 @@ def connect_no_db(server: dict):
             cursor.fetchone()
         return (connection, cursor)
     except MySqlError as e:
-        print("Error while connecting to MySQL: %s" % e, exception=e)
+        print("Error while connecting to MySQL: %s" % e)
         exit(1)
 
 
