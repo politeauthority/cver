@@ -91,6 +91,7 @@ class Cver:
         display.print_dict(info_base)
         print("Totals")
         display.print_dict(info_totals, pad=2)
+        return True
 
     def get_image(self) -> bool:
         """Get a single Image."""
@@ -166,7 +167,6 @@ class Cver:
 
     def get_image_build(self):
         """Get a single ImageBuild."""
-
         ib = ImageBuild()
         ib.get_by_id(self.args.selector)
         image = Image()
@@ -193,9 +193,9 @@ class Cver:
         # print(f"\t\tRegistry: {image.registry}")
         # print("")
 
-    def get_image_buld_waiting(self, ibw_id: int):
+    def get_image_buld_waiting(self):
         ibw = ImageBuildWaiting()
-        ibw.get_by_id(ibw_id)
+        ibw.get_by_id(self.args.selector)
         image = Image()
         image.get_by_id(ibw.image_id)
         has_ib = False
@@ -262,6 +262,12 @@ def parse_args():
         default=None,
         help='Item selector (name or id)')
     parser.add_argument('-p', '--page', default=None)
+    parser.add_argument(
+        "o",
+        nargs='?',
+        default=None,
+        help="Output")
+    parser.add_argument('-o', '--output', default=None)
     the_args = parser.parse_args()
     return the_args
 

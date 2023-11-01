@@ -134,6 +134,7 @@ def post_model(model, entity_id: int = None, generated_data: dict = {}):
         if entity_found:
             logging.info("Found entity: %s through unique keys" % entity)
 
+    logging.info("\nREQUEST:\n%s\n%s" % (request.url, request_data))
     # Check through the fields and see if they should be applied to the entity.
     for field_name, field_value in request_data.items():
         update_field = False

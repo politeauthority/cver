@@ -115,7 +115,7 @@ class Base(CverClient):
         """Get the class atribute keys and values that are model fields."""
         data = {}
         for field_name, field_info in self.field_map.items():
-            if not getattr(self, field_name):
+            if field_name == "id" and not getattr(self, "id"):
                 continue
             if field_info["type"] == "datetime":
                 data[field_name] = getattr(self, field_name)

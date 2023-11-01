@@ -118,8 +118,7 @@ class CverClient:
         }
 
         request_args["headers"].update(self.headers)
-        # debug
-        # logging.info("\n\n%s - %s" % (request_args["method"], request_args["url"]))
+
         if request_args:
             if method == "GET":
                 apply_query_field = False
@@ -136,8 +135,11 @@ class CverClient:
                 if "id" in payload:
                     request_args["url"] += "/%s" % payload["id"]
                     payload.pop("id")
-        logging.info("REQUEST ARGS\n%s\n" % request_args)
-
+        # debug
+        # logging.info("\n\n%s - %s\n%s" % (
+        #     request_args["method"],
+        #     request_args["url"],
+        #     request_args))
         response = requests.request(**request_args)
 
         # If our token has expired, attempt to get a new one, skipping using the current one.
