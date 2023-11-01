@@ -136,7 +136,7 @@ class CverClient:
                 if "id" in payload:
                     request_args["url"] += "/%s" % payload["id"]
                     payload.pop("id")
-        # logging.info("REQUEST ARGS\n%s\n" % request_args)
+        logging.info("REQUEST ARGS\n%s\n" % request_args)
 
         response = requests.request(**request_args)
 

@@ -39,6 +39,28 @@ def pull_image(image_loc: str, pull_through_registry: str = None) -> bool:
     return True
 
 
+def push_images(full_image_str: str) -> bool:
+    cmd = ["docker", "push", full_image_str]
+    pushed_image = subprocess.check_output(cmd)
+    if pushed_image:
+        logging.debug("Succesfully retaged Image: %s" % full_image_str)
+        return True
+    else:
+        logging.error("Failed to retag Image: %s" % full_image_str)
+        return False
+
+
+def tag_image(docker_image_id: str, full_image_str: str):
+    cmd = ["docker", "tag", docker_image_id, full_image_str]
+    tagged_image = subprocess.check_output(cmd)
+    if tagged_image:
+        logging.debug("Succesfully retaged Image: %s" % full_image_str)
+        return True
+    else:
+        logging.error("Failed to retag Image: %s" % full_image_str)
+        return False
+
+
 def get_image_sha(image: str) -> str:
     """Get a docker image's full sha from the image name, including the full registry location.
     :param image: The image to get the full sha from
@@ -57,6 +79,20 @@ def get_image_sha(image: str) -> str:
         return False
     sha = image_details[image_details.find("@sha256:") + 8:image_details.find(" ")]
     return sha
+
+
+def get_docker_id(image_name: str) -> str:
+    """
+    :param image_name: The image name
+        example: emby/embyserver
+    """
+    cmd = ["docker", "images", image_name, "-q"]
+    image_id = subprocess.check_output(cmd)
+    if not image_id:
+        logging.error("Failed to get image sha for %s" % image_name)
+        return False
+    docker_image_id = image_id.decode("utf-8").replace("\n", "")
+    return docker_image_id
 
 
 def get_local_images() -> list:

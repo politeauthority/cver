@@ -54,6 +54,15 @@ class DataOptions:
             registry_pull_through.acl_read = ["read-all"]
             registry_pull_through.save()
 
+        # Repository General
+        registry_pull_through = Option()
+        registry_pull_through.name = "repository_general"
+        if not registry_pull_through.get_by_name():
+            registry_pull_through.type = "str"
+            registry_pull_through.acl_write = ["write-all"]
+            registry_pull_through.acl_read = ["read-all"]
+            registry_pull_through.save()
+
         logging.info("Registry options create successful")
 
     def create_engine_options(self):
