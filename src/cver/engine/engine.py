@@ -34,6 +34,7 @@ class Engine:
             exit(1)
         self.run_downloads()
         self.run_scans()
+        self.run_cleanup()
         logging.info("Engine Process Complete")
         msg = "\n\nEngine\n"
         self._draw_download_report()
@@ -63,6 +64,13 @@ class Engine:
             logging.error("No registry password found on Cver")
             return False
 
+        repository_general = Option()
+        repository_general.get_by_name("repository_general")
+        glow.registry_info["repository_general"] = repository_general.value
+        if not glow.registry_info["repository_general"]:
+            logging.error("No repository_general limit password found on Cver")
+            return False
+
         # Get engine options
         engine_download_limit = Option()
         engine_download_limit.get_by_name("engine_download_limit")
@@ -71,10 +79,24 @@ class Engine:
             logging.error("No download limit password found on Cver")
             return False
 
+        download_process_limit = Option()
+        download_process_limit.get_by_name("engine_download_process_limit")
+        glow.engine_info["download_process_limit"] = download_process_limit.value
+        if not glow.engine_info["download_process_limit"]:
+            logging.error("No scan limit password found on Cver")
+            return False
+
         engine_scan_limit = Option()
         engine_scan_limit.get_by_name("engine_scan_limit")
         glow.engine_info["scan_limit"] = engine_scan_limit.value
         if not glow.engine_info["scan_limit"]:
+            logging.error("No scan limit password found on Cver")
+            return False
+
+        download_process_limit = Option()
+        download_process_limit.get_by_name("engine_scan_process_limit")
+        glow.engine_info["scan_process_limit"] = download_process_limit.value
+        if not glow.engine_info["download_process_limit"]:
             logging.error("No scan limit password found on Cver")
             return False
 
@@ -92,15 +114,34 @@ class Engine:
     def run_scans(self):
         logging.info("Running Engine Scan")
         self.scan_report = EngineScan().run()
+    
+    def run_cleanup(self):
+        docker_images = docker.get_all_images()
+        for image in docker_images:
+            docker.delete_image(image)
 
     def _draw_download_report(self) -> bool:
         """Log out the relevant info from the Engine Download report."""
         if "downloaded" not in self.download_report:
             return True
-        msg = "\tDownloaded: %s/%s" % (
+
+        msg = "\n\tDownloaded: %s/%s" % (
             self.download_report["downloaded"],
             self.download_report["download_limit"]
         )
+        msg += "\n\tProcessed: %s" % self.download_report["proccessed_ibws"]
+        if len(self.download_report["downloaded_images_success"]) > 0:
+            msg += "\n\tSucessfull Downloads\n"
+            for dl_success in self.download_report["downloaded_images_success"]:
+                msg += "\t\t%s" % dl_success
+        else:
+            msg += "\n\tSucessfull Downloads: 0"
+
+        if len(self.download_report["downloaded_images_failed"]) > 0:
+            msg += "\n\tFailed Downloads\n"
+            for dl_fail in self.download_report["downloaded_images_failed"]:
+                msg += "\t%s" % dl_fail
+
         logging.info(msg)
         return True
 

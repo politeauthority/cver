@@ -76,6 +76,16 @@ class DataOptions:
             opt.acl_read = ["read-all"]
             opt.value = 1
             opt.save()
+
+        opt = Option()
+        opt.name = "engine_download_process_limit"
+        if not opt.get_by_name():
+            opt.type = "int"
+            opt.acl_write = ["write-all"]
+            opt.acl_read = ["read-all"]
+            opt.value = 1
+            opt.save()
+
         opt = Option()
         opt.name = "engine_scan_limit"
         if not opt.get_by_name():
@@ -84,6 +94,16 @@ class DataOptions:
             opt.acl_read = ["read-all"]
             opt.value = 1
             opt.save()
+
+        opt = Option()
+        opt.name = "engine_scan_process_limit"
+        if not opt.get_by_name():
+            opt.type = "int"
+            opt.acl_write = ["write-all"]
+            opt.acl_read = ["read-all"]
+            opt.value = 1
+            opt.save()
         logging.info("Engine options create successful")
+
 
 # End File: cver/src/migrate/data/data_options.py

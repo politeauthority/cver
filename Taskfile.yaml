@@ -304,6 +304,27 @@ tasks:
             -f values-quigley-dev.yaml \
             --set "app.deployedAt=${DEPLOYED_AT}"
     silent: True
+
+  dev-rebuild-k8s:
+    cmds:
+      - task: dev-cp-api
+      - task: dev-cp-api-tests
+      - task: dev-cp-engine
+      - task: dev-cp-ingest
+      # - task: dev-cp-test
+      - |
+        # Destroy the Existing database and run migrations
+        POD=$(kubectl get pods -n cver-dev -l app.kubernetes.io/instance=cver-api-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
+        kubectl exec -n cver-dev -it ${POD} -- cver-db-destroy
+        kubectl exec -n cver-dev -it ${POD} -- python3 /app/cver/migrate/migrate.py
+      - |
+        # Run Ingestion
+        POD=$(kubectl get pods -n cver-dev -l app.kubernetes.io/instance=cver-ingest-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
+        kubectl exec -n cver-dev -it ${POD} -- python3 /app/cver/ingest/ingest.py
+      - |
+        # Run Update Options
+        python3 examples/cver-client/update_options_registry.py
+
   dev-logs-api:
     cmds:
       - |

@@ -5,12 +5,15 @@
 """
 import logging
 
-from cver.shared.utils import date_utils
+
 from cver.cver_client.models.image import Image
 from cver.cver_client.models.image_build import ImageBuild
 from cver.cver_client.models.task import Task
 from cver.cver_client.models.scan import Scan
+from cver.shared.utils import date_utils
+from cver.shared.utils import docker
 from cver.engine.utils import scan as scan_util
+# from cver.engine.utils import glow
 
 
 class ImageScan:
@@ -19,10 +22,12 @@ class ImageScan:
         self.image = None
         self.ib = None
         self.ibw = None
+        self.process_completed = False
         if "ibw" in kwargs:
             self.ibw = kwargs["ibw"]
         self.task = None
         self.prep_success = False
+        self.image_location = ""
         self.data = {
             "image": None,
             "ibw": None,
@@ -45,7 +50,16 @@ class ImageScan:
         if not self.prep_success:
             logging.info("Scan prep failed for %s %s" % (self.ibw, self.image))
             return self.data
+        self.pull_image()
+        if self.process_completed:
+            self._handle_error_scan()
+            return self.data
         self.execute_scan()
+        if self.process_completed:
+            self._handle_error_scan()
+            return self.data
+        self.clean_up()
+        logging.info("Competed entire scan process")
         return self.data
 
     def preflight_check(self) -> bool:
@@ -97,10 +111,29 @@ class ImageScan:
 
         return True
 
+    def pull_image(self) -> bool:
+        """Pull the Docker image to the Engine pod so that we can scan it.
+        """
+        if self.ib.registry_imported:
+            logging.warning("Using tag to pull image for scan, and not sha")
+            self.image_location = "%s/%s:%s" % (
+                self.ib.registry_imported,
+                self.image.name,
+                self.ibw.tag
+            )
+        else:
+            logging.critical("Not ready to scan images that are not imported to a general loc")
+            self.process_completed = False
+            return False
+        logging.info("Docker pull image: %s" % self.image_location)
+
+        print(docker.pull_image(self.image_location))
+        return True
+
     def execute_scan(self):
         """Gets the download location for the image and executes the download."""
-        logging.info("Starting scan of: %s" % self.image.name)
-        scan_result = scan_util.run_trivy(self.image, self.ib)
+        logging.info("Starting scan of: %s" % self.image_location)
+        scan_result = scan_util.run_trivy(self.image_location)
         if not scan_result:
             logging.error("Scan failed for: %s" % self.image)
             self._handle_error_scan()
@@ -110,6 +143,15 @@ class ImageScan:
 
         self._handle_success_scan()
         return True
+
+    def clean_up(self):
+        """
+        @todo: remove the docker image from the local machine
+        @todo: remove the ibw form cver-api
+        
+
+        """
+        print("Lets cleanup")
 
     def save_scan(self, scan_result: dict) -> bool:
         """Parse and save a scan to the Cver api."""
@@ -145,6 +187,7 @@ class ImageScan:
 
     def _handle_error_scan(self) -> bool:
         """Handle an error pulling an image."""
+        self.ib.scan_last = date_utils.now()
         self.ibw.status = False
         self.ibw.status_ts = date_utils.json_date_now()
         if not self.ibw.fail_count:
@@ -152,11 +195,16 @@ class ImageScan:
         else:
             self.ibw.fail_count += 1
         self.ibw.status_reason = self.data["status_reason"]
+
         self.task.status_reason = self.data["status_reason"]
         self.task.end_ts = date_utils.now()
         self.task.save()
+
         self.data["status"] = False
         self.data["status_reason"] = self.data["status_reason"]
+
+        self.ib.save()
+
         if self.ibw.save():
             logging.info("Saved ibw failed download status")
             return True

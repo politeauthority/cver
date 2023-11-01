@@ -16,13 +16,16 @@ registry_info = {
         "docker.io": "cver-docker-hub",
         "quay.io": "cver-quay",
         "ghcr.io": "cver-ghcr"
-    }
+    },
+    "repository_general": ""
 }
 
 global engine_info
 engine_info = {
     "download_limit": 0,
-    "scan_limit": 0
+    "download_process_limit": 0,
+    "scan_limit": 0,
+    "scan_process_limit": 0,
 }
 
 # End File: cver/src/engine/utils/glow.py

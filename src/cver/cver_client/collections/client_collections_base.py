@@ -24,11 +24,9 @@ class ClientCollectionsBase(CverClient):
         """Get a paginated list of entities."""
         payload = {}
         payload["page"] = page
-        query_fields = ["fields", "order_by", "limit"]
-        query_stmt = True
-        for arg_key in request_args:
-            if arg_key not in query_fields:
-                query_stmt = False
+        query_stmt = False
+        if "query" in request_args:
+            query_stmt = True
         if query_stmt:
             payload = {
                 "query": xlate.url_encode_json(request_args)
