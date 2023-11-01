@@ -13,10 +13,12 @@ import requests
 from cver.shared.utils import misc as s_misc
 from cver.shared.utils import xlate
 from cver.api.version import version as __version__
+# from cver.shared.utils.log_config import log_config
 
 
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+# logging.config.dictConfig(log_config)
 logger = logging.getLogger(__name__)
+logger.propagate = True
 
 
 class CverClient:
@@ -117,7 +119,7 @@ class CverClient:
 
         request_args["headers"].update(self.headers)
         # debug
-        logging.info("\n\n%s - %s" % (request_args["method"], request_args["url"]))
+        # logging.info("\n\n%s - %s" % (request_args["method"], request_args["url"]))
         if request_args:
             if method == "GET":
                 apply_query_field = False
@@ -134,7 +136,7 @@ class CverClient:
                 if "id" in payload:
                     request_args["url"] += "/%s" % payload["id"]
                     payload.pop("id")
-        logging.info("REQUEST ARGS\n%s\n" % request_args)
+        # logging.info("REQUEST ARGS\n%s\n" % request_args)
 
         response = requests.request(**request_args)
 

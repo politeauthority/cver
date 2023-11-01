@@ -10,6 +10,7 @@ import os
 
 from cver.cver_client.collections.image_builds import ImageBuilds
 from cver.cver_client.collections.image_build_waitings import ImageBuildWaitings
+from cver.cver_client.models.image_build_waiting import ImageBuildWaiting
 from cver.engine.modules.image_download import ImageDownload
 # from cver.engine.utils import glow
 
@@ -54,12 +55,30 @@ class EngineDownload:
             "order_by": {
                 "field": "sync_last_ts",
                 "direction": "DESC"
-            },
-            "limit": 1
+            }
         }
         ibs = ib_col.get(args)
-        print(ibs)
-        # import ipdb; ipdb.set_trace()
+        ibws_created = 0
+        for ib in ibs:
+            if ib.sync_last_ts:
+                logging.debug("%s: Not flagging image build for sync" % ib)
+                continue
+            ibw = ImageBuildWaiting()
+            ibw.image_id = ib.image_id
+            ibw.image_build_id = ib.id
+            ibw.sha = ib.sha
+            if len(ib.tags) > 0:
+                ibw.tag = ib.tags[0]
+            ibw.waiting_for = "download"
+            ibw.waiting_for = True
+            if ibw.save():
+                logging.info("%s: Saved" % ibw)
+                ibws_created += 0
+            else:
+                logging.error("%s: Failed to save" % ibw)
+
+        logging.info("Created %s IBWs" % ibws_created)
+        return True
 
     def handle_downloads(self):
         """Handle all downloads, fetching working to do and kicking off the individual download
