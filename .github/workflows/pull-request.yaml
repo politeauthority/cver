@@ -135,7 +135,7 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   regression-api:
-    needs: [deploy-api]
+    needs: [deploy-api, deploy-test]
     if: ${{ needs.deploy-api.result == 'success' }}
     uses: ./.github/workflows/regression-api.yaml
     secrets: inherit 
@@ -146,9 +146,20 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   regression-cli:
-    needs: [deploy-api]
+    needs: [deploy-api, deploy-test]
     if: ${{ needs.deploy-api.result == 'success' }}
     uses: ./.github/workflows/regression-cli.yaml
+    secrets: inherit 
+    with:
+      deployment-name: "test"
+      run-number: ${{ github.run_number }}
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
+
+  regression-client:
+    needs: [deploy-api, deploy-test]
+    if: ${{ needs.deploy-api.result == 'success' }}
+    uses: ./.github/workflows/regression-client.yaml
     secrets: inherit 
     with:
       deployment-name: "test"
@@ -179,8 +190,7 @@ jobs:
 
   remove-ephem:
     runs-on: self-hosted
-    # needs: [test-api, test-ingest, test-engine]
-    needs: [regression-api, regression-cli, run-ingest]
+    needs: [regression-api, regression-cli, regression-client, run-ingest]
     container:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
       credentials:
