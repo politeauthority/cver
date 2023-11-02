@@ -104,9 +104,9 @@ jobs:
           echo "**Built:** harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-name }}" >> $GITHUB_STEP_SUMMARY
           echo "**Built:** harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-prefix }}-latest" >> $GITHUB_STEP_SUMMARY
           if [ "$MAKE_BRANCH_TAG" = "true" ]; then
-            docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-api:${BRANCH}
-            docker push harbor.squid-ink.us/cver/cver-api:${BRANCH}
-            echo "**Built:** harbor.squid-ink.us/cver/cver-api:${BRANCH}" >> $GITHUB_STEP_SUMMARY
+            docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-api:git-branch-${BRANCH}
+            docker push harbor.squid-ink.us/cver/cver-api:git-branch-${BRANCH}
+            echo "**Built:** harbor.squid-ink.us/cver/cver-api:git-branch-${BRANCH}" >> $GITHUB_STEP_SUMMARY
           fi
           if [ "$MAKE_VERSION_TAG" = "true" ]; then
             VERSION=$(grep -o 'version = "[^"]*"' src/cver/api/version.py | cut -d '"' -f 2)

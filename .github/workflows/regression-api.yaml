@@ -43,6 +43,6 @@ jobs:
           export KUBECONFIG=~/.kube/config.yaml
           TEST_POD=$(kubectl get -n ${NAMESPACE} pods -l app.kubernetes.io/instance=${POD_SEARCH} --no-headers | cut -d' ' -f1)
           kubectl exec -n ${NAMESPACE} -it ${TEST_POD} -- pytest -vvv /tests/regression/api --md regression-report.md
-          REPORT=$(kubectl exec -n ${NAMESPACE} -it ${TEST_POD} -c cver-api -- cat /app/cver/regression-report.md)
+          REPORT=$(kubectl exec -n ${NAMESPACE} -it ${TEST_POD} -- cat /tests/regression-report.md)
           echo "$REPORT"
           echo "${REPORT}" >> $GITHUB_STEP_SUMMARY
