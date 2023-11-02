@@ -180,7 +180,7 @@ jobs:
   remove-ephem:
     runs-on: self-hosted
     # needs: [test-api, test-ingest, test-engine]
-    needs: [test-api]
+    needs: [regression-api, regression-cli, run-ingest]
     container:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
       credentials:
