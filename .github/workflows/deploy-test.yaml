@@ -57,5 +57,5 @@ jobs:
             -f values-quigley-${{ inputs.deployment-name }}.yaml \
             --set "app.api_url=${CVER_API_URL}" \
             --set "app.deployedAt=${DEPLOYED_AT}"
-          echo "# Deployed: Api" >> $GITHUB_STEP_SUMMARY
+          echo "# Deployed: Cver-Test" >> $GITHUB_STEP_SUMMARY
           echo "Created Helm deployment: ${RELEASE_NAME}" >> $GITHUB_STEP_SUMMARY
