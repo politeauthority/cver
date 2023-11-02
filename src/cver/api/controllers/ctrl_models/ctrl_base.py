@@ -135,25 +135,7 @@ def post_model(model, entity_id: int = None, generated_data: dict = {}):
             logging.info("Found entity: %s through unique keys" % entity)
 
     logging.info("\nREQUEST:\n%s\n%s" % (request.url, request_data))
-    # Check through the fields and see if they should be applied to the entity.
-    for field_name, field_value in request_data.items():
-        update_field = False
-        for entity_field_name, entity_field in entity.field_map.items():
-            if entity_field["name"] == field_name:
-                if "api_writeable" not in entity_field and field_name not in generated_data:
-                    logging.warning("Entity %s can not write field %s via an API request" % (
-                        entity,
-                        field_name))
-                    continue
-                else:
-                    update_field = True
-        if update_field:
-            logging.info("Entity: %s updating field: %s value: %s" % (
-                entity,
-                field_name,
-                field_value))
-            setattr(entity, field_name, field_value)
-
+    entity = _post_update_entity(entity, request_data, generated_data)
     entity.save()
     data["status"] = "success"
     data["object"] = entity.json()
@@ -212,5 +194,30 @@ def get_entity_by_unqiue_keys(entity, request_args: dict):
 
     return entity.get_by_unique_key(fields)
 
+
+def _post_update_entity(entity, request_data, generated_data):
+    # Check through the fields and see if they should be applied to the entity.
+    for field_name, field_value in request_data.items():
+        update_field = False
+        for entity_field_name, entity_field in entity.field_map.items():
+            # if entity_field_name == "value":
+            #     import ipdb; ipdb.set_trace()
+            if entity_field["name"] == field_name:
+                if "api_writeable" not in entity_field and field_name not in generated_data:
+                    logging.warning("Entity %s can not write field %s via an API request" % (
+                        entity,
+                        field_name))
+                    continue
+                else:
+                    update_field = True
+                # if entity_field_name == "value":
+                #     import ipdb; ipdb.set_trace()
+        if update_field:
+            logging.info("Entity: %s updating field: %s value: %s" % (
+                entity,
+                field_name,
+                field_value))
+            setattr(entity, field_name, field_value)
+    return entity
 
 # End File: cver/src/api/controllers/ctrl_modles/ctrl_base.py

@@ -114,11 +114,14 @@ class Engine:
     def run_scans(self):
         logging.info("Running Engine Scan")
         self.scan_report = EngineScan().run()
-    
+
     def run_cleanup(self):
         docker_images = docker.get_all_images()
+        if not docker_images:
+            return True
         for image in docker_images:
             docker.delete_image(image)
+        return True
 
     def _draw_download_report(self) -> bool:
         """Log out the relevant info from the Engine Download report."""

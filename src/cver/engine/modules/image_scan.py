@@ -148,8 +148,6 @@ class ImageScan:
         """
         @todo: remove the docker image from the local machine
         @todo: remove the ibw form cver-api
-        
-
         """
         print("Lets cleanup")
 
