@@ -15,7 +15,7 @@ import tldextract
 
 def container_url(the_string: str):
     """Break down a container url into its parts.
-    :unit-test: test__container_url
+    :unit-test: TestSharedUtilMisc::test__container_url
     """
     ret = {
         "registry": _get_registry(the_string),
@@ -32,7 +32,7 @@ def container_url(the_string: str):
 
 def is_fqdn(hostname: str) -> bool:
     """Check if a string is a FQDN.
-    :unit-test: test__is_fqdn
+    :unit-test: TestSharedUtilMisc::test__is_fqdn
     """
     if not 1 < len(hostname) < 253:
         return False
@@ -41,6 +41,17 @@ def is_fqdn(hostname: str) -> bool:
     labels = hostname.split('.')
     fqdn = re.compile(r'^[a-z0-9]([a-z-0-9-]{0,61}[a-z0-9])?$', re.IGNORECASE)
     return all(fqdn.match(label) for label in labels)
+
+
+def percentize(part: int, whole: int, round_int: int = 1) -> float:
+    """Get the percent value that a part is from a whole.
+    :unit-test: TestSharedUtilMisc:: test__percentize
+    """
+    if part == 0 or whole == 0:
+        return 0
+    per = (part * 100) / whole
+    per = round(per, round_int)
+    return per
 
 
 def strip_trailing_slash(the_string: str) -> str:

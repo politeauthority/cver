@@ -9,11 +9,10 @@ import logging
 from flask import Flask, jsonify, request
 from werkzeug.exceptions import HTTPException
 
+from cver.shared.utils.log_config import log_config
 from cver.api.utils import db
 from cver.api.utils import glow
 from cver.api.utils import misc
-from cver.shared.utils.log_config import log_config
-
 from cver.api.controllers.ctrl_models.ctrl_api_key import ctrl_api_key
 from cver.api.controllers.ctrl_collections.ctrl_api_keys import ctrl_api_keys
 from cver.api.controllers.ctrl_models.ctrl_cluster_image import ctrl_cluster_image

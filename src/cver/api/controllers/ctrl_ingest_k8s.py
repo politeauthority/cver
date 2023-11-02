@@ -90,7 +90,9 @@ def _handle_image_build(image: Image, image_map: dict) -> ImageBuildWaiting:
         if not found:
             ib.image_id = image.id
             ib.registry = image_map["registry"]
+            ib.sync_enabled = True
             ib.sync_flag = True
+            ib.scan_enabled = True
             ib.scan_flag = True
             if "tag" in image_map and image_map["tag"]:
                 ib.tags = [image_map["tag"]]

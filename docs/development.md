@@ -6,27 +6,55 @@
 - Get pytest coverage `pytest --cov=cver /tests/unit/`
 
 ## Helpful Commands
-Drop All tables
+### Rebuild Environemnt
+ - Drop All tables
+    ```sql
+    drop table api_keys;
+    drop table cluster_images;
+    drop table clusters;
+    drop table entity_metas;
+    drop table image_builds;
+    drop table image_build_waitings;
+    drop table images;
+    drop table migrations;
+    drop table options;
+    drop table organizations;
+    drop table perms;
+    drop table role_perms;
+    drop table roles;
+    drop table scans;
+    drop table scan_raws;
+    drop table scanners;
+    drop table softwares;
+    drop table tasks;
+    drop table users;
+    ```
+ - Copy source to all dev pods
+```bash
+task dev-cp-api
+task dev-cp-api-tests
+task dev-cp-ingest
+task dev-cp-engine
+
+```
+ - Run Migrations
+ - Restart Api
+
+ - Rebuild Dev Data
+```bash
+python3 examples/cver-client/update_options_registry.py
+```
+
+Run K8s Ingestion
+```bash
+task dev-exec-ingest
+python3 ingest/ingest.py
+```
+
+
 ```sql
-drop table api_keys;
-drop table cluster_images;
-drop table clusters;
-drop table entity_metas;
-drop table image_builds;
-drop table image_build_waitings;
-drop table images;
-drop table migrations;
-drop table options;
-drop table organizations;
-drop table perms;
-drop table role_perms;
-drop table roles;
-drop table scans;
-drop table scan_raws;
-drop table scanners;
-drop table softwares;
-drop table tasks;
-drop table users;
+delete from image_build_waitings;
+delete from tasks;
 ```
 
 ## New Model

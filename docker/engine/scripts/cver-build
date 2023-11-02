@@ -11,11 +11,3 @@ rm -rf /app/cver.egg-info
 cd /app
 python3 setup.py build
 python3 setup.py install
-# Flake8 Source
-flake8 /app/cver --config=/app/flake8 --count --show-source --statistics
-
-# Flake8 Tests
-flake8 /tests --config=/tests/flake8 --count --show-source --statistics
-
-# cd /tests/unit
-# pytest

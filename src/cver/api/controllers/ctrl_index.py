@@ -8,6 +8,7 @@ import logging
 from flask import Blueprint, jsonify, request
 
 from cver.api.stats import totals
+from cver.api.stats import tasks as tasks_stats
 from cver.api.utils import auth
 from cver.api.utils import glow
 from cver.api.models.user import User
@@ -73,6 +74,7 @@ def authenticate():
 @auth.auth_request
 def info():
     model_totals = totals.get_model_totals()
+    task_totals = tasks_stats.get_task_totals()
     data = {
         "info": "Cver Api",
         "version": glow.general["VERSION"],
@@ -80,7 +82,7 @@ def info():
         "build": glow.general["CVER_BUILD"],
         "build_short": glow.general["CVER_BUILD_SHORT"],
         "migration": CURRENT_MIGRATION,
-        "tasks": {},
+        "tasks": task_totals,
         "model_totals": model_totals,
         "deployed_at": glow.general["CVER_DEPLOYED_AT"]
     }
