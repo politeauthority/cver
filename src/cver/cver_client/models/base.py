@@ -38,7 +38,14 @@ class Base(CverClient):
             setattr(self, field_name, None)
 
     def build(self, data: dict) -> bool:
+        """Hydrates a model object, setting all the data as class vars, properly typed as they
+        should be.
+        """
         for key, value in data.items():
+            if key not in self.field_map:
+                logging.error('Unknown field "%s" for %s model' % (key, self))
+            if self.field_map[key]["type"] == "datetime":
+                value = date_utils.from_str(value)
             setattr(self, key, value)
         return True
 
