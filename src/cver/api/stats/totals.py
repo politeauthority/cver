@@ -1,5 +1,6 @@
 """
-    Cver Api - Stats
+    Cver Api
+    Stats
     Totals
 
 """
@@ -42,5 +43,6 @@ def get_model_totals():
         "tasks": Tasks().get_count_total()
     }
     return ret
+
 
 # End File: cver/src/api/stats/totals.py

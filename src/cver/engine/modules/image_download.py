@@ -7,6 +7,7 @@ import logging
 import subprocess
 
 from cver.shared.utils import date_utils
+from cver.shared.utils import docker
 from cver.cver_client.models.image import Image
 from cver.cver_client.models.image_build import ImageBuild
 from cver.cver_client.models.task import Task
@@ -30,6 +31,9 @@ class ImageDownload:
             "status": False,
             "status_reason": None,
         }
+        self.process_completed = False
+        self.registry_pullthru_use = False
+        self.registry_pullthru_loc = ""
 
     def run(self, ) -> dict:
         """Run the download process."""
@@ -45,7 +49,17 @@ class ImageDownload:
         if not self.prep_success:
             logging.info("Download prep failed for %s %s" % (self.ibw, self.image))
             return self.data
+        logging.info("Running Download: %s - %s - %s - %s" % (
+            self.image,
+            self.ib,
+            self.ibw,
+            self.task))
         self.execute_download()
+        if self.process_completed:
+            return self.data
+        self.push_image()
+        if not self.process_completed:
+            self._handle_success_download()
         return self.data
 
     def preflight_check(self) -> bool:
@@ -93,19 +107,29 @@ class ImageDownload:
             self.ib.get_by_id(self.ibw.image_build_id)
             logging.debug("Loaded: %s" % self.ib)
 
+        # if self.image.registry in glow.registry_info["pull_thrus"]:
+        #     self.registry_pullthru_use = True
+        #     self.registry_pullthru_loc = glow.registry_info["pull_thrus"][self.image.registry]
+
         self.prep_success = True
 
         return True
 
-    def execute_download(self):
+    def execute_download(self) -> bool:
         """Gets the download location for the image and executes the download."""
+        if self.image.registry == glow.registry_info["local"]["url"]:
+            logging.info("Image is from local registry, no need to pull, marking as success.")
+            self.data["status_reason"] = "Image exists in local registry"
+            self.process_completed = True
+            return True
+
         logging.info("Starting download of: %s" % self.image.name)
         image_loc = self.get_docker_pull_url()
         pull_cmd = ["docker", "pull", image_loc]
         logging.info("Pulling: %s" % image_loc)
         image_pull = self.docker_pull(pull_cmd)
         if not image_pull:
-            self._handle_error_pull()
+            self._handle_error()
             return False
 
         logging.info("Successfully downloaded: %s" % self.image)
@@ -113,76 +137,161 @@ class ImageDownload:
             logging.info("lets create an ibw")
             self._create_ib_from_pull(image_pull.decode("utf-8"))
 
-        self._handle_success_pull()
+        # self.data["status_reason"] = "Succeed downloading"
+        # self._handle_success_pull()
+        return True
+
+    def push_image(self) -> bool:
+        """Push an image to a Cver registry that has been downloaded loacally."""
+        logging.info("Starting push of %s - %s" % (self.image, self.ib))
+        if self.image.registry == "docker.io":
+            full_og_image_str = self.image.name
+        else:
+            full_og_image_str = "%s/%s" % (self.image.registry, self.image.name)
+        logging.info("PUSH IMAGE: %s" % full_og_image_str)
+        docker_id = docker.get_docker_id(full_og_image_str)
+        logging.info("DOCKER ID: %s" % docker_id)
+        if not docker_id:
+            self.data["status_reason"] = "Failed to get Docker ID from locally pulled image"
+            self._handle_error()
+            return False
+        image_str = "%s/%s/%s:%s" % (
+            glow.registry_info["local"]["url"],
+            glow.registry_info["repository_general"],
+            self.image.name,
+            self.ibw.tag
+        )
+        if not docker.tag_image(docker_id, image_str):
+            logging.error("Failed Tagging")
+            self.data["status_reason"] = "Failed tagging after download"
+            self._handle_error()
+            docker.delete_image(docker_id)
+            return False
+        if not docker.push_image(image_str):
+            self.data["status_reason"] = "Failed push to local registry after download"
+            logging.error("Failed pushing")
+            self._handle_error()
+            docker.delete_image(docker_id)
+            return False
+        docker.delete_image(docker_id)
         return True
 
     def get_docker_pull_url(self) -> str:
         """Get the appropriate image url to pull from, based on pull through registries that have
         been preset.
         """
-        if self.image.registry in glow.registry_info["pull_thrus"]:
-            image_loc = "%s/%s/%s:%s" % (
+        if self.registry_pullthru_use:
+            image_loc = "%s/%s/%s" % (
                 glow.registry_info["local"]["url"],
-                glow.registry_info["pull_thrus"][self.image.registry],
-                self.image.name,
-                self.ibw.tag)
-            return image_loc
+                self.registry_pullthru_loc,
+                self.image.name)
         else:
             image_loc = "%s/%s" % (self.image.registry, self.image.name)
             logging.warning("No pull through location set for registry: %s" % self.image.registry)
-            return image_loc
 
-    def docker_pull(self, command):
+        if self.ibw.tag:
+            image_loc += ":%s" % self.ibw.tag
+        if self.ib.sha:
+            image_loc += "@sha256:%s" % self.ib.sha
+        return image_loc
+
+    def docker_pull(self, cmd: list) -> bool:
         try:
-            image_pull = subprocess.check_output(command)
+            image_pull = subprocess.check_output(cmd)
+            print(image_pull)
+            logging.info("Successfully pulled image")
+            return True
         except subprocess.CalledProcessError as e:
-            msg = "Failed running command: %s\n%s" % (command, e)
+            msg = "Failed running command: %s\n%s" % (" ".join(cmd), e)
             self.data["status_reason"] = msg
             logging.error(msg)
             return False
-        logging.info("Successfully pulled image")
-        return image_pull
 
-    def _handle_error_pull(self) -> bool:
+    def _handle_error(self) -> bool:
         """Handle an error pulling an image."""
+        logging.info("Saving Download Error: %s - %s - %s - %s" % (
+            self.image, self.ib, self.ibw, self.task))
+        self.ib.sync_last_ts = date_utils.json_date_now()
+
         self.ibw.status = False
         self.ibw.status_ts = date_utils.json_date_now()
         if not self.ibw.fail_count:
             self.ibw.fail_count = 1
         else:
             self.ibw.fail_count += 1
+        self.ibw.status = False
         self.ibw.status_reason = self.data["status_reason"]
+
+        self.task.status = False
         self.task.status_reason = self.data["status_reason"]
         self.task.end_ts = date_utils.now()
-        self.task.save()
+
         self.data["status"] = False
         self.data["status_reason"] = self.data["status_reason"]
-        if self.ibw.save():
-            logging.info("Saved ibw failed download status")
-            return True
-        else:
-            logging.error("Could not save ibw failed status")
-            return False
 
-    def _handle_success_pull(self) -> bool:
+        self.process_completed = True
+        return self._handle_entity_saves()
+
+    def _handle_success_download(self) -> bool:
         """Handle a success pulling an image."""
         # Handle class data
         self.data["status"] = True
-        self.data["status_reason"] = "Succeed downloading"
+        self.data["status_reason"]
+
+        # Handle IB
+        self.ib.sync_last_ts = date_utils.json_date_now()
+        # @TODO this will need to be fixed for images not using the generic
+        self.ib.registry_imported = "%s/%s" % (
+            glow.registry_info["local"]["url"],
+            glow.registry_info["repository_general"],
+        )
+
         # Handle IBW
         self.ibw.status = True
+        self.ibw.status_reason = self.data["status_reason"]
         self.ibw.status_ts = date_utils.json_date_now()
         self.ibw.waiting_for = "scan"
         self.ibw.fail_count = 0
-        self.ibw.save()
-        # Handle IB
-        self.ib.sync_last_ts = date_utils.json_date_now()
-        self.ib.registry_imported = glow.registry_info["local"]["url"]
-        self.ib.save()
+
         # Handle Task
+        self.task.status = True
+        self.task.status_reason = self.data["status_reason"]
         self.task.end_ts = date_utils.now()
-        self.task.save()
-        return True
+
+        self.process_completed = True
+        return self._handle_entity_saves()
+
+    def _handle_entity_saves(self):
+        """Save all entities related to the Image Download, including the ImageBuild,
+        ImageBuildWaiting and Task.
+        """
+        # Save the items
+        # Save the ImageBuild
+        return_success = True
+        if self.ib.save():
+            logging.info("Saved IB: %s" % self.ib)
+        else:
+            logging.error("Failed saving IB: %s" % self.ib)
+            return_success = False
+
+        # Save the ImageBuildWaiting
+        if self.ibw.save():
+            logging.info("Saved IBW: %s" % self.ibw)
+        else:
+            logging.error("Failed saving IBW: %s" % self.ibw)
+            return_success = False
+
+        # Save the Task
+        if self.task.save():
+            logging.info("Saved Task: %s" % self.task)
+        else:
+            logging.error("Failied saving Task: %s" % self.task)
+            return_success = False
+
+        if return_success:
+            return True
+        else:
+            return False
 
     def _get_sha_from_docker_pull(self, image_pull: str) -> str:
         """Get the sha from a Docker image pull command."""

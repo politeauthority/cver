@@ -15,10 +15,12 @@ from cver.shared.utils import display
 from cver.cver_client.collections.images import Images
 from cver.cver_client.collections.image_builds import ImageBuilds
 from cver.cver_client.collections.image_build_waitings import ImageBuildWaitings
+from cver.cver_client.collections.tasks import Tasks
 from cver.cver_client.models.image import Image
 from cver.cver_client.models.image_build import ImageBuild
 from cver.cver_client.models.image_build_waiting import ImageBuildWaiting
-from cver.cver_client.collections.scans import Scans
+from cver.cver_client.models.task import Task
+# from cver.cver_client.collections.scans import Scans
 from cver.cver_client import CverClient
 
 LOGO = """
@@ -60,6 +62,13 @@ class Cver:
             self.get_image_build()
         elif self.args.noun in ["ibw", "image-build-waiting"]:
             self.get_image_buld_waiting()
+        elif self.args.noun in ["tasks"]:
+            self.get_tasks()
+        elif self.args.noun in ["task"]:
+            self.get_task()
+        else:
+            print("Error: Unknown Command")
+            exit(1)
 
     def get_info(self):
         client = CverClient()
@@ -88,6 +97,7 @@ class Cver:
         display.print_dict(info_base)
         print("Totals")
         display.print_dict(info_totals, pad=2)
+        return True
 
     def get_image(self) -> bool:
         """Get a single Image."""
@@ -161,30 +171,38 @@ class Cver:
         print("\tPage: %s/%s" % (response["info"]["current_page"], response["info"]["last_page"]))
         print("\tPer Page: %s" % response["info"]["per_page"])
 
-    def get_image_build(self, ibw_id: int):
+    def get_image_build(self):
         """Get a single ImageBuild."""
         ib = ImageBuild()
-        ib.get_by_id(ibw_id)
+        ib.get_by_id(self.args.selector)
         image = Image()
         image.get_by_id(ib.image_id)
-        scans_collect = Scans()
-        scans = scans_collect.get_by_image_build_id(ib.id)
-        print("ImageBuild")
-        print("ID:\t\t%s" % ib.id)
-        print("Created:\t%s" % ib.created_ts)
-        print("Updated:\t%s" % ib.updated_ts)
-        print("Image ID:\t%s" % ib.image_id)
-        print("Scans: %s" % len(scans))
-        print("")
-        print("Image")
-        print(f"\t\tID:       {image.id}")
-        print(f"\t\tName:     {image.name}")
-        print(f"\t\tRegistry: {image.registry}")
-        print("")
+        # scans_collect = Scans()
+        # scans = scans_collect.get_by_image_build_id(ib.id)
+        ib_build = {
+            "ID": ib.id,
+            "Created": ib.created_ts,
+            "Updated": ib.updated_ts,
+            "Sha": ib.sha,
+            "Sha Imported": ib.sha_imported,
+            "Image ID": ib.image_id,
+            "Reg": ib.registry,
+            "Reg Imported": ib.registry_imported
+        }
+        console.print("ImageBuild", style="bold")
+        display.print_dict(ib_build)
 
-    def get_image_buld_waiting(self, ibw_id: int):
+        # print("Scans: %s" % len(scans))
+        # print("")
+        # print("Image")
+        # print(f"\t\tID:       {image.id}")
+        # print(f"\t\tName:     {image.name}")
+        # print(f"\t\tRegistry: {image.registry}")
+        # print("")
+
+    def get_image_buld_waiting(self):
         ibw = ImageBuildWaiting()
-        ibw.get_by_id(ibw_id)
+        ibw.get_by_id(self.args.selector)
         image = Image()
         image.get_by_id(ibw.image_id)
         has_ib = False
@@ -212,6 +230,56 @@ class Cver:
             print("\t\tTags:               %s" % ", ".join(ib.tags))
             print(f"\t\tRegistry Imported: {ib.registry_imported}")
 
+    def get_tasks(self):
+        """Get all Tasks."""
+        entity_col = Tasks()
+        tasks = entity_col.get(page=self.args.page)
+        response = entity_col.response_last
+
+        console.print("Tasks (%s)" % response["info"]["total_objects"], style="bold")
+
+        for task in tasks:
+            data = {
+                "ID": task.id,
+                "Created": task.created_ts,
+                "Updated": task.updated_ts,
+                "Name": task.name,
+                "Image ID": task.image_id,
+                "Image Build ID": task.image_build_id,
+                "Image Build Waiting ID": task.image_build_waiting_id,
+                "Status": task.status,
+                "Status Reason": task.status_reason
+            }
+            display.print_dict(data, pad=2)
+            print("\n")
+
+        print("\n")
+        print("Info")
+        print("\tPage: %s/%s" % (response["info"]["current_page"], response["info"]["last_page"]))
+        print("\tPer Page: %s" % response["info"]["per_page"])
+
+    def get_task(self) -> bool:
+        """Get a single Task."""
+        task = Task()
+        task_search = self.args.selector
+        if not task.get_by_id(task_search):
+            print("Not Found")
+            return False
+
+        print_dict = {
+            "ID": task.id,
+            "Created": task.created_ts,
+            "Updatded": task.updated_ts,
+            "Name": task.name,
+            "Image ID": task.image_id,
+            "Image Build ID": task.image_build_id,
+            "Image Build Waiting ID": task.image_build_waiting_id,
+            "Status": task.status,
+            "Status Reason": task.status_reason
+        }
+        console.print("Task", style="bold")
+        display.print_dict(print_dict)
+
 
 def parse_args():
     """Parse the CLI arguments."""
@@ -229,6 +297,12 @@ def parse_args():
         default=None,
         help='Item selector (name or id)')
     parser.add_argument('-p', '--page', default=None)
+    parser.add_argument(
+        "o",
+        nargs='?',
+        default=None,
+        help="Output")
+    parser.add_argument('-o', '--output', default=None)
     the_args = parser.parse_args()
     return the_args
 
