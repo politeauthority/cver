@@ -18,6 +18,7 @@ ADD requirements-test.txt /test/requirements-src.txt
 
 ADD scripts/cver-build /bin
 ADD scripts/cver-test-unit /bin
+ADD scripts/cver-cicd-regression /bin
 
 RUN apk add --update --no-cache --virtual .tmp-build-deps \
     gcc libc-dev linux-headers bash curl git vim \

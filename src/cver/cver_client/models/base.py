@@ -7,6 +7,8 @@
 from datetime import datetime
 import logging
 
+import arrow
+
 from cver.cver_client import CverClient
 from cver.shared.utils import date_utils
 
@@ -128,6 +130,8 @@ class Base(CverClient):
                 data[field_name] = getattr(self, field_name)
                 if data[field_name]:
                     if isinstance(data[field_name], datetime):
+                        data[field_name] = date_utils.json_date(data[field_name])
+                    elif isinstance(data[field_name], arrow.arrow.Arrow):
                         data[field_name] = date_utils.json_date(data[field_name])
                     else:
                         data[field_name] = data[field_name]

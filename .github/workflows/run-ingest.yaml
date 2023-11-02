@@ -1,4 +1,4 @@
-name: Regression Engine
+name: Run Ingest
 
 on:
   workflow_call:
@@ -17,7 +17,7 @@ on:
         type: string
 
 jobs:
-  regression-engine:
+  regression-ingest:
     runs-on: self-hosted
     container:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ inputs.cicd-version }}
@@ -30,24 +30,24 @@ jobs:
       - name: Execute Tests
         run: |
           if [ "${{ inputs.deployment-name }}" = "test" ]; then
+            CRON_JOB="cver-ingest-test-${{ inputs.run-number }}"
+            JOB_NAME=$CRON_JOB
             NAMESPACE="cver-test"
-            # @todo: FIX THE -dev suffix!
-            CRON_JOB="cver-engine-test-${{ inputs.run-number }}-dev"
-          else  
+          else
+            CRON_JOB="cver-ingest-stage"
+            JOB_NAME="cver-ingest-stage-${{ inputs.run-number }}"
             NAMESPACE="cver-stage"
-            CRON_JOB="cver-engine-stage"
           fi
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
           export KUBECONFIG=~/.kube/config.yaml
-
-          echo "Creating job: ${CRON_JOB}"
-          kubectl create job -n ${NAMESPACE} --from=cronjob/${CRON_JOB} ${CRON_JOB}
+          echo "Creating job: ${CRON_JOB}/${JOB_NAME}"
+          kubectl create job -n ${NAMESPACE} --from=cronjob/${CRON_JOB} ${JOB_NAME}
           elapsed_time=0
           # Loop until the elapsed time reaches 300 seconds
           while [ $elapsed_time -lt 300 ]; do
               echo "Executing the command..."
-              TEST_POD=$(kubectl get -n ${NAMESPACE} pods -l job-name=${CRON_JOB} --no-headers | awk '{print $3}')
+              TEST_POD=$(kubectl get -n ${NAMESPACE} pods -l job-name=${JOB_NAME} --no-headers | awk '{print $3}')
               echo $TEST_POD
               if [ "${TEST_POD}" = "Completed" ]; then
                   echo "Job executed successfully: ${TEST_POD}"
@@ -63,4 +63,4 @@ jobs:
           echo "Giving up after 300 seconds."
           exit 1
 
-# End File: cver/.github/workflows/regression-engine.yaml
+# End File: cver/.github/workflows/regression-ingest.yaml

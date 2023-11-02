@@ -169,7 +169,7 @@ jobs:
 
   run-ingest:
     needs: [deploy-api, deploy-ingest]
-    uses: ./.github/workflows/regression-ingest.yaml
+    uses: ./.github/workflows/run-ingest.yaml
     secrets: inherit 
     with:
       deployment-name: "test"
@@ -180,7 +180,7 @@ jobs:
   # test-engine:
   #   # needs: [deploy-api, deploy-engine, test-ingest]
   #   needs: [deploy-api, deploy-engine]
-  #   uses: ./.github/workflows/regression-enigne.yaml
+  #   uses: ./.github/workflows/run-enigne.yaml
   #   secrets: inherit 
   #   with:
   #     deployment-name: "test"
