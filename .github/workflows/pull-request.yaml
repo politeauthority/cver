@@ -123,7 +123,18 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
-  test-api:
+  deploy-test:
+    needs: [unit-tests]
+    uses: ./.github/workflows/deploy-test.yaml
+    secrets: inherit 
+    with:
+      deployment-name: "test"
+      run-number: ${{ github.run_number }}
+      tag-name: "${{ github.sha }}"
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
+
+  regression-api:
     needs: [deploy-api]
     if: ${{ needs.deploy-api.result == 'success' }}
     uses: ./.github/workflows/regression-api.yaml
@@ -134,7 +145,18 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
-  test-ingest:
+  regression-cli:
+    needs: [deploy-api]
+    if: ${{ needs.deploy-api.result == 'success' }}
+    uses: ./.github/workflows/regression-cli.yaml
+    secrets: inherit 
+    with:
+      deployment-name: "test"
+      run-number: ${{ github.run_number }}
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
+
+  run-ingest:
     needs: [deploy-api, deploy-ingest]
     uses: ./.github/workflows/regression-ingest.yaml
     secrets: inherit 
@@ -198,14 +220,27 @@ jobs:
 
       - name: Tear Down Ingest
         run: |
-            mkdir -p ~/.kube
-            echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
-            export KUBECONFIG=~/.kube/config.yaml
-            echo "Remove the helm installation"
-            helm uninstall \
-              cver-ingest-test-${{ github.run_number }} \
-              --namespace=cver-test \
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
+          export KUBECONFIG=~/.kube/config.yaml
+          echo "Remove the helm installation"
+          helm uninstall \
+            cver-ingest-test-${{ github.run_number }} \
+            --namespace=cver-test
 
-            echo "Uninstalled Helm deployment cver-ingest-test-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+          echo "Uninstalled Helm deployment cver-ingest-test-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Tear Down Ingest
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
+          export KUBECONFIG=~/.kube/config.yaml
+          echo "Remove the helm installation"
+          helm uninstall \
+            cver-test-test-${{ github.run_number }} \
+            --namespace=cver-test
+
+          echo "Uninstalled Helm deployment cver-test-test-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+
 
 # End File: cver/.github/workflows/pull-request.yaml
