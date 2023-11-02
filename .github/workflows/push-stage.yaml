@@ -29,45 +29,6 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
-  build-api:
-    needs: [build-cver, lint]
-    uses: ./.github/workflows/build-container-api.yaml
-    secrets: inherit
-    permissions:
-      pull-requests: read
-      contents: read
-    with:
-      tag-prefix: "stage"
-      tag-name: "${{ github.sha }}"
-      cicd-version: "${{ vars.CICD_VERSION }}"
-      harbor-user: "${{ vars.HARBOR_USER }}"
-
-  build-engine:
-    needs: [build-cver, lint]
-    uses: ./.github/workflows/build-container-engine.yaml
-    secrets: inherit 
-    permissions:
-      pull-requests: read
-      contents: read
-    with:
-      tag-prefix: "stage"
-      tag-name: "${{ github.sha }}"
-      cicd-version: "${{ vars.CICD_VERSION }}"
-      harbor-user: "${{ vars.HARBOR_USER }}"
-
-  build-ingest:
-    needs: [build-cver, lint]
-    uses: ./.github/workflows/build-container-ingest.yaml
-    secrets: inherit 
-    permissions:
-      pull-requests: read
-      contents: read
-    with:
-      tag-prefix: "stage"
-      tag-name: "${{ github.sha }}"
-      cicd-version: "${{ vars.CICD_VERSION }}"
-      harbor-user: "${{ vars.HARBOR_USER }}"
-
   build-test:
     uses: ./.github/workflows/build-container-test.yaml
     secrets: inherit 
@@ -81,7 +42,7 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   unit-tests:
-    needs: [build-test]
+    needs: [build-test, lint, build-cver]
     uses: ./.github/workflows/unit-tests.yaml
     secrets: inherit 
     with:
@@ -90,8 +51,47 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
+  build-api:
+    needs: [unit-tests]
+    uses: ./.github/workflows/build-container-api.yaml
+    secrets: inherit
+    permissions:
+      pull-requests: read
+      contents: read
+    with:
+      tag-prefix: "stage"
+      tag-name: "${{ github.sha }}"
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
+
+  build-engine:
+    needs: [unit-tests]
+    uses: ./.github/workflows/build-container-engine.yaml
+    secrets: inherit 
+    permissions:
+      pull-requests: read
+      contents: read
+    with:
+      tag-prefix: "stage"
+      tag-name: "${{ github.sha }}"
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
+
+  build-ingest:
+    needs: [unit-tests]
+    uses: ./.github/workflows/build-container-ingest.yaml
+    secrets: inherit 
+    permissions:
+      pull-requests: read
+      contents: read
+    with:
+      tag-prefix: "stage"
+      tag-name: "${{ github.sha }}"
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
+
   deploy-api:
-    needs: [build-api, unit-tests]
+    needs: [build-api]
     uses: ./.github/workflows/deploy-api.yaml
     secrets: inherit 
     with:
@@ -102,7 +102,7 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   deploy-ingest:
-    needs: [build-ingest, unit-tests]
+    needs: [build-ingest]
     uses: ./.github/workflows/deploy-ingest.yaml
     secrets: inherit 
     with:
@@ -113,7 +113,7 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   deploy-engine:
-    needs: [build-engine, unit-tests]
+    needs: [build-engine]
     uses: ./.github/workflows/deploy-engine.yaml
     secrets: inherit
     with:
@@ -123,15 +123,15 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
-  # test-ingest:
-  #   needs: [deploy-api, deploy-ingest]
-  #   uses: ./.github/workflows/regression-ingest.yaml
-  #   secrets: inherit 
-  #   with:
-  #     deployment-name: "stage"
-  #     run-number: ${{ github.run_number }}
-  #     cicd-version: "${{ vars.CICD_VERSION }}"
-  #     harbor-user: "${{ vars.HARBOR_USER }}"
+  test-ingest:
+    needs: [deploy-api, deploy-ingest]
+    uses: ./.github/workflows/regression-ingest.yaml
+    secrets: inherit 
+    with:
+      deployment-name: "stage"
+      run-number: ${{ github.run_number }}
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
 
   test-api:
     needs: deploy-api

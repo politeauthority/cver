@@ -12,6 +12,8 @@ import requests
 from .test_api_base import TestApiBase
 
 CVER_API_URL = os.environ.get("CVER_API_URL")
+CVER_CLIENT_ID = os.environ.get("CVER_TEST_CLIENT_ID")
+CVER_API_KEY = os.environ.get("CVER_TEST_API_KEY")
 URL_BASE = "/image-build"
 URL_MODEL = "image-build"
 

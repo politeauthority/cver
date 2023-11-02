@@ -3,6 +3,7 @@
 replicaCount: 1
 
 app:
+  api_url: "http://cver-api"
   logLevel: "DEBUG"
   envName: "prod"
   debug: false

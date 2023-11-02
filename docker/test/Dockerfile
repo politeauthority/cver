@@ -15,10 +15,12 @@ ENV CVER_API_KEY=""
 WORKDIR /tests/
 ADD requirements-src.txt /test/requirements-test.txt
 ADD requirements-test.txt /test/requirements-src.txt
+
+ADD scripts/cver-build /bin
 ADD scripts/cver-test-unit /bin
 
 RUN apk add --update --no-cache --virtual .tmp-build-deps \
-    gcc libc-dev linux-headers bash curl git \
+    gcc libc-dev linux-headers bash curl git vim \
     && apk add libffi-dev
 
 ENV PS1="cver-test# "

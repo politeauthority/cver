@@ -5,6 +5,7 @@ replicaCount: 1
 nameOverride: "dev"
 
 app:
+  api_url: "http://cver-api-dev"
   logLevel: "DEBUG"
   envName: "test"
   debug: true

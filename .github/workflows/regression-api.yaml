@@ -17,7 +17,7 @@ on:
         type: string
 
 jobs:
-  regression-api:
+  test-api:
     runs-on: self-hosted
     container:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ inputs.cicd-version }}
@@ -44,7 +44,7 @@ jobs:
           echo "$REPORT"
           echo "${REPORT}" >> $GITHUB_STEP_SUMMARY
 
-  regression-client:
+  test-client:
     runs-on: self-hosted
     container:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ inputs.cicd-version }}

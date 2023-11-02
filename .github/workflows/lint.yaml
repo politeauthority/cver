@@ -44,6 +44,7 @@ jobs:
           else
             echo "Running Lint Helm. Changes detected." >> $GITHUB_STEP_SUMMARY
           fi
+
       - name: Lint Helm - Cver-Api
         if: steps.changes.outputs.helm == 'true'
         run: |
@@ -58,5 +59,10 @@ jobs:
         if: steps.changes.outputs.helm == 'true'
         run: |
           helm lint ./helm/cver-ingest
-    
-  
+
+      - name: Lint Helm - Cver-Test
+        if: steps.changes.outputs.helm == 'true'
+        run: |
+          helm lint ./helm/cver-test
+
+# End File: cver/.github/workflows/lint.yaml
