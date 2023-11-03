@@ -6,6 +6,7 @@ nameOverride: "test"
 
 app:
   logLevel: "DEBUG"
+  cverCicd: "true"
   envName: "test"
   debug: true
 

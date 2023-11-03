@@ -4,6 +4,7 @@ replicaCount: 1
 
 app:
   api_url: "http://cver-api"
+  cverCicd: "false"
   logLevel: "DEBUG"
   envName: "prod"
   debug: false
