@@ -69,14 +69,15 @@ jobs:
       - name: Push Container
         if: steps.changes.outputs.src == 'true'
         run: |
-          CVER_VERSION="0.0.4"
+          VERSION_FILE="src/cver/api/version.py"
+          VERSION=$(grep -o 'version = "[^"]*"' src/cver/api/version.py | cut -d '"' -f 2)
           IMAGE_ID=$(docker images --filter "reference=cver/cver-test" --format "{{.ID}}")
           docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-test:${CVER_VERSION}
           docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-test:${{ inputs.tag-name }}
           docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-test:git-sha-${{ inputs.tag-prefix }}-latest
-          docker push harbor.squid-ink.us/cver/cver-test:0.0.3
+          docker push harbor.squid-ink.us/cver/cver-test:${VERSION}
           docker push harbor.squid-ink.us/cver/cver-test:${{ inputs.tag-name }}
           docker push harbor.squid-ink.us/cver/cver-test:git-sha-${{ inputs.tag-prefix }}-latest
-          echo "**Built:** harbor.squid-ink.us/cver/cver-test:${CVER_VERSION}" >> $GITHUB_STEP_SUMMARY
+          echo "**Built:** harbor.squid-ink.us/cver/cver-test:${VERSION}" >> $GITHUB_STEP_SUMMARY
           echo "**Built:** harbor.squid-ink.us/cver/cver-test:${{ inputs.tag-name }}" >> $GITHUB_STEP_SUMMARY
           echo "**Built:** harbor.squid-ink.us/cver/cver-test:${{ inputs.tag-prefix }}-latest" >> $GITHUB_STEP_SUMMARY
