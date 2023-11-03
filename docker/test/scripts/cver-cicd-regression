@@ -28,10 +28,10 @@ if [ "$CVER_CICD" = "true" ]; then
     git fetch origin
     git checkout $CVER_BRACH
     echo "Building Cver"
-    cd ${WORKING_DIR}/cver/src
+    cd ${WORKING_DIR}/src
     pip3 install .
     echo "Building Cver Tests"
-    cd ${WORKING_DIR}/cver/tests
+    cd ${WORKING_DIR}/tests
     pip3 install .
 else
     WORKING_DIR="/current"
