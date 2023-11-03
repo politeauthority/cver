@@ -59,9 +59,10 @@ spec:
                 secretKeyRef:
                   key: api-key
                   name: cver-test-creds
+            - name: CVER_BRACH
+              value:  "{{ .Values.app.branch }}"
             - name: CVER_CICD
               value:  "{{ .Values.app.cverCicd }}"
-
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
