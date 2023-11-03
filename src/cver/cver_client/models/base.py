@@ -7,6 +7,8 @@
 from datetime import datetime
 import logging
 
+import arrow
+
 from cver.cver_client import CverClient
 from cver.shared.utils import date_utils
 
@@ -38,7 +40,14 @@ class Base(CverClient):
             setattr(self, field_name, None)
 
     def build(self, data: dict) -> bool:
+        """Hydrates a model object, setting all the data as class vars, properly typed as they
+        should be.
+        """
         for key, value in data.items():
+            if key not in self.field_map:
+                logging.error('Unknown field "%s" for %s model' % (key, self))
+            if self.field_map[key]["type"] == "datetime":
+                value = date_utils.from_str(value)
             setattr(self, key, value)
         return True
 
@@ -121,6 +130,8 @@ class Base(CverClient):
                 data[field_name] = getattr(self, field_name)
                 if data[field_name]:
                     if isinstance(data[field_name], datetime):
+                        data[field_name] = date_utils.json_date(data[field_name])
+                    elif isinstance(data[field_name], arrow.arrow.Arrow):
                         data[field_name] = date_utils.json_date(data[field_name])
                     else:
                         data[field_name] = data[field_name]

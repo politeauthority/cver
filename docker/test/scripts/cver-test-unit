@@ -2,24 +2,18 @@
 # Cver Test - Unit
 set -e
 echo "Cver Test Suite Starting"
-mkdir /workdir
-cd /workdir
-git clone https://github.com/politeauthority/cver.git
-cd  cver
+WORKING_DIR="/current"
+TEST_DIR="/tests"
 
-git fetch origin
-git checkout origin/cver-test
+# mkdir /workdir
+# cd /workdir
+# git clone https://github.com/politeauthority/cver.git
+# cd  cver
 
-cd src
-python3 setup.py build
-python3 setup.py install
-pip3 install -r requirements.txt
+# git fetch origin
+# git checkout origin/cver-test
 
-cd ../tests
+/bin/cver-build
 
-python3 setup.py build
-python3 setup.py install
-pip3 install -r requirements.txt
-
-cd unit/api
+cd ${TEST_DIR}/unit
 pytest --md report.md --vcr-record=none

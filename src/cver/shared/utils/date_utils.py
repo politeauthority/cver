@@ -46,7 +46,8 @@ def json_date_now() -> str:
 
 
 def human_date(the_datetime: str) -> str:
-    """Get a human date from a Datetime object, such as "2 hours ago".
+    """Get a human date from a Datetime object, such as "2 hours ago". Input can be a string,
+    datetime or arrow object.
     :unit-test: TestSharedUtilsDateUtils.test__human_date
     """
     if not the_datetime:
@@ -80,6 +81,22 @@ def date_from_json(the_datetime: str, parse_fmt: str = None) -> arrow.arrow.Arro
     return ret_datetime
 
 
+def from_str(the_str: str, parse_fmt: str = None) -> arrow.arrow.Arrow:
+    """Convert a string into a python native arrow object.
+    :param the_str: Currently this is expected to look like "2023-11-02 18:16:45 +00:00"
+    :unit-test: TestSharedUtilsDateUtils.test__date_from_json
+    """
+    if not the_str:
+        return None
+    if not parse_fmt:
+        parse_fmt = "YYYY-MM-DD HH:mm:ss ZZ"
+    try:
+        ret_datetime = arrow.get(the_str, parse_fmt)
+    except arrow.parser.ParserError:
+        ret_datetime = None
+    return ret_datetime
+
+
 def interval_ready(last: datetime, interval_hours: int) -> bool:
     """Determine in a given datetime is older than the interval_hours.
     :unit-test: TestSharedUtilsDateUtils.test__interval_ready
@@ -92,5 +109,6 @@ def interval_ready(last: datetime, interval_hours: int) -> bool:
         return True
     else:
         return False
+
 
 # End File: cver/src/share/utils/date_utils.py

@@ -57,6 +57,6 @@ jobs:
             -f values-quigley-${{ inputs.deployment-name }}.yaml \
             --set "app.apiUrl=${API_URL}"
 
-          echo "# Deployed: Ingest" >> $GITHUB_STEP_SUMMARY
+          echo "# Deployed: Cver-Ingest" >> $GITHUB_STEP_SUMMARY
           echo "Created Helm deployment: ${RELEASE_NAME}" >> $GITHUB_STEP_SUMMARY
 

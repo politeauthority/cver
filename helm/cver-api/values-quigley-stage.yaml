@@ -12,7 +12,7 @@ app:
   jwtExpireMinutes: 1440
   database:
     name: "cver_stage"
-    host: "cver-mysql.cver-prod.svc.cluster.local"
+    host: "cver-mysql.cver.svc.cluster.local"
     user: "cver"
 
 test:

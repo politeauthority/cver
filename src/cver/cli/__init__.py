@@ -22,6 +22,7 @@ from cver.cver_client.models.image_build_waiting import ImageBuildWaiting
 from cver.cver_client.models.task import Task
 # from cver.cver_client.collections.scans import Scans
 from cver.cver_client import CverClient
+from cver.cli.utils import pretty
 
 LOGO = """
    ______
@@ -241,7 +242,7 @@ class Cver:
         for task in tasks:
             data = {
                 "ID": task.id,
-                "Created": task.created_ts,
+                "Created": pretty.date_display(task.created_ts),
                 "Updated": task.updated_ts,
                 "Name": task.name,
                 "Image ID": task.image_id,
@@ -265,20 +266,8 @@ class Cver:
         if not task.get_by_id(task_search):
             print("Not Found")
             return False
-
-        print_dict = {
-            "ID": task.id,
-            "Created": task.created_ts,
-            "Updatded": task.updated_ts,
-            "Name": task.name,
-            "Image ID": task.image_id,
-            "Image Build ID": task.image_build_id,
-            "Image Build Waiting ID": task.image_build_waiting_id,
-            "Status": task.status,
-            "Status Reason": task.status_reason
-        }
         console.print("Task", style="bold")
-        display.print_dict(print_dict)
+        pretty.entity(task)
 
 
 def parse_args():

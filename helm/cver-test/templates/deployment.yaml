@@ -37,6 +37,8 @@ spec:
               value: "{{ .Values.app.envName }}"
             - name: CVER_LOG_LEVEL
               value: "{{ .Values.app.logLevel }}"
+            - name: CVER_API_URL
+              value:  "{{ .Values.app.api_url }}"
             - name: CVER_CLIENT_ID
               valueFrom:
                 secretKeyRef:
@@ -47,8 +49,20 @@ spec:
                 secretKeyRef:
                   key: api-key
                   name: cver-test-creds
-            - name: CVER_LOG_HEALTH_CHECKS
-              value: "{{ .Values.app.logHealthChecks }}"
+            - name: CVER_TEST_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  key: client-id
+                  name: cver-test-creds
+            - name: CVER_TEST_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: api-key
+                  name: cver-test-creds
+            - name: CVER_BRANCH
+              value: "{{ .Values.app.branch }}"
+            - name: CVER_CICD
+              value:  "{{ .Values.app.cverCicd }}"
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}

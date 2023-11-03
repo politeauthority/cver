@@ -5,10 +5,10 @@
 
 """
 import logging
-import importlib
 
 from cver.shared.utils import xlate
 from cver.cver_client import CverClient
+from cver.cver_client.utils import misc
 
 
 class ClientCollectionsBase(CverClient):
@@ -40,25 +40,12 @@ class ClientCollectionsBase(CverClient):
         else:
             return False
 
-    def dynamic_get_model_instance(self, object_type: str):
-        """Dynamically get a model instance. We dont know the model we need at run time so we need
-        to import it dynamically.
-        @todo: This should be tested and made more clear.
-        """
-        snake_str = xlate.rest_to_snake_case(object_type)
-        camel_str = xlate.snake_to_camel_case(snake_str)
-        module_path = "cver.cver_client.models.%s.%s" % (snake_str, camel_str)
-        module_path = "cver.cver_client.models.%s" % (snake_str)
-        module_file = importlib.import_module(module_path)
-        module = getattr(module_file, camel_str)
-        return module()
-
     def build_list_of_dicts(self, object_type: str, objs: list) -> list:
         """Builds a list of dictionaries."""
         # bare_model = self.dynamic_get_model_instance(object_type)
         ret_list = []
         for obj in objs:
-            thing = self.dynamic_get_model_instance(object_type)
+            thing = misc.dynamic_get_model_instance(object_type)
             thing.build(obj)
             ret_list.append(thing)
             thing = None

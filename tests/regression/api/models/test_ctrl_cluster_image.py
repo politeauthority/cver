@@ -16,6 +16,8 @@ from cver.shared.utils import date_utils
 from .test_api_base import TestApiBase
 
 CVER_API_URL = os.environ.get("CVER_API_URL")
+CVER_CLIENT_ID = os.environ.get("CVER_TEST_CLIENT_ID")
+CVER_API_KEY = os.environ.get("CVER_TEST_API_KEY")
 URL_BASE = "cluster-image"
 URL_MODEL = "cluster-image"
 
@@ -38,9 +40,8 @@ class TestApiModelClusterImage(TestApiBase):
         request_args = {
             "headers": self.get_headers(),
             "method": "GET",
-            "url": "%s%s/%s" % (CVER_API_URL, URL_BASE, random_number),
+            "url": "%s/%s/%s" % (CVER_API_URL, URL_BASE, random_number),
         }
-
         response = requests.request(**request_args)
         assert response.status_code == 404
 
@@ -52,7 +53,7 @@ class TestApiModelClusterImage(TestApiBase):
         request_args = {
             "headers": self.get_headers(),
             "method": "POST",
-            "url": "%s%s" % (CVER_API_URL, URL_BASE),
+            "url": "%s/%s" % (CVER_API_URL, URL_BASE),
             "data": TEST_MODEL
         }
         request_args["data"] = json.dumps(request_args["data"])
@@ -70,7 +71,7 @@ class TestApiModelClusterImage(TestApiBase):
         request_args = {
             "headers": self.get_headers(),
             "method": "GET",
-            "url": "%s%s" % (CVER_API_URL, URL_BASE),
+            "url": "%s/%s" % (CVER_API_URL, URL_BASE),
             "params": {
                 "image_id": TEST_MODEL["image_id"],
                 "cluster_id": TEST_MODEL["cluster_id"]
@@ -84,7 +85,7 @@ class TestApiModelClusterImage(TestApiBase):
         assert response_json["object"]["cluster_id"] == TEST_MODEL["cluster_id"]
         cluster_image_id = response_json["object"]["id"]
         request_args.pop("params")
-        request_args["url"] = "%s%s/%s" % (CVER_API_URL, URL_BASE, cluster_image_id)
+        request_args["url"] = "%s/%s/%s" % (CVER_API_URL, URL_BASE, cluster_image_id)
         response = requests.request(**request_args)
         assert response.status_code == 200
         response_json = response.json()
@@ -103,7 +104,7 @@ class TestApiModelClusterImage(TestApiBase):
         request_args = {
             "headers": self.get_headers(),
             "method": "DELETE",
-            "url": "%s%s" % (CVER_API_URL, URL_BASE),
+            "url": "%s/%s" % (CVER_API_URL, URL_BASE),
             "data": {
                 "image_id": TEST_MODEL["image_id"],
                 "cluster_id": TEST_MODEL["cluster_id"],
