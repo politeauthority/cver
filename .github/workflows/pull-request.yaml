@@ -190,7 +190,7 @@ jobs:
 
   remove-ephem:
     runs-on: self-hosted
-    needs: [regression-api, regression-cli, regression-client, run-ingest]
+    needs: [deploy-engine, regression-api, regression-cli, regression-client, run-ingest]
     container:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
       credentials:
@@ -240,7 +240,7 @@ jobs:
 
           echo "Uninstalled Helm deployment cver-ingest-test-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
 
-      - name: Tear Down Ingest
+      - name: Tear Down Test
         run: |
           mkdir -p ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml

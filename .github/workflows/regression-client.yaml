@@ -18,7 +18,7 @@ on:
 
 jobs:
 
-  test-client:
+  client:
     runs-on: self-hosted
     container:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ inputs.cicd-version }}
