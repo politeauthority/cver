@@ -216,6 +216,17 @@ tasks:
       - echo "Copied and Built!"
     silent: True
 
+  dev-cp-test:
+    cmds:
+      - |
+        POD=$(kubectl get pods -n cver-dev  -l app.kubernetes.io/instance=cver-test-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
+        echo $POD
+        kubectl cp -n cver-dev {{ .CVER_DIR }}/src ${POD}:/current/
+        kubectl cp -n cver-dev {{ .CVER_DIR }}/tests ${POD}:/
+        kubectl exec -n cver-dev -it ${POD} -- /bin/cver-test-unit
+      - echo "Copied and Built!"
+    silent: True
+
   dev-exec-api:
     cmds:
       - |
@@ -298,6 +309,20 @@ tasks:
         DEPLOYED_AT=$(date +"%Y-%m-%d %T")
         helm upgrade --install \
             cver-ingest-dev \
+            ./ \
+            --namespace=cver-dev \
+            -f values.yaml \
+            -f values-quigley-dev.yaml \
+            --set "app.deployedAt=${DEPLOYED_AT}"
+    silent: True
+
+  dev-helm-test:
+    cmds:
+      - |
+        cd helm/cver-test
+        DEPLOYED_AT=$(date +"%Y-%m-%d %T")
+        helm upgrade --install \
+            cver-test-dev \
             ./ \
             --namespace=cver-dev \
             -f values.yaml \

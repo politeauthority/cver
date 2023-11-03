@@ -46,8 +46,6 @@ jobs:
               - 'src/cver/api/**'
               - 'src/cver/migrate/**'
               - 'src/cver/shared/**'
-              - 'src/cver/cver_client/**'
-              - 'tests/regression/**'
 
       - uses: docker/login-action@v2
         with:
@@ -105,9 +103,9 @@ jobs:
           echo "**Built:** harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-name }}" >> $GITHUB_STEP_SUMMARY
           echo "**Built:** harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-prefix }}-latest" >> $GITHUB_STEP_SUMMARY
           if [ "$MAKE_BRANCH_TAG" = "true" ]; then
-            docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-api:${BRANCH}
-            docker push harbor.squid-ink.us/cver/cver-api:${BRANCH}
-            echo "**Built:** harbor.squid-ink.us/cver/cver-api:${BRANCH}" >> $GITHUB_STEP_SUMMARY
+            docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-api:git-branch_${BRANCH}
+            docker push harbor.squid-ink.us/cver/cver-api:git-branch_${BRANCH}
+            echo "**Built:** harbor.squid-ink.us/cver/cver-api:git-branch_${BRANCH}" >> $GITHUB_STEP_SUMMARY
           fi
           if [ "$MAKE_VERSION_TAG" = "true" ]; then
             VERSION=$(grep -o 'version = "[^"]*"' src/cver/api/version.py | cut -d '"' -f 2)
