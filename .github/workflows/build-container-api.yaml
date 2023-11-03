@@ -46,7 +46,6 @@ jobs:
               - 'src/cver/api/**'
               - 'src/cver/migrate/**'
               - 'src/cver/shared/**'
-              - 'tests/regression/**'
 
       - uses: docker/login-action@v2
         with:
