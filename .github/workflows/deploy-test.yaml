@@ -30,8 +30,19 @@ jobs:
         password: ${{ secrets.HARBOR_PASSWORD }}
     steps:
       - uses: actions/checkout@v3
+
+      - name: Extract branch name
+        shell: bash
+        run: |
+          BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
+          BRANCH="${BRANCH//\//-}"
+          echo "${BRANCH}"
+          echo "branch=${BRANCH}" >> "$GITHUB_OUTPUT"
+        id: extract_branch
+
       - name: Deploy
         run: |
+          BRANCH="${{ steps.extract_branch.outputs.branch }}"
           IMAGE_TAG="${{ inputs.deployment-name }}-latest"
           if [ "${{ inputs.deployment-name }}" = "test" ]; then
             RELEASE_NAME="cver-test-test-${{ inputs.run-number }}"
@@ -56,7 +67,7 @@ jobs:
             --timeout=300s \
             -f values-quigley-${{ inputs.deployment-name }}.yaml \
             --set "app.api_url=${CVER_API_URL}" \
-            --set "app.branch=${CVER_API_URL}" \
+            --set "app.branch=${BRANCH}" \
             --set "app.deployedAt=${DEPLOYED_AT}"
           echo "# Deployed: Cver-Test" >> $GITHUB_STEP_SUMMARY
           echo "Created Helm deployment: ${RELEASE_NAME}" >> $GITHUB_STEP_SUMMARY
