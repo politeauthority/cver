@@ -125,7 +125,7 @@ jobs:
 
   test-ingest:
     needs: [deploy-api, deploy-ingest]
-    uses: ./.github/workflows/regression-ingest.yaml
+    uses: ./.github/workflows/run-ingest.yaml
     secrets: inherit 
     with:
       deployment-name: "stage"
