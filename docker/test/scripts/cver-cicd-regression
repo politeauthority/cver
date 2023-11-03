@@ -15,6 +15,11 @@ CVER_TEST_MODULE="$1"
 #     exit 1
 # fi
 
+echo "Using Cver branch: ${CVER_BRACH}"
+echo "Using Cver branch: ${CVER_BRACH}"
+echo "Using Cver branch: ${CVER_BRACH}"
+echo "Using Cver branch: ${CVER_BRACH}"
+
 if [ "$CVER_CICD" = "true" ]; then
     echo "Using Cver branch: ${CVER_BRACH}"
     WORKING_DIR="/checkout"
