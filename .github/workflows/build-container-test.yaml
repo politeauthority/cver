@@ -72,7 +72,7 @@ jobs:
           VERSION_FILE="src/cver/api/version.py"
           VERSION=$(grep -o 'version = "[^"]*"' src/cver/api/version.py | cut -d '"' -f 2)
           IMAGE_ID=$(docker images --filter "reference=cver/cver-test" --format "{{.ID}}")
-          docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-test:${CVER_VERSION}
+          docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-test:${VERSION}
           docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-test:${{ inputs.tag-name }}
           docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-test:git-sha-${{ inputs.tag-prefix }}-latest
           docker push harbor.squid-ink.us/cver/cver-test:${VERSION}
