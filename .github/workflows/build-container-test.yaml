@@ -74,7 +74,7 @@ jobs:
           # Docker Tag
           docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-test:${VERSION}
           docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-test:${{ inputs.tag-prefix }}-latest
-          docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-test:git-sha-${{ inputs.tag-prefix }}
+          docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-test:git-sha-${{ inputs.git-sha }}
 
           # Docker Push
           docker push harbor.squid-ink.us/cver/cver-test:${VERSION}
