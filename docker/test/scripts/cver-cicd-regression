@@ -5,33 +5,34 @@ set -e
 if [ -z "$CVER_CICD" ]; then
     CVER_CICD="false"
 fi
+
+echo "Using Cver branch: ${CVER_BRANCH}"
+
 CVER_TEST_MODULE="$1"
-# if [[ -z "$CVER_BRANCH" ]]; then
-#     echo "Using Cver branch: ${CVER_BRACH}"
-#     WORKING_DIR="/checkout"
-#     TEST_DIR="${WORKING_DIR}/cver/tests"
-# else
-#     echo "ERROR: Cver branch not set"
-#     exit 1
-# fi
+if [[ -z "$CVER_TEST_MODULE" ]]; then
+    echo "Test Module: All"
+    CVER_TEST_MODULE="."
+else
+    echo "Test Module: ${CVER_TEST_MODULE}"
+fi
 
 if [ "$CVER_CICD" = "true" ]; then
-    echo "Using Cver branch: ${CVER_BRACH}"
-    WORKING_DIR="/checkout"
+    echo "Using Cver branch: ${CVER_BRANCH}"
+    WORKING_DIR="/checkout/cver"
     TEST_DIR="${WORKING_DIR}/cver/tests"
     rm -rf $WORKING_DIR
-    mkdir -p $WORKING_DIR
+    mkdir $WORKING_DIR
     mkdir -p /report
     cd $WORKING_DIR
     git clone https://github.com/politeauthority/cver.git
     cd  cver
     git fetch origin
-    git checkout $CVER_BRACH
+    git checkout $CVER_BRANCH
     echo "Building Cver"
-    cd ${WORKING_DIR}/src
+    cd ${WORKING_DIR}/cver/src
     pip3 install .
     echo "Building Cver Tests"
-    cd ${WORKING_DIR}/tests
+    cd ${TEST_DIR}
     pip3 install .
 else
     WORKING_DIR="/current"
@@ -51,5 +52,6 @@ echo "Using tests from: ${TEST_DIR}"
 
 
 echo "Running Regression: ${CVER_TEST_MODULE}"
-pytest -vvv ${TEST_DIR}/regression/${CVER_TEST_MODULE} --md /report/regression-report.md
+cd  $TEST_DIR/regression
+pytest -vvv ${CVER_TEST_MODULE} --md /report/regression-report.md
 
