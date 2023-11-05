@@ -82,9 +82,20 @@ class TestSharedUtilMisc:
         """Test that we strip trailing slashes.
         :method: misc.strip_trailing_slash()
         """
-        assert misc.strip_trailing_slash("google.com") == "google.com"
-        assert misc.strip_trailing_slash("google.com/") == "google.com"
-        assert misc.strip_trailing_slash("http://localhost/") == "http://localhost"
+        assert "google.com/" == misc.strip_trailing_slash("google.com")
+        assert "google.com" == misc.strip_trailing_slash("google.com/")
+        assert "http://localhost/" == misc.strip_trailing_slash("http://localhost/")
+
+
+    def test__add_trailing_slash(self):
+        """Test that we add trailing slashes.
+        :method: misc.add_trailing_slash()
+        """
+        assert "google.com/" == misc.add_trailing_slash("google.com")
+        assert "google.com" == misc.add_trailing_slash("google.com/")
+        assert "http://localhost/" == misc.add_trailing_slash("http://localhost/")
+
+
 
     def test___get_registry(self):
         """Test that we get a registry domain from a docker image url string.

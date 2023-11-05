@@ -14,7 +14,7 @@ from cver.shared.utils import misc
 
 from .test_api_base import TestApiBase
 
-CVER_API_URL = misc.strip_trailing_slash(os.environ.get("CVER_API_URL"))
+CVER_API_URL = misc.add_trailing_slash(os.environ.get("CVER_API_URL"))
 CVER_CLIENT_ID = os.environ.get("CVER_TEST_CLIENT_ID")
 CVER_API_KEY = os.environ.get("CVER_TEST_API_KEY")
 URL_BASE = "/cluster"
@@ -37,7 +37,7 @@ class TestApiModelCluster(TestApiBase):
         request_args = {
             "headers": self.get_headers(),
             "method": "GET",
-            "url": f"{CVER_API_URL}/{URL_BASE}/{random_number}",
+            "url": f"{CVER_API_URL}{URL_BASE}/{random_number}",
         }
 
         response = requests.request(**request_args)
@@ -51,7 +51,7 @@ class TestApiModelCluster(TestApiBase):
         request_args = {
             "headers": self.get_headers(),
             "method": "POST",
-            "url": f"{CVER_API_URL}/{URL_BASE}",
+            "url": f"{CVER_API_URL}{URL_BASE}",
             "data": TEST_MODEL
         }
         request_args["data"] = json.dumps(request_args["data"])
