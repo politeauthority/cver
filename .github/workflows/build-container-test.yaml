@@ -84,4 +84,4 @@ jobs:
           # GHA Summary
           echo "**Built:** harbor.squid-ink.us/cver/cver-test:${VERSION}" >> $GITHUB_STEP_SUMMARY
           echo "**Built:** harbor.squid-ink.us/cver/cver-test:${{ inputs.tag-prefix }}-latest" >> $GITHUB_STEP_SUMMARY
-          echo "**Built:** harbor.squid-ink.us/cver/cver-test:git-sha-${{ inputs.git-sha }} >> $GITHUB_STEP_SUMMARY
+          echo "**Built:** harbor.squid-ink.us/cver/cver-test:git-sha-${{ inputs.git-sha }}" >> $GITHUB_STEP_SUMMARY
