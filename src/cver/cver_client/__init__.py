@@ -13,6 +13,7 @@ import requests
 from cver.shared.utils import misc as s_misc
 from cver.shared.utils import xlate
 from cver.api.version import version as __version__
+from cver.cver_client.utils.read_config import ReadConfig
 # from cver.shared.utils.log_config import log_config
 
 
@@ -43,6 +44,7 @@ class CverClient:
             self.api_url = os.environ.get("CVER_API_URL")
         self.api_url = s_misc.strip_trailing_slash(self.api_url)
         self.user_agent = "CverClient/%s" % __version__
+        self.config = ReadConfig().read()
         self.headers = {}
         self.api_host = os.environ.get("CVER_API_HOST")
         self.api_url = s_misc.strip_trailing_slash(self.api_url)
