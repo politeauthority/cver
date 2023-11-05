@@ -55,12 +55,25 @@ def percentize(part: int, whole: int, round_int: int = 1) -> float:
 
 
 def strip_trailing_slash(the_string: str) -> str:
-    """Strips trailing slashes if they exist."""
+    """Strips trailing slashes if they exist.
+    :unit-test: TestSharedUtilMisc::test__strip_trailing_slash
+    """
     if not the_string:
         return the_string
     if the_string[-1:] == "/":
         return the_string[:-1]
     return the_string
+
+
+def add_trailing_slash(the_string: str) -> str:
+    """Adds a trailing slash if one does not exist.
+    :unit-test: TestSharedUtilMisc::test__add_trailing_slash
+    """
+    if not the_string:
+        return the_string
+    if the_string[-1:] == "/":
+        return the_string
+    return the_string + "/"
 
 
 def dict_to_json(the_dict: dict, file_name: str) -> bool:
