@@ -76,7 +76,6 @@ jobs:
         if: steps.changes.outputs.src == 'true'
         run: |
           echo "Run Task: Build"
-          export CVER_API_TAG="${{ inputs.tag-name }}"
           task build-api
 
       - name: Push Container
@@ -100,7 +99,7 @@ jobs:
           docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-prefix }}-latest
 
           # Docker Push
-          docker push harbor.squid-ink.us/cver/cver-api:git-sha-${{ inputs.tag-name }}
+          docker push harbor.squid-ink.us/cver/cver-api:git-sha-${{ inputs.git-sha }}
           docker push harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-prefix }}-latest
 
           # GHA Summary
