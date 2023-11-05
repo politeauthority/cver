@@ -6,9 +6,6 @@ on:
       run-number:
         required: true
         type: string
-      tag-name:
-        required: true
-        type: string
       cicd-version:
         required: true
         type: string
