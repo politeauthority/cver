@@ -91,7 +91,7 @@ class TestSharedUtilMisc:
         :method: misc.add_trailing_slash()
         """
         assert "google.com/" == misc.add_trailing_slash("google.com")
-        assert "google.com" == misc.add_trailing_slash("google.com/")
+        assert "google.com/" == misc.add_trailing_slash("google.com/")
         assert "http://localhost/" == misc.add_trailing_slash("http://localhost/")
 
     def test___get_registry(self):
