@@ -60,7 +60,7 @@ jobs:
       contents: read
     with:
       tag-prefix: "stage"
-      tag-name: "${{ github.sha }}"
+      git-sha: "${{ github.sha }}"
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
@@ -73,7 +73,7 @@ jobs:
       contents: read
     with:
       tag-prefix: "stage"
-      tag-name: "${{ github.sha }}"
+      git-sha: "${{ github.sha }}"
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
@@ -86,7 +86,7 @@ jobs:
       contents: read
     with:
       tag-prefix: "stage"
-      tag-name: "${{ github.sha }}"
+      git-sha: "${{ github.sha }}"
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
@@ -119,7 +119,7 @@ jobs:
     with:
       deployment-name: "stage"
       run-number: ${{ github.run_number }}
-      tag-name: "${{ github.sha }}"
+      git-sha: "${{ github.sha }}"
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 

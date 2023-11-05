@@ -6,7 +6,7 @@ on:
       tag-prefix:
         required: true
         type: string
-      tag-name:
+      git-sha:
         required: true
         type: string
       cicd-version:
@@ -94,19 +94,27 @@ jobs:
             MAKE_BRANCH_TAG="true"
           fi
 
+          # Docker Tag
           IMAGE_ID=$(docker images --filter "reference=cver/cver-api" --format "{{.ID}}")
-          docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-name }}
+          docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-api:git-sha-${{ inputs.git-sha}}
           docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-prefix }}-latest
-          docker push harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-name }}
+
+          # Docker Push
+          docker push harbor.squid-ink.us/cver/cver-api:git-sha-${{ inputs.tag-name }}
           docker push harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-prefix }}-latest
 
-          echo "**Built:** harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-name }}" >> $GITHUB_STEP_SUMMARY
+          # GHA Summary
+          echo "**Built:** harbor.squid-ink.us/cver/cver-api:git-sha${{ inputs.git-sha }}" >> $GITHUB_STEP_SUMMARY
           echo "**Built:** harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-prefix }}-latest" >> $GITHUB_STEP_SUMMARY
+
+          # Make Docker Branch Tag
           if [ "$MAKE_BRANCH_TAG" = "true" ]; then
-            docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-api:git-branch_${BRANCH}
-            docker push harbor.squid-ink.us/cver/cver-api:git-branch_${BRANCH}
-            echo "**Built:** harbor.squid-ink.us/cver/cver-api:git-branch_${BRANCH}" >> $GITHUB_STEP_SUMMARY
+            docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-api:git-branch-${BRANCH}
+            docker push harbor.squid-ink.us/cver/cver-api:git-branch-${BRANCH}
+            echo "**Built:** harbor.squid-ink.us/cver/cver-api:git-branch-${BRANCH}" >> $GITHUB_STEP_SUMMARY
           fi
+
+          # Make Version Tag
           if [ "$MAKE_VERSION_TAG" = "true" ]; then
             VERSION=$(grep -o 'version = "[^"]*"' src/cver/api/version.py | cut -d '"' -f 2)
             docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-api:${VERSION}
