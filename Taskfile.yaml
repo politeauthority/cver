@@ -383,9 +383,9 @@ tasks:
       - task: dev-cp-test
       - |
         POD=$(kubectl get pods -n cver-dev  -l app.kubernetes.io/instance=cver-test-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
-        kubectl exec -it $POD -- flake8 /current/src --config=/current/src/flake8 --count --show-source --statistics
-        kubectl exec -it $POD -- flake8 /tests --config=/tests/flake8 --count --show-source --statistics
-        kubectl exec -it $POD -- pytest /current/tests/unit
+        kubectl exec -n cver-dev -it $POD -- flake8 /current/src --config=/current/src/flake8 --count --show-source --statistics
+        kubectl exec -n cver-dev -it $POD -- flake8 /tests --config=/tests/flake8 --count --show-source --statistics
+        kubectl exec -n cver-dev -it $POD -- pytest /current/tests/unit
         flake8 tests/ --config=tests/flake8 --count --show-source --statistics
         echo "pre-commit passed!"
     silent: true
