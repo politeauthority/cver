@@ -11,17 +11,17 @@ echo "Using Cver branch: ${CVER_BRANCH}"
 CVER_TEST_MODULE="$1"
 if [[ -z "$CVER_TEST_MODULE" ]]; then
     echo "Test Module: All"
-    CVER_TEST_MODULE="."
+    CVER_TEST_MODULE="all"
 else
     echo "Test Module: ${CVER_TEST_MODULE}"
 fi
 
 if [ "$CVER_CICD" = "true" ]; then
     echo "Using Cver branch: ${CVER_BRANCH}"
-    WORKING_DIR="/checkout/cver"
+    WORKING_DIR="/checkout-${CVER_TEST_MODULE}}/cver"
     TEST_DIR="${WORKING_DIR}/cver/tests"
     rm -rf $WORKING_DIR
-    mkdir $WORKING_DIR
+    mkdir /checkout-api
     mkdir -p /report
     cd $WORKING_DIR
     git clone https://github.com/politeauthority/cver.git
@@ -53,5 +53,9 @@ echo "Using tests from: ${TEST_DIR}"
 
 echo "Running Regression: ${CVER_TEST_MODULE}"
 cd  $TEST_DIR/regression
-pytest -vvv ${CVER_TEST_MODULE} --md /report/regression-report.md
+if [ "$CVER_TEST_MODULE" = "all" ]; then
+    pytest -vvv . --md /report/regression-report.md
+else
+    pytest -vvv ${CVER_TEST_MODULE} --md /report/regression-report.md
+fi
 

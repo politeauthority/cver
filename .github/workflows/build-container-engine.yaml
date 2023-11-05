@@ -53,7 +53,6 @@ jobs:
       - name: Decider
         run: |
           echo "# Docker Build: Engine" >> $GITHUB_STEP_SUMMARY
-          echo "ALIX DEBUG: CHANGES-OUTPUT: ${{steps.changes.outputs.src}}"
           if [ "${{steps.changes.outputs.src}}" = "false" ]; then
             echo "Skipping Engine Build. No changes detected." >> $GITHUB_STEP_SUMMARY
           else
@@ -81,7 +80,7 @@ jobs:
           docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-engine:${{ inputs.tag-prefix }}-latest
           docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-engine:git-sha-${{ inputs.git-sha }}
 
-          docker push harbor.squid-ink.us/cver/cver-engine:git-sha${{ inputs.git-sha }}
+          docker push harbor.squid-ink.us/cver/cver-engine:git-sha-${{ inputs.git-sha }}
           docker push harbor.squid-ink.us/cver/cver-engine:${{ inputs.tag-prefix }}-latest
 
           echo "**Built:** harbor.squid-ink.us/cver/cver-engine:git-sha${{ inputs.git-sha }}" >> $GITHUB_STEP_SUMMARY
