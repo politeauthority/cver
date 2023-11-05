@@ -18,7 +18,7 @@ fi
 
 if [ "$CVER_CICD" = "true" ]; then
     echo "Using Cver branch: ${CVER_BRANCH}"
-    WORKING_DIR="/checkout-${CVER_TEST_MODULE}}/cver"
+    WORKING_DIR="/checkout-${CVER_TEST_MODULE}/cver"
     TEST_DIR="${WORKING_DIR}/cver/tests"
     rm -rf /checkout-${CVER_TEST_MODULE}
     rm -rf $WORKING_DIR
