@@ -82,9 +82,9 @@ class TestSharedUtilMisc:
         """Test that we strip trailing slashes.
         :method: misc.strip_trailing_slash()
         """
-        assert "google.com/" == misc.strip_trailing_slash("google.com")
+        assert "google.com" == misc.strip_trailing_slash("google.com")
         assert "google.com" == misc.strip_trailing_slash("google.com/")
-        assert "http://localhost/" == misc.strip_trailing_slash("http://localhost/")
+        assert "http://localhost" == misc.strip_trailing_slash("http://localhost/")
 
     def test__add_trailing_slash(self):
         """Test that we add trailing slashes.

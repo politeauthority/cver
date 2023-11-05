@@ -221,10 +221,8 @@ tasks:
       - |
         POD=$(kubectl get pods -n cver-dev  -l app.kubernetes.io/instance=cver-test-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
         echo $POD
-        kubectl cp -n cver-dev {{ .CVER_DIR }}/src ${POD}:/current/
-        kubectl cp -n cver-dev {{ .CVER_DIR }}/tests ${POD}:/
-        kubectl exec -n cver-dev -it ${POD} -- /bin/cver-test-unit
-      - echo "Copied and Built!"
+        kubectl cp -n cver-dev {{ .CVER_DIR }}/ ${POD}:/current/
+        kubectl exec -it -n cver-dev ${POD} -- cver-build
     silent: True
 
   dev-exec-api:
@@ -333,10 +331,9 @@ tasks:
   dev-rebuild-k8s:
     cmds:
       - task: dev-cp-api
-      - task: dev-cp-api-tests
+      - task: dev-cp-test
       - task: dev-cp-engine
       - task: dev-cp-ingest
-      # - task: dev-cp-test
       - |
         # Destroy the Existing database and run migrations
         POD=$(kubectl get pods -n cver-dev -l app.kubernetes.io/instance=cver-api-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
@@ -382,15 +379,15 @@ tasks:
         python3 setup.py install
 
   pre-commit:
-    cmds: 
+    cmds:
+      - task: dev-cp-test
       - |
-        echo "Pre Commit"
-        cd ./src
-        echo "src/"
-        flake8 cver --config=flake8 --count --show-source --statistics
-      - |
-        echo "tests/"
+        POD=$(kubectl get pods -n cver-dev  -l app.kubernetes.io/instance=cver-test-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
+        kubectl exec -it $POD -- flake8 /current/src --config=/current/src/flake8 --count --show-source --statistics
+        kubectl exec -it $POD -- flake8 /tests --config=/tests/flake8 --count --show-source --statistics
+        kubectl exec -it $POD -- pytest /current/tests/unit
         flake8 tests/ --config=tests/flake8 --count --show-source --statistics
+        echo "pre-commit passed!"
     silent: true
 
   k8s-exec-stage:
