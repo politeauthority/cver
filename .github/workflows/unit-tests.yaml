@@ -18,7 +18,7 @@ jobs:
     runs-on: self-hosted
     continue-on-error: false
     container:
-      image: harbor.squid-ink.us/cver/cver-test:0.0.3
+      image: harbor.squid-ink.us/cver/cver-test:0.0.4
       credentials:
         username: ${{ inputs.harbor-user }}
         password: ${{ secrets.HARBOR_PASSWORD }}
