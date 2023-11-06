@@ -102,7 +102,7 @@ class DataUsers:
         print("Created")
         print("\t%s" % user)
         print("\t Client ID: %s" % client_id)
-        print("\t Api Key: %s" % api_key)
+        print("\t Api Key: %s" % api_key.key)
         return True
 
 # End File: cver/src/migrate/data/data_rbac.py

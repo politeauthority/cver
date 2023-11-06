@@ -44,11 +44,7 @@ jobs:
               - 'docker/test/**'
               - 'src/requirements.txt'
               - 'tests/requirements.txt'
-      - uses: docker/login-action@v2
-        with:
-          registry: harbor.squid-ink.us
-          username: ${{ inputs.harbor-user }}
-          password: ${{ secrets.HARBOR_PASSWORD }}
+
       - name: Decider
         run: |
           echo "# Docker Build: Test" >> $GITHUB_STEP_SUMMARY
@@ -58,6 +54,12 @@ jobs:
           else
             echo "Running Test Build" >> $GITHUB_STEP_SUMMARY
           fi
+
+      - uses: docker/login-action@v2
+        with:
+          registry: harbor.squid-ink.us
+          username: ${{ inputs.harbor-user }}
+          password: ${{ secrets.HARBOR_PASSWORD }}
 
       - name: Build Container
         if: steps.changes.outputs.src == 'true'
