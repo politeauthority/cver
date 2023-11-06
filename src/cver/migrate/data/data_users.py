@@ -77,7 +77,7 @@ class DataUsers:
         # self.create_user("test-engine", "engine@example.com", roles_id, client_id, api_key)
 
     def create_user(
-            self, 
+            self,
             user_name: str,
             user_email: str,
             role_id: int,
@@ -105,7 +105,7 @@ class DataUsers:
         if api_key.get_by_field(field="client_id", value=client_id):
             logging.error("Cannot create api client_id for user: %s, client id: %s already exists" % (
                 user,
-                client_id
+            client_id
             ))
             return False
 
