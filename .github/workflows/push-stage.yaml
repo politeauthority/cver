@@ -139,25 +139,38 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
-  test-api:
-    needs: deploy-api
-    runs-on: self-hosted
-    container:
-      image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
-      credentials:
-        username: ${{ vars.HARBOR_USER }}
-        password: ${{ secrets.HARBOR_PASSWORD }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Execute Tests
-        run: |
-          mkdir ~/.kube
-          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
-          export KUBECONFIG=~/.kube/config.yaml
-          TEST_POD=$(kubectl get -n cver-stage pods -l app.kubernetes.io/instance=cver-api-stage --no-headers | cut -d' ' -f1)
-          kubectl exec -n cver-stage -it ${TEST_POD} -c cver-api -- pytest -vvv /tests/regression --md regression-report.md
-          REPORT=$(kubectl exec -n cver-stage -it ${TEST_POD} -c cver-api -- cat /app/cver/regression-report.md)
-          echo "$REPORT"
-          echo "${REPORT}" >> $GITHUB_STEP_SUMMARY
+
+  regression-api:
+    needs: [deploy-api, deploy-test]
+    if: ${{ needs.deploy-api.result == 'success' }}
+    uses: ./.github/workflows/regression-api.yaml
+    secrets: inherit 
+    with:
+      deployment-name: "test"
+      run-number: ${{ github.run_number }}
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
+
+  regression-cli:
+    needs: [deploy-api, deploy-test]
+    if: ${{ needs.deploy-api.result == 'success' }}
+    uses: ./.github/workflows/regression-cli.yaml
+    secrets: inherit 
+    with:
+      deployment-name: "test"
+      run-number: ${{ github.run_number }}
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
+
+  regression-client:
+    needs: [deploy-api, deploy-test]
+    if: ${{ needs.deploy-api.result == 'success' }}
+    uses: ./.github/workflows/regression-client.yaml
+    secrets: inherit 
+    with:
+      deployment-name: "test"
+      run-number: ${{ github.run_number }}
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
 
 # End File: cver/.github/workflows/push-stage.yaml
