@@ -68,7 +68,36 @@ spec:
                 name: cver-test-creds
           - name: CVER_TEST
             value: "true"
-          {{- end }}
+          - name: CVER_TEST_ADMIN_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                key: admin-client-id
+                name: cver-test-creds
+          - name: CVER_TEST_ADMIN_API_KEY
+            valueFrom:
+              secretKeyRef:
+                key: admin-api-key
+                name: cver-test-creds
+          - name: CVER_TEST_INGEST_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                key: ingest-client-id
+                name: cver-test-creds
+          - name: CVER_TEST_INGEST_API_KEY
+            valueFrom:
+              secretKeyRef:
+                key: ingest-api-key
+                name: cver-test-creds
+          - name: CVER_TEST_ENGINE_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                key: engine-client-id
+                name: cver-test-creds
+          - name: CVER_TEST_ENGINE_API_KEY
+            valueFrom:
+              secretKeyRef:
+                key: engine-api-key
+                name: cver-test-creds
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
