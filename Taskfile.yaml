@@ -164,15 +164,6 @@ tasks:
       - echo "Copied and Built!"
     silent: True
 
-  dev-cp-api-tests:
-    cmds:
-      - |
-        POD=$(kubectl get pods -n cver-dev -l app.kubernetes.io/instance=cver-api-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
-        kubectl cp -n cver-dev {{ .CVER_DIR }}/tests/ ${POD}:/
-        kubectl exec -n cver-dev -it ${POD} -c cver-api -- cver-build-tests
-      - echo "Copied and Built Cver Tests"
-    silent: True
-
   dev-cp-engine:
     cmds:
       - |
@@ -223,6 +214,8 @@ tasks:
         echo $POD
         kubectl cp -n cver-dev {{ .CVER_DIR }}/ ${POD}:/current/
         kubectl exec -it -n cver-dev ${POD} -- cver-build
+        kubectl exec -it -n cver-dev ${POD} -- cver-test-unit no-build
+        kubectl exec -it -n cver-dev ${POD} -- cver-test-flake8
     silent: True
 
   dev-exec-api:
@@ -382,11 +375,6 @@ tasks:
     cmds:
       - task: dev-cp-test
       - |
-        POD=$(kubectl get pods -n cver-dev  -l app.kubernetes.io/instance=cver-test-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
-        CVER_IN_POD="/current"
-        kubectl exec -n cver-dev -it $POD -- flake8 ${CVER_IN_POD}/src --config=${CVER_IN_POD}/src/flake8 --count --show-source --statistics
-        kubectl exec -n cver-dev -it $POD -- flake8 ${CVER_IN_POD}/tests --config=${CVER_IN_POD}/tests/flake8 --count --show-source --statistics
-        kubectl exec -n cver-dev -it $POD -- pytest ${CVER_IN_POD}/tests/unit
         echo "pre-commit passed!"
     silent: true
 
