@@ -103,7 +103,7 @@ jobs:
           docker push harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-prefix }}-latest
 
           # GHA Summary
-          echo "**Built:** harbor.squid-ink.us/cver/cver-api:git-sha${{ inputs.git-sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Built:** harbor.squid-ink.us/cver/cver-api:git-sha-${{ inputs.git-sha }}" >> $GITHUB_STEP_SUMMARY
           echo "**Built:** harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-prefix }}-latest" >> $GITHUB_STEP_SUMMARY
 
           # Make Docker Branch Tag

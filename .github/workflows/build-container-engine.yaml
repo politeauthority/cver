@@ -83,5 +83,5 @@ jobs:
           docker push harbor.squid-ink.us/cver/cver-engine:git-sha-${{ inputs.git-sha }}
           docker push harbor.squid-ink.us/cver/cver-engine:${{ inputs.tag-prefix }}-latest
 
-          echo "**Built:** harbor.squid-ink.us/cver/cver-engine:git-sha${{ inputs.git-sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Built:** harbor.squid-ink.us/cver/cver-engine:git-sha-${{ inputs.git-sha }}" >> $GITHUB_STEP_SUMMARY
           echo "**Built:** harbor.squid-ink.us/cver/cver-engine:${{ inputs.tag-prefix }}-latest" >> $GITHUB_STEP_SUMMARY
