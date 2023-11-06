@@ -13,7 +13,7 @@ import requests
 from cver.shared.utils import misc as s_misc
 from cver.shared.utils import xlate
 from cver.api.version import version as __version__
-from cver.cver_client.utils.read_config import ReadConfig
+from cver.client.utils.read_config import ReadConfig
 # from cver.shared.utils.log_config import log_config
 
 
