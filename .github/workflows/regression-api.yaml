@@ -28,7 +28,6 @@ jobs:
     steps:
       - name: Execute Tests
         run: |
-          # @todo: Make this more dynamic
           if [ "${{ inputs.deployment-name }}" = "test" ]; then
             NAMESPACE="cver-test"
             POD_SEARCH="cver-test-${{ inputs.deployment-name }}-${{ inputs.run-number }}"
