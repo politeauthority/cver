@@ -286,21 +286,6 @@ tasks:
             --set app.runApionStart=false
     slient: True
 
-  dev-helm-api-dead:
-    cmds:
-      - |
-        cd helm/cver-api
-        DEPLOYED_AT=$(date +"%Y-%m-%d %T")
-        helm upgrade --install \
-            cver-api-dev \
-            ./ \
-            --namespace=cver-dev \
-            -f values.yaml \
-            -f values-quigley-dev.yaml \
-            --set "app.deployedAt=${DEPLOYED_AT}" \
-            --set app.runApionStart=false
-    slient: True
-
   dev-helm-engine:
     cmds:
       - |
