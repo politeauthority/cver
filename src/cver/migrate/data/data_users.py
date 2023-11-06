@@ -7,7 +7,6 @@ import logging
 import os
 
 from cver.api.utils import glow
-from cver.api.collects.users import Users
 from cver.api.collects.roles import Roles
 from cver.api.models.api_key import ApiKey
 from cver.api.models.user import User
