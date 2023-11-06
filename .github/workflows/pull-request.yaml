@@ -13,7 +13,7 @@ concurrency:
 jobs: 
   
   build-cver:
-    uses: ./.github/workflows/build-python.yaml
+    uses: ./.github/workflows/build-cver.yaml
     secrets: inherit 
     permissions:
       pull-requests: read
@@ -56,6 +56,7 @@ jobs:
     uses: ./.github/workflows/unit-tests.yaml
     secrets: inherit 
     with:
+      deployment-name: "test"
       run-number: ${{ github.run_number }}
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"

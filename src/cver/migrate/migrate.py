@@ -159,7 +159,7 @@ class Migrate:
     def create_users(self):
         """Create the users and api keys."""
         logging.info("Creating Users and Keys")
-        DataUsers().create(self.rbac)
+        DataUsers().create()
 
     def create_test_data(self) -> bool:
         """Create the test data if we're in a test environment."""

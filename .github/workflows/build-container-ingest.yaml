@@ -45,7 +45,7 @@ jobs:
               - 'docker/ingest/**'
               - 'src/setup.py'
               - 'src/cver/shared/**'
-              - 'src/cver/cver_client/**'
+              - 'src/cver/client/**'
               - 'src/cver/ingest/**'
               - 'tests/regression/ingest/**'
 

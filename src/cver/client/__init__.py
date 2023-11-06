@@ -13,7 +13,7 @@ import requests
 from cver.shared.utils import misc as s_misc
 from cver.shared.utils import xlate
 from cver.api.version import version as __version__
-from cver.client.utils.read_config import ReadConfig
+from cver.client.utils.config import Config
 # from cver.shared.utils.log_config import log_config
 
 
@@ -28,23 +28,14 @@ class Client:
         """Initialize the CverClient with the client_id, api_key and/or api_url. If not supplied
         environmental vars will be attempted.
         """
-        if client_id:
-            self.client_id = client_id
-        else:
-            self.client_id = os.environ.get("CVER_CLIENT_ID")
+        self.config = Config().get(client_id, api_key, api_url)
+        self.api_url = self.config["api_url"]
+        self.client_id = self.config["client_id"]
+        self.api_key = self.config["api_key"]
 
-        if api_key:
-            self.api_key = api_key
-        else:
-            self.api_key = os.environ.get("CVER_API_KEY")
-
-        if api_url:
-            self.api_url = api_url
-        else:
-            self.api_url = os.environ.get("CVER_API_URL")
         self.api_url = s_misc.strip_trailing_slash(self.api_url)
         self.user_agent = "CverClient/%s" % __version__
-        self.config = ReadConfig().read()
+
         self.headers = {}
         self.api_host = os.environ.get("CVER_API_HOST")
         self.api_url = s_misc.strip_trailing_slash(self.api_url)

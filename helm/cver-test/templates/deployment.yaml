@@ -37,27 +37,62 @@ spec:
               value: "{{ .Values.app.envName }}"
             - name: CVER_LOG_LEVEL
               value: "{{ .Values.app.logLevel }}"
+            - name: CVER_ENV
+              value: "{{ .Values.app.envName }}"
+            - name: CVER_DB_HOST
+              value: "{{ .Values.app.database.host }}"
+            - name: CVER_DB_PORT
+              value: "{{ .Values.app.database.port }}"
+            - name: CVER_DB_NAME
+              value: "{{ .Values.app.database.name }}"
+            - name: CVER_DB_USER
+              value: "{{ .Values.app.database.user }}"
+            - name: CVER_DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  key: {{ .Values.app.database.passwordSecretName }}
+                  name: {{ .Values.app.database.passwordSecretKey }}
             - name: CVER_API_URL
               value:  "{{ .Values.app.api_url }}"
             - name: CVER_CLIENT_ID
               valueFrom:
                 secretKeyRef:
-                  key: client-id
+                  key: admin-client-id
                   name: cver-test-creds
             - name: CVER_API_KEY
               valueFrom:
                 secretKeyRef:
-                  key: api-key
+                  key: admin-api-key
                   name: cver-test-creds
-            - name: CVER_TEST_CLIENT_ID
+            - name: CVER_TEST_ADMIN_CLIENT_ID
               valueFrom:
                 secretKeyRef:
-                  key: client-id
+                  key: admin-client-id
                   name: cver-test-creds
-            - name: CVER_TEST_API_KEY
+            - name: CVER_TEST_ADMIN_API_KEY
               valueFrom:
                 secretKeyRef:
-                  key: api-key
+                  key: admin-api-key
+                  name: cver-test-creds
+            - name: CVER_TEST_INGEST_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  key: ingest-client-id
+                  name: cver-test-creds
+            - name: CVER_TEST_INGEST_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: ingest-api-key
+                  name: cver-test-creds
+            - name: CVER_TEST_ENGINE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  key: engine-client-id
+                  name: cver-test-creds
+            - name: CVER_TEST_ENGINE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: engine-api-key
                   name: cver-test-creds
             - name: CVER_BRANCH
               value: "{{ .Values.app.branch }}"

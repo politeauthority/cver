@@ -3,6 +3,9 @@ name: Run Unit Tests
 on:
   workflow_call:
     inputs:
+      deployment-name:
+        required: true
+        type: string
       run-number:
         required: true
         type: string
@@ -14,39 +17,34 @@ on:
         type: string
 
 jobs:
-  deploy:
+  run:
     runs-on: self-hosted
     continue-on-error: false
     container:
-      image: harbor.squid-ink.us/cver/cver-test:0.0.4
+      image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ inputs.cicd-version }}
       credentials:
         username: ${{ inputs.harbor-user }}
         password: ${{ secrets.HARBOR_PASSWORD }}
     steps:
-      - uses: actions/checkout@v3
-      - name: Install Dependencies
-        run: |
-          python3 -m pip install --upgrade pip
-          pip install -r src/requirements.txt
-          pip install -r tests/requirements.txt
-      - name: Build Cver Packages
-        run: |
-          cd src/
-          python3 setup.py build
-          pip install .
-          cd ../tests
-          python3 setup.py build
-          pip install .
       - name: Run Unit Tests
         run: |
-          cd src/
-          python3 setup.py build
-          pip install .
-          cd ../
-          cd tests/
-          pip install -r requirements.txt
-          python3 setup.py build
-          python3 setup.py install
-          export CVER_API_URL="http://localhost/"
-          pytest unit/ --md report.md --vcr-record=none
-          cat report.md >> $GITHUB_STEP_SUMMARY
+          if [ "${{ inputs.deployment-name }}" = "test" ]; then
+            NAMESPACE="cver-test"
+            POD_SEARCH="cver-test-${{ inputs.deployment-name }}-${{ inputs.run-number }}"
+          else  
+            NAMESPACE="cver-stage"
+            POD_SEARCH="cver-test-stage"
+          fi
+          mkdir ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
+          export KUBECONFIG=~/.kube/config.yaml
+          TEST_POD=$(kubectl get -n ${NAMESPACE} pods -l app.kubernetes.io/instance=${POD_SEARCH} --no-headers | cut -d' ' -f1)
+          kubectl exec -n ${NAMESPACE} -it ${TEST_POD} -- cver-cicd-unit
+          REPORT=$(kubectl exec -n ${NAMESPACE} -it ${TEST_POD} -- cat /report/unit-report.md)
+          echo "$REPORT"
+          echo "${REPORT}" >> $GITHUB_STEP_SUMMARY
+
+          # COVERAGE=$(awk '/---------- coverage: platform linux,/{flag=1} flag' "./coverage.txt")
+          # COVERAGE=$(awk '/TOTAL/{print $NF}' "./coverage.txt")
+          # cat report.md >> $GITHUB_STEP_SUMMARY
+          # echo "**Coverage:** ${COVERAGE}" >> $GITHUB_STEP_SUMMARY

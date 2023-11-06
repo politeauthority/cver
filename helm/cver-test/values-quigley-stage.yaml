@@ -9,6 +9,10 @@ app:
   cverCicd: "true"
   envName: "test"
   debug: true
+  database:
+    name: "cver_stage"
+    host: "cver-mysql.cver.svc.cluster.local"
+    user: "cver"
 
 image:
   repository: harbor.squid-ink.us/cver/cver-test

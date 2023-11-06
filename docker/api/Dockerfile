@@ -36,29 +36,14 @@ RUN cd /app && pip install .
 CMD /entrypoint.sh
 
 # --- Tests Node ---
-FROM base AS tests
+FROM base AS dev
 
 ENV PS1="cver-api# "
 # Dev-Build
 RUN apk add bash curl vim mysql-client
+RUN pip install ipdb
+
 # Add Scripts
 ADD scripts/cver-api /bin
 ADD scripts/cver-build /bin
-ADD scripts/cver-build-tests /bin
-ADD scripts/cver-cli /bin
 ADD scripts/cver-run-api /bin
-ADD scripts/cver-test-unit /bin
-ADD scripts/cver-test-unit-cov /bin
-ADD scripts/cver-test-regression /bin
-ADD scripts/cver-test-all /bin
-ADD scripts/cver-db-login /bin
-ADD scripts/cver-db-destroy /bin
-
-
-# Cver Tests
-ENV CVER_API_URL="http://localhost/"
-ENV CVER_DB_PASS=""
-ENV CVER_TEST_DIR="/tests/"
-ADD tests/ /tests
-RUN pip install -r /tests/requirements.txt
-RUN cd /tests/ && python3 setup.py build && python3 setup.py install

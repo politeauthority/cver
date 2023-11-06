@@ -13,7 +13,7 @@ concurrency:
 jobs:
 
   build-cver:
-    uses: ./.github/workflows/build-python.yaml
+    uses: ./.github/workflows/build-cver.yaml
     secrets: inherit 
     permissions:
       pull-requests: read

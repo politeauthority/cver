@@ -8,7 +8,7 @@
 
 # import pytest
 
-# from cver.cver_client import CverClient
+# from cver.client import Client as CverClient
 
 
 # @pytest.fixture(scope='module')
@@ -35,7 +35,7 @@
 #             ('x-api-key', 'dummy'),
 #             ('client-id', 'dummy')
 #         ],
-#         "allow_playback_repeats": True
+#         # "allow_playback_repeats": True
 #     }
 
 
@@ -61,7 +61,6 @@
 #         assert client
 #         assert hasattr(client, "client_id")
 #         assert hasattr(client, "api_key")
-#         assert hasattr(client, "base_url")
 #         assert hasattr(client, "token")
 #         assert hasattr(client, "token_path")
 #         assert hasattr(client, "token_file")
@@ -73,7 +72,6 @@
 #             api_url="https://google.com")
 #         assert "test_client_id" == client.client_id
 #         assert "test_api_key" == client.api_key
-#         assert "https://google.com" == client.base_url
 
 #     @pytest.mark.vcr
 #     def test_login(self):

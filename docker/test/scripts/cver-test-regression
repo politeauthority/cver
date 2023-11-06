@@ -1,11 +1,9 @@
 #!/bin/sh -l
-# Cver Test - Unit
-# Runs unit tests
-# Operations
-#  - Build Cver
-#  - Builds Cver Test Tools
+# Cver Test - Regression
+# Runs regression tests
+
 set -e
-echo "Cver Test Suite Starting"
+echo "Cver Test Regression Suite Starting"
 NO_BUILD=${1}
 
 WORKING_DIR="/current"
@@ -21,5 +19,5 @@ cd ${TEST_DIR}
 echo "Building Cver Test Tools"
 pip install .
 
-cd ${TEST_DIR}/unit
+cd ${TEST_DIR}/regression
 pytest -vvv
