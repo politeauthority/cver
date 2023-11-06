@@ -13,7 +13,7 @@ app:
 image:
   repository: harbor.squid-ink.us/cver/cver-test
   pullPolicy: Always
-  tag: "0.0.3"
+
 
 imagePullSecrets:
   - name: harbor

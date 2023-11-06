@@ -1,0 +1,24 @@
+# Quigely Prod values for cver-engine
+
+replicaCount: 1
+
+nameOverride: "prod"
+
+app:
+  logLevel: "INFO"
+  envName: "prod"
+  debug: false
+  cron:
+    schedule:  "45 * * * *"
+    suspend: true
+
+test:
+  test: true
+
+image:
+  repository: harbor.squid-ink.us/cver/cver-engine
+  pullPolicy: Always
+  tag: "prod-latest"
+
+imagePullSecrets:
+  - name: harbor

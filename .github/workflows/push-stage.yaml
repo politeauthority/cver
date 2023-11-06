@@ -146,7 +146,7 @@ jobs:
     uses: ./.github/workflows/regression-api.yaml
     secrets: inherit 
     with:
-      deployment-name: "test"
+      deployment-name: "stage"
       run-number: ${{ github.run_number }}
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
@@ -157,7 +157,7 @@ jobs:
     uses: ./.github/workflows/regression-cli.yaml
     secrets: inherit 
     with:
-      deployment-name: "test"
+      deployment-name: "stage"
       run-number: ${{ github.run_number }}
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
@@ -168,7 +168,7 @@ jobs:
     uses: ./.github/workflows/regression-client.yaml
     secrets: inherit 
     with:
-      deployment-name: "test"
+      deployment-name: "stage"
       run-number: ${{ github.run_number }}
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
