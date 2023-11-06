@@ -59,6 +59,26 @@ spec:
                 secretKeyRef:
                   key: api-key
                   name: cver-test-creds
+            - name: CVER_TEST_INGEST_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  key: client-id
+                  name: cver-test-creds
+            - name: CVER_TEST_INGEST_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: api-key
+                  name: cver-test-creds
+            - name: CVER_TEST_ENGINE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  key: client-id
+                  name: cver-test-creds
+            - name: CVER_TEST_ENGINE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: api-key
+                  name: cver-test-creds
             - name: CVER_BRANCH
               value: "{{ .Values.app.branch }}"
             - name: CVER_CICD

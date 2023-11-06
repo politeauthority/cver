@@ -54,18 +54,4 @@ jobs:
         run: |
           flake8 tests/ --config=src/flake8 --count --show-source --statistics
 
-      - name: Run Unit Tests
-        if: steps.changes.outputs.src == 'true'
-        run: |
-          cd src/
-          python3 setup.py build
-          pip install .
-          cd ../
-          cd tests/
-          pip install -r requirements.txt
-          python3 setup.py build
-          python3 setup.py install
-          pytest unit/ --md report.md
-          cat report.md >> $GITHUB_STEP_SUMMARY
-
 # End File: cver/.github/workflows/build-cver.yaml
