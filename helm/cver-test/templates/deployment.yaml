@@ -49,12 +49,12 @@ spec:
                 secretKeyRef:
                   key: api-key
                   name: cver-test-creds
-            - name: CVER_TEST_CLIENT_ID
+            - name: CVER_TEST_ADMIN_CLIENT_ID
               valueFrom:
                 secretKeyRef:
                   key: client-id
                   name: cver-test-creds
-            - name: CVER_TEST_API_KEY
+            - name: CVER_TEST_ADMIN_API_KEY
               valueFrom:
                 secretKeyRef:
                   key: api-key
