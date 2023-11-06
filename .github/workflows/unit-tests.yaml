@@ -3,6 +3,9 @@ name: Run Unit Tests
 on:
   workflow_call:
     inputs:
+      deployment-name:
+        required: true
+        type: string
       run-number:
         required: true
         type: string
