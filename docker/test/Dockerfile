@@ -21,6 +21,7 @@ ADD scripts/cver-test-unit /bin
 ADD scripts/cver-test-flake8 /bin
 ADD scripts/cver-cicd-regression /bin
 ADD scripts/cver-cicd-unit /bin
+ADD scripts/cver-cicd-regression /bin
 ADD scripts/cver-db-destroy /bin
 
 RUN apk add --update --no-cache --virtual .tmp-build-deps \

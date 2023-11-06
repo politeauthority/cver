@@ -1,0 +1,23 @@
+#!/bin/sh -l
+# Cver Test - Regression
+# Runs regression tests
+
+set -e
+echo "Cver Test Regression Suite Starting"
+NO_BUILD=${1}
+
+WORKING_DIR="/current"
+TEST_DIR="/current/tests"
+
+if [ "$NO_BUILD" = "no-build" ]; then
+    echo "Not building Cver"
+else
+    /bin/cver-build
+fi
+
+cd ${TEST_DIR}
+echo "Building Cver Test Tools"
+pip install .
+
+cd ${TEST_DIR}/regression
+pytest -vvv
