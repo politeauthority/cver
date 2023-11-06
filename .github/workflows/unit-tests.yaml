@@ -40,3 +40,9 @@ jobs:
           REPORT=$(kubectl exec -n ${NAMESPACE} -it ${TEST_POD} -- cat /report/regression-report-api.md)
           echo "$REPORT"
           echo "${REPORT}" >> $GITHUB_STEP_SUMMARY
+
+
+          # COVERAGE=$(awk '/---------- coverage: platform linux,/{flag=1} flag' "./coverage.txt")
+          # COVERAGE=$(awk '/TOTAL/{print $NF}' "./coverage.txt")
+          # cat report.md >> $GITHUB_STEP_SUMMARY
+          # echo "**Coverage:** ${COVERAGE}" >> $GITHUB_STEP_SUMMARY

@@ -1,4 +1,4 @@
-name: build-python
+name: build-cver
 
 on:
   workflow_call:
@@ -53,5 +53,6 @@ jobs:
         if: steps.changes.outputs.tests == 'true'
         run: |
           flake8 tests/ --config=src/flake8 --count --show-source --statistics
+
 
 # End File: cver/.github/workflows/build-cver.yaml
