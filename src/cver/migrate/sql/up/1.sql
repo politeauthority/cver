@@ -82,6 +82,7 @@ CREATE TABLE IF NOT EXISTS image_builds (
     `registry` VARCHAR(200) NOT NULL,
     `registry_imported` VARCHAR(200),
     `tags` TEXT,
+    `size` INTEGER,
     `os_family` VARCHAR(200),
     `os_name` VARCHAR(200),
     `maintained` TINYINT(1) DEFAULT True,

@@ -41,6 +41,8 @@ FROM base AS dev
 ENV PS1="cver-api# "
 # Dev-Build
 RUN apk add bash curl vim mysql-client
+RUN pip install ipdb
+
 # Add Scripts
 ADD scripts/cver-api /bin
 ADD scripts/cver-build /bin

@@ -18,8 +18,8 @@ from cver.api.utils import auth
 class DataUsers:
 
     def __init__(self):
-        self.rbac = None
-        self.org_id = None
+        # self.rbac = None
+        self.org_id = 1
         self.roles = {}
         self.get_all_roles()
 
@@ -30,11 +30,9 @@ class DataUsers:
             self.roles[role.slug_name] = role
         return True
 
-    def create(self, rbac: dict) -> bool:
+    def create(self) -> bool:
         """Create the first user, and test users if this is a test environment."""
-        self.rbac = rbac
-        self.role_admin_id = rbac["admin_role_id"]
-        self.create_first_org()
+        # self.create_first_org()
         self.create_first_user()
         self.create_test_users()
 
@@ -54,39 +52,20 @@ class DataUsers:
         self.org_id = org.id
         return True
 
-    def create_first_user(self):
+    def create_first_user(self) -> bool:
         """Create the first admin level user, but only if one doesn't already exist."""
-        logging.info("Checking need for user creation")
-        admin_users = Users().get_admins()
-        if admin_users:
-            logging.info("Not creating an admin, %s already exist" % len(admin_users))
-            return True
+        logging.info("Creating First Admin User")
+        client_id = os.environ.get("CVER_TEST_ADMIN_CLIENT_ID")
+        api_key = os.environ.get("CVER_TEST_ADMIN_API_KEY")
+        self.create_user("admin", "admin@example.com", self.roles["admin"].id, client_id, api_key)
+        return True
 
-        user = User()
-        user.email = "admin@example.com"
-        user.name = "admin"
-        user.role_id = self.role_admin_id
-        user.org_id = self.org_id
-        user.save()
-        print("Created: %s" % user)
-        client_id = auth.generate_client_id()
-        key = auth.generate_api_key()
-        api_key = ApiKey()
-        api_key.user_id = user.id
-        api_key.client_id = client_id
-        api_key.key = auth.generate_hash(key)
-
-        api_key.save()
-        print("Created")
-        print("\t%s" % user)
-        print("\t Client ID: %s" % client_id)
-        print("\t Api Key: %s" % key)
-
-    def create_test_users(self):
+    def create_test_users(self) -> bool:
         if not glow.general["CVER_TEST"]:
             logging.info("Not creating test users")
             return True
 
+        logging.info("Creating Test Users")
         # Create User: test-admin
         client_id = os.environ.get("CVER_TEST_CLIENT_ID")
         api_key = os.environ.get("CVER_TEST_ADMIN_API_KEY")
@@ -105,22 +84,21 @@ class DataUsers:
         # roles_id = self.roles["engine"].id
         # self.create_user("test-engine", "engine@example.com", roles_id, client_id, api_key)
 
-    def create_user(self, user_name, user_email, role_id, client_id, api_key) -> bool:
+    def create_user(self, user_name, user_email, role_id, client_id, api_key_str) -> bool:
         user = User()
-        user.get_by_email(user_email)
-        if user:
-            logging.debug("Not Creating user arelady exists: %s" % user)
+        if user.get_by_email(user_email):
+            logging.info("Not Creating user arelady exists: %s" % user)
             return False
         user.name = user_name
         user.role_id = role_id
-        user.org_id = 1
+        user.org_id = self.org_id
         if not user.save():
             logging.error("Couldnt save %s" % user)
             return False
         api_key = ApiKey()
         api_key.user_id = user.id
         api_key.client_id = client_id
-        api_key.key = auth.generate_hash(api_key)
+        api_key.key = auth.generate_hash(api_key_str)
         api_key.save()
         print("Created")
         print("\t%s" % user)

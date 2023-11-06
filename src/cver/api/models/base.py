@@ -128,7 +128,7 @@ class Base:
         """
         sql = self._gen_insert_sql()
         try:
-            logging.info("\n\nINSERT\n%s\n\n" % sql)
+            # logging.info("\n\nINSERT\n%s\n\n" % sql)
             self.cursor.execute(sql)
             self.conn.commit()
         except ProgrammingError as e:
@@ -144,7 +144,7 @@ class Base:
         :unit-test: TestApiModelBase::test__iodku
         """
         sql = self._gen_iodku_sql()
-        logging.info("\n\nIODKU\n%s\n\n" % sql)
+        # logging.info("\n\nIODKU\n%s\n\n" % sql)
         self.cursor.execute(sql)
         self.conn.commit()
         self.id = self.cursor.lastrowid
@@ -212,7 +212,7 @@ class Base:
         if not self.field_meta:
             return False
         sql = self._gen_get_by_unique_key_sql(fields)
-        logging.info("\n\n%s\n\n" % sql)
+        # logging.info("\n\n%s\n\n" % sql)
         self.cursor.execute(sql)
         raw = self.cursor.fetchone()
         if not raw:
@@ -230,7 +230,7 @@ class Base:
             "op": "eq"
         }
         sql = self._gen_get_by_field_sql(field=field)
-        # logging.info(sql)
+        # logging(sql)
         self.cursor.execute(sql)
         raw = self.cursor.fetchone()
         if not raw:
@@ -259,7 +259,7 @@ class Base:
             WHERE %s
             LIMIT 1;""" % (self.table_name, sql_fields)
 
-        logging.info("\nGET BY FIELDS\n%s\n" % sql)
+        # logging.info("\nGET BY FIELDS\n%s\n" % sql)
 
         self.cursor.execute(sql)
         run_raw = self.cursor.fetchone()
@@ -701,7 +701,7 @@ class Base:
 
         # Handle converting a json value
         elif field["type"] == "json":
-            logging.info("Creating JSON sql")
+            # logging.info("Creating JSON sql")
             value = json.dumps(value)
             value = f"'{value}'"
 

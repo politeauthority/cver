@@ -33,6 +33,5 @@ ENV PS1="cver-test# "
 RUN pip install -r /test/requirements-src.txt && \
     pip install -r /test/requirements-test.txt
 
-# Cver Tests
-ENV CVER_API_URL="http://localhost/"
-ENV CVER_TEST_DIR="/tests/"
+RUN apk add bash curl vim mysql-client
+

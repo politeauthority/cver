@@ -5,9 +5,9 @@ replicaCount: 1
 nameOverride: "dev"
 
 app:
-  runApiOnStart: true
+  runApiOnStart: false
+  runMigrations: false
   logLevel: "DEBUG"
-  runMigrations: true
   envName: "dev"
   debug: true
   jwtExpireMinutes: 4320

@@ -273,10 +273,11 @@ tasks:
             cver-api-dev \
             ./ \
             --namespace=cver-dev \
-            -f values.yaml \
-            -f values-quigley-dev.yaml \
+            --set app.runApionStart=false \
+            --set app.runMigrations=false \
             --set "app.deployedAt=${DEPLOYED_AT}" \
-            --set app.runApionStart=false
+            -f values.yaml \
+            -f values-quigley-dev.yaml
     slient: True
 
   dev-helm-engine:
@@ -329,9 +330,10 @@ tasks:
       - task: dev-cp-ingest
       - |
         # Destroy the Existing database and run migrations
-        POD=$(kubectl get pods -n cver-dev -l app.kubernetes.io/instance=cver-api-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
+        TEST_POD=$(kubectl get pods -n cver-dev -l app.kubernetes.io/instance=cver-test-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
         kubectl exec -n cver-dev -it ${POD} -- cver-db-destroy
-        kubectl exec -n cver-dev -it ${POD} -- python3 /app/cver/migrate/migrate.py
+        # POD_API=$(kubectl get pods -n cver-dev -l app.kubernetes.io/instance=cver-test-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
+        # kubectl exec -n cver-dev -it ${POD} -- python3 /app/cver/migrate/migrate.py
       - |
         # Run Ingestion
         POD=$(kubectl get pods -n cver-dev -l app.kubernetes.io/instance=cver-ingest-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
