@@ -15,7 +15,7 @@ jobs:
       contents: read
     with:
       tag-prefix: "prod"
-      tag-name: "${{ github.sha }}"
+      git-sha: "${{ github.sha }}"
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
@@ -27,7 +27,7 @@ jobs:
       contents: read
     with:
       tag-prefix: "prod"
-      tag-name: "${{ github.sha }}"
+      git-sha: "${{ github.sha }}"
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
@@ -39,7 +39,7 @@ jobs:
       contents: read
     with:
       tag-prefix: "prod"
-      tag-name: "${{ github.sha }}"
+      git-sha: "${{ github.sha }}"
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
@@ -50,7 +50,6 @@ jobs:
     with:
       deployment-name: "prod"
       run-number: ${{ github.run_number }}
-      tag-name: "${{ github.sha }}"
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 

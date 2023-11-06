@@ -26,8 +26,6 @@ jobs:
         username: ${{ inputs.harbor-user }}
         password: ${{ secrets.HARBOR_PASSWORD }}
     steps:
-      - uses: actions/checkout@v3
-      # This needs to be updated before staging can use it.
       - name: Execute Tests
         run: |
           # @todo: Make this more dynamic
@@ -43,6 +41,6 @@ jobs:
           export KUBECONFIG=~/.kube/config.yaml
           TEST_POD=$(kubectl get -n ${NAMESPACE} pods -l app.kubernetes.io/instance=${POD_SEARCH} --no-headers | cut -d' ' -f1)
           kubectl exec -n ${NAMESPACE} -it ${TEST_POD} -- cver-cicd-regression api
-          REPORT=$(kubectl exec -n ${NAMESPACE} -it ${TEST_POD} -- cat /report/regression-report.md)
+          REPORT=$(kubectl exec -n ${NAMESPACE} -it ${TEST_POD} -- cat /report/regression-report-api.md)
           echo "$REPORT"
           echo "${REPORT}" >> $GITHUB_STEP_SUMMARY
