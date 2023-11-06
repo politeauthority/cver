@@ -8,11 +8,11 @@ import logging
 
 # from cver.ingest.utils import docker
 # from cver.cver_client import CverClient
-from cver.cver_client.models.image import Image
+from cver.client.models.image import Image
 # from cver.cver_client.models.image_build import ImageBuild
 # from cver.cver_client.models.image_build_waiting import ImageBuildWaiting
-from cver.cver_client.collections.image_build_waitings import ImageBuildWaitings
-from cver.cver_client.models.option import Option
+from cver.client.collections.image_build_waitings import ImageBuildWaitings
+from cver.client.models.option import Option
 
 
 class DownloadImages:

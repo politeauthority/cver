@@ -5,7 +5,7 @@
 
 """
 
-from cver.cver_client.models.base import Base
+from cver.client.models.base import Base
 
 
 class TestClientModelBase:

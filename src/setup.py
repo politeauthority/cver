@@ -20,11 +20,11 @@ setup(
         "cver.api.stats",
         "cver.cli",
         "cver.cli.utils",
-        "cver.cver_client",
-        "cver.cver_client.collections",
-        "cver.cver_client.models",
-        "cver.cver_client.ingest",
-        "cver.cver_client.utils",
+        "cver.client",
+        "cver.client.collections",
+        "cver.client.models",
+        "cver.client.ingest",
+        "cver.client.utils",
         "cver.engine",
         "cver.engine.utils",
         "cver.engine.modules",
@@ -36,3 +36,5 @@ setup(
         "cver.shared.utils",
     ],
 )
+
+# End File: cver/src/cver/setup.py

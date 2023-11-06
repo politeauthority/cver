@@ -5,7 +5,7 @@
 
 """
 
-from cver.cver_client.models.image_build import ImageBuild
+from cver.client.models.image_build import ImageBuild
 
 
 class TestClientModelImageBuild:

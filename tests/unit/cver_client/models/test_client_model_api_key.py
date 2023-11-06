@@ -5,7 +5,7 @@
 
 """
 
-from cver.cver_client.models.api_key import ApiKey
+from cver.client.models.api_key import ApiKey
 
 
 class TestClientModelApiKey:

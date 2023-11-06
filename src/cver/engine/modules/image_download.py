@@ -8,9 +8,9 @@ import subprocess
 
 from cver.shared.utils import date_utils
 from cver.shared.utils import docker
-from cver.cver_client.models.image import Image
-from cver.cver_client.models.image_build import ImageBuild
-from cver.cver_client.models.task import Task
+from cver.client.models.image import Image
+from cver.client.models.image_build import ImageBuild
+from cver.client.models.task import Task
 from cver.engine.utils import glow
 
 
