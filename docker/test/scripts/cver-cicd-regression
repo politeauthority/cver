@@ -18,23 +18,26 @@ fi
 
 if [ "$CVER_CICD" = "true" ]; then
     echo "Using Cver branch: ${CVER_BRANCH}"
-    WORKING_DIR="/checkout-${CVER_TEST_MODULE}/cver"
+    WORKING_DIR="/checkout/"
     TEST_DIR="${WORKING_DIR}/cver/tests"
-    rm -rf /checkout-${CVER_TEST_MODULE}
-    rm -rf $WORKING_DIR
-    mkdir /checkout-${CVER_TEST_MODULE}
-    mkdir -p /report
-    cd $WORKING_DIR
-    git clone https://github.com/politeauthority/cver.git
-    cd  cver
-    git fetch origin
-    git checkout $CVER_BRANCH
-    echo "Building Cver"
-    cd ${WORKING_DIR}/cver/src
-    pip3 install .
-    echo "Building Cver Tests"
-    cd ${TEST_DIR}
-    pip3 install .
+
+    if [ ! -d "$WORKING_DIR/cver" ]; then
+        echo "$DIRECTORY does not exist, cloning Cver"
+        git clone https://github.com/politeauthority/cver.git
+        cd  cver
+        git fetch origin
+        git checkout $CVER_BRANCH
+        echo "Building Cver"
+        cd ${WORKING_DIR}/cver/src
+        pip3 install .
+        echo "Building Cver Tests"
+        cd ${TEST_DIR}
+        pip3 install .
+        mkdir -p /report
+    else
+        echo "Cver already exsits, skipping clone"
+    fi
+
 else
     WORKING_DIR="/current"
     mkdir -p $WORKING_DIR
@@ -50,13 +53,11 @@ fi
 echo "Running tests against code src: ${WORKING_DIR}"
 echo "Using tests from: ${TEST_DIR}"
 
-
-
 echo "Running Regression: ${CVER_TEST_MODULE}"
 cd  $TEST_DIR/regression
 if [ "$CVER_TEST_MODULE" = "all" ]; then
     pytest -vvv . --md /report/regression-report.md
 else
-    pytest -vvv ${CVER_TEST_MODULE} --md /report/regression-report.md
+    pytest -vvv ${CVER_TEST_MODULE} --md /report/regression-report-${CVER_TEST_MODULE}.md
 fi
 
