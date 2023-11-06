@@ -51,4 +51,6 @@ echo "Running tests against code src: ${WORKING_DIR}"
 echo "Using tests from: ${TEST_DIR}"
 
 cd  $TEST_DIR/unit
-pytest -vvv . --md /report/report-uiy.md  --vcr-record=none
+pytest -vvv --cov=cver --vcr-record=none -rx -s >> /report/unit-report.txt
+# COVERAGE=$(awk '/---------- coverage: platform linux,/{flag=1} flag' "/report/coverage.txt")
+# COVERAGE=$(awk '/TOTAL/{print $NF}' "/coverage.txt") 

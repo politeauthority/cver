@@ -14,7 +14,7 @@ on:
         type: string
 
 jobs:
-  deploy:
+  run:
     runs-on: self-hosted
     continue-on-error: false
     container:
@@ -36,11 +36,10 @@ jobs:
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
           export KUBECONFIG=~/.kube/config.yaml
           TEST_POD=$(kubectl get -n ${NAMESPACE} pods -l app.kubernetes.io/instance=${POD_SEARCH} --no-headers | cut -d' ' -f1)
-          kubectl exec -n ${NAMESPACE} -it ${TEST_POD} -- cver-cicd-regression api
-          REPORT=$(kubectl exec -n ${NAMESPACE} -it ${TEST_POD} -- cat /report/regression-report-api.md)
+          kubectl exec -n ${NAMESPACE} -it ${TEST_POD} -- cver-cicd-unit
+          REPORT=$(kubectl exec -n ${NAMESPACE} -it ${TEST_POD} -- cat /report/unit-report.txt)
           echo "$REPORT"
           echo "${REPORT}" >> $GITHUB_STEP_SUMMARY
-
 
           # COVERAGE=$(awk '/---------- coverage: platform linux,/{flag=1} flag' "./coverage.txt")
           # COVERAGE=$(awk '/TOTAL/{print $NF}' "./coverage.txt")
