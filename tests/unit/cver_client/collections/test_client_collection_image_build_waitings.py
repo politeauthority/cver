@@ -5,7 +5,7 @@
 
 """
 
-from cver.cver_client.collections.image_build_waitings import ImageBuildWaitings
+from cver.client.collections.image_build_waitings import ImageBuildWaitings
 
 
 class TestClientCollectionImageBuildWaitings:

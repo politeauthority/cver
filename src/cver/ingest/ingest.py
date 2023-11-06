@@ -17,7 +17,7 @@ import requests
 
 from cver.shared.utils.log_config import log_config
 from cver.shared.utils import misc
-from cver.cver_client.ingest.ingest_k8s import IngestK8s
+from cver.client.ingest.ingest_k8s import IngestK8s
 
 
 logging.config.dictConfig(log_config)

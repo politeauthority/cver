@@ -11,7 +11,7 @@ import logging.config
 
 from cver.shared.utils.log_config import log_config
 from cver.shared.utils import docker
-from cver.cver_client.models.option import Option
+from cver.client.models.option import Option
 from cver.engine.modules.engine_download import EngineDownload
 from cver.engine.modules.engine_scan import EngineScan
 from cver.engine.utils import glow

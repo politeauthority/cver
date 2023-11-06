@@ -8,7 +8,7 @@ import json
 import os
 import requests
 
-from cver.cver_client.models.scan import Scan
+from cver.client.models.scan import Scan
 from cver.shared.utils import misc
 
 from .test_api_base import TestApiBase

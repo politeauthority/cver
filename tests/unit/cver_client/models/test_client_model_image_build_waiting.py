@@ -5,7 +5,7 @@
 
 """
 
-from cver.cver_client.models.image_build_waiting import ImageBuildWaiting
+from cver.client.models.image_build_waiting import ImageBuildWaiting
 
 
 class TestClientModelImageBuildWaiting:

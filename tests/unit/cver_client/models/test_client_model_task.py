@@ -6,7 +6,7 @@
 """
 import random
 
-from cver.cver_client.models.task import Task
+from cver.client.models.task import Task
 
 
 class TestClientModelTask:

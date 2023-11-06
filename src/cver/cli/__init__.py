@@ -12,16 +12,16 @@ from rich.console import Console
 from cver.api.version import version as cver_version
 from cver.shared.utils.log_config import log_config
 from cver.shared.utils import display
-from cver.cver_client.collections.images import Images
-from cver.cver_client.collections.image_builds import ImageBuilds
-from cver.cver_client.collections.image_build_waitings import ImageBuildWaitings
-from cver.cver_client.collections.tasks import Tasks
-from cver.cver_client.models.image import Image
-from cver.cver_client.models.image_build import ImageBuild
-from cver.cver_client.models.image_build_waiting import ImageBuildWaiting
-from cver.cver_client.models.task import Task
+from cver.client.collections.images import Images
+from cver.client.collections.image_builds import ImageBuilds
+from cver.client.collections.image_build_waitings import ImageBuildWaitings
+from cver.client.collections.tasks import Tasks
+from cver.client.models.image import Image
+from cver.client.models.image_build import ImageBuild
+from cver.client.models.image_build_waiting import ImageBuildWaiting
+from cver.client.models.task import Task
 # from cver.cver_client.collections.scans import Scans
-from cver.cver_client import CverClient
+from cver.client import Client as CverClient
 from cver.cli.utils import pretty
 
 LOGO = """

@@ -5,7 +5,7 @@
 
 """
 
-from cver.cver_client.models.user import User
+from cver.client.models.user import User
 
 
 class TestClientModelUser:
