@@ -8,9 +8,9 @@ import logging
 
 from cver.shared.utils import docker
 # from cver.cver_client import CverClient
-from cver.cver_client.models.image import Image
-from cver.cver_client.models.image_build import ImageBuild
-from cver.cver_client.models.image_build_waiting import ImageBuildWaiting
+from cver.client.models.image import Image
+from cver.client.models.image_build import ImageBuild
+from cver.client.models.image_build_waiting import ImageBuildWaiting
 
 
 class AddImages:

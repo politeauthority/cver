@@ -36,18 +36,18 @@ spec:
           - name: CVER_ENV
             value: "{{ .Values.app.envName }}"
           - name: CVER_DB_HOST
-            value: "{{ .Values.app.dbHost }}"
+            value: "{{ .Values.app.database.host }}"
           - name: CVER_DB_PORT
-            value: "{{ .Values.app.dbPort }}"
+            value: "{{ .Values.app.database.port }}"
           - name: CVER_DB_NAME
-            value: "{{ .Values.app.dbName }}"
+            value: "{{ .Values.app.database.name }}"
           - name: CVER_DB_USER
-            value: "{{ .Values.app.dbUser }}"
+            value: "{{ .Values.app.database.user }}"
           - name: CVER_DB_PASS
             valueFrom:
               secretKeyRef:
-                key: mysql-password
-                name: cver-api
+                key: {{ .Values.app.database.passwordSecretName }}
+                name: {{ .Values.app.database.passwordSecretKey }}
           - name: CVER_SECRET
             valueFrom:
               secretKeyRef:
@@ -85,18 +85,18 @@ spec:
             - name: CVER_LOG_LEVEL
               value: "{{ .Values.app.logLevel }}"
             - name: CVER_DB_HOST
-              value: "{{ .Values.app.dbHost }}"
+              value: "{{ .Values.app.database.host }}"
             - name: CVER_DB_PORT
-              value: "{{ .Values.app.dbPort }}"
+              value: "{{ .Values.app.database.port }}"
             - name: CVER_DB_NAME
-              value: "{{ .Values.app.dbName }}"
+              value: "{{ .Values.app.database.name }}"
             - name: CVER_DB_USER
-              value: "{{ .Values.app.dbUser }}"
+              value: "{{ .Values.app.database.user }}"
             - name: CVER_DB_PASS
               valueFrom:
                 secretKeyRef:
-                  key: mysql-password
-                  name: cver-api
+                  key: {{ .Values.app.database.passwordSecretName }}
+                  name: {{ .Values.app.database.passwordSecretKey }}
             - name: CVER_SECRET_KEY
               valueFrom:
                 secretKeyRef:

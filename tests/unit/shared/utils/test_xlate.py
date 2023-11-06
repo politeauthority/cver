@@ -4,6 +4,9 @@
     Tests File: cver/src/cver/shared/utils/xlate.py
 
 """
+# import json
+# from urllib.parse import unquote, quote, quote_plus
+
 from pytest import raises
 
 from cver.shared.utils import xlate
@@ -22,6 +25,27 @@ class TestSharedUtilsXlate:
         :method: xlate.url_encode
         """
         assert xlate.url_encode("haproxy:2.0.12") == "haproxy%3A2.0.12"
+
+    # def test__url_encode_json(self):
+    #     data = {
+    #         "simple": "dictionary"
+    #     }
+    #     result = xlate.url_encode_json(data)
+    #     result = result.replace("+", " ")
+    #     result = unquote(result)
+    #     result = json.loads(result)
+    #     assert isinstance(result, dict)
+    #     assert data == result
+
+    # def test__url_decode_json(self):
+    #     """
+    #     """
+    #     data = {
+    #         "simple": "dictionary"
+    #     }
+    #     encoded_data  = quote_plus(json.dumps(data))
+    #     assert data =
+    #     result = xlate.url_encode_json(data)
 
     def test__convert_any_to_int(self):
         """

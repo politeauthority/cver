@@ -6,7 +6,7 @@ on:
       tag-prefix:
         required: true
         type: string
-      tag-name:
+      git-sha:
         required: true
         type: string
       cicd-version:
@@ -63,20 +63,25 @@ jobs:
         if: steps.changes.outputs.src == 'true'
         run: |
           echo "Run Task: Build"
-          export CVER_TEST_TAG="${{ inputs.tag-name }}"
           task build-test
 
       - name: Push Container
         if: steps.changes.outputs.src == 'true'
         run: |
-          CVER_VERSION="0.0.3"
+          VERSION_FILE="src/cver/api/version.py"
+          VERSION=$(grep -o 'version = "[^"]*"' src/cver/api/version.py | cut -d '"' -f 2)
           IMAGE_ID=$(docker images --filter "reference=cver/cver-test" --format "{{.ID}}")
-          docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-test:${CVER_VERSION}
-          docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-test:${{ inputs.tag-name }}
+          # Docker Tag
+          docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-test:${VERSION}
           docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-test:${{ inputs.tag-prefix }}-latest
-          docker push harbor.squid-ink.us/cver/cver-test:0.0.3
-          docker push harbor.squid-ink.us/cver/cver-test:${{ inputs.tag-name }}
+          docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-test:git-sha-${{ inputs.git-sha }}
+
+          # Docker Push
+          docker push harbor.squid-ink.us/cver/cver-test:${VERSION}
           docker push harbor.squid-ink.us/cver/cver-test:${{ inputs.tag-prefix }}-latest
-          echo "**Built:** harbor.squid-ink.us/cver/cver-test:${CVER_VERSION}" >> $GITHUB_STEP_SUMMARY
-          echo "**Built:** harbor.squid-ink.us/cver/cver-test:${{ inputs.tag-name }}" >> $GITHUB_STEP_SUMMARY
+          docker push harbor.squid-ink.us/cver/cver-test:git-sha-${{ inputs.git-sha }}
+
+          # GHA Summary
+          echo "**Built:** harbor.squid-ink.us/cver/cver-test:${VERSION}" >> $GITHUB_STEP_SUMMARY
           echo "**Built:** harbor.squid-ink.us/cver/cver-test:${{ inputs.tag-prefix }}-latest" >> $GITHUB_STEP_SUMMARY
+          echo "**Built:** harbor.squid-ink.us/cver/cver-test:git-sha-${{ inputs.git-sha }}" >> $GITHUB_STEP_SUMMARY

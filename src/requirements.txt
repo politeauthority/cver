@@ -15,3 +15,6 @@ requests==2.31.0
 
 # Cver Shared
 tldextract==3.6.0
+
+# Cver cli
+rich==10.11.0

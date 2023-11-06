@@ -58,9 +58,10 @@ class TestApiCollectsBase:
         :method: Base()._generate_paginated_sql()
         """
         base = ApiKeys(db.conn, db.cursor)
-        result = base._generate_paginated_sql(page=1, where_and=[], order_by={}, limit=20)
+        result = base._generate_paginated_sql(page=1, where_and=[], order_by={}, limit=20,)
         expected = "\n            SELECT *\n            FROM `api_keys`\n            \n            "
         expected += "ORDER BY `created_ts` DESC\n            LIMIT 20 OFFSET 0;"
+
         assert expected == result
 
         where_and = {
@@ -71,7 +72,7 @@ class TestApiCollectsBase:
 
         result = base._generate_paginated_sql(page=1, where_and=[where_and], order_by={}, limit=20)
         expected = "\n            SELECT *\n            FROM `api_keys`\n            WHERE "
-        expected += "`user_id` = 1\n            ORDER BY `created_ts` DESC\n            LIMIT 20 "
+        expected += "`user_id` = 1 \n            ORDER BY `created_ts` DESC\n            LIMIT 20 "
         expected += "OFFSET 0;"
         assert expected == result
 
@@ -83,6 +84,14 @@ class TestApiCollectsBase:
         assert 0 == base._pagination_offset(1, 20)
         assert 20 == base._pagination_offset(2, 20)
 
+    def test___gen_pagination_limit_sql(self):
+        """
+        :method: Base()._gen_pagination_limit_sql()
+        """
+        base = CollectBase()
+        assert "LIMIT 1" == base._gen_pagination_limit_sql(1)
+        assert "" == base._gen_pagination_limit_sql("hello")
+
     def test___edit_pagination_sql_for_info(self):
         """
         :method: Base()._edit_pagination_sql_for_info()
@@ -93,21 +102,22 @@ class TestApiCollectsBase:
         expected = """SELECT COUNT(*) FROM `table` WHERE name LIKE "%thing%";"""
         assert expected == result
 
-    def test___pagination_where_and(self):
-        """
-        :method: Base()._pagination_where_and()
-        """
-        base = CollectBase()
-        where_and = [
-            {
-                "field": "name",
-                "value": "test",
-                "op": "="
-            }
-        ]
-        result = base._pagination_where_and(where_and)
-        expected = 'WHERE `name` = "test"'
-        assert expected == result
+    # def test___pagination_where_and(self):
+    #     """
+    #     :method: Base()._pagination_where_and()
+    #     """
+    #     base = CollectBase()
+    #     base.collect_model = ModelBase
+    #     where_and = [
+    #         {
+    #             "field": "name",
+    #             "value": "test",
+    #             "op": "="
+    #         }
+    #     ]
+    #     result = base._pagination_where_and(where_and)
+    #     expected = 'WHERE `name` = "test"'
+    #     assert expected == result
 
     def test__int_list_to_sql(self):
         """

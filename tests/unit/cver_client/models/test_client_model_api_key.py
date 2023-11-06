@@ -5,7 +5,7 @@
 
 """
 
-from cver.cver_client.models.api_key import ApiKey
+from cver.client.models.api_key import ApiKey
 
 
 class TestClientModelApiKey:
@@ -16,7 +16,7 @@ class TestClientModelApiKey:
         """
         model = ApiKey()
         assert model
-        assert hasattr(model, "base_url")
+        assert hasattr(model, "api_url")
         assert hasattr(model, "client_id")
         assert hasattr(model, "api_key")
         assert hasattr(model, "token")

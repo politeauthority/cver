@@ -5,17 +5,18 @@ replicaCount: 1
 nameOverride: "prod"
 
 app:
-  dbName: "cver_prod"
-  dbHost: "cver-mysql.cver.svc.cluster.local"
-  dbUser: "cver"
   runMigrations: true
   envName: "prod"
   logHealthChecks: false
+  database:
+    name: "cver"
+    host: "cver-mysql.cver-prod.svc.cluster.local"
+    user: "cver"
 
 image:
   repository: harbor.squid-ink.us/cver/cver-api
   pullPolicy: IfNotPresent
-  tag: "133c11ae4dd81c1daeb240749e28c58a0adcbaac"
+  tag: "stage-latest"
 
 imagePullSecrets:
   - name: harbor
@@ -34,7 +35,7 @@ ingress:
     secretName: cver-prod-tls
 
 mysql:
-  enabled: true
+  enabled: false
   nameOverride: cver-mysql
   fullnameOverride: cver-mysql
   primary:

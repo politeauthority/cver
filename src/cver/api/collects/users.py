@@ -19,6 +19,7 @@ class Users(Base):
         super(Users, self).__init__(conn, cursor)
         self.table_name = User().table_name
         self.collect_model = User
+        self.field_map = self.collect_model().field_map
 
     def get_admins(self) -> list:
         """Get admin users."""

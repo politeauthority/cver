@@ -24,21 +24,30 @@ def get_model(model, entity_id: int = None) -> dict:
         "object_type": entity.model_name
     }
     r_args = request.args
+    query = {}
+    if "query" in r_args:
+        query = xlate.url_decode_json_flask(r_args["query"])
 
     # Search for model base on searchable fields
     search_fields = []
-    for r_arg_key, r_arg_value in r_args.items():
-        for field_name, field in entity.field_map.items():
-            if field["name"] != r_arg_key:
+    if query:
+        logging.crticial("Expecting to run a query, but that has not been built yet.")
+        return make_response(jsonify(data), 501)
+    else:
+        for r_arg_key, r_arg_value in r_args.items():
+            if r_arg_key not in entity.field_map:
                 continue
-        if "api_searchable" not in entity.field_map[r_arg_key]:
-            continue
-        search_field = {
-            "field": r_arg_key,
-            "value": r_arg_value,
-            "op": "eq"
-        }
-        search_fields.append(search_field)
+            for field_name, field in entity.field_map.items():
+                if field["name"] != r_arg_key:
+                    continue
+            if "api_searchable" not in entity.field_map[r_arg_key]:
+                continue
+            search_field = {
+                "field": r_arg_key,
+                "value": r_arg_value,
+                "op": "eq"
+            }
+            search_fields.append(search_field)
 
     # Missing data to retrieve the model.
     if not entity_id and not search_fields:
@@ -125,25 +134,8 @@ def post_model(model, entity_id: int = None, generated_data: dict = {}):
         if entity_found:
             logging.info("Found entity: %s through unique keys" % entity)
 
-    # Check through the fields and see if they should be applied to the entity.
-    for field_name, field_value in request_data.items():
-        update_field = False
-        for entity_field_name, entity_field in entity.field_map.items():
-            if entity_field["name"] == field_name:
-                if "api_writeable" not in entity_field and field_name not in generated_data:
-                    logging.warning("Entity %s can not write field %s via an API request" % (
-                        entity,
-                        field_name))
-                    continue
-                else:
-                    update_field = True
-        if update_field:
-            logging.info("Entity: %s updating field: %s value: %s" % (
-                entity,
-                field_name,
-                field_value))
-            setattr(entity, field_name, field_value)
-
+    logging.info("\nREQUEST:\n%s\n%s" % (request.url, request_data))
+    entity = _post_update_entity(entity, request_data, generated_data)
     entity.save()
     data["status"] = "success"
     data["object"] = entity.json()
@@ -202,5 +194,30 @@ def get_entity_by_unqiue_keys(entity, request_args: dict):
 
     return entity.get_by_unique_key(fields)
 
+
+def _post_update_entity(entity, request_data, generated_data):
+    # Check through the fields and see if they should be applied to the entity.
+    for field_name, field_value in request_data.items():
+        update_field = False
+        for entity_field_name, entity_field in entity.field_map.items():
+            # if entity_field_name == "value":
+            #     import ipdb; ipdb.set_trace()
+            if entity_field["name"] == field_name:
+                if "api_writeable" not in entity_field and field_name not in generated_data:
+                    logging.warning("Entity %s can not write field %s via an API request" % (
+                        entity,
+                        field_name))
+                    continue
+                else:
+                    update_field = True
+                # if entity_field_name == "value":
+                #     import ipdb; ipdb.set_trace()
+        if update_field:
+            logging.info("Entity: %s updating field: %s value: %s" % (
+                entity,
+                field_name,
+                field_value))
+            setattr(entity, field_name, field_value)
+    return entity
 
 # End File: cver/src/api/controllers/ctrl_modles/ctrl_base.py

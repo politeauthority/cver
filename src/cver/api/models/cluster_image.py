@@ -4,8 +4,8 @@
 
 """
 from cver.shared.models.cluster_image import FIELD_MAP, FIELD_META
-from cver.shared.utils import xlate
 from cver.api.models.base_entity_meta import BaseEntityMeta
+from cver.api.utils import sql_tools
 
 
 class ClusterImage(BaseEntityMeta):
@@ -31,8 +31,8 @@ class ClusterImage(BaseEntityMeta):
                 `image_id` = "%s";
         """ % (
             self.table_name,
-            xlate.sql_safe(cluster_id),
-            xlate.sql_safe(image_id))
+            sql_tools.sql_safe(cluster_id),
+            sql_tools.sql_safe(image_id))
         self.cursor.execute(sql)
         raw = self.cursor.fetchone()
         if not raw:

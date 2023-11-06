@@ -9,9 +9,6 @@ on:
       run-number:
         required: true
         type: string
-      tag-name:
-        required: true
-        type: string
       cicd-version:
         required: true
         type: string
@@ -58,5 +55,5 @@ jobs:
             -f values-quigley-${{ inputs.deployment-name }}.yaml \
             --set "app.dbName=${DB_NAME}" \
             --set "app.deployedAt=${DEPLOYED_AT}"
-          echo "# Deployed: Api" >> $GITHUB_STEP_SUMMARY
+          echo "# Deployed: Cver-Api" >> $GITHUB_STEP_SUMMARY
           echo "Created Helm deployment: ${RELEASE_NAME}" >> $GITHUB_STEP_SUMMARY

@@ -15,6 +15,7 @@ class Scanners(Base):
         super(Scanners, self).__init__(conn, cursor)
         self.table_name = Scanner().table_name
         self.collect_model = Scanner
+        self.field_map = self.collect_model().field_map
         self.per_page = 20
 
 # End File: cve/src/api/collects/scanners.py

@@ -1,17 +1,16 @@
-"""Utility Xlate
-A collection of misc trasnlation functions used all throuhout the Pignus platofrm.
+"""
+    Utility Xlate
+    Cver Shared
+    A collection of misc trasnlation functions used all throuhout the Pignus platofrm.
 
-Testing:
-    Unit test file  cver/tests/unit/shared/utils/test_xlate.py
-    Unit tested     10/15
+    Testing:
+        Unit test file  cver/tests/unit/shared/utils/test_xlate.py
+        Unit tested     10/15
 
 """
-from datetime import datetime
 import json
 import logging
 from urllib.parse import unquote, quote, quote_plus
-
-from sqlescapy import sqlescape
 
 
 def url_decode(encoded_str: str) -> str:
@@ -32,9 +31,70 @@ def url_encode(slug: str) -> str:
     return butterfly
 
 
-def url_encode_json(self, data: dict) -> str:
+def url_encode_json(data: dict) -> str:
     """Ecode a dict into JSON, primarily used for collection search term requests."""
-    return quote_plus(json.dumps(data))
+    json_dump = json.dumps(data)
+    return quote_plus(json.dumps(json_dump))
+
+
+def url_decode_json_flask(encoded_str: str) -> dict:
+    """This is not the write name for this
+    """
+    if not encoded_str:
+        return {}
+    # Remove the outer double quotes
+    input_str = encoded_str.strip('"')
+
+    # Replace double-escaped double quotes with regular double quotes
+    input_str = input_str.replace('\\"', '"')
+
+    # Unescape single-escaped single quotes with regular single quotes
+    input_str = input_str.replace("\\'", "'")
+
+    try:
+        # Parse the string as JSON into a Python dictionary
+        output_dict = json.loads(input_str)
+        return output_dict
+    except json.decoder.JSONDecodeError as e:
+        logging.warning("Cant parse json: %s\nInput Data:\n %s\nParsed Data:\n%s" % (
+            e,
+            encoded_str,
+            input_str))
+        return {}
+    # Print the resulting dictionary
+    return output_dict
+    input_str = encoded_str.strip('"')
+    input_str = input_str.replace('\\"', '"')
+    try:
+        output_dict = json.loads(input_str)
+        return output_dict
+    except json.decoder.JSONDecodeError as e:
+        logging.warning("Cant parse json: %s\nInput Data:\n %s\nParsed Data:\n%s" % (
+            e,
+            encoded_str,
+            input_str))
+        return {}
+
+
+def url_decode_json(encoded_str: str) -> dict:
+    decoded_str = url_decode(encoded_str)
+    decoded_str = decoded_str.strip('"')
+    decoded_str = decoded_str.rstrip('"')
+    decoded_str = decoded_str.replace("+", " ")
+    decoded_str = decoded_str.replace('\\"', '"')
+    decoded_str = decoded_str.strip('"')
+    decoded_str = decoded_str.rstrip('""')
+    decoded_str = decoded_str.rstrip('"\\')
+    try:
+        # Parse the string as JSON into a Python dictionary
+        output_dict = json.loads(decoded_str)
+        return output_dict
+    except json.decoder.JSONDecodeError as e:
+        logging.warning("Cant parse json: %s\nInput Data:\n %s\nParsed Data:\n%s" % (
+            e,
+            encoded_str,
+            decoded_str))
+        return {}
 
 
 def convert_any_to_int(value) -> int:
@@ -139,31 +199,6 @@ def convert_str_to_bool(value: str) -> bool:
         'Cannot convert "%s" of type "%s" to bool.' % (
             value,
             type(value)))
-
-
-def sql_safe(query_item):
-    """Covert any item to a sql safe value where possible.
-    :unit-test: TestXlate::test__sql_safe
-    """
-    if not query_item:
-        return query_item
-    if isinstance(query_item, str) and query_item.isdigit():
-        return query_item
-    elif isinstance(query_item, datetime):
-        return query_item
-    elif isinstance(query_item, int):
-        return query_item
-    elif isinstance(query_item, dict):
-        logging.warning("sql_safe cannot translate dict objects")
-        query_item = json.dumps(query_item)
-        return query_item
-    elif isinstance(query_item, list):
-        cleaned = []
-        for item in query_item:
-            cleaned.append(sqlescape(item))
-        return ", ".join(cleaned)
-    else:
-        return sqlescape(query_item)
 
 
 def get_digest(image_str: str):

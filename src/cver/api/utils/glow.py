@@ -15,7 +15,7 @@ db = {
     "conn": "",
     "cursor": "",
     "HOST": os.environ.get("CVER_DB_HOST"),
-    "PORT": os.environ.get("CVER_DB_PORT"),
+    "PORT": int(os.environ.get("CVER_DB_PORT", 3306)),
     "USER": os.environ.get("CVER_DB_USER"),
     "PASS": os.environ.get("CVER_DB_PASS"),
     "NAME": os.environ.get("CVER_DB_NAME"),
@@ -28,7 +28,7 @@ options = {}
 # Collect General Details
 global general
 general = {
-    "LOG_LEVEL": "INFO",
+    "LOG_LEVEL": os.environ.get("CVER_LOG_LEVEL", "INFO"),
     "VERSION": version,
     "CVER_BUILD": os.environ.get("CVER_BUILD"),
     "CVER_BUILD_SHORT": "",

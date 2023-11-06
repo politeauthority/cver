@@ -1,0 +1,19 @@
+# Quigely stage values for cver-test.
+
+replicaCount: 1
+
+nameOverride: "test"
+
+app:
+  logLevel: "DEBUG"
+  cverCicd: "true"
+  envName: "test"
+  debug: true
+
+image:
+  repository: harbor.squid-ink.us/cver/cver-test
+  pullPolicy: Always
+  tag: "stage-latest"
+
+imagePullSecrets:
+  - name: harbor

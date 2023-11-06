@@ -41,5 +41,7 @@ ADD scripts/cver-build /bin/cver-build
 RUN pip install --upgrade pip --break-system-packages
 RUN cd /app && pip install --break-system-packages -r /app/requirements.txt
 RUN cd /app && pip install --break-system-packages .
-
 CMD /entrypoint.sh
+
+FROM base AS dev
+RUN pip3 install -r /app/requirements-dev.txt

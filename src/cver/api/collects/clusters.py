@@ -18,6 +18,7 @@ class Clusters(Base):
         super(Clusters, self).__init__(conn, cursor)
         self.table_name = Cluster().table_name
         self.collect_model = Cluster
+        self.field_map = self.collect_model().field_map
         self.per_page = 20
 
 # End File: cver/src/api/collects/cluster.py

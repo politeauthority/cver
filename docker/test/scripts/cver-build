@@ -1,0 +1,22 @@
+#!/bin/sh -l
+# Cver Build
+
+set -e
+echo "Running Cver Build"
+
+WORKING_DIR="/current/src"
+TEST_DIR="/current/tests"
+echo "Using work dir: ${WORKING_DIR}"
+
+# Remove old Cver instances
+rm -rf /usr/local/lib/python3.10/site-packages/cver-*.dist-info
+rm -rf ${WORKING_DIR}/build
+rm -rf ${WORKING_DIR}/cver.egg-info
+
+# Installing Cver
+cd $WORKING_DIR
+pip install .
+
+cd $TEST_DIR
+pip install .
+

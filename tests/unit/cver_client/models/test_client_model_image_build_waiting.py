@@ -5,7 +5,7 @@
 
 """
 
-from cver.cver_client.models.image_build_waiting import ImageBuildWaiting
+from cver.client.models.image_build_waiting import ImageBuildWaiting
 
 
 class TestClientModelImageBuildWaiting:
@@ -16,7 +16,7 @@ class TestClientModelImageBuildWaiting:
         """
         user = ImageBuildWaiting()
         assert user
-        assert hasattr(user, "base_url")
+        assert hasattr(user, "api_url")
         assert hasattr(user, "client_id")
         assert hasattr(user, "api_key")
         assert hasattr(user, "token")

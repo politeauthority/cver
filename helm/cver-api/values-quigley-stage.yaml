@@ -6,13 +6,14 @@ nameOverride: "stage"
 
 app:
   logLevel: "DEBUG"
-  dbName: "cver_stage"
-  dbHost: "cver-mysql.cver.svc.cluster.local"
-  dbUser: "cver"
   runMigrations: true
   envName: "stage"
   logHealthChecks: false
   jwtExpireMinutes: 1440
+  database:
+    name: "cver_stage"
+    host: "cver-mysql.cver.svc.cluster.local"
+    user: "cver"
 
 test:
   test: true

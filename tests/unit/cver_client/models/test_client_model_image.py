@@ -5,7 +5,7 @@
 
 """
 
-from cver.cver_client.models.image import Image
+from cver.client.models.image import Image
 
 
 class TestClientModelImage:
@@ -16,7 +16,7 @@ class TestClientModelImage:
         """
         model = Image()
         assert model
-        assert hasattr(model, "base_url")
+        assert hasattr(model, "api_url")
         assert hasattr(model, "client_id")
         assert hasattr(model, "api_key")
         assert hasattr(model, "token")

@@ -1,0 +1,19 @@
+# Quigely dev values for cver-test.
+
+replicaCount: 1
+
+nameOverride: "dev"
+
+app:
+  api_url: "http://cver-api-dev"
+  logLevel: "DEBUG"
+  envName: "test"
+  debug: true
+
+image:
+  repository: harbor.squid-ink.us/cver/cver-test
+  pullPolicy: Always
+
+
+imagePullSecrets:
+  - name: harbor

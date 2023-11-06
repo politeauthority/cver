@@ -16,6 +16,7 @@ class Tasks(Base):
         super(Tasks, self).__init__(conn, cursor)
         self.table_name = Task().table_name
         self.collect_model = Task
+        self.field_map = self.collect_model().field_map
         self.per_page = 20
 
 # End File: cve/src/api/collects/task.py

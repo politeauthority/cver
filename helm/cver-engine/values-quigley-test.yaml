@@ -8,9 +8,8 @@ app:
   logLevel: "DEBUG"
   envName: "test"
   debug: true
-  suspendCron: true
-  engineDownloadLimit: 1
-  engineScanLimit: 1
+  cron:
+    suspend: true
 
 test:
   test: true
