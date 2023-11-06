@@ -10,6 +10,7 @@ import json
 import re
 import pprint
 
+import glom
 import tldextract
 
 
@@ -81,6 +82,14 @@ def dict_to_json(the_dict: dict, file_name: str) -> bool:
     with open(file_name, "w") as fp:
         json.dump(the_dict, fp)
     return True
+
+
+def get_dict_path(the_dict: dict, the_path: str):
+    try:
+        found = glom.glom(the_dict, the_path)
+    except glom.core.PathAccessError:
+        return False
+    return found
 
 
 def pretty_print(data):

@@ -697,7 +697,7 @@ class Base:
             if value and len(value) > 200:
                 value = value[:200]
                 logging.warning("Truncating value for %s in field: %s" % (self, field["name"]))
-            value = '"%s"' % xlate.sql_safe(value)
+            value = '"%s"' % sql_tools.sql_safe(value)
 
         # Handle converting a json value
         elif field["type"] == "json":
