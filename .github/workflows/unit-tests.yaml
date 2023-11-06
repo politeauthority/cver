@@ -40,7 +40,7 @@ jobs:
           export KUBECONFIG=~/.kube/config.yaml
           TEST_POD=$(kubectl get -n ${NAMESPACE} pods -l app.kubernetes.io/instance=${POD_SEARCH} --no-headers | cut -d' ' -f1)
           kubectl exec -n ${NAMESPACE} -it ${TEST_POD} -- cver-cicd-unit
-          REPORT=$(kubectl exec -n ${NAMESPACE} -it ${TEST_POD} -- cat /report/unit-report.txt)
+          REPORT=$(kubectl exec -n ${NAMESPACE} -it ${TEST_POD} -- cat /report/unit-report.md)
           echo "$REPORT"
           echo "${REPORT}" >> $GITHUB_STEP_SUMMARY
 

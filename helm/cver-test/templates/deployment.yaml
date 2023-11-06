@@ -37,6 +37,21 @@ spec:
               value: "{{ .Values.app.envName }}"
             - name: CVER_LOG_LEVEL
               value: "{{ .Values.app.logLevel }}"
+            - name: CVER_ENV
+              value: "{{ .Values.app.envName }}"
+            - name: CVER_DB_HOST
+              value: "{{ .Values.app.database.host }}"
+            - name: CVER_DB_PORT
+              value: "{{ .Values.app.database.port }}"
+            - name: CVER_DB_NAME
+              value: "{{ .Values.app.database.name }}"
+            - name: CVER_DB_USER
+              value: "{{ .Values.app.database.user }}"
+            - name: CVER_DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  key: {{ .Values.app.database.passwordSecretName }}
+                  name: {{ .Values.app.database.passwordSecretKey }}
             - name: CVER_API_URL
               value:  "{{ .Values.app.api_url }}"
             - name: CVER_CLIENT_ID
