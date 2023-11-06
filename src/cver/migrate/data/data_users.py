@@ -103,10 +103,11 @@ class DataUsers:
         api_key.user_id = user.id
         api_key.client_id = client_id
         if api_key.get_by_field(field="client_id", value=client_id):
-            logging.error("Cannot create api client_id for user: %s, client id: %s already exists" % (
+            msg = "Cannot create api client_id for user: %s, client id: %s already exists" % (
                 user,
-            client_id
-            ))
+                client_id
+            )
+            logging.error(msg)
             return False
 
         api_key.key = auth.generate_hash(api_key_str)
