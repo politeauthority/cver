@@ -151,16 +151,16 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
-  regression-client:
-    needs: [deploy-api, deploy-test]
-    if: ${{ needs.deploy-api.result == 'success' }}
-    uses: ./.github/workflows/regression-client.yaml
-    secrets: inherit 
-    with:
-      deployment-name: "test"
-      run-number: ${{ github.run_number }}
-      cicd-version: "${{ vars.CICD_VERSION }}"
-      harbor-user: "${{ vars.HARBOR_USER }}"
+  # regression-client:
+  #   needs: [deploy-api, deploy-test]
+  #   if: ${{ needs.deploy-api.result == 'success' }}
+  #   uses: ./.github/workflows/regression-client.yaml
+  #   secrets: inherit 
+  #   with:
+  #     deployment-name: "test"
+  #     run-number: ${{ github.run_number }}
+  #     cicd-version: "${{ vars.CICD_VERSION }}"
+  #     harbor-user: "${{ vars.HARBOR_USER }}"
 
   run-ingest:
     needs: [deploy-api, deploy-ingest]

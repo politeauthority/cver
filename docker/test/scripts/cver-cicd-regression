@@ -18,11 +18,15 @@ fi
 
 if [ "$CVER_CICD" = "true" ]; then
     echo "Using Cver branch: ${CVER_BRANCH}"
-    WORKING_DIR="/checkout/"
+    mkdir -p /cicd
+    WORKING_DIR="/cicd/${CVER_TEST_MODULE}"
     TEST_DIR="${WORKING_DIR}/cver/tests"
+    mkdir -p $WORKING_DIR
+    echo "WORKDIR: ${WORKING_DIR}/cver"
 
     if [ ! -d "$WORKING_DIR/cver" ]; then
         echo "$DIRECTORY does not exist, cloning Cver"
+        cd ${WORKING_DIR}
         git clone https://github.com/politeauthority/cver.git
         cd  cver
         git fetch origin
