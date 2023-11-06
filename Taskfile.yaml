@@ -21,7 +21,7 @@ tasks:
         fi
         CLI_ARGS="{{ .CLI_ARGS }}"
         if [ -z ${CLI_ARGS} ]; then
-          TARGET="tests"
+          TARGET="dev"
         else
           TARGET=$CLI_ARGS
         fi
