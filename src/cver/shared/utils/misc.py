@@ -10,12 +10,13 @@ import json
 import re
 import pprint
 
+import glom
 import tldextract
 
 
 def container_url(the_string: str):
     """Break down a container url into its parts.
-    :unit-test: test__container_url
+    :unit-test: TestSharedUtilMisc::test__container_url
     """
     ret = {
         "registry": _get_registry(the_string),
@@ -32,7 +33,7 @@ def container_url(the_string: str):
 
 def is_fqdn(hostname: str) -> bool:
     """Check if a string is a FQDN.
-    :unit-test: test__is_fqdn
+    :unit-test: TestSharedUtilMisc::test__is_fqdn
     """
     if not 1 < len(hostname) < 253:
         return False
@@ -43,8 +44,21 @@ def is_fqdn(hostname: str) -> bool:
     return all(fqdn.match(label) for label in labels)
 
 
+def percentize(part: int, whole: int, round_int: int = 1) -> float:
+    """Get the percent value that a part is from a whole.
+    :unit-test: TestSharedUtilMisc:: test__percentize
+    """
+    if part == 0 or whole == 0:
+        return 0
+    per = (part * 100) / whole
+    per = round(per, round_int)
+    return per
+
+
 def strip_trailing_slash(the_string: str) -> str:
-    """Strips trailing slashes if they exist."""
+    """Strips trailing slashes if they exist.
+    :unit-test: TestSharedUtilMisc::test__strip_trailing_slash
+    """
     if not the_string:
         return the_string
     if the_string[-1:] == "/":
@@ -52,11 +66,30 @@ def strip_trailing_slash(the_string: str) -> str:
     return the_string
 
 
+def add_trailing_slash(the_string: str) -> str:
+    """Adds a trailing slash if one does not exist.
+    :unit-test: TestSharedUtilMisc::test__add_trailing_slash
+    """
+    if not the_string:
+        return the_string
+    if the_string[-1:] == "/":
+        return the_string
+    return the_string + "/"
+
+
 def dict_to_json(the_dict: dict, file_name: str) -> bool:
     """Save a Python dictionary to a json file on the filesystem."""
     with open(file_name, "w") as fp:
         json.dump(the_dict, fp)
     return True
+
+
+def get_dict_path(the_dict: dict, the_path: str):
+    try:
+        found = glom.glom(the_dict, the_path)
+    except glom.core.PathAccessError:
+        return False
+    return found
 
 
 def pretty_print(data):

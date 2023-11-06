@@ -19,5 +19,4 @@ def full_traceback() -> str:
         stackstr += '  ' + traceback.format_exc().lstrip(trc)
     return stackstr
 
-
 # End File: cver/src/api/utils/misc.py

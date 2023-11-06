@@ -5,7 +5,7 @@
 
 """
 
-from cver.cver_client.models.base import Base
+from cver.client.models.base import Base
 
 
 class TestClientModelBase:
@@ -15,7 +15,7 @@ class TestClientModelBase:
         :method: Base().__init__
         """
         base = Base()
-        assert hasattr(base, "base_url")
+        assert hasattr(base, "api_url")
         assert hasattr(base, "client_id")
 
     # def test____repr__(self):

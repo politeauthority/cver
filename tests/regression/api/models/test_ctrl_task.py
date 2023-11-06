@@ -4,7 +4,7 @@
     Checks that all routes on /task are working properly.
 
 """
-# import json
+import json
 import os
 import random
 
@@ -13,6 +13,8 @@ import requests
 from .test_api_base import TestApiBase
 
 CVER_API_URL = os.environ.get("CVER_API_URL")
+CVER_CLIENT_ID = os.environ.get("CVER_TEST_CLIENT_ID")
+CVER_API_KEY = os.environ.get("CVER_TEST_API_KEY")
 URL_BASE = "/task"
 URL_MODEL = "task"
 
@@ -20,7 +22,7 @@ TEST_MODEL = {
     "user_id": random.randint(1000, 1000),
     "name": "Test Download",
     "image_id": random.randint(1000, 1000),
-    "stauts": None,
+    "status": None,
     "stauts_reason": "Progressigs",
 }
 
@@ -42,20 +44,37 @@ class TestApiModelTask(TestApiBase):
         response = requests.request(**request_args)
         assert response.status_code == 404
 
-    # def test__role_post_200(self):
-    #     """ Test that we can create a new Role model.
-    #     POST /role
-    #     """
-    #     assert self.login()
-    #     request_args = {
-    #         "headers": self.get_headers(),
-    #         "method": "POST",
-    #         "url": "%s%s" % (CVER_API_URL, URL_BASE),
-    #         "data": TEST_MODEL
-    #     }
-    #     request_args["data"] = json.dumps(request_args["data"])
-    #     response = requests.request(**request_args)
-    #     assert response.status_code == 201
+    def test__task_post_200(self):
+        """ Test that we can create a new Task model.
+        POST /ask
+        """
+        assert self.login()
+        data = {
+            "name": "engine-download",
+            "image_id": random.randint(1000, 10000),
+            "image_build_id": random.randint(1000, 10000),
+            "image_build_waiting_id": random.randint(1000, 10000),
+            "status": False,
+            "status_reason": "Progressigs",
+            # "start_ts": "Progressigs",
+        }
+        request_args = {
+            "headers": self.get_headers(),
+            "method": "POST",
+            "url": "%s%s" % (CVER_API_URL, URL_BASE),
+            "data": data
+        }
+        request_args["data"] = json.dumps(request_args["data"])
+        response = requests.request(**request_args)
+        assert response.status_code == 201
+        response_json = response.json()
+        # assert data["user_id"] == response_json["object"]["user_id"]
+        assert data["name"] == response_json["object"]["name"]
+        assert data["image_id"] == response_json["object"]["image_id"]
+        assert data["image_build_id"] == response_json["object"]["image_build_id"]
+        assert data["image_build_waiting_id"] == response_json["object"]["image_build_waiting_id"]
+        assert data["status"] == response_json["object"]["status"]
+        assert data["status_reason"] == response_json["object"]["status_reason"]
 
     # def test__role_get_200(self):
     #     """Tests fetching a single Role through the Cver Api from its name.

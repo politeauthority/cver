@@ -6,7 +6,7 @@ on:
       tag-prefix:
         required: true
         type: string
-      tag-name:
+      git-sha:
         required: true
         type: string
       cicd-version:
@@ -46,13 +46,6 @@ jobs:
               - 'src/cver/api/**'
               - 'src/cver/migrate/**'
               - 'src/cver/shared/**'
-              - 'src/cver/cver_client/**'
-              - 'tests/regression/**'
-      - uses: docker/login-action@v2
-        with:
-          registry: harbor.squid-ink.us
-          username: ${{ inputs.harbor-user }}
-          password: ${{ secrets.HARBOR_PASSWORD }}
 
       - name: Decider
         run: |
@@ -64,20 +57,66 @@ jobs:
             echo "Running Api Build" >> $GITHUB_STEP_SUMMARY
           fi
 
+      - uses: docker/login-action@v2
+        with:
+          registry: harbor.squid-ink.us
+          username: ${{ inputs.harbor-user }}
+          password: ${{ secrets.HARBOR_PASSWORD }}
+
+      - name: Extract branch name
+        shell: bash
+        run: |
+          BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
+          BRANCH="${BRANCH//\//-}"
+          echo "${BRANCH}"
+          echo "branch=${BRANCH}" >> "$GITHUB_OUTPUT"
+        id: extract_branch
+
       - name: Build Container
         if: steps.changes.outputs.src == 'true'
         run: |
           echo "Run Task: Build"
-          export CVER_API_TAG="${{ inputs.tag-name }}"
           task build-api
 
       - name: Push Container
         if: steps.changes.outputs.src == 'true'
         run: |
+          BRANCH="${{ steps.extract_branch.outputs.branch }}"
+          MAKE_BRANCH_TAG="false"
+          MAKE_VERSION_TAG="false"
+          if [ "$BRANCH" = "stage" ]; then
+            MAKE_BRANCH_TAG="false"
+          elif [ "$BRANCH" = "main" ]; then
+            MAKE_BRANCH_TAG="false"
+            MAKE_VERSION_TAG="true"
+          else
+            MAKE_BRANCH_TAG="true"
+          fi
+
+          # Docker Tag
           IMAGE_ID=$(docker images --filter "reference=cver/cver-api" --format "{{.ID}}")
-          docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-name }}
+          docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-api:git-sha-${{ inputs.git-sha}}
           docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-prefix }}-latest
-          docker push harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-name }}
+
+          # Docker Push
+          docker push harbor.squid-ink.us/cver/cver-api:git-sha-${{ inputs.git-sha }}
           docker push harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-prefix }}-latest
-          echo "**Built:** harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-name }}" >> $GITHUB_STEP_SUMMARY
+
+          # GHA Summary
+          echo "**Built:** harbor.squid-ink.us/cver/cver-api:git-sha-${{ inputs.git-sha }}" >> $GITHUB_STEP_SUMMARY
           echo "**Built:** harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-prefix }}-latest" >> $GITHUB_STEP_SUMMARY
+
+          # Make Docker Branch Tag
+          if [ "$MAKE_BRANCH_TAG" = "true" ]; then
+            docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-api:git-branch-${BRANCH}
+            docker push harbor.squid-ink.us/cver/cver-api:git-branch-${BRANCH}
+            echo "**Built:** harbor.squid-ink.us/cver/cver-api:git-branch-${BRANCH}" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Make Version Tag
+          if [ "$MAKE_VERSION_TAG" = "true" ]; then
+            VERSION=$(grep -o 'version = "[^"]*"' src/cver/api/version.py | cut -d '"' -f 2)
+            docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-api:${VERSION}
+            docker push harbor.squid-ink.us/cver/cver-api:${VERSION}
+            echo "**Built:** harbor.squid-ink.us/cver/cver-api:${VERSION}" >> $GITHUB_STEP_SUMMARY
+          fi

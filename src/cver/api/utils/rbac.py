@@ -11,7 +11,7 @@ ACL = {
         "GET": ["read-all"],
     },
     "/info": {
-        "GET": ["read-all"],
+        "GET": ["read-all", "read-info"],
     },
     "/app": {
         "GET": ["read-all"],
@@ -159,13 +159,13 @@ ACL = {
         "DELETE": ["write-all"],
     },
     "/submit-scan": {
-        "POST": ["write-all", "write-scan"],
+        "POST": ["write-all", "write-ingest"],
     },
     "/ingest-k8s/image": {
-        "POST": ["write-all", "write-scan"],
+        "POST": ["write-all", "write-ingest"],
     },
     "/ingest-k8s": {
-        "POST": ["write-all", "write-scan"],
+        "POST": ["write-all", "write-ingest"],
     },
     "/task": {
         "GET": ["read-all"],

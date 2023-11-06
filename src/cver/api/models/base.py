@@ -1,14 +1,16 @@
-"""Base Model v. 0.2.0
-Parent class for all models to inherit, providing methods for creating tables, inserting, updating,
-selecting and deleting data.
+"""
+    Cver Api
+    Base Model v. 0.2.0
+    Parent class for all models to inherit, providing methods for creating tables, inserting, updating,
+    selecting and deleting data.
 
-The Base Model SQL driver can work with both SQLite3 and MySQL database.
-    self.backend = "sqlite" for SQLite3
-    self.backend = "mysql" for MySQL
+    The Base Model SQL driver can work with both SQLite3 and MySQL database.
+        self.backend = "sqlite" for SQLite3
+        self.backend = "mysql" for MySQL
 
-Testing:
-    Unit test file  cver/tests/unit/api/models/test_base.py
-    Unit tested     38/46
+    Testing:
+        Unit test file  cver/tests/unit/api/models/test_base.py
+        Unit tested     38/46
 
 """
 from datetime import datetime
@@ -21,6 +23,7 @@ from pymysql.err import ProgrammingError, IntegrityError
 from cver.shared.utils import xlate
 from cver.shared.utils import date_utils
 from cver.api.utils import glow
+from cver.api.utils import sql_tools
 
 
 class Base:
@@ -418,7 +421,7 @@ class Base:
         """
         if not self.id:
             raise AttributeError('%s missing Attribute "id"' % self)
-        return """DELETE FROM `%s` WHERE `id` = %s;""" % (self.table_name, xlate.sql_safe(self.id))
+        return """DELETE FROM `%s` WHERE `id` = %s;""" % (self.table_name, sql_tools.sql_safe(self.id))
 
     def _gen_update_sql(self, skip_fields: list) -> tuple:
         """Generate the update SQL statement."""
@@ -444,7 +447,7 @@ class Base:
             FROM `%(table)s`
             WHERE `id` = %(model_id)s;""" % {
             "table": self.table_name,
-            "model_id": xlate.sql_safe(self.id)
+            "model_id": sql_tools.sql_safe(self.id)
         }
         return sql
 
@@ -455,7 +458,7 @@ class Base:
         sql = """
             SELECT *
             FROM `%s`
-            WHERE `name` = "%s";""" % (self.table_name, xlate.sql_safe(name))
+            WHERE `name` = "%s";""" % (self.table_name, sql_tools.sql_safe(name))
         return sql
 
     def _gen_get_by_unique_key_sql(self, fields: dict) -> str:
@@ -574,7 +577,7 @@ class Base:
 
         # Handle ints
         if field_map_info["type"] == "int":
-            value = xlate.sql_safe(field_data["value"])
+            value = sql_tools.sql_safe(field_data["value"])
 
         # Handle bools
         elif field_map_info["type"] == "bool":
@@ -590,11 +593,11 @@ class Base:
 
         # Handle lists
         elif field_map_info["type"] == "list":
-            value = '("%s")' % xlate.sql_safe(field_data["value"])
+            value = '("%s")' % sql_tools.sql_safe(field_data["value"])
 
         # Handle str and everything else
         else:
-            value = '"%s"' % xlate.sql_safe(field_data["value"])
+            value = '"%s"' % sql_tools.sql_safe(field_data["value"])
 
         return value
 
@@ -636,7 +639,7 @@ class Base:
                 continue
 
             value = self._get_sql_value_santized(field)
-            set_sql += "`%s`=%s, " % (xlate.sql_safe(field["name"]), value)
+            set_sql += "`%s`=%s, " % (sql_tools.sql_safe(field["name"]), value)
         if not set_sql:
             return ""
         return set_sql[:-2]
@@ -650,7 +653,7 @@ class Base:
         if field["name"] == "created_ts" and not value:
             value = date_utils.now()
 
-        if field["name"] == "updated_ts" and not value:
+        if field["name"] == "updated_ts":
             value = date_utils.now()
 
         if value is None or value == []:
@@ -669,24 +672,32 @@ class Base:
         if field["type"] == "int":
 
             value = int(value)
-            value = xlate.sql_safe(value)
+            value = sql_tools.sql_safe(value)
 
         # Handle converting a list value
         elif field["type"] == "list":
             if not isinstance(value, list) and value.isdigit():
                 value = str(value)
-            value = '"%s"' % xlate.sql_safe(xlate.convert_list_to_str(value))
+            value = '"%s"' % sql_tools.sql_safe(xlate.convert_list_to_str(value))
 
         # Handle converting a bool
         elif field["type"] == "bool":
-            value = xlate.sql_safe(xlate.convert_bool_to_int(value))
+            value = sql_tools.sql_safe(xlate.convert_bool_to_int(value))
+            # import ipdb; ipdb.set_trace()
 
         elif field["type"] == "str":
             value = str(value)
             if value and len(value) > 200:
                 value = value[:200]
                 logging.warning("Truncating value for %s in field: %s" % (self, field["name"]))
-            value = '"%s"' % xlate.sql_safe(value)
+            value = '"%s"' % sql_tools.sql_safe(value)
+
+        elif field["type"] == "str":
+            value = str(value)
+            if value and len(value) > 200:
+                value = value[:200]
+                logging.warning("Truncating value for %s in field: %s" % (self, field["name"]))
+            value = '"%s"' % sql_tools.sql_safe(value)
 
         # Handle converting a json value
         elif field["type"] == "json":
@@ -696,7 +707,7 @@ class Base:
 
         # Handle converting anything else
         else:
-            value = '"%s"' % xlate.sql_safe(value)
+            value = '"%s"' % sql_tools.sql_safe(value)
 
         return value
 

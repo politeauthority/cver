@@ -18,6 +18,7 @@ class Options(Base):
         super(Options, self).__init__(conn, cursor)
         self.table_name = Option().table_name
         self.collect_model = Option
+        self.field_map = self.collect_model().field_map
 
     def load_options(self) -> dict:
         """Loads all options as dictionary keyed by the Option name."""

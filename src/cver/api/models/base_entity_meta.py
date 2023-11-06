@@ -2,9 +2,8 @@
 Base model class for all models requiring meta storage.
 
 """
-from cver.shared.utils import xlate
-
 from cver.api.models.base import Base
+from cver.api.utils import sql_tools
 from cver.api.models.entity_meta import EntityMeta
 
 
@@ -85,7 +84,7 @@ class BaseEntityMeta(Base):
             """ % (
             self.table_name_meta,
             self.id,
-            xlate.sql_safe(self.table_name))
+            sql_tools.sql_safe(self.table_name))
         self.cursor.execute(sql)
         self.conn.commit()
         return True
@@ -117,7 +116,7 @@ class BaseEntityMeta(Base):
             """ % (
             self.table_name_meta,
             self.id,
-            xlate.sql_safe(self.table_name))
+            sql_tools.sql_safe(self.table_name))
         self.cursor.execute(sql)
         meta_raws = self.cursor.fetchall()
         self._load_from_meta_raw(meta_raws)

@@ -8,12 +8,13 @@ import json
 import os
 import requests
 
-from cver.cver_client.models.scan import Scan
+from cver.client.models.scan import Scan
+from cver.shared.utils import misc
 
 from .test_api_base import TestApiBase
 
 
-CVER_API_URL = os.environ.get("CVER_API_URL")
+CVER_API_URL = misc.add_trailing_slash(os.environ.get("CVER_API_URL"))
 URL_BASE = "/scans"
 URL_MODEL = "scan"
 
@@ -66,10 +67,11 @@ class TestApiCollectionScans(TestApiBase):
             "method": "GET",
             "url": "%s%s" % (CVER_API_URL, URL_BASE),
             "data": {
-                "cve_critical_int": {
-                    "field": "cve_critical_int",
-                    "value": 10,
-                    "op": ">"
+                "fields": {
+                    "cve_critical_int": {
+                        "value": 10,
+                        "op": ">"
+                    }
                 }
             }
         }

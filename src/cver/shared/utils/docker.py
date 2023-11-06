@@ -23,6 +23,19 @@ def registry_login(registry_url: str, registry_user: str, registry_pass: str) ->
     return True
 
 
+def get_all_images() -> list:
+    """Get all local Docker images on the host."""
+    cmd = ["docker", "images", "-q"]
+    local_images_res = subprocess.check_output(cmd)
+    if not local_images_res:
+        logging.error("Failed to get local docker images")
+        return False
+
+    local_images_res = local_images_res.decode("utf-8")
+    local_images = local_images_res.split("\n")
+    return local_images
+
+
 def pull_image(image_loc: str, pull_through_registry: str = None) -> bool:
     """Download the docker image.
     @note: For now we'll assume we always have a pull through cache like Harbor available.
@@ -37,6 +50,44 @@ def pull_image(image_loc: str, pull_through_registry: str = None) -> bool:
     pull_status = image_pull[image_pull.find("Status:"):]
     logging.info("Pull status for %s: %s" % (image_pull_loc, pull_status))
     return True
+
+
+def push_image(full_image_str: str) -> bool:
+    """Push a local Docker image to a remote repository."""
+    cmd = ["docker", "push", full_image_str]
+    pushed_image = subprocess.check_output(cmd)
+    if pushed_image:
+        logging.debug("Succesfully retaged Image: %s" % full_image_str)
+        return True
+    else:
+        logging.error("Failed to retag Image: %s" % full_image_str)
+        return False
+
+
+def delete_image(docker_id: str) -> bool:
+    """Delete a local Docker container from a machine"""
+    cmd = ["docker", "rmi", "-f", docker_id]
+    deleted_image = subprocess.check_output(cmd)
+    if deleted_image:
+        logging.info("Succesfully deleted local container: %s" % docker_id)
+        return True
+    else:
+        logging.error("Failed to delete local container: %s" % docker_id)
+        return False
+
+
+def tag_image(docker_image_id: str, full_image_str: str):
+    cmd = ["docker", "tag", docker_image_id, full_image_str]
+    subprocess.check_output(cmd)
+    logging.debug("Succesfully retaged Image: %s" % full_image_str)
+    return True
+    # import ipdb; ipdb.set_trace()
+    # if tagged_image:
+    #     logging.debug("Succesfully retaged Image: %s" % full_image_str)
+    #     return True
+    # else:
+    #     logging.error("Failed to retag Image: %s" % full_image_str)
+    #     return False
 
 
 def get_image_sha(image: str) -> str:
@@ -57,6 +108,22 @@ def get_image_sha(image: str) -> str:
         return False
     sha = image_details[image_details.find("@sha256:") + 8:image_details.find(" ")]
     return sha
+
+
+def get_docker_id(image_name: str) -> str:
+    """
+    :param image_name: The image name
+        example: emby/embyserver
+    """
+    cmd = ["docker", "images", image_name, "-q"]
+    image_id = subprocess.check_output(cmd)
+    logging.info(" ".join(cmd))
+    if not image_id:
+        logging.error("Failed to get image sha for %s" % image_name)
+        logging.debug(" ".join(cmd))
+        return False
+    docker_image_id = image_id.decode("utf-8").replace("\n", "")
+    return docker_image_id
 
 
 def get_local_images() -> list:

@@ -18,6 +18,7 @@ class Roles(Base):
         super(Roles, self).__init__(conn, cursor)
         self.table_name = Role().table_name
         self.collect_model = Role
+        self.field_map = self.collect_model().field_map
         self.per_page = 20
 
 # End File: cve/src/api/collects/roles.py

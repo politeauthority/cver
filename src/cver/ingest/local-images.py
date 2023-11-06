@@ -9,9 +9,9 @@ import logging
 from cver.shared.utils import docker
 from cver.shared.utils import xlate
 # from cver.cver_client import CverClient
-from cver.cver_client.models.image import Image
-from cver.cver_client.models.image_build import ImageBuild
-from cver.cver_client.models.image_build_waiting import ImageBuildWaiting
+from cver.client.models.image import Image
+from cver.client.models.image_build import ImageBuild
+from cver.client.models.image_build_waiting import ImageBuildWaiting
 
 
 class LocalImages:
@@ -22,19 +22,21 @@ class LocalImages:
         self.images_subbmited_failed = 0
 
     def run(self):
-        # static_images = self.get_static_images()
-        local_images = self.get_local_images()
-        images = local_images
-        # images += static_images
+        images = []
+        static_images = self.get_static_images()
+        images += static_images
+        # local_images = self.get_local_images()
+        # images = local_images
         self.submit_images(images)
 
-    # def get_static_images(self):
-    #     emby = {
-    #         "name": "emby/embyserver",
-    #         "tag": "latest",
-    #     }
-    #     images = [emby]
-    #     return images
+    def get_static_images(self):
+        emby = {
+            "name": "emby/embyserver",
+            "tag": "latest",
+            "sha": "4986a592b5c438b6b6d0193d8acfae021eb4b1bc3ff5abd78b31ad86367fe0d2"
+        }
+        images = [emby]
+        return images
 
     def get_local_images(self) -> list:
         """Get local images from the Docker host, currently pruning them down to just a few specific

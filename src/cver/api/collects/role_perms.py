@@ -18,6 +18,7 @@ class RolePerms(Base):
         super(RolePerms, self).__init__(conn, cursor)
         self.table_name = RolePerm().table_name
         self.collect_model = RolePerm
+        self.field_map = self.collect_model().field_map
         self.per_page = 20
 
 # End File: cve/src/api/collects/role_perms.py

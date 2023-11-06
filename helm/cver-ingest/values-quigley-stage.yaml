@@ -9,8 +9,8 @@ app:
   debug: true
   apiUrl: "http://cver-api-stage"
   cron:
-    schedule:  "7,37 * * * *"
-    suspend: false
+    schedule:  "37 * * * *"
+    suspend: true
 
 test:
   test: true

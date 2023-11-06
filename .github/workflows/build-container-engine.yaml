@@ -6,7 +6,7 @@ on:
       tag-prefix:
         required: true
         type: string
-      tag-name:
+      git-sha:
         required: true
         type: string
       cicd-version:
@@ -53,7 +53,6 @@ jobs:
       - name: Decider
         run: |
           echo "# Docker Build: Engine" >> $GITHUB_STEP_SUMMARY
-          echo "ALIX DEBUG: CHANGES-OUTPUT: ${{steps.changes.outputs.src}}"
           if [ "${{steps.changes.outputs.src}}" = "false" ]; then
             echo "Skipping Engine Build. No changes detected." >> $GITHUB_STEP_SUMMARY
           else
@@ -79,8 +78,10 @@ jobs:
         run: |
           IMAGE_ID=$(docker images --filter "reference=cver/cver-engine" --format "{{.ID}}")
           docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-engine:${{ inputs.tag-prefix }}-latest
-          docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-engine:${{ inputs.tag-name }}
-          docker push harbor.squid-ink.us/cver/cver-engine:${{ inputs.tag-name }}
+          docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-engine:git-sha-${{ inputs.git-sha }}
+
+          docker push harbor.squid-ink.us/cver/cver-engine:git-sha-${{ inputs.git-sha }}
           docker push harbor.squid-ink.us/cver/cver-engine:${{ inputs.tag-prefix }}-latest
-          echo "**Built:** harbor.squid-ink.us/cver/cver-engine:${{ inputs.tag-name }}" >> $GITHUB_STEP_SUMMARY
+
+          echo "**Built:** harbor.squid-ink.us/cver/cver-engine:git-sha-${{ inputs.git-sha }}" >> $GITHUB_STEP_SUMMARY
           echo "**Built:** harbor.squid-ink.us/cver/cver-engine:${{ inputs.tag-prefix }}-latest" >> $GITHUB_STEP_SUMMARY

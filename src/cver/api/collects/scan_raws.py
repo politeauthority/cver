@@ -15,6 +15,7 @@ class ScanRaws(Base):
         super(ScanRaws, self).__init__(conn, cursor)
         self.table_name = ScanRaw().table_name
         self.collect_model = ScanRaw
+        self.field_map = self.collect_model().field_map
         self.per_page = 20
 
 # End File: cve/src/api/collects/scan_raws.py

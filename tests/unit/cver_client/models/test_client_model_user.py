@@ -5,7 +5,7 @@
 
 """
 
-from cver.cver_client.models.user import User
+from cver.client.models.user import User
 
 
 class TestClientModelUser:
@@ -16,7 +16,7 @@ class TestClientModelUser:
         """
         user = User()
         assert user
-        assert hasattr(user, "base_url")
+        assert hasattr(user, "api_url")
         assert hasattr(user, "client_id")
         assert hasattr(user, "api_key")
         assert hasattr(user, "token")

@@ -1,10 +1,11 @@
 """
     Cver Api
-    Model - RolePerm
+    Model
+    RolePerm
 
 """
 from cver.shared.models.role_perm import FIELD_MAP
-from cver.shared.utils import xlate
+from cver.api.utils import sql_tools
 from cver.api.models.base import Base
 
 
@@ -33,7 +34,7 @@ class RolePerm(Base):
                 `role_id` = %s AND
                 `perm_id` = %s AND
                 `enabled` = 1
-            LIMIT 1; """ % (xlate.sql_safe(role_id), xlate.sql_safe(perm_id))
+            LIMIT 1; """ % (sql_tools.sql_safe(role_id), sql_tools.sql_safe(perm_id))
         self.cursor.execute(sql)
         raw = self.cursor.fetchone()
         if not raw:

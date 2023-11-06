@@ -5,11 +5,12 @@
 """
 import logging
 
-from flask import Blueprint, jsonify, Response
+from flask import Blueprint, jsonify, Response, make_response
 
 from cver.api.controllers.ctrl_models import ctrl_base
 from cver.api.models.api_key import ApiKey
 from cver.api.utils import auth
+from cver.api.utils import api_util
 
 ctrl_api_key = Blueprint("api-key", __name__, url_prefix="/api-key")
 
@@ -40,7 +41,16 @@ def post_model(api_key_id: int = None):
     """
     logging.info("Creating ApiKey for")
     plaintext_api_key = auth.generate_api_key()
+    args = api_util.get_params()
+    if "user_id" not in args["raw_args"]:
+        data = {
+            "status": "Error",
+            "message": "A user_id must be given to create an api key"
+        }
+        return make_response(jsonify(data), 400)
+
     api_key_details = {
+        "user_id": args["raw_args"]["user_id"],
         "client_id": auth.generate_client_id(),
         "key": auth.generate_hash(plaintext_api_key),
         "expiration_date": None

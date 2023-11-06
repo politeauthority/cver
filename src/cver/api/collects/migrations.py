@@ -18,6 +18,7 @@ class Migrations(Base):
         super(Migrations, self).__init__(conn, cursor)
         self.table_name = Migration().table_name
         self.collect_model = Migration
+        self.field_map = self.collect_model().field_map
         self.per_page = 20
 
 # End File: cve/src/api/collects/migrations.py

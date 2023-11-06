@@ -17,6 +17,7 @@ class Softwares(Base):
         super(Softwares, self).__init__(conn, cursor)
         self.table_name = Software().table_name
         self.collect_model = Software
+        self.field_map = self.collect_model().field_map
         self.per_page = 20
 
 # End File: cve/src/api/collects/softwares.py

@@ -1,0 +1,24 @@
+# Quigely stage values for cver-ingest
+
+replicaCount: 1
+
+nameOverride: "prod"
+
+app:
+  envName: "prod"
+  debug: true
+  apiUrl: "http://cver-api-prod"
+  cron:
+    schedule:  "37 * * * *"
+    suspend: true
+
+test:
+  test: false
+
+image:
+  repository: harbor.squid-ink.us/cver/cver-ingest
+  pullPolicy: Always
+  tag: "prod-latest"
+
+imagePullSecrets:
+  - name: harbor

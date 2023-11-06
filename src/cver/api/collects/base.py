@@ -13,8 +13,8 @@ import math
 
 import arrow
 
+from cver.api.utils import sql_tools
 from cver.shared.utils import log
-from cver.shared.utils import xlate
 
 from cver.api.utils import glow
 
@@ -34,6 +34,10 @@ class Base:
 
         self.table_name = None
         self.collect_model = None
+        self.per_page = 20
+        self.field_map = {}
+        if self.collect_model:
+            self.field_map = self.collect_model().field_map
 
     def get_by_ids(self, model_ids: list) -> list:
         """Get models instances by their ids from the database.
@@ -80,7 +84,7 @@ class Base:
         sql = 'SELECT * FROM `%(table)s` WHERE `%(field)s` LIKE "%%'
         vals = {
             "table": self.table_name,
-            "field": xlate.sql_safe(like["field"]),
+            "field": sql_tools.sql_safe(like["field"]),
         }
         sql = sql % vals
         sql += like["value"]
@@ -109,6 +113,7 @@ class Base:
         self,
         page: int = 1,
         limit: int = 0,
+        user_limit: int = None,
         order_by: dict = {},
         where_and: list = [],
         per_page: int = 20,
@@ -118,6 +123,7 @@ class Base:
         """
         Get paginated collection of models.
         :param limit: The limit of results per page.
+        :param user_limit: A user imposed limit that sits outside of the api's limit restrictions.
         :param offset: The offset to return pages from or the "page" to return.
         :param order_by: A dict with the field to us, and the direction of the order.
             example value for order_by:
@@ -158,7 +164,7 @@ class Base:
 
         ret = {
             'objects': prestines,
-            'info': self.get_pagination_info(sql, page, limit)
+            'info': self.get_pagination_info(sql, page, limit, user_limit)
         }
         if get_json:
             ret["info"]["object_type"] = self.collect_model.model_name
@@ -169,33 +175,41 @@ class Base:
         page: int,
         where_and: list,
         order_by: dict,
-        limit: int
+        limit: int,
     ) -> str:
         """Generate the SQL query for the paginated request.
         :unit-test: TestApiCollectsBase::test___generate_paginated_sql()
         """
         sql_vars = {
-            'table_name': self.table_name,
-            'where': self._pagination_where_and(where_and),
-            'order': self._pagination_order(order_by),
-            'limit': limit,
-            'offset': self._pagination_offset(page, limit),
+            "table_name": self.table_name,
+            "where": self._pagination_where_and(where_and),
+            "order": self._pagination_order(order_by),
+            "limit": self._gen_pagination_limit_sql(limit),
+            "offset": ""
         }
+        if sql_vars["limit"]:
+            sql_vars["offset"] = self._gen_pagination_offset_sql(page, limit)
         sql = """
             SELECT *
             FROM `%(table_name)s`
             %(where)s
             %(order)s
-            LIMIT %(limit)s OFFSET %(offset)s;""" % sql_vars
+            %(limit)s%(offset)s;""" % sql_vars
         # logging.info("\n\nRaw SQL\n%s\n" % sql)
         return sql
 
-    def get_pagination_info(self, sql: str, current_page: int, per_page: int) -> dict:
+    def get_pagination_info(
+            self,
+            sql: str,
+            current_page: int,
+            per_page: int,
+            user_limit: int = None
+    ) -> dict:
         """Get pagination details, supplementary info from the get_paginated method. This contains
         details like total_objects, next_page, previous page and other details needed for properly
         drawing pagination info on a GUI.
         """
-        total_objects = self._pagination_total(sql)
+        total_objects = self._pagination_total(sql, user_limit)
         last_page = math.ceil(total_objects / per_page)
         if last_page == 0:
             last_page = 1
@@ -304,9 +318,12 @@ class Base:
         """
         sql_ids = ""
         for i in item_list:
-            sql_ids += "%s," % xlate.sql_safe(i)
+            sql_ids += "%s," % sql_tools.sql_safe(i)
         sql_ids = sql_ids[:-1]
         return sql_ids
+
+    def _gen_pagination_offset_sql(self, page: int, limit: int) -> str:
+        return " OFFSET %s" % self._pagination_offset(page, limit)
 
     def _pagination_offset(self, page: int, per_page: int) -> int:
         """Get the offset number for pagination queries.
@@ -318,24 +335,33 @@ class Base:
             offset = (page * per_page) - per_page
         return offset
 
-    def _pagination_total(self, sql: str) -> int:
+    def _pagination_total(self, sql: str, user_limit: int = None) -> int:
         """Get the total number of pages for a pagination query."""
-        total_sql = self._edit_pagination_sql_for_info(sql)
+        total_sql = self._edit_pagination_sql_for_info(sql, user_limit)
+        logging.info("PAGINATION INFO SQL:\n%s" % total_sql)
         self.cursor.execute(total_sql)
         raw = self.cursor.fetchone()
         if not raw:
             return 0
-        return raw[0]
+        count = raw[0]
+        if not user_limit:
+            return count
+        if count > user_limit:
+            return user_limit
+        return count
 
-    def _edit_pagination_sql_for_info(self, original_sql: str):
+    def _edit_pagination_sql_for_info(self, original_sql: str, user_limit: int = None):
         """Edit the original pagination query to get the total number of results for pagination
         details.
         :unit-test: TestBase::test___edit_pagination_sql_for_info
         """
         sql = original_sql[original_sql.find("FROM"):]
         sql = "%s %s" % ("SELECT COUNT(*)", sql)
-        end_sql = sql.find("LIMIT")
-        sql = sql[:end_sql].strip() + ";"
+        end_sql = sql.find(" LIMIT")
+        sql = sql[:end_sql].strip()
+        if user_limit:
+            sql += " LIMIT %s" % user_limit
+        sql += ";"
         return sql
 
     def _pagination_where_and(self, where_and: list) -> str:
@@ -353,28 +379,62 @@ class Base:
         """
         where = False
         where_and_sql = ""
+
         for where_a in where_and:
-            if not where_a["field"]:
-                log.warning("Collections - Invalid where option: %s" % where_a)
-                continue
-            where = True
-            op = "="
-            if "op" in where_a:
-                op = where_a["op"]
-            if "op" not in ["=", "<", ">"]:
-                op = "="
-            if isinstance(where_a["value"], str):
-                where_a["value"] = '"%s"' % xlate.sql_safe(where_a["value"])
-            where_and_sql += '`%s` %s %s AND ' % (
-                xlate.sql_safe(where_a['field']),
-                op,
-                where_a['value'])
-            where_and_sql = where_and_sql.strip()
+            one_sql = self._pagination_where_and_one(where_a)
+            if one_sql:
+                where = True
+            where_and_sql += one_sql
 
         if where:
             where_and_sql = "WHERE " + where_and_sql
             where_and_sql = where_and_sql[:-4]
 
+        return where_and_sql
+
+    def _pagination_where_and_one(self, where_a: dict) -> str:
+        """Handles a single field's where and SQL statemnt portion.
+        Note: We append multiple statements with an AND in the sql statement.
+        """
+        field_info = self.field_map[where_a["field"]]
+        where_and_sql = ""
+        if not where_a["field"]:
+            log.warning("Collections - Invalid where option: %s" % where_a)
+            return ""
+
+        op = "="
+        if "op" in where_a:
+            op = where_a["op"]
+        # if "op" not in ["=", "<", ">"]:
+        #     op = "="
+        if not self.collect_model:
+            raise AttributeError("Model %s does not have a collect_model." % self)
+
+        if not self.collect_model().field_map:
+            raise AttributeError("%s model ." % self)
+
+        if where_a["field"] not in self.field_map:
+            raise AttributeError("Model %s does not have field: %s" % (
+                self,
+                where_a["field"]))
+        # field = self.collect_model().field_map[where_a["field"]]
+        # if field["type"] == "bool":
+
+        if field_info["type"] == "str":
+            where_a["value"] = '"%s"' % sql_tools.sql_safe(where_a["value"])
+        elif field_info["type"] == "bool":
+            value = where_a["value"]
+            if value == True:
+                value = 1
+            elif value == False:
+                value = 0
+            else:
+                value = 0
+            where_a["value"] = '%s' % sql_tools.sql_safe(value)
+        where_and_sql += '`%s` %s %s AND ' % (
+            sql_tools.sql_safe(where_a['field']),
+            op,
+            where_a['value'])
         return where_and_sql
 
     def _pagination_order(self, order: dict = None) -> str:
@@ -383,7 +443,7 @@ class Base:
         :param order: The ordering dict
             example: {
                 "field": "id"
-                "op": "DESC"
+                "direction": "DESC"
             }
         :unit-test: TestBase::test___pagination_order
         """
@@ -391,9 +451,24 @@ class Base:
         if not order:
             return order_sql
         order_field = order['field']
-        order_op = order['op']
-        order_sql = 'ORDER BY `%s` %s' % (order_field, order_op)
+        if "direction" not in order:
+            order_direction = "ASC"
+        else:
+            order_direction = order['direction']
+        order_sql = 'ORDER BY `%s` %s' % (
+            sql_tools.sql_safe(order_field),
+            sql_tools.sql_safe(order_direction))
         return order_sql
+
+    def _gen_pagination_limit_sql(self, limit: int) -> str:
+        """Get the pagination limit, based on model limit restrictions and user requested limits
+        created_desc DESC.
+        :unit-test: TestBase::test___gen_pagination_limit_sql
+        """
+        if isinstance(limit, int):
+            return "LIMIT %s" % limit
+        logging.warning("No value for query limit")
+        return ""
 
     def _get_previous_page(self, page: int) -> int:
         """Get the previous page, or first page if below 1.
@@ -421,7 +496,8 @@ class Base:
             SELECT *
             FROM `%s`
             ORDER BY created_ts DESC
-            LIMIT %s;""" % (self.table_name, xlate.sql_safe(num_units))
+            LIMIT %s;""" % (self.table_name, sql_tools.sql_safe(num_units))
+        print(sql)
         return sql
 
     def _gen_get_by_ids_sql(self, model_ids: list) -> str:

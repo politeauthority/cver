@@ -66,8 +66,6 @@ def post_submit_image():
     ibx = _handle_image_build(image, image_map)
     if ibx["image-build"]:
         data["wrote"]["image-build"] = ibx["image-build"].json()
-    else:
-        data["wrote"]["image-build-waiting"] = ibx["image-build-waiting"].json()
 
     # Handle Cluster Image
     ic = _handle_cluster_image(cluster_id, image.id)
@@ -83,7 +81,7 @@ def _handle_image_build(image: Image, image_map: dict) -> ImageBuildWaiting:
     """
     ret = {
         "image-build": None,
-        "image-build-waiting": None
+        # "image-build-waiting": None
     }
     if "sha" in image_map and image_map["sha"]:
         ib = ImageBuild()
@@ -92,7 +90,9 @@ def _handle_image_build(image: Image, image_map: dict) -> ImageBuildWaiting:
         if not found:
             ib.image_id = image.id
             ib.registry = image_map["registry"]
+            ib.sync_enabled = True
             ib.sync_flag = True
+            ib.scan_enabled = True
             ib.scan_flag = True
             if "tag" in image_map and image_map["tag"]:
                 ib.tags = [image_map["tag"]]
@@ -100,40 +100,40 @@ def _handle_image_build(image: Image, image_map: dict) -> ImageBuildWaiting:
         found = False
         ret["image-build"] = ib
 
-    ibw = ImageBuildWaiting()
-    fields = [
-        {
-            "field": "image_id",
-            "value": image.id,
-            "op": "eq"
-        },
-        {
-            "field": "tag",
-            "value": image_map["tag"],
-            "op": "eq"
-        },
-    ]
+    # ibw = ImageBuildWaiting()
+    # fields = [
+    #     {
+    #         "field": "image_id",
+    #         "value": image.id,
+    #         "op": "eq"
+    #     },
+    #     {
+    #         "field": "tag",
+    #         "value": image_map["tag"],
+    #         "op": "eq"
+    #     },
+    # ]
 
-    if image_map["sha"]:
-        ibw.sha = image_map["sha"]
-        found = ibw.get_by_sha()
-    else:
-        found = ibw.get_by_fields(fields)
+    # if image_map["sha"]:
+    #     ibw.sha = image_map["sha"]
+    #     found = ibw.get_by_sha()
+    # else:
+    #     found = ibw.get_by_fields(fields)
 
-    if found:
-        logging.info("Found IBW: %s" % ibw)
-        ret["image-build-waiting"] = ibw
-        return ret
+    # if found:
+    #     logging.info("Found IBW: %s" % ibw)
+    #     ret["image-build-waiting"] = ibw
+    #     return ret
 
-    if ret["image-build"]:
-        ibw.image_build_id = ret["image-build"].id
+    # if ret["image-build"]:
+    #     ibw.image_build_id = ret["image-build"].id
 
-    ibw.image_id = image.id
-    ibw.waiting_for = "download"
-    if "tag" in image_map and image_map["tag"]:
-        ibw.tag = image_map["tag"]
-    ibw.save()
-    ret["image-build-waiting"] = ibw
+    # ibw.image_id = image.id
+    # ibw.waiting_for = "download"
+    # if "tag" in image_map and image_map["tag"]:
+    #     ibw.tag = image_map["tag"]
+    # ibw.save()
+    # ret["image-build-waiting"] = ibw
     return ret
 
 
