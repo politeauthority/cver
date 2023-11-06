@@ -46,13 +46,13 @@ jobs:
     uses: ./.github/workflows/deploy-test.yaml
     secrets: inherit 
     with:
-      deployment-name: "test"
+      deployment-name: "stage"
       run-number: ${{ github.run_number }}
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   unit-tests:
-    needs: [deploy-test, deploy-cver]
+    needs: [deploy-test, build-cver]
     uses: ./.github/workflows/unit-tests.yaml
     secrets: inherit 
     with:
