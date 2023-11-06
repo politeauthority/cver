@@ -41,8 +41,18 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
+  deploy-test:
+    needs: [build-test, lint]
+    uses: ./.github/workflows/deploy-test.yaml
+    secrets: inherit 
+    with:
+      deployment-name: "test"
+      run-number: ${{ github.run_number }}
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
+
   unit-tests:
-    needs: [build-test, lint, build-cver]
+    needs: [deploy-test, deploy-cver]
     uses: ./.github/workflows/unit-tests.yaml
     secrets: inherit 
     with:
