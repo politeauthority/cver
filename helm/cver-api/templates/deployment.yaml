@@ -48,11 +48,6 @@ spec:
               secretKeyRef:
                 key: {{ .Values.app.database.passwordSecretName }}
                 name: {{ .Values.app.database.passwordSecretKey }}
-          - name: CVER_SECRET
-            valueFrom:
-              secretKeyRef:
-                key: cver-secret-key
-                name: cver-api
           - name: CVER_DEPLOYED_AT
             value: "{{ .Values.app.deployedAt }}"
           {{- if .Values.test.test }}
