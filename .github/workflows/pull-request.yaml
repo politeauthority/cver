@@ -186,7 +186,7 @@ jobs:
 
   remove-ephem:
     runs-on: self-hosted
-    needs: [deploy-engine, regression-api, regression-cli, run-ingest]
+    needs: [deploy-engine, regression-api, run-ingest]
     container:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
       credentials:
