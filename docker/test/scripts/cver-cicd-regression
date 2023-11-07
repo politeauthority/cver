@@ -7,6 +7,9 @@ if [ -z "$CVER_CICD" ]; then
 fi
 
 echo "Using Cver branch: ${CVER_BRANCH}"
+echo "Primary Client ID: ${CVER_CLIENT_ID}"
+echo "Admin Client ID: ${CVER_CLIENT_ID}"
+
 
 CVER_TEST_MODULE="$1"
 if [[ -z "$CVER_TEST_MODULE" ]]; then
