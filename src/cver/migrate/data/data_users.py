@@ -17,7 +17,6 @@ from cver.api.utils import auth
 class DataUsers:
 
     def __init__(self):
-        # self.rbac = None
         self.org_id = 1
         self.roles = {}
         self.get_all_roles()
@@ -65,13 +64,7 @@ class DataUsers:
             return True
 
         logging.info("Creating Test Users")
-        # Create User: test-admin
-        client_id = os.environ.get("CVER_TEST_CLIENT_ID")
-        api_key = os.environ.get("CVER_TEST_ADMIN_API_KEY")
-        roles_id = self.roles["admin"].id
-        self.create_user("test-admin", "test-admin@example.com", roles_id, client_id, api_key)
 
-        # Create User: test-ingest
         client_id = os.environ.get("CVER_TEST_INGEST_CLIENT_ID")
         api_key = os.environ.get("CVER_TEST_INGEST_API_KEY")
         roles_id = self.roles["ingestor"].id
@@ -83,11 +76,23 @@ class DataUsers:
         # roles_id = self.roles["engine"].id
         # self.create_user("test-engine", "engine@example.com", roles_id, client_id, api_key)
 
-    def create_user(self, user_name, user_email, role_id, client_id, api_key_str) -> bool:
+    def create_user(
+            self,
+            user_name: str,
+            user_email: str,
+            role_id: int,
+            client_id: str,
+            api_key_str: str
+    ) -> bool:
         user = User()
         if user.get_by_email(user_email):
             logging.info("Not Creating user arelady exists: %s" % user)
             return False
+
+        if not role_id:
+            logging.error("User is missing Role.id, cannot create.")
+            return True
+
         user.name = user_name
         user.role_id = role_id
         user.org_id = self.org_id
@@ -97,12 +102,20 @@ class DataUsers:
         api_key = ApiKey()
         api_key.user_id = user.id
         api_key.client_id = client_id
+        if api_key.get_by_field(field="client_id", value=client_id):
+            msg = "Cannot create api client_id for user: %s, client id: %s already exists" % (
+                user,
+                client_id
+            )
+            logging.error(msg)
+            return False
+
         api_key.key = auth.generate_hash(api_key_str)
         api_key.save()
         print("Created")
         print("\t%s" % user)
         print("\t Client ID: %s" % client_id)
-        print("\t Api Key: %s" % api_key)
+        print("\t Api Key: %s" % api_key_str)
         return True
 
 # End File: cver/src/migrate/data/data_rbac.py

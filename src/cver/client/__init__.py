@@ -40,14 +40,6 @@ class Client:
         self.api_host = os.environ.get("CVER_API_HOST")
         self.api_url = s_misc.strip_trailing_slash(self.api_url)
 
-        cver_api_host = os.environ.get("CVER_API_HOST")
-        if cver_api_host:
-            self.api_host = cver_api_host
-            self.headers["Host"] = os.environ.get("CVER_API_URL")
-            self.api_url = s_misc.strip_trailing_slash(cver_api_host)
-            self.headers["Host"] = self.headers["Host"].replace("http://", "")
-            self.headers["Host"] = self.headers["Host"].replace("https://", "")
-
         self.token = ""
         self.token_path = ""
         self.response = None
@@ -171,8 +163,11 @@ class Client:
         response = self.make_request("submit-scan", "POST", payload)
         print(response)
 
-    def destroy_token(self):
+    def destroy_token(self) -> bool:
         """Delete a local token from temp space."""
+        if not os.path.exists(self.token):
+            logging.error("Cant delete token that doesnt exist")
+            return True
         os.remove(self.token_file)
         logging.info("Deleted local Cver token.")
         return True

@@ -45,10 +45,12 @@ jobs:
             RELEASE_NAME="cver-test-test-${{ inputs.run-number }}"
             NAMESPACE="cver-test"
             CVER_API_URL="http://cver-api-test-${{ inputs.run-number }}"
+            DB_NAME="cver_${{ inputs.run-number }}"
           else
             RELEASE_NAME="cver-test-${{ inputs.deployment-name}}"
             NAMESPACE="cver-${{ inputs.deployment-name}}"
             CVER_API_URL="cver-api"
+            DB_NAME="cver_${{ inputs.deployment-name}}"
           fi
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
@@ -65,6 +67,7 @@ jobs:
             -f values-quigley-${{ inputs.deployment-name }}.yaml \
             --set "app.api_url=${CVER_API_URL}" \
             --set "app.branch=${BRANCH}" \
+            --set "app.database.name=${DB_NAME}" \
             --set "app.deployedAt=${DEPLOYED_AT}"
           echo "# Deployed: Cver-Test" >> $GITHUB_STEP_SUMMARY
           echo "Created Helm deployment: ${RELEASE_NAME}" >> $GITHUB_STEP_SUMMARY

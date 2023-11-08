@@ -18,6 +18,7 @@ ADD requirements-test.txt /test/requirements-src.txt
 
 ADD scripts/cver-build /bin
 ADD scripts/cver-test-unit /bin
+ADD scripts/cver-test-regression /bin
 ADD scripts/cver-test-flake8 /bin
 ADD scripts/cver-cicd-regression /bin
 ADD scripts/cver-cicd-unit /bin

@@ -53,6 +53,16 @@ spec:
           {{- if .Values.test.test }}
           - name: CVER_TEST
             value: "true"
+          - name: CVER_API_KEY
+            valueFrom:
+              secretKeyRef:
+                key: admin-api-key
+                name: cver-test-creds
+          - name: CVER_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                key: admin-client-id
+                name: cver-test-creds
           - name: CVER_TEST_ADMIN_CLIENT_ID
             valueFrom:
               secretKeyRef:

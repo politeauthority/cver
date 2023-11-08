@@ -54,25 +54,15 @@ spec:
             - name: CVER_DEPLOYED_AT
               value: "{{ .Values.app.deployedAt }}"
             {{- if .Values.test.test }}
-            - name: CVER_TEST_CLIENT_ID
-              valueFrom:
-                secretKeyRef:
-                  key: client-id
-                  name: cver-test-creds
             - name: CVER_CLIENT_ID
               valueFrom:
                 secretKeyRef:
-                  key: client-id
-                  name: cver-test-creds
-            - name: CVER_TEST_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  key: api-key
+                  key: engine-client-id
                   name: cver-test-creds
             - name: CVER_API_KEY
               valueFrom:
                 secretKeyRef:
-                  key: api-key
+                  key: engine-api-key
                   name: cver-test-creds
             - name: CVER_TEST
               value: "true"
