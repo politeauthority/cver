@@ -18,7 +18,8 @@ import json
 import logging
 
 import arrow
-from pymysql.err import ProgrammingError, IntegrityError
+from pymysql.err import ProgrammingError
+# from pymysql.err import ProgrammingError, IntegrityError
 
 from cver.shared.utils import xlate
 from cver.shared.utils import date_utils
@@ -102,25 +103,29 @@ class Base:
         """
         self.setup()
         self.check_required_class_vars()
-
         if self._is_model_json():
             return self.insert()
-        if not self.id:
-            if self.backed_iodku and self.insert_iodku:
+        if self.backed_iodku and self.insert_iodku:
+            if self.id:
                 return self.iodku()
             else:
+                return self.update()
+        else:
+            if self.id:
+                return self.update()
+            else:
                 return self.insert()
-        if not self.id:
-            logging.error("Save failed, missing %s.id or where list" % __class__.__name_)
-            raise AttributeError("Save failed, missing %s.id or where list" % __class__.__name_)
-        update_sql = self._gen_update_sql(["id", "created_ts"])
-        try:
-            self.cursor.execute(update_sql)
-        except IntegrityError as e:
-            logging.error("Mysql Integrity Error for %s: %s" % (self, e))
-            return False
-        self.conn.commit()
-        return True
+        # if not self.id:
+        #     logging.error("Save failed, missing %s.id or where list" % __class__.__name_)
+        #     raise AttributeError("Save failed, missing %s.id or where list" % __class__.__name_)
+        # update_sql = self._gen_update_sql(["id", "created_ts"])
+        # try:
+        #     self.cursor.execute(update_sql)
+        # except IntegrityError as e:
+        #     logging.error("Mysql Integrity Error for %s: %s" % (self, e))
+        #     return False
+        # self.conn.commit()
+        # return True
 
     def insert(self):
         """Insert a new record of the model.
@@ -144,7 +149,17 @@ class Base:
         :unit-test: TestApiModelBase::test__iodku
         """
         sql = self._gen_iodku_sql()
-        # logging.info("\n\nIODKU\n%s\n\n" % sql)
+        logging.info("\n\nIODKU\n%s\n\n" % sql)
+        self.cursor.execute(sql)
+        self.conn.commit()
+        self.id = self.cursor.lastrowid
+        return True
+
+    def update(self, skip_fields=["id", "created_ts"]) -> bool:
+        """Update a model.
+        """
+        sql = self._gen_update_sql()
+        logging.info("\n\nUPDATE\n%s\n\n" % sql)
         self.cursor.execute(sql)
         self.conn.commit()
         self.id = self.cursor.lastrowid
@@ -191,8 +206,9 @@ class Base:
         """
         if "name" not in self.field_map:
             raise AttributeError('%s does not have a `name` attribute.' % __class__.__name__)
+        if not name:
+            name = self.name
         sql = self._gen_get_by_name_sql(name)
-
         self.cursor.execute(sql)
         raw = self.cursor.fetchone()
         if not raw:
@@ -423,7 +439,7 @@ class Base:
             raise AttributeError('%s missing Attribute "id"' % self)
         return """DELETE FROM `%s` WHERE `id` = %s;""" % (self.table_name, sql_tools.sql_safe(self.id))
 
-    def _gen_update_sql(self, skip_fields: list) -> tuple:
+    def _gen_update_sql(self, skip_fields: list = ["id", "created_ts"]) -> tuple:
         """Generate the update SQL statement."""
         sql_args = {
             "table_name": self.table_name,
