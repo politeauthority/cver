@@ -28,8 +28,8 @@ echo "Running tests against code src: ${WORKING_DIR}"
 echo "Using tests from: ${TEST_DIR}/unit"
 
 cd ${TEST_DIR}/unit
-pytest -vvv --vcr-record=none -rx -s --md /report/unit-report.md
-pytest -vvv --cov=cver --vcr-record=none -rx -s > /report/unit-report-cov.txt
+pytest --vcr-record=none -rx -s --md /report/unit-report.md
+pytest --cov=cver --vcr-record=none -rx -s > /report/unit-report-cov.txt
 
 # COVERAGE=$(awk '/---------- coverage: platform linux,/{flag=1} flag' "/report/coverage.txt")
 # COVERAGE=$(awk '/TOTAL/{print $NF}' "/coverage.txt") 
