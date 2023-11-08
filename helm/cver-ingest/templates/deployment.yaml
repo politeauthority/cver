@@ -45,12 +45,12 @@ spec:
               valueFrom:
                 secretKeyRef:
                   key: ingest-client-id
-                  name: cver-ingest-creds
+                  name: cver-test-creds
             - name: CVER_API_KEY
               valueFrom:
                 secretKeyRef:
                   key: ingest-api-key
-                  name: cver-ingest-creds
+                  name: cver-test-creds
             {{- if .Values.test.test }}
             - name: CVER_TEST
               value: "true"

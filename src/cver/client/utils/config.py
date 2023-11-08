@@ -93,7 +93,7 @@ class Config:
         """Get the Client configuration from environment vars."""
         self.config["api_url"] = os.environ.get("CVER_API_URL")
         self.config["api_key"] = os.environ.get("CVER_API_KEY")
-        self.config["client_id"] = os.environ.get("client_id")
+        self.config["client_id"] = os.environ.get("CVER_CLIENT_ID")
         return self.config
 
     def validate_config(self) -> bool:
