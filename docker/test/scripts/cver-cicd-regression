@@ -8,7 +8,7 @@ fi
 
 echo "Using Cver branch: ${CVER_BRANCH}"
 echo "Primary Client ID: ${CVER_CLIENT_ID}"
-echo "Admin Client ID: ${CVER_CLIENT_ID}"
+echo "Admin itClient ID: ${CVER_CLIENT_ID}"
 
 
 CVER_TEST_MODULE="$1"
@@ -19,44 +19,31 @@ else
     echo "Test Module: ${CVER_TEST_MODULE}"
 fi
 
-if [ "$CVER_CICD" = "true" ]; then
-    echo "Using Cver branch: ${CVER_BRANCH}"
-    mkdir -p /cicd
-    WORKING_DIR="/cicd/${CVER_TEST_MODULE}"
-    TEST_DIR="${WORKING_DIR}/cver/tests"
-    mkdir -p $WORKING_DIR
-    echo "WORKDIR: ${WORKING_DIR}/cver"
+echo "Using Cver branch: ${CVER_BRANCH}"
+mkdir -p /cicd
+WORKING_DIR="/cicd/${CVER_TEST_MODULE}"
+TEST_DIR="${WORKING_DIR}/cver/tests"
+mkdir -p $WORKING_DIR
+echo "WORKDIR: ${WORKING_DIR}/cver"
 
-    if [ ! -d "$WORKING_DIR/cver" ]; then
-        echo "$DIRECTORY does not exist, cloning Cver"
-        cd ${WORKING_DIR}
-        git clone https://github.com/politeauthority/cver.git
-        cd  cver
-        git fetch origin
-        git checkout $CVER_BRANCH
-        echo "Building Cver"
-        cd ${WORKING_DIR}/cver/src
-        pip3 install .
-        echo "Building Cver Tests"
-        cd ${TEST_DIR}
-        pip3 install .
-        mkdir -p /report
-    else
-        echo "Cver already exsits, skipping clone"
-    fi
-
-else
-    WORKING_DIR="/current"
-    mkdir -p $WORKING_DIR
-    TEST_DIR="/tests"
-    mkdir -p /report
+if [ ! -d "$WORKING_DIR/cver" ]; then
+    echo "$DIRECTORY does not exist, cloning Cver"
+    cd ${WORKING_DIR}
+    git clone https://github.com/politeauthority/cver.git
+    cd  cver
+    git fetch origin
+    git checkout $CVER_BRANCH
     echo "Building Cver"
-    cd ${WORKING_DIR}/cver
+    cd ${WORKING_DIR}/cver/src
     pip3 install .
     echo "Building Cver Tests"
-    cd ${WORKING_DIR}/cver/tests
+    cd ${TEST_DIR}
     pip3 install .
+    mkdir -p /report
+else
+    echo "Cver already exsits, skipping clone"
 fi
+
 echo "Running tests against code src: ${WORKING_DIR}"
 echo "Using tests from: ${TEST_DIR}"
 

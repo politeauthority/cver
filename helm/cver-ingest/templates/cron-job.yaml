@@ -34,12 +34,12 @@ spec:
               - name: CVER_TEST_CLIENT_ID
                 valueFrom:
                   secretKeyRef:
-                    key: client-id
+                    key: ingest-client-id
                     name: cver-test-creds
               - name: CVER_CLIENT_ID
                 valueFrom:
                   secretKeyRef:
-                    key: client-id
+                    key: ingest-client-id
                     name: cver-test-creds
               - name: CVER_TEST_API_KEY
                 valueFrom:

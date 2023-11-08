@@ -44,12 +44,12 @@ spec:
             - name: CVER_CLIENT_ID
               valueFrom:
                 secretKeyRef:
-                  key: client-id
+                  key: ingest-client-id
                   name: cver-ingest-creds
             - name: CVER_API_KEY
               valueFrom:
                 secretKeyRef:
-                  key: api-key
+                  key: ingest-api-key
                   name: cver-ingest-creds
             {{- if .Values.test.test }}
             - name: CVER_TEST
