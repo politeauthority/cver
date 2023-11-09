@@ -58,31 +58,23 @@ def get_params() -> dict:
     return ret_args
 
 
-def _get_search_field_args(raw_args: dict):
+def _get_search_field_args(raw_args: dict) -> dict:
+    """Get query paramaters from the url, mapping them as fields if they dont appear to be specific
+    key words.
+    :unit-test: TestApiUtilApiUtil::test___get_search_field_args
     """
-    """
+    ret = {}
     if not raw_args:
-        return {}
+        return ret
+    non_model_fields = ["p", "page", "limit", "query"]
     for raw_key, raw_value in raw_args.items():
-        print(raw_key)
-        print(raw_value)
-
-
-def _validate_args(raw_args: dict):
-    accepted_keys = ["fields", "limit", "order_by"]
-    errors = []
-    for raw_arg, arg_data in raw_args.items():
-        if raw_args not in accepted_keys:
-            errors.append("Arg: '%s' not allowed")
-
-    if errors:
-        data = {
-            "status": "error",
-            "message": ""
-        }
-        data["message"] = " ".join(errors)
-        logging.warning("Client sent invalid search request: %s" % data["message"])
-        return make_response(json.dumps(errors), 400)
+        if raw_key not in non_model_fields:
+            ret[raw_key] = {
+                "field": raw_key,
+                "value": raw_value,
+                "op": "="
+            }
+    return ret
 
 
 def _post_search_field_args(the_args: dict) -> dict:
@@ -139,5 +131,23 @@ def _post_search_limit_args(the_args: dict) -> dict:
     if not isinstance(limit, int):
         return None
     return limit
+
+
+def _validate_args(raw_args: dict):
+    accepted_keys = ["fields", "limit", "order_by"]
+    errors = []
+    for raw_arg, arg_data in raw_args.items():
+        if raw_args not in accepted_keys:
+            errors.append("Arg: '%s' not allowed")
+
+    if errors:
+        data = {
+            "status": "error",
+            "message": ""
+        }
+        data["message"] = " ".join(errors)
+        logging.warning("Client sent invalid search request: %s" % data["message"])
+        return make_response(json.dumps(errors), 400)
+
 
 # End File: cver/src/api/utils/api_util.py

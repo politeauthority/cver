@@ -9,6 +9,24 @@ from cver.api.utils import api_util
 
 class TestApiUtilApiUtil:
 
+    def test___get_search_field_args(self):
+        """Get search field arguments from a url query string.
+        :method: api_util._get_search_field_args()
+        """
+        assert {} == api_util._get_search_field_args({})
+        payload = {
+            "name": "hello-world",
+            "page": 2
+        }
+        expected = {
+            "name": {
+                "field": "name",
+                "value": "hello-world",
+                "op": "="
+            }
+        }
+        assert expected == api_util._get_search_field_args(payload)
+
     def test___post_search_field_args(self):
         """Get search field arguments from a request.
         :method: api_util._post_search_field_args()
