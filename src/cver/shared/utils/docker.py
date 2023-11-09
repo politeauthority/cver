@@ -119,8 +119,7 @@ def get_docker_id(image_name: str) -> str:
 
 
 def get_image_size(image_name_or_id):
-    """Get the size of a docker image in bytes.
-    """
+    """Get the size of a docker image in bytes."""
     cmd = ["docker", "inspect", "--format='{{.Size}}'", str(image_name_or_id)]
     try:
         image_size = subprocess.check_output(cmd)

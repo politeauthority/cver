@@ -131,6 +131,7 @@ class ImageDownload:
         pull_cmd = ["docker", "pull", image_loc]
         logging.info("Pulling: %s" % image_loc)
         image_pull = self.docker_pull(pull_cmd)
+
         if not image_pull:
             self._handle_error()
             return False
@@ -140,7 +141,7 @@ class ImageDownload:
             logging.info("lets create an ibw")
             self._create_ib_from_pull(image_pull.decode("utf-8"))
 
-        if self.image.registry == "docker.io/":
+        if self.image.registry == "docker.io":
             image_search = self.image.name
         else:
             image_search = "%s/%s" % (self.image.registry, self.image.name)
@@ -158,8 +159,7 @@ class ImageDownload:
             full_og_image_str = self.image.name
         else:
             full_og_image_str = "%s/%s" % (self.image.registry, self.image.name)
-        logging.info("PUSH IMAGE: %s" % full_og_image_str)
-        logging.info("DOCKER ID: %s" % self.image_docker_id)
+        logging.info("Atempting to push: %s/%s" % (self.image.registry, self.image.name))
         if not self.image_docker_id:
             self.data["status_reason"] = "Failed to get Docker ID from locally pulled image"
             self._handle_error()
@@ -177,6 +177,8 @@ class ImageDownload:
             self._handle_error()
             docker.delete_image(self.image_docker_id)
             return False
+        logging.info("PUSH IMAGE: %s -> %s" % (full_og_image_str, image_str))
+        logging.info("DOCKER ID: %s" % self.image_docker_id)
         if not docker.push_image(image_str):
             self.data["status_reason"] = "Failed push to local registry after download"
             logging.error("Failed pushing")
