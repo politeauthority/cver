@@ -47,3 +47,4 @@ RUN pip install ipdb
 ADD scripts/cver-api /bin
 ADD scripts/cver-build /bin
 ADD scripts/cver-run-api /bin
+ADD scripts/cver-kill /bin

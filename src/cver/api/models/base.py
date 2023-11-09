@@ -109,7 +109,7 @@ class Base:
             if self.id:
                 return self.iodku()
             else:
-                return self.update()
+                return self.insert()
         else:
             if self.id:
                 return self.update()

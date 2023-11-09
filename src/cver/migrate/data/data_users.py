@@ -30,7 +30,7 @@ class DataUsers:
 
     def create(self) -> bool:
         """Create the first user, and test users if this is a test environment."""
-        # self.create_first_org()
+        self.create_first_org()
         self.create_first_user()
         self.create_test_users()
 
@@ -70,11 +70,11 @@ class DataUsers:
         roles_id = self.roles["ingestor"].id
         self.create_user("test-ingest", "ingest@example.com", roles_id, client_id, api_key)
 
-        # # Create User: test-engine
-        # client_id = os.environ.get("CVER_TEST_ENGINE_CLIENT_ID")
-        # api_key = os.environ.get("CVER_TEST_ENGINE_API_KEY")
-        # roles_id = self.roles["engine"].id
-        # self.create_user("test-engine", "engine@example.com", roles_id, client_id, api_key)
+        # Create User: test-engine
+        client_id = os.environ.get("CVER_TEST_ENGINE_CLIENT_ID")
+        api_key = os.environ.get("CVER_TEST_ENGINE_API_KEY")
+        roles_id = self.roles["engineer"].id
+        self.create_user("test-engine", "engine@example.com", roles_id, client_id, api_key)
 
     def create_user(
             self,
@@ -103,11 +103,11 @@ class DataUsers:
         api_key.user_id = user.id
         api_key.client_id = client_id
         if api_key.get_by_field(field="client_id", value=client_id):
-            msg = "Cannot create api client_id for user: %s, client id: %s already exists" % (
+            msg = "Not creating ApiKey client_id for user: %s, client id: %s already exists" % (
                 user,
                 client_id
             )
-            logging.error(msg)
+            logging.info(msg)
             return False
 
         api_key.key = auth.generate_hash(api_key_str)

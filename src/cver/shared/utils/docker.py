@@ -77,37 +77,29 @@ def delete_image(docker_id: str) -> bool:
 
 
 def tag_image(docker_image_id: str, full_image_str: str):
+    """Tag a docker image."""
     cmd = ["docker", "tag", docker_image_id, full_image_str]
     subprocess.check_output(cmd)
     logging.debug("Succesfully retaged Image: %s" % full_image_str)
     return True
-    # import ipdb; ipdb.set_trace()
-    # if tagged_image:
-    #     logging.debug("Succesfully retaged Image: %s" % full_image_str)
-    #     return True
-    # else:
-    #     logging.error("Failed to retag Image: %s" % full_image_str)
-    #     return False
 
 
-def get_image_sha(image: str) -> str:
-    """Get a docker image's full sha from the image name, including the full registry location.
-    :param image: The image to get the full sha from
-        example: harbor.squid-ink.us/docker-hub/emby/embyserver
-    """
-    cmd = ["docker", "inspect", "--format='{{.RepoDigests}}'", image]
-    image_details = subprocess.check_output(cmd)
-    if not image_details:
-        logging.error("Failed to get image sha for %s" % image)
-        return False
+# def get_image_sha(image_details: str) -> str:
+#     """Get a docker image's full sha from the image name, including the full registry location.
+#     :param image: The image to get the full sha from
+#         example: harbor.squid-ink.us/docker-hub/emby/embyserver
+#     """
+#     cmd = ["docker", "inspect", "--format='{{.RepoDigests}}'", image_details]
+#     if not image_details:
+#         logging.error("Failed to get image sha for %s" % image_details)
+#         return False
 
-    image_details = image_details.decode("utf-8")
-    print(image_details)
-    if "@sha256:" not in image_details:
-        logging.error("Could not get image sha from docker")
-        return False
-    sha = image_details[image_details.find("@sha256:") + 8:image_details.find(" ")]
-    return sha
+#     image_details = image_details.decode("utf-8")
+#     if "@sha256:" not in image_details:
+#         logging.error("Could not get image sha from docker")
+#         return False
+#     sha = image_details[image_details.find("@sha256:") + 8:image_details.find(" ")]
+#     return sha
 
 
 def get_docker_id(image_name: str) -> str:
@@ -124,6 +116,23 @@ def get_docker_id(image_name: str) -> str:
         return False
     docker_image_id = image_id.decode("utf-8").replace("\n", "")
     return docker_image_id
+
+
+def get_image_size(image_name_or_id):
+    """Get the size of a docker image in bytes.
+    """
+    cmd = ["docker", "inspect", "--format='{{.Size}}'", str(image_name_or_id)]
+    try:
+        image_size = subprocess.check_output(cmd)
+    except subprocess.CalledProcessError:
+        logging.error("Could not get image size for image: %s" % image_name_or_id)
+        return False
+    image_size = image_size.decode("utf-8")
+    if "'" in image_size:
+        image_size = image_size.replace("'", "")
+    if "\n" in image_size:
+        image_size = image_size.replace("\n", "")
+    return int(image_size)
 
 
 def get_local_images() -> list:

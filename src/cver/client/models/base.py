@@ -99,7 +99,7 @@ class Base(CverClient):
     def save(self) -> int:
         """Save a model to the Cver Api."""
         data = self._get_model_fields()
-        logging.debug("Saving %s: %s" % (self.model_name, data))
+        # logging.info("Saving %s: %s" % (self.model_name, data))
         self.response = self.make_request(self.model_name, method="POST", payload=data)
         if "object" not in self.response:
             logging.warning("Request error")

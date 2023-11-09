@@ -1,0 +1,6 @@
+
+#!/bin/sh -l
+# Cver Kill
+# Kill the web running Cver Api instance
+THE_PID=$(ps aux | grep 'api/app.py' | awk 'NR==1 {print $1; exit}')
+kill $THE_PID

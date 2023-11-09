@@ -20,7 +20,7 @@ from cver.client.models.image import Image
 from cver.client.models.image_build import ImageBuild
 from cver.client.models.image_build_waiting import ImageBuildWaiting
 from cver.client.models.task import Task
-# from cver.cver_client.collections.scans import Scans
+# from cver.client.collections.scans import Scans
 from cver.client import Client as CverClient
 from cver.cli.utils import pretty
 

@@ -29,11 +29,15 @@ def get_params() -> dict:
     elif "page" in raw_args and raw_args["page"].isdigit():
         ret_args["page"] = int(raw_args["page"])
 
+    if raw_args:
+        ret_args["raw_args"]["query_str"] = raw_args
+        ret_args["clean_args"]["fields"] = _get_search_field_args(raw_args)
+
     if "query" in raw_args:
         query = xlate.url_decode_json(raw_args["query"])
-        ret_args["clean_args"]["fields"] = _get_search_field_args(query)
-        ret_args["clean_args"]["order_by"] = _get_search_order_args(query)
-        ret_args["clean_args"]["limit"] = _get_search_limit_args(query)
+        ret_args["clean_args"]["fields"] = _post_search_field_args(query)
+        ret_args["clean_args"]["order_by"] = _post_search_order_args(query)
+        ret_args["clean_args"]["limit"] = _post_search_limit_args(query)
         return ret_args
 
     if not request.data:
@@ -47,11 +51,21 @@ def get_params() -> dict:
 
     ret_args["raw_args"].update(request_data.items())
     _validate_args(raw_args)
-    ret_args["clean_args"]["fields"] = _get_search_field_args(request_data)
-    ret_args["clean_args"]["order_by"] = _get_search_order_args(request_data)
-    ret_args["clean_args"]["limit"] = _get_search_limit_args(request_data)
+    ret_args["clean_args"]["fields"] = _post_search_field_args(request_data)
+    ret_args["clean_args"]["order_by"] = _post_search_order_args(request_data)
+    ret_args["clean_args"]["limit"] = _post_search_limit_args(request_data)
 
     return ret_args
+
+
+def _get_search_field_args(raw_args: dict):
+    """
+    """
+    if not raw_args:
+        return {}
+    for raw_key, raw_value in raw_args.items():
+        print(raw_key)
+        print(raw_value)
 
 
 def _validate_args(raw_args: dict):
@@ -71,8 +85,9 @@ def _validate_args(raw_args: dict):
         return make_response(json.dumps(errors), 400)
 
 
-def _get_search_field_args(the_args: dict) -> dict:
-    """
+def _post_search_field_args(the_args: dict) -> dict:
+    """Extracts the field portion of a search query.
+    :unit-test: TestApiUtilApiUtil::test___post_search_field_args
     """
     ret = {}
     if "fields" not in the_args:
@@ -100,9 +115,9 @@ def _get_search_field_args(the_args: dict) -> dict:
     return ret
 
 
-def _get_search_order_args(the_args: dict) -> dict:
+def _post_search_order_args(the_args: dict) -> dict:
     """Get search field arguments from a request.
-    :unit-test: TestApiUtilApiUtil::test___get_search_field_args
+    :unit-test: TestApiUtilApiUtil::test___post_search_order_args
     """
     if "order_by" not in the_args:
         return {}
@@ -114,8 +129,9 @@ def _get_search_order_args(the_args: dict) -> dict:
     return ret
 
 
-def _get_search_limit_args(the_args: dict) -> dict:
+def _post_search_limit_args(the_args: dict) -> dict:
     """Get limit arg from the request.
+    :unit-test: TestApiUtilApiUtil::test___post_search_limit_args
     """
     if "limit" not in the_args:
         return None
