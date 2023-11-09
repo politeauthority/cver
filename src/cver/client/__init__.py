@@ -166,7 +166,7 @@ class Client:
 
     def destroy_token(self) -> bool:
         """Delete a local token from temp space."""
-        if not os.path.exists(self.token):
+        if not os.path.exists(self.token_file):
             logging.error("Cant delete token that doesnt exist")
             return True
         os.remove(self.token_file)

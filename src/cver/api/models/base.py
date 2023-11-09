@@ -162,7 +162,6 @@ class Base:
         logging.info("\n\nUPDATE\n%s\n\n" % sql)
         self.cursor.execute(sql)
         self.conn.commit()
-        self.id = self.cursor.lastrowid
         return True
 
     def delete(self) -> bool:
@@ -402,7 +401,6 @@ class Base:
         """Generate the insert SQL statement.
         :unit-test: TestApiModelBase::test___gen_insert_sql
         """
-        # import ipdb; ipdb.set_trace()
         insert_sql = "INSERT INTO `%s` (%s) VALUES (%s)" % (
             self.table_name,
             self._sql_fields_sanitized(skip_fields=skip_fields),
@@ -699,7 +697,6 @@ class Base:
         # Handle converting a bool
         elif field["type"] == "bool":
             value = sql_tools.sql_safe(xlate.convert_bool_to_int(value))
-            # import ipdb; ipdb.set_trace()
 
         elif field["type"] == "str":
             value = str(value)
@@ -754,7 +751,6 @@ class Base:
         :unit-test: TestApiModelBase::test___set_defaults
         """
         self.field_list = []
-        # import ipdb; ipdb.set_trace()
         for field_name, field in self.field_map.items():
             field_name = field['name']
             self.field_list.append(field_name)
