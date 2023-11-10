@@ -23,14 +23,14 @@ from cver.client import Client as Client
         assert client.login()
         assert os.path.exists(client.token_file)
 
-    def test___determine_if_login(self):
+def test___determine_if_login(self):
         """
         :method: Client()._determine_if_login
         """
         client = Client()
         assert client._determine_if_login()
 
-    def test___save_token(self):
+def test___save_token(self):
         """
         :method: Client()._save_token
         """
@@ -40,7 +40,7 @@ from cver.client import Client as Client
         assert client._save_token()
 
 # End File: cver/tests/unit/client/test___init__.py
-    def test_another_new_method(self):
+def test_another_new_method(self):
         """
         :method: Client().another_new_method
         """
@@ -111,7 +111,7 @@ class TestClientInit:
         # Add assertions here to test the new_method
         # For example:
         # assert client.new_method() == expected_result
-    def test_login(self):
+def test_login(self):
         """Test the Client login flow.
         :method: Client().login
         """
@@ -122,14 +122,14 @@ class TestClientInit:
         assert client.login()
         assert os.path.exists(client.token_file)
 
-    def test___determine_if_login(self):
+def test___determine_if_login(self):
         """
         :method: Client()._determine_if_login
         """
         client = Client()
         assert client._determine_if_login()
 
-    def test___save_token(self):
+def test___save_token(self):
         """
         :method: Client()._save_token
         """
