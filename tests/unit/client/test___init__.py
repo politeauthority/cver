@@ -13,7 +13,8 @@ from cver.client import Client as Client
 
 @pytest.mark.vcr
 def test_login(self):
-    """Test the Client login flow.
+    """
+    Test the Client login flow.
     :method: Client().login
     """
     os.environ["CVER_CLIENT_ID"] = "test-client-id"
@@ -41,9 +42,9 @@ def test___save_token(self):
 
 # End File: cver/tests/unit/client/test___init__.py
 def test_another_new_method(self):
-        """
-        :method: Client().another_new_method
-        """
+    """
+    :method: Client().another_new_method
+    """
         client = Client()
         # Add assertions here to test the another_new_method
         # For example:
@@ -84,7 +85,8 @@ def test_another_new_method(self):
 class TestClientInit:
 
     def test____init__(self):
-        """Test the Client initialization.
+        """
+        Test the Client initialization.
         :method: Client().__init__
         """
         client = Client()
@@ -112,7 +114,8 @@ class TestClientInit:
             # For example:
             # assert client.new_method() == expected_result
         def test_login(self):
-            """Test the Client login flow.
+            """
+            Test the Client login flow.
             :method: Client().login
             """
             os.environ["CVER_CLIENT_ID"] = "test-client-id"
@@ -141,16 +144,17 @@ def test___save_token(self):
 # End File: cver/tests/unit/client/test___init__.py
 
 def test___determine_if_login(self):
-        def test_new_method(self):
-            """
-            :method: Client().new_method
-            """
+    def test_new_method(self):
+        """
+        :method: Client().new_method
+        """
             client = Client()
             # Add assertions here to test the new_method
             # For example:
             # assert client.new_method() == expected_result
         def test_login(self):
-            """Test the Client login flow.
+            """
+            Test the Client login flow.
             :method: Client().login
             """
             os.environ["CVER_CLIENT_ID"] = "test-client-id"
@@ -161,9 +165,9 @@ def test___determine_if_login(self):
             assert os.path.exists(client.token_file)
 
         def test___determine_if_login(self):
-        """
-        :method: Client()._determine_if_login
-        """
+            """
+            :method: Client()._determine_if_login
+            """
         client = Client()
         assert client._determine_if_login()
 
