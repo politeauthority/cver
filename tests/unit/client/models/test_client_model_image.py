@@ -20,7 +20,7 @@ class TestClientModelImage:
         assert hasattr(model, "client_id")
         assert hasattr(model, "api_key")
         assert hasattr(model, "token")
-        assert hasattr(model, "token_path")
+        assert hasattr(model, "token_file")
 
     def test____repr__(self):
         """Test the model's representation.

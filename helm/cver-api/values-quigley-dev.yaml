@@ -5,8 +5,8 @@ replicaCount: 1
 nameOverride: "dev"
 
 app:
-  runApiOnStart: false
-  runMigrations: false
+  runApiOnStart: true
+  runMigrations: true
   logLevel: "DEBUG"
   envName: "dev"
   debug: true
