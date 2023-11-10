@@ -11,32 +11,32 @@ import pytest
 from cver.client import Client as Client
 
 
-# @pytest.fixture(scope='module')
-# def vcr_cassette_dir(request):
-#     """Put all cassets in the cver_test_tools/vhs/{module}/{test}.yaml dir"""
-#     cver_test_dir = os.environ.get("CVER_TEST_DIR")
-#     if not cver_test_dir:
-#         return os.path.join(
-#             "cver_test_tools/vhs/cver-client",
-#             request.module.__name__)
-#     else:
-#         return os.path.join(
-#             cver_test_dir,
-#             "cver_test_tools/vhs/cver-client",
-#             request.module.__name__
-#         )
+@pytest.fixture(scope='module')
+def vcr_cassette_dir(request):
+    """Put all cassets in the cver_test_tools/vhs/{module}/{test}.yaml dir"""
+    cver_test_dir = os.environ.get("CVER_TEST_DIR")
+    if not cver_test_dir:
+        return os.path.join(
+            "cver_test_tools/vhs/cver-client",
+            request.module.__name__)
+    else:
+        return os.path.join(
+            cver_test_dir,
+            "cver_test_tools/vhs/cver-client",
+            request.module.__name__
+        )
 
 
-# @pytest.fixture(scope='module')
-# def vcr_config():
-#     """Dont store client-ids or api-keys in casset files"""
-#     return {
-#         "filter_headers": [
-#             ('x-api-key', 'dummy'),
-#             ('client-id', 'dummy')
-#         ],
-#         # "allow_playback_repeats": True
-#     }
+@pytest.fixture(scope='module')
+def vcr_config():
+    """Dont store client-ids or api-keys in casset files"""
+    return {
+        "filter_headers": [
+            ('x-api-key', 'dummy'),
+            ('client-id', 'dummy')
+        ],
+        # "allow_playback_repeats": True
+    }
 
 
 # @pytest.fixture(scope="module")
@@ -77,9 +77,7 @@ class TestClientInit:
         """Test the Client login flow.
         :method: Client().login
         """
-        os.environ["CVER_CLIENT_ID"] = "test-client-id"
-        os.environ["CVER_API_KEY"] = "test-api-key"
-        os.environ["CVER_API_URL"] = "http://localhost/"
+        os.environ["CVER_API_URL"] = "http://cver-dev-api"
         client = Client()
         assert client.login()
         assert os.path.exists(client.token_file)

@@ -96,6 +96,8 @@ spec:
                   name: cver-test-creds
             - name: CVER_BRANCH
               value: "{{ .Values.app.branch }}"
+            - name: CVER_TEST_DIR
+              value: "/cver/cicd/tests/"
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
