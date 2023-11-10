@@ -1,13 +1,12 @@
-# Quigely stage values for cver-test.
+# Cver Test
+# Quigely Stage values
 
-replicaCount: 1
-
-nameOverride: "test"
+nameOverride: "stage"
 
 app:
+  api_url: "http://cver-api-dev"
   logLevel: "DEBUG"
-  cverCicd: "true"
-  envName: "test"
+  envName: "stage"
   debug: true
   database:
     name: "cver_stage"

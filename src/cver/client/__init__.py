@@ -10,7 +10,6 @@ import tempfile
 
 import requests
 
-from cver.shared.utils import misc as s_misc
 from cver.shared.utils import xlate
 from cver.api.version import version as __version__
 from cver.client.utils.config import Config
@@ -34,14 +33,12 @@ class Client:
         self.api_key = self.config["api_key"]
         self.api_host_name = self.config["api_host_name"]
 
-        self.api_url = s_misc.strip_trailing_slash(self.api_url)
-        self.user_agent = "CverClient/%s" % __version__
-
         self.headers = {}
-        self.api_url = s_misc.strip_trailing_slash(self.api_url)
+        if self.api_host_name:
+            self.headers["Host"] = self.api_host_name
+        self.headers["User-Agent"] = "CverClient/%s" % __version__
 
         self.token = ""
-        self.token_path = ""
         self.response = None
         temp_dir = tempfile.gettempdir()
         self.token_file = os.path.join(temp_dir, "cver-token")
@@ -51,8 +48,12 @@ class Client:
 
     def login(self, skip_local_token: bool = False) -> bool:
         """Login to the Cver API."""
+        if self.login_attempts >= self.max_login_attempts:
+            logging.crticial("Reached max loging attempts (%s), quitting")
+            return False
         logging.debug("Logging into Cver Api: %s" % self.api_url)
         if not skip_local_token and self._open_valid_token():
+            logging.info("Using existing token: %s" % self.token_file)
             return True
         if not self._determine_if_login():
             return False
@@ -66,8 +67,15 @@ class Client:
             "url": f"{self.api_url}/auth",
         }
         request_args["headers"].update(self.headers)
+        print(request_args)
         logging.info("Making auth request")
         response = requests.request(**request_args)
+        if response.status_code == 401:
+            logging.warning("Received unauthorized status code 401 logging in")
+            self.destroy_token()
+            self.login_attempts += 1
+            return False
+
         if response.status_code == 403:
             logging.error("Received status code %s logging in" % response.status_code)
             self.login_attempts += 1
@@ -87,22 +95,20 @@ class Client:
         the response json back.
         @todo: Break this apart - too complex
         """
-        self.login()
-        # if not self.token:
-        #     self.login()
+        # self.login()
+        if not self.token:
+            logging.debug("Attempt login")
+            self.login()
         headers = {
             "token": self.token,
             "content-type": "application/json",
-            "User-Agent": self.user_agent
         }
-        if self.api_host_name:
-            headers["Host"] = self.api_host_name
+
         request_args = {
             "headers": headers,
             "method": method,
             "url": f"{self.api_url}/{url}"
         }
-
         request_args["headers"].update(self.headers)
 
         if request_args:
@@ -122,10 +128,10 @@ class Client:
                     request_args["url"] += "/%s" % payload["id"]
                     payload.pop("id")
         # debug
-        # logging.info("\n\n%s - %s\n%s" % (
-        #     request_args["method"],
-        #     request_args["url"],
-        #     request_args))
+        logging.info("\n\n%s - %s\n%s" % (
+            request_args["method"],
+            request_args["url"],
+            request_args))
         response = requests.request(**request_args)
 
         # If our token has expired, attempt to get a new one, skipping using the current one.
@@ -166,6 +172,8 @@ class Client:
 
     def destroy_token(self) -> bool:
         """Delete a local token from temp space."""
+        logging.debug("Delete Cver Token: %s" % self.token_file)
+        self.token = None
         if not os.path.exists(self.token_file):
             logging.error("Cant delete token that doesnt exist")
             return True

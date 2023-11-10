@@ -6,7 +6,7 @@ keep track of what images are in use, where they are being sourced from and the 
 may pose to you.
 
 ## How it works
-Cver is broken in 3 parts, the Cver Api, Cver Ingestion and Cver Engine.
+Cver is split into 3 parts, the Cver Api, Cver Engine, and Cver Ingest
 
 ### Cver Api
 Cver Api provides the interface for all applications to write and read data from the Cver platform.

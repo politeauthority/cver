@@ -137,7 +137,7 @@ class Base:
             self.cursor.execute(sql)
             self.conn.commit()
         except ProgrammingError as e:
-            logging.critical(sql)
+            # logging.critical(sql)
             logging.critical("Caught ProgrammingError exception:", e)
             exit(1)
         self.id = self.cursor.lastrowid
@@ -159,7 +159,7 @@ class Base:
         """Update a model.
         """
         sql = self._gen_update_sql()
-        logging.info("\n\nUPDATE\n%s\n\n" % sql)
+        # logging.info("\n\nUPDATE\n%s\n\n" % sql)
         self.cursor.execute(sql)
         self.conn.commit()
         return True
