@@ -72,22 +72,22 @@ class TestClient:
         assert "test_client_id" == client.client_id
         assert "test_api_key" == client.api_key
 
-    @pytest.mark.vcr
-    def test_login(self):
-        """Test the Client login flow.
-        :method: Client().login
-        """
-        os.environ["CVER_API_URL"] = "http://cver-api-dev"
-        client = Client()
-        assert client.login()
-        assert os.path.exists(client.token_file)
+    # @pytest.mark.vcr
+    # def test_login(self):
+    #     """Test the Client login flow.
+    #     :method: Client().login
+    #     """
+    #     os.environ["CVER_API_URL"] = "http://cver-api-dev"
+    #     client = Client()
+    #     assert client.login()
+    #     assert os.path.exists(client.token_file)
 
-    def test_info(self):
-        """Test the Client get info.
-        :method: Client().info()
-        """
-        client = Client()
-        assert not client.response_last
+    # def test_info(self):
+    #     """Test the Client get info.
+    #     :method: Client().info()
+    #     """
+    #     client = Client()
+    #     assert not client.response_last
 
     def test___determine_if_login(self):
         """

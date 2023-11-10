@@ -57,4 +57,24 @@ class TestAuth:
         assert response.status_code == 401
         assert response_json["status"] == "Error"
 
+    def test__apikeys_index_get(self):
+        """Test ApiKeys Index
+        GET /api-keys
+        """
+        request_args = self.create_request_args("/api-keys")
+        response = requests.request(**request_args)
+        response_json = response.json()
+        assert response.status_code == 401
+        assert response_json["status"] == "Error"
+
+    def test__apikey_index_get(self):
+        """Test ApiKey /Index
+        GET /api-key/{rand-int}
+        """
+        request_args = self.create_request_args("/api-key/%s" % random.randint(0, 1000))
+        response = requests.request(**request_args)
+        response_json = response.json()
+        assert response.status_code == 401
+        assert response_json["status"] == "Error"
+
 # End File: cver/tests/regression/api/test_auth.py
