@@ -24,14 +24,14 @@ def test_login(self):
     assert client.login()
     assert os.path.exists(client.token_file)
 
-def test___determine_if_login(self):
+    def test___determine_if_login(self):
     """
     :method: Client()._determine_if_login
     """
     client = Client()
     assert client._determine_if_login()
 
-def test___save_token(self):
+    def test___save_token(self):
     """
     :method: Client()._save_token
     """
