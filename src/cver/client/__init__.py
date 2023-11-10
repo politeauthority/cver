@@ -53,7 +53,7 @@ class Client:
             return False
         logging.debug("Logging into Cver Api: %s" % self.api_url)
         if not skip_local_token and self._open_valid_token():
-            logging.info("Using existing token: %s" % self.token_file)
+            # logging.info("Using existing token: %s" % self.token_file)
             return True
         if not self._determine_if_login():
             return False
@@ -128,10 +128,10 @@ class Client:
                     request_args["url"] += "/%s" % payload["id"]
                     payload.pop("id")
         # debug
-        logging.info("\n\n%s - %s\n%s" % (
-            request_args["method"],
-            request_args["url"],
-            request_args))
+        # logging.info("\n\n%s - %s\n%s" % (
+        #     request_args["method"],
+        #     request_args["url"],
+        #     request_args))
         response = requests.request(**request_args)
 
         # If our token has expired, attempt to get a new one, skipping using the current one.
@@ -195,7 +195,7 @@ class Client:
 
     def _save_token(self):
         """Save a token to a local tempfile location."""
-        logging.info(f"Temp Dir is: {self.token_file}")
+        # logging.info(f"Temp Dir is: {self.token_file}")
         if not self.token:
             logging.error("No token to save.")
             return False
