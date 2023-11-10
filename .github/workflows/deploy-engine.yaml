@@ -32,9 +32,11 @@ jobs:
           if [ "${{ inputs.deployment-name }}" = "test" ]; then
             RELEASE_NAME="cver-engine-test-${{ inputs.run-number }}"
             NAMESPACE="cver-test"
+            API_URL="http://cver-api-test-${{ inputs.run-number }}"
           else
             RELEASE_NAME="cver-engine-${{ inputs.deployment-name}}"
             NAMESPACE="cver-${{ inputs.deployment-name}}"
+            API_URL="http://cver-api-test-${{ inputs.deployment-name}}"
           fi
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
@@ -49,8 +51,8 @@ jobs:
             --wait \
             --timeout=300s \
             -f values-quigley-${{ inputs.deployment-name }}.yaml \
+            --set "app.apiUrl=${API_URL}" \
             --set "app.dbName=${DB_NAME}" \
             --set "app.deployedAt=${DEPLOYED_AT}"
           echo "# Deployed: Cver-Engine" >> $GITHUB_STEP_SUMMARY
           echo "Created Helm deployment: ${RELEASE_NAME}" >> $GITHUB_STEP_SUMMARY
-

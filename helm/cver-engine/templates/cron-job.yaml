@@ -25,7 +25,7 @@ spec:
               - name: CVER_ENV
                 value: "{{ .Values.app.envName }}"
               - name: CVER_API_URL
-                value: "http://cver-api-{{ .Values.app.envName }}"
+                value: "{{ .Values.app.apiUrl }}"
               - name: CVER_LOG_LEVEL
                 value: "{{ .Values.app.logLevel }}"
               - name: CVER_ENGINE_DOWNLOAD_LIMIT

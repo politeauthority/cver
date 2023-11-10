@@ -53,7 +53,7 @@ spec:
                   key: {{ .Values.app.database.passwordSecretName }}
                   name: {{ .Values.app.database.passwordSecretKey }}
             - name: CVER_API_URL
-              value:  "{{ .Values.app.api_url }}"
+              value:  "{{ .Values.app.apiUrl }}"
             - name: CVER_CLIENT_ID
               valueFrom:
                 secretKeyRef:

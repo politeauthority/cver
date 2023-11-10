@@ -5,6 +5,7 @@ replicaCount: 1
 nameOverride: "stage"
 
 app:
+  apiUrl: "http://cver-api-stage"
   logLevel: "DEBUG"
   envName: "stage"
   debug: false

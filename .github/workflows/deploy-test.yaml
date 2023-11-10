@@ -44,13 +44,13 @@ jobs:
           if [ "${{ inputs.deployment-name }}" = "test" ]; then
             RELEASE_NAME="cver-test-test-${{ inputs.run-number }}"
             NAMESPACE="cver-test"
-            CVER_API_URL="http://cver-api-test-${{ inputs.run-number }}"
             DB_NAME="cver_${{ inputs.run-number }}"
+            API_URL="http://cver-api-test-${{ inputs.run-number }}"
           else
             RELEASE_NAME="cver-test-${{ inputs.deployment-name}}"
             NAMESPACE="cver-${{ inputs.deployment-name}}"
-            CVER_API_URL="cver-api"
             DB_NAME="cver_${{ inputs.deployment-name}}"
+            API_URL="http://cver-api-test-${{ inputs.run-number }}"
           fi
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml

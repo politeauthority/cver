@@ -3,6 +3,7 @@
 nameOverride: "dev"
 
 app:
+  apiUrl: "http://cver-api-dev"
   logLevel: "INFO"
   envName: "dev"
   debug: true

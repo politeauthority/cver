@@ -3,8 +3,7 @@
 replicaCount: 1
 
 app:
-  api_url: "http://cver-api"
-  cverCicd: "false"
+  apiUrl: "http://cver-api"
   branch: "main"
   logLevel: "DEBUG"
   envName: "prod"
