@@ -46,6 +46,7 @@ jobs:
 
   cli:
     runs-on: self-hosted
+    needs: api
     container:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ inputs.cicd-version }}
       credentials:
@@ -72,6 +73,7 @@ jobs:
 
   client:
     runs-on: self-hosted
+    needs: cli
     container:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ inputs.cicd-version }}
       credentials:

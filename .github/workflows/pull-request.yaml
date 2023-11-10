@@ -130,7 +130,7 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
-  regression-src:
+  regression:
     needs: [deploy-api, deploy-test]
     if: ${{ needs.deploy-api.result == 'success' }}
     uses: ./.github/workflows/regression.yaml
@@ -163,7 +163,7 @@ jobs:
 
   remove-ephem:
     runs-on: self-hosted
-    needs: [deploy-engine, regression-src, run-engine]
+    needs: [deploy-engine, regression, run-engine]
     container:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
       credentials:
@@ -224,6 +224,5 @@ jobs:
             --namespace=cver-test
 
           echo "Uninstalled Helm deployment cver-test-test-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
-
 
 # End File: cver/.github/workflows/pull-request.yaml
