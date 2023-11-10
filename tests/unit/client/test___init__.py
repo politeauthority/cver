@@ -77,7 +77,7 @@ class TestClientInit:
         """Test the Client login flow.
         :method: Client().login
         """
-        os.environ["CVER_API_URL"] = "http://cver-dev-api"
+        os.environ["CVER_API_URL"] = "http://cver-api-dev"
         client = Client()
         assert client.login()
         assert os.path.exists(client.token_file)
