@@ -19,12 +19,14 @@ class DataRbac:
         reader_role_id = self.create_reader_rbac()
         contributor_role_id = self.create_contributor_rbac()
         ingestor_role_id = self.create_ingestor_rbac()
+        engineer_role_id = self.create_engineer_rbac()
 
         return {
             "admin_role_id": admin_role_id,
             "reader_role_id": reader_role_id,
             "contributor_role_id": contributor_role_id,
-            "ingestor_role_id": ingestor_role_id
+            "ingestor_role_id": ingestor_role_id,
+            "engineer_role_id": engineer_role_id
         }
 
     def create_admin_rbac(self) -> int:
@@ -81,6 +83,25 @@ class DataRbac:
 
         perm_read_info = self.create_perm("Read Info", "read-info")
         self.create_role_perm(role, perm_read_info)
+
+        return role.id
+
+    def create_engineer_rbac(self) -> int:
+        """Create engineer role with write and read all.
+        @todo: This role needs to have permissions cutback.
+        """
+        # Create Role
+        role = self.create_role("Engineer", "engineer")
+
+        # Create the Perms and Bindings
+        perm_write_scan_info = self.create_perm("Write Scan", "write-ingest")
+        self.create_role_perm(role, perm_write_scan_info)
+
+        perm_read_all = self.create_perm("Read All", "read-all")
+        self.create_role_perm(role, perm_read_all)
+
+        perm_write_all = self.create_perm("Write All", "write-all")
+        self.create_role_perm(role, perm_write_all)
 
         return role.id
 

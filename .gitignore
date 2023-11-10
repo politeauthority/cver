@@ -1,5 +1,6 @@
 # Temp Ignores
 helm/cver-api/values-quigley-dev.yaml
+./debug*
 
 # Cver
 cver.code-workspace

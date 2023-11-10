@@ -32,12 +32,12 @@ class Client:
         self.api_url = self.config["api_url"]
         self.client_id = self.config["client_id"]
         self.api_key = self.config["api_key"]
+        self.api_host_name = self.config["api_host_name"]
 
         self.api_url = s_misc.strip_trailing_slash(self.api_url)
         self.user_agent = "CverClient/%s" % __version__
 
         self.headers = {}
-        self.api_host = os.environ.get("CVER_API_HOST")
         self.api_url = s_misc.strip_trailing_slash(self.api_url)
 
         self.token = ""
@@ -66,6 +66,7 @@ class Client:
             "url": f"{self.api_url}/auth",
         }
         request_args["headers"].update(self.headers)
+        logging.info("Making auth request")
         response = requests.request(**request_args)
         if response.status_code == 403:
             logging.error("Received status code %s logging in" % response.status_code)
@@ -94,8 +95,8 @@ class Client:
             "content-type": "application/json",
             "User-Agent": self.user_agent
         }
-        if self.api_host:
-            headers["Host"] = self.api_host
+        if self.api_host_name:
+            headers["Host"] = self.api_host_name
         request_args = {
             "headers": headers,
             "method": method,
@@ -165,7 +166,7 @@ class Client:
 
     def destroy_token(self) -> bool:
         """Delete a local token from temp space."""
-        if not os.path.exists(self.token):
+        if not os.path.exists(self.token_file):
             logging.error("Cant delete token that doesnt exist")
             return True
         os.remove(self.token_file)
@@ -222,4 +223,4 @@ class Client:
         return False
 
 
-# End File: cver/src/shared/cver_client/__init__.py
+# End File: cver/src/shared/client/__init__.py

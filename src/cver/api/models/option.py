@@ -16,7 +16,7 @@ class Option(Base):
         self.table_name = 'options'
         self.field_map = FIELD_MAP
         self.createable = False
-        self.insert_iodku = True
+        self.insert_iodku = False
         self.setup()
 
     def __repr__(self):
@@ -78,14 +78,14 @@ class Option(Base):
 
         return True
 
-    def update(self):
+    def save(self):
         """Save an option with Option types preserved."""
         if self.type == 'bool':
             if self.value == 'true':
                 self.value = 1
             elif self.value == 'false':
                 self.value = 0
-        return self.save()
+        return super(Option, self).save()
 
     def set_default(self, the_option: dict) -> bool:
         """Set a default value for an option, if the option is already set, return False otherwise

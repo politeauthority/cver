@@ -34,11 +34,11 @@ class Config:
             - environment vars
         """
         if self.get_manual_arg_config(client_id, api_key, api_url):
-            logging.info("Client config from manual args")
+            logging.debug("Client config from manual args")
         elif self.read_local_config():
-            logging.info("Client config from local yaml")
+            logging.debug("Client config from local yaml")
         elif self.get_env_config():
-            logging.info("Client config from env vars")
+            logging.debug("Client config from env vars")
         self.validate_config()
         return self.config
 
@@ -61,7 +61,6 @@ class Config:
         self.check_use_local_config()
         if not self.use_local_config:
             return self.use_local_config
-        logging.info("Using local config file.")
         self.config = self.get_local_server_config()
         return self.use_local_config
 
@@ -87,6 +86,8 @@ class Config:
         self.config["api_url"] = server_config["api-url"]
         self.config["api_key"] = server_config["api-key"]
         self.config["client_id"] = server_config["client-id"]
+        if "api-host" in server_config:
+            self.config["api_host_name"] = server_config["api-host"]
         return self.config
 
     def get_env_config(self) -> dict:
