@@ -50,4 +50,4 @@ FIELD_MAP = {
     }
 }
 
-# End File: cver/src/shared/modles/fields/user.py
+# End File: cver/src/shared/models/fields/user.py

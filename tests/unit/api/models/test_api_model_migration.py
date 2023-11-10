@@ -5,8 +5,11 @@
     Source: src/cver/api/model/migration.py
 
 """
+from datetime import datetime
 
 from cver.api.models.migration import Migration
+
+from cver_test_tools.fixtures import db
 
 
 class TestApiModelMigration:
@@ -26,5 +29,15 @@ class TestApiModelMigration:
         model = Migration()
         assert str(model) == "<Migration>"
 
+    def test__get_last_successful(self):
+        """
+        :method: Migration().get_last_successful()
+        """
+        cursor = db.Cursor()
+        cursor.result_to_return = [
+            5, datetime.now(), datetime.now(), 1, 1]
+        model = Migration(db.Conn(), cursor)
+        assert model.get_last_successful()
+        assert 5 == model.id
 
 # End File: cver/tests/api/models/test_api_model_migration.py

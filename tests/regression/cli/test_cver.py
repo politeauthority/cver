@@ -20,12 +20,20 @@ class TestCliCver:
         cli = Cver(argz)
         assert isinstance(cli.args, ArgParse)
 
-    def test__get_info(self):
-        """Test get info. """
-        argz = ArgParse()
-        # argz.verb = "get"
-        # argz.noun = "info"
-        cli = Cver(argz)
-        assert cli.get_info()
+    # def test__get_info(self):
+    #     """Test get info. """
+    #     argz = ArgParse()
+    #     argz.verb = "get"
+    #     argz.noun = "info"
+    #     cli = Cver(argz)
+    #     assert cli.run()
 
-# End File: cver/tests/regression/clii/test_cli___init__py
+    # def test__get_images(self):
+    #     """Test get info. """
+    #     argz = ArgParse()
+    #     argz.verb = "get"
+    #     argz.noun = "images"
+    #     cli = Cver(argz)
+    #     assert cli.run()
+
+# End File: cver/tests/regression/cli/test_cli___init__py

@@ -24,4 +24,4 @@ class Role(Base):
         else:
             return "<Role>"
 
-# End File: cver/src/api/modles/role.py
+# End File: cver/src/api/models/role.py

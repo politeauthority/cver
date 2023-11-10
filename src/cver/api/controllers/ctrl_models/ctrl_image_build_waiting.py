@@ -53,4 +53,4 @@ def delete_model(image_build_waiting_id: int = None):
     return ctrl_base.delete_model(ImageBuildWaiting, image_build_waiting_id)
 
 
-# End File: cve/src/api/controllers/ctrl_modles/ctrl_image_build_waiting.py
+# End File: cve/src/api/controllers/ctrl_models/ctrl_image_build_waiting.py

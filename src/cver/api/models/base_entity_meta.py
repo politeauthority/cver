@@ -133,4 +133,4 @@ class BaseEntityMeta(Base):
         return True
 
 
-# End File: pignus/src/pignus_api/modles/base_entity_meta.py
+# End File: pignus/src/pignus_api/models/base_entity_meta.py

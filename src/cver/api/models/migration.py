@@ -34,4 +34,4 @@ class Migration(BaseEntityMeta):
         self.build_from_list(run_raw)
         return True
 
-# End File: cver/src/api/modles/migration.py
+# End File: cver/src/api/models/migration.py

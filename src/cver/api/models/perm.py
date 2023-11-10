@@ -13,7 +13,9 @@ class Perm(BaseEntityMeta):
     model_name = "perm"
 
     def __init__(self, conn=None, cursor=None):
-        """Create the Perm instance."""
+        """Create the Perm instance.
+        :unit-test: TestApiModelPerm::test____init__
+        """
         super(Perm, self).__init__(conn, cursor)
         self.table_name = "perms"
         self.field_map = FIELD_MAP
@@ -21,12 +23,18 @@ class Perm(BaseEntityMeta):
         self.setup()
 
     def __repr__(self):
+        """
+        :unit-test: TestApiModelPerm::test____repr__
+        """
         if self.id:
             return "<Perm %s:%s>" % (self.id, self.slug_name)
         else:
             return "<Perm>"
 
     def get_by_slug(self, slug_name: str) -> bool:
+        """Get a permission by it's slug name.
+        :unit-test: TestApiModelPerm::test__get_by_slug
+        """
         sql = """
             SELECT *
             FROM `perms`
@@ -41,4 +49,4 @@ class Perm(BaseEntityMeta):
         return True
 
 
-# End File: cver/src/api/modles/perm.py
+# End File: cver/src/api/models/perm.py

@@ -220,4 +220,4 @@ def _post_update_entity(entity, request_data, generated_data):
             setattr(entity, field_name, field_value)
     return entity
 
-# End File: cver/src/api/controllers/ctrl_modles/ctrl_base.py
+# End File: cver/src/api/controllers/ctrl_models/ctrl_base.py

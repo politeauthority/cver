@@ -50,4 +50,4 @@ def delete_model(image_id: int = None):
     return ctrl_base.delete_model(Image, image_id)
 
 
-# End File: cve/src/api/controllers/ctrl_modles/ctrl_image.py
+# End File: cve/src/api/controllers/ctrl_models/ctrl_image.py

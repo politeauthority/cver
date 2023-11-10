@@ -40,4 +40,4 @@ FIELD_MAP = {
     },
 }
 
-# End File: cver/src/shared/modles/entity_meta.py
+# End File: cver/src/shared/models/entity_meta.py

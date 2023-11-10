@@ -13,5 +13,7 @@ class ArgParse:
         self.noun = None
         self.selector = None
         self.output = None
+        self.page = None
+        self.filters = None
 
 # End File: cver/tests/cver-test-tools/fixtures/arg_parse.py

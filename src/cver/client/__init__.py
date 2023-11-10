@@ -67,7 +67,6 @@ class Client:
             "url": f"{self.api_url}/auth",
         }
         request_args["headers"].update(self.headers)
-        print(request_args)
         logging.info("Making auth request")
         response = requests.request(**request_args)
         if response.status_code == 401:
@@ -95,21 +94,11 @@ class Client:
         the response json back.
         @todo: Break this apart - too complex
         """
-        # self.login()
         if not self.token:
             logging.debug("Attempt login")
             self.login()
-        headers = {
-            "token": self.token,
-            "content-type": "application/json",
-        }
 
-        request_args = {
-            "headers": headers,
-            "method": method,
-            "url": f"{self.api_url}/{url}"
-        }
-        request_args["headers"].update(self.headers)
+        request_args = self._get_base_request_args(url, method)
 
         if request_args:
             if method == "GET":
@@ -171,7 +160,9 @@ class Client:
         print(response)
 
     def destroy_token(self) -> bool:
-        """Delete a local token from temp space."""
+        """Delete a local token from temp space
+        :unit-test: TestClient
+        """
         logging.debug("Delete Cver Token: %s" % self.token_file)
         self.token = None
         if not os.path.exists(self.token_file):
@@ -194,7 +185,9 @@ class Client:
         return True
 
     def _save_token(self):
-        """Save a token to a local tempfile location."""
+        """Save a token to a local tempfile location.
+        :unit-test: TestClientInit::test___save_token
+        """
         # logging.info(f"Temp Dir is: {self.token_file}")
         if not self.token:
             logging.error("No token to save.")
@@ -217,6 +210,21 @@ class Client:
             token_data = temp_file.read()
         self.token = token_data
         return True
+
+    def _get_base_request_args(self, url: str, method: str) -> dict:
+        """Get the base request args for requests on the Cver Api.
+        :unit-test: TestClient::test___get_base_request_args
+        """
+        request_args = {
+            "headers": {
+                "token": self.token,
+                "content-type": "application/json",
+            },
+            "method": method,
+            "url": f"{self.api_url}/{url}"
+        }
+        request_args["headers"].update(self.headers)
+        return request_args
 
     def _handle_error(self, response, request_args) -> bool:
         url = request_args["url"]

@@ -51,7 +51,7 @@ def vcr_config():
 #     return os.environ["CVER_API_KEY"]
 
 
-class TestClientInit:
+class TestClient:
 
     def test____init__(self):
         """Test the Client initialization.
@@ -82,6 +82,13 @@ class TestClientInit:
         assert client.login()
         assert os.path.exists(client.token_file)
 
+    def test_info(self):
+        """Test the Client get info.
+        :method: Client().info()
+        """
+        client = Client()
+        assert not client.response_last
+
     def test___determine_if_login(self):
         """
         :method: Client()._determine_if_login
@@ -97,5 +104,17 @@ class TestClientInit:
         assert not client._save_token()
         client.token = "fake token!"
         assert client._save_token()
+
+    def test___get_base_request_args(self):
+        """
+        :method: Client()._get_base_request_args
+        """
+        client_1 = Client()
+        r_args = client_1._get_base_request_args("images", "GET")
+        assert isinstance(r_args, dict)
+        assert "GET" == r_args["method"]
+        assert "headers" in r_args
+        assert "application/json" == r_args["headers"]["content-type"]
+        assert "token" in r_args["headers"]
 
 # End File: cver/tests/unit/client/test___init__.py

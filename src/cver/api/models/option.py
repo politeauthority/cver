@@ -12,6 +12,9 @@ class Option(Base):
     model_name = "option"
 
     def __init__(self, conn=None, cursor=None):
+        """
+        :unit-test: TestApiModelOption::test____init__
+        """
         super(Option, self).__init__(conn, cursor)
         self.table_name = 'options'
         self.field_map = FIELD_MAP
@@ -20,13 +23,18 @@ class Option(Base):
         self.setup()
 
     def __repr__(self):
+        """
+        :unit-test: TestApiModelOption::test____repr__
+        """
         if hasattr(self, "name") and self.name:
             return "<Option %s:%s>" % (self.name, self.value)
         else:
             return "<Option>"
 
     def get_by_name(self, name: str = None) -> bool:
-        """Get an option from the options table based on name. """
+        """Get an option from the options table based on name.
+        :unit-test: TestApiModelOption::test__get_by_name
+        """
         if not name:
             name = self.name
         if not name:
@@ -45,6 +53,7 @@ class Option(Base):
     def build_from_list(self, raw: list):
         """Build a model from an ordered list, converting data types to their desired type where
         possible.
+        :unit-test: TestApiModelOption::test__build_from_list
         """
         count = 0
         for field_name, field in self.field_map.items():
@@ -102,18 +111,10 @@ class Option(Base):
         self.save()
         return True
 
-    def _set_bool(self, value) -> bool:
-        """Set a boolean option to the correct value. """
-        value = str(value).lower()
-        # Try to convert values to the positive.
-        if value == '1' or value == 'true':
-            return True
-        # Try to convert values to the negative.
-        elif value == '0' or value == 'false':
-            return False
-
     def sql_value_override_for_model(self, field: dict) -> str:
-        """Override the SQL value for a field before it's stored into the database."""
+        """Override the SQL value for a field before it's stored into the database.
+        :unit-test: TestApiModelOption::test__sql_value_override_for_model
+        """
         val = getattr(self, field["name"])
         if self.type == "list" and field["name"] == "value":
             if not val:
@@ -122,5 +123,17 @@ class Option(Base):
                 return ",".join(val)
         else:
             return val
+
+    def _set_bool(self, value) -> bool:
+        """Set a boolean option to the correct value.
+        :unit-test: TestApiModelOption::test___set_bool
+        """
+        value = str(value).lower()
+        # Try to convert values to the positive.
+        if value == '1' or value == 'true':
+            return True
+        # Try to convert values to the negative.
+        elif value == '0' or value == 'false':
+            return False
 
 # End File: cver/src/api/models/option.py

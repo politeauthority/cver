@@ -14,6 +14,9 @@ class RolePerm(Base):
     model_name = "role_perm"
 
     def __init__(self, conn=None, cursor=None):
+        """Create the Perm instance.
+        :unit-test: TestApiModelRolePerm::test____init__
+        """
         super(RolePerm, self).__init__(conn, cursor)
         self.table_name = "role_perms"
         self.field_map = FIELD_MAP
@@ -21,12 +24,18 @@ class RolePerm(Base):
         self.setup()
 
     def __repr__(self):
+        """Create the Perm instance.
+        :unit-test: TestApiModelRolePerm::test____repr__
+        """
         if self.id:
             return "<RolePerm %s:(Role.ID %s, Perm.ID %s)>" % (self.id, self.role_id, self.perm_id)
         else:
             return "<RolePerm>"
 
-    def get_by_role_perm(self, role_id: int, perm_id) -> bool:
+    def get_by_role_perm(self, role_id: int, perm_id: int) -> bool:
+        """Create the Perm instance.
+        :unit-test: TestApiModelRolePerm::test____init__
+        """
         sql = """
             SELECT *
             FROM `role_perms`
@@ -42,4 +51,4 @@ class RolePerm(Base):
         self.build_from_list(raw)
         return True
 
-# End File: cver/src/api/modles/role_perm.py
+# End File: cver/src/api/models/role_perm.py
