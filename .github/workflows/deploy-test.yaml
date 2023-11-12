@@ -58,6 +58,7 @@ jobs:
           chmod 600 ~/.kube/config.yaml
           DEPLOYED_AT=$(date +"%Y-%m-%d %T")
           cd helm/cver-test
+          echo "Cver Api Url: ${API_URL}"
           helm upgrade \
             ${RELEASE_NAME} ./ \
             --namespace=${NAMESPACE} \

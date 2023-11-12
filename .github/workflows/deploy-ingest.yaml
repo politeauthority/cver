@@ -46,6 +46,7 @@ jobs:
           DEPLOYED_AT=$(date +"%Y-%m-%d %T")
           echo "RELEASE_NAME: ${RELEASE_NAME}"
           cd helm/cver-ingest
+          echo "Cver Api Url: ${API_URL}"
           helm upgrade ${RELEASE_NAME} ./ \
             --namespace=${NAMESPACE} \
             --install \
