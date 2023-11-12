@@ -29,15 +29,17 @@ class DataOptions:
         return True
 
     def create_engine_options(self):
-        """Create scan and limit option details."""
+        """Create engine download scan and limit option details."""
         self._make_option("engine_download_limit", "int", 1)
         self._make_option("engine_download_process_limit", "int", 1)
+        self._make_option("engine_download_interval", "int", 168)
         self._make_option("engine_scan_limit", "int", 1)
         self._make_option("engine_scan_process_limit", "int", 1)
+        self._make_option("engine_scan_interval", "int", 168)
         logging.info("Engine options create successful")
         return True
 
-    def create_test_option_values(self):
+    def create_registry_option_values(self):
         """Create the option test values if we are in a test environment."""
         if not glow.general["CVER_TEST"]:
             return True

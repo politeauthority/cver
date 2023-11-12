@@ -45,24 +45,47 @@ jobs:
             echo "Running Lint Helm. Changes detected." >> $GITHUB_STEP_SUMMARY
           fi
 
-      - name: Lint Helm - Cver-Api
+      - name: Veryify Helm - Cver-Api
         if: steps.changes.outputs.helm == 'true'
         run: |
           helm lint ./helm/cver-api
+          cd helm/cver-api
+          helm template . -f values.yaml
+          helm template . -f values-quigley-dev.yaml
+          helm template . -f values-quigley-stage.yaml
+          helm template . -f values-quigley-test.yaml
+          helm template . -f values-quigley-prod.yaml
 
-      - name: Lint Helm - Cver-Engine
+      - name: Verify Helm - Cver-Engine
         if: steps.changes.outputs.helm == 'true'
         run: |
           helm lint ./helm/cver-engine
+          cd helm/cver-engine
+          helm template . -f values.yaml
+          helm template . -f values-quigley-dev.yaml
+          helm template . -f values-quigley-stage.yaml
+          helm template . -f values-quigley-test.yaml
+          helm template . -f values-quigley-prod.yaml
   
-      - name: Lint Helm - Cver-Ingest
+      - name: Verify Helm - Cver-Ingest
         if: steps.changes.outputs.helm == 'true'
         run: |
           helm lint ./helm/cver-ingest
+          cd helm/cver-ingest
+          helm template . -f values.yaml
+          helm template . -f values-quigley-dev.yaml
+          helm template . -f values-quigley-stage.yaml
+          helm template . -f values-quigley-test.yaml
+          helm template . -f values-quigley-prod.yaml
 
-      - name: Lint Helm - Cver-Test
+      - name: Verify Helm - Cver-Test
         if: steps.changes.outputs.helm == 'true'
         run: |
           helm lint ./helm/cver-test
+          cd helm/cver-test
+          helm template . -f values.yaml
+          helm template . -f values-quigley-dev.yaml
+          helm template . -f values-quigley-stage.yaml
+          helm template . -f values-quigley-test.yaml
 
 # End File: cver/.github/workflows/lint.yaml

@@ -141,7 +141,7 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
 
-  run-engne:
+  run-engine:
     needs: [deploy-api, deploy-engine, run-ingest]
     uses: ./.github/workflows/run-engine.yaml
     secrets: inherit 

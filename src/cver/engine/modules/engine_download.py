@@ -18,8 +18,6 @@ from cver.engine.utils import glow
 class EngineDownload:
 
     def __init__(self):
-        # @todo: Make CVER_ENGINE_DOWNLOAD_LIMIT derived from an option value
-        # @todo: Make this pulled through options/ allow non pull throughs
         self.download_limit = glow.engine_info["download_limit"]
         self.process_limit = glow.engine_info["download_process_limit"]
         self.downloaded = 0

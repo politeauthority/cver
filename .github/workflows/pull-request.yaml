@@ -153,7 +153,7 @@ jobs:
 
   run-engine:
     needs: [deploy-api, deploy-engine, run-ingest]
-    uses: ./.github/workflows/run-enigne.yaml
+    uses: ./.github/workflows/run-engine.yaml
     secrets: inherit 
     with:
       deployment-name: "test"
