@@ -15,6 +15,7 @@ from cver.shared.utils import display
 from cver.client.collections.images import Images
 from cver.client.collections.image_builds import ImageBuilds
 from cver.client.collections.image_build_waitings import ImageBuildWaitings
+from cver.client.collections.options import Options
 from cver.client.collections.tasks import Tasks
 from cver.client.models.image import Image
 from cver.client.models.image_build import ImageBuild
@@ -63,6 +64,8 @@ class Cver:
             self.get_image_build()
         elif self.args.noun in ["ibw", "image-build-waiting"]:
             self.get_image_buld_waiting()
+        elif self.args.noun in ["options"]:
+            self.get_options()
         elif self.args.noun in ["tasks"]:
             self.get_tasks()
         elif self.args.noun in ["task"]:
@@ -204,6 +207,23 @@ class Cver:
             print(f"\t\tSha:                {ib.sha}")
             print("\t\tTags:               %s" % ", ".join(ib.tags))
             print(f"\t\tRegistry Imported: {ib.registry_imported}")
+
+    def get_options(self):
+        """Get all Options."""
+        entity_col = Options()
+        options = entity_col.get(page=self.args.page)
+        response = entity_col.response_last
+
+        console.print("Options (%s)" % response["info"]["total_objects"], style="bold")
+
+        msg = ""
+        for option in options:
+            msg += "[b]%s[/b]\t%s\n" % (option.name, option.value)
+        console.print(msg)
+        print("\n")
+        print("Info")
+        print("\tPage: %s/%s" % (response["info"]["current_page"], response["info"]["last_page"]))
+        print("\tPer Page: %s" % response["info"]["per_page"])
 
     def get_tasks(self):
         """Get all Tasks."""
