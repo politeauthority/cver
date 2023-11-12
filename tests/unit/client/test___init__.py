@@ -77,7 +77,6 @@ class TestClient:
     #     """Test the Client login flow.
     #     :method: Client().login
     #     """
-    #     os.environ["CVER_API_URL"] = "http://cver-api-dev"
     #     client = Client()
     #     assert client.login()
     #     assert os.path.exists(client.token_file)
@@ -88,6 +87,8 @@ class TestClient:
     #     """
     #     client = Client()
     #     assert not client.response_last
+    #     info_result = client.info()
+    #     import ipdb; ipdb.set_trace()
 
     def test___determine_if_login(self):
         """
