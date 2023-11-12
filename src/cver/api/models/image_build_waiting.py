@@ -12,7 +12,9 @@ class ImageBuildWaiting(BaseEntityMeta):
     model_name = "image-build-waiting"
 
     def __init__(self, conn=None, cursor=None):
-        """Create the ImageBuildWaiting instance."""
+        """Create the ImageBuildWaiting instance.
+        :unit-test: TestImageBuildWaiting::test____init__
+        """
         super(ImageBuildWaiting, self).__init__(conn, cursor)
         self.table_name = "image_build_waitings"
         self.field_map = FIELD_MAP
@@ -22,7 +24,9 @@ class ImageBuildWaiting(BaseEntityMeta):
         self.setup()
 
     def get_by_sha(self, sha: str = None) -> bool:
-        """Get an ImageBuild by it's sha."""
+        """Get an ImageBuild by it's sha.
+        :unit-test: TestImageBuildWaiting::test__get_by_sha
+        """
         if sha:
             self.sha = sha
         return self.get_by_field("sha", self.sha)

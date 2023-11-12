@@ -16,6 +16,9 @@ from cver.shared.utils import misc
 class Config:
 
     def __init__(self):
+        """Initialize configuration
+        :unit-test: TestClientUtilsConfig::test__validate_config
+        """
         self.config_file = "/Users/alix/.cver/config"
         self.use_local_config = False
         self.local_config = {}
@@ -34,11 +37,11 @@ class Config:
             - environment vars
         """
         if self.get_manual_arg_config(client_id, api_key, api_url):
-            logging.debug("Client config from manual args")
+            pass
         elif self.read_local_config():
-            logging.debug("Client config from local yaml")
+            pass
         elif self.get_env_config():
-            logging.debug("Client config from env vars")
+            pass
         self.validate_config()
         return self.config
 
@@ -48,7 +51,9 @@ class Config:
             api_key: str = None,
             api_url: str = None
     ) -> dict:
-        """Get the manual args supplied."""
+        """Get the manual args supplied.
+        :unit-test: TestClientUtilsConfig::test__get_manual_arg_config
+        """
         if not client_id or not api_key or not api_url:
             return {}
         self.config["api_url"] = api_url
@@ -69,7 +74,7 @@ class Config:
         loading the config and checking if the file wants us to use the config.
         """
         if not os.path.exists(self.config_file):
-            logging.debug("Config path does not exist: %s" % self.config_file)
+            # logging.debug("Config path does not exist: %s" % self.config_file)
             return False
         with open(self.config_file, "r") as file:
             self.local_config = yaml.safe_load(file)
@@ -98,6 +103,9 @@ class Config:
         return self.config
 
     def validate_config(self) -> bool:
+        """Validate configuration.
+        :unit-test: TestClientUtilsConfig::test__validate_config
+        """
         errors = []
         if not self.config["api_url"] or not isinstance(self.config["api_url"], str):
             errors.append("invalid api url")

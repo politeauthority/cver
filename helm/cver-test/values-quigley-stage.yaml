@@ -1,10 +1,11 @@
 # Cver Test
 # Quigely Stage values
+replicaCount: 1
 
 nameOverride: "stage"
 
 app:
-  api_url: "http://cver-api-dev"
+  apiUrl: "http://cver-api-stage"
   logLevel: "DEBUG"
   envName: "stage"
   debug: true

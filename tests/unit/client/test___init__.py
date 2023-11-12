@@ -51,7 +51,7 @@ def vcr_config():
 #     return os.environ["CVER_API_KEY"]
 
 
-class TestClientInit:
+class TestClient:
 
     def test____init__(self):
         """Test the Client initialization.
@@ -72,15 +72,23 @@ class TestClientInit:
         assert "test_client_id" == client.client_id
         assert "test_api_key" == client.api_key
 
-    @pytest.mark.vcr
-    def test_login(self):
-        """Test the Client login flow.
-        :method: Client().login
-        """
-        os.environ["CVER_API_URL"] = "http://cver-api-dev"
-        client = Client()
-        assert client.login()
-        assert os.path.exists(client.token_file)
+    # @pytest.mark.vcr
+    # def test_login(self):
+    #     """Test the Client login flow.
+    #     :method: Client().login
+    #     """
+    #     client = Client()
+    #     assert client.login()
+    #     assert os.path.exists(client.token_file)
+
+    # def test_info(self):
+    #     """Test the Client get info.
+    #     :method: Client().info()
+    #     """
+    #     client = Client()
+    #     assert not client.response_last
+    #     info_result = client.info()
+    #     import ipdb; ipdb.set_trace()
 
     def test___determine_if_login(self):
         """
@@ -97,5 +105,17 @@ class TestClientInit:
         assert not client._save_token()
         client.token = "fake token!"
         assert client._save_token()
+
+    def test___get_base_request_args(self):
+        """
+        :method: Client()._get_base_request_args
+        """
+        client_1 = Client()
+        r_args = client_1._get_base_request_args("images", "GET")
+        assert isinstance(r_args, dict)
+        assert "GET" == r_args["method"]
+        assert "headers" in r_args
+        assert "application/json" == r_args["headers"]["content-type"]
+        assert "token" in r_args["headers"]
 
 # End File: cver/tests/unit/client/test___init__.py

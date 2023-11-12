@@ -50,4 +50,4 @@ def delete_model(role_id: int = None):
     return ctrl_base.delete_model(Role, role_id)
 
 
-# End File: cve/src/api/controllers/ctrl_modles/ctrl_role.py
+# End File: cve/src/api/controllers/ctrl_models/ctrl_role.py

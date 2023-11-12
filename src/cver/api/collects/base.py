@@ -146,9 +146,9 @@ class Base:
         if limit == 0:
             limit = per_page
         sql = self._generate_paginated_sql(page, where_and, order_by, limit)
-        logging.info("\nPAGINATIED SQL\n")
-        logging.info("WHERE AND: %s" % where_and)
-        logging.info("%s\n\n" % sql)
+        # logging.info("\nPAGINATIED SQL\n")
+        # logging.info("WHERE AND: %s" % where_and)
+        # logging.info("%s\n\n" % sql)
         self.cursor.execute(sql)
         raw = self.cursor.fetchall()
         prestines = []
@@ -338,7 +338,7 @@ class Base:
     def _pagination_total(self, sql: str, user_limit: int = None) -> int:
         """Get the total number of pages for a pagination query."""
         total_sql = self._edit_pagination_sql_for_info(sql, user_limit)
-        logging.info("PAGINATION INFO SQL:\n%s" % total_sql)
+        # logging.info("PAGINATION INFO SQL:\n%s" % total_sql)
         self.cursor.execute(total_sql)
         raw = self.cursor.fetchone()
         if not raw:

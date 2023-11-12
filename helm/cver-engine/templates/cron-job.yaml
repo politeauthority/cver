@@ -25,7 +25,7 @@ spec:
               - name: CVER_ENV
                 value: "{{ .Values.app.envName }}"
               - name: CVER_API_URL
-                value: "http://cver-api-{{ .Values.app.envName }}"
+                value: "{{ .Values.app.apiUrl }}"
               - name: CVER_LOG_LEVEL
                 value: "{{ .Values.app.logLevel }}"
               - name: CVER_ENGINE_DOWNLOAD_LIMIT
@@ -51,7 +51,7 @@ spec:
               - name: CVER_API_KEY
                 valueFrom:
                   secretKeyRef:
-                    key: ingest-api-key
+                    key: engine-api-key
                     name: cver-test-creds
               - name: CVER_TEST
                 value: "true"

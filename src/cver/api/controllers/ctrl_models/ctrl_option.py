@@ -40,4 +40,4 @@ def post_model(option_id: int = None):
     return ctrl_base.post_model(Option, option_id)
 
 
-# End File: cve/src/api/controllers/ctrl_modles/ctrl_option.py
+# End File: cve/src/api/controllers/ctrl_models/ctrl_option.py
