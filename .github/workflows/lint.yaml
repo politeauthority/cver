@@ -48,9 +48,9 @@ jobs:
       - name: Veryify Helm - Cver-Api
         if: steps.changes.outputs.helm == 'true'
         run: |
-          helm dependency build
           helm lint ./helm/cver-api
           cd helm/cver-api
+          helm dependency build
           helm template . -f values.yaml
           helm template . -f values-quigley-dev.yaml
           helm template . -f values-quigley-stage.yaml
