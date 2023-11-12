@@ -40,4 +40,4 @@ class Image(BaseEntityMeta):
         self.build_from_list(raw)
         return True
 
-# End File: cver/src/api/modles/image.py
+# End File: cver/src/api/models/image.py

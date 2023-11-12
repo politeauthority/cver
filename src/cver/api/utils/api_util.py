@@ -29,11 +29,15 @@ def get_params() -> dict:
     elif "page" in raw_args and raw_args["page"].isdigit():
         ret_args["page"] = int(raw_args["page"])
 
+    if raw_args:
+        ret_args["raw_args"]["query_str"] = raw_args
+        ret_args["clean_args"]["fields"] = _get_search_field_args(raw_args)
+
     if "query" in raw_args:
         query = xlate.url_decode_json(raw_args["query"])
-        ret_args["clean_args"]["fields"] = _get_search_field_args(query)
-        ret_args["clean_args"]["order_by"] = _get_search_order_args(query)
-        ret_args["clean_args"]["limit"] = _get_search_limit_args(query)
+        ret_args["clean_args"]["fields"] = _post_search_field_args(query)
+        ret_args["clean_args"]["order_by"] = _post_search_order_args(query)
+        ret_args["clean_args"]["limit"] = _post_search_limit_args(query)
         return ret_args
 
     if not request.data:
@@ -47,32 +51,35 @@ def get_params() -> dict:
 
     ret_args["raw_args"].update(request_data.items())
     _validate_args(raw_args)
-    ret_args["clean_args"]["fields"] = _get_search_field_args(request_data)
-    ret_args["clean_args"]["order_by"] = _get_search_order_args(request_data)
-    ret_args["clean_args"]["limit"] = _get_search_limit_args(request_data)
+    ret_args["clean_args"]["fields"] = _post_search_field_args(request_data)
+    ret_args["clean_args"]["order_by"] = _post_search_order_args(request_data)
+    ret_args["clean_args"]["limit"] = _post_search_limit_args(request_data)
 
     return ret_args
 
 
-def _validate_args(raw_args: dict):
-    accepted_keys = ["fields", "limit", "order_by"]
-    errors = []
-    for raw_arg, arg_data in raw_args.items():
-        if raw_args not in accepted_keys:
-            errors.append("Arg: '%s' not allowed")
-
-    if errors:
-        data = {
-            "status": "error",
-            "message": ""
-        }
-        data["message"] = " ".join(errors)
-        logging.warning("Client sent invalid search request: %s" % data["message"])
-        return make_response(json.dumps(errors), 400)
-
-
-def _get_search_field_args(the_args: dict) -> dict:
+def _get_search_field_args(raw_args: dict) -> dict:
+    """Get query paramaters from the url, mapping them as fields if they dont appear to be specific
+    key words.
+    :unit-test: TestApiUtilApiUtil::test___get_search_field_args
     """
+    ret = {}
+    if not raw_args:
+        return ret
+    non_model_fields = ["p", "page", "limit", "query"]
+    for raw_key, raw_value in raw_args.items():
+        if raw_key not in non_model_fields:
+            ret[raw_key] = {
+                "field": raw_key,
+                "value": raw_value,
+                "op": "="
+            }
+    return ret
+
+
+def _post_search_field_args(the_args: dict) -> dict:
+    """Extracts the field portion of a search query.
+    :unit-test: TestApiUtilApiUtil::test___post_search_field_args
     """
     ret = {}
     if "fields" not in the_args:
@@ -100,9 +107,9 @@ def _get_search_field_args(the_args: dict) -> dict:
     return ret
 
 
-def _get_search_order_args(the_args: dict) -> dict:
+def _post_search_order_args(the_args: dict) -> dict:
     """Get search field arguments from a request.
-    :unit-test: TestApiUtilApiUtil::test___get_search_field_args
+    :unit-test: TestApiUtilApiUtil::test___post_search_order_args
     """
     if "order_by" not in the_args:
         return {}
@@ -114,8 +121,9 @@ def _get_search_order_args(the_args: dict) -> dict:
     return ret
 
 
-def _get_search_limit_args(the_args: dict) -> dict:
+def _post_search_limit_args(the_args: dict) -> dict:
     """Get limit arg from the request.
+    :unit-test: TestApiUtilApiUtil::test___post_search_limit_args
     """
     if "limit" not in the_args:
         return None
@@ -123,5 +131,23 @@ def _get_search_limit_args(the_args: dict) -> dict:
     if not isinstance(limit, int):
         return None
     return limit
+
+
+def _validate_args(raw_args: dict):
+    accepted_keys = ["fields", "limit", "order_by"]
+    errors = []
+    for raw_arg, arg_data in raw_args.items():
+        if raw_args not in accepted_keys:
+            errors.append("Arg: '%s' not allowed")
+
+    if errors:
+        data = {
+            "status": "error",
+            "message": ""
+        }
+        data["message"] = " ".join(errors)
+        logging.warning("Client sent invalid search request: %s" % data["message"])
+        return make_response(json.dumps(errors), 400)
+
 
 # End File: cver/src/api/utils/api_util.py

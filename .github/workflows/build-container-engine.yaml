@@ -46,13 +46,13 @@ jobs:
               - 'docker/engine/**'
               - 'src/setup.py'
               - 'src/cver/shared/**'
-              - 'src/cver/cver_client/**'
+              - 'src/cver/client/**'
               - 'src/cver/engine/**'
               - 'tests/regression/engine/**'
 
       - name: Decider
         run: |
-          echo "# Docker Build: Engine" >> $GITHUB_STEP_SUMMARY
+          echo "# Docker Build: Cver Engine" >> $GITHUB_STEP_SUMMARY
           if [ "${{steps.changes.outputs.src}}" = "false" ]; then
             echo "Skipping Engine Build. No changes detected." >> $GITHUB_STEP_SUMMARY
           else

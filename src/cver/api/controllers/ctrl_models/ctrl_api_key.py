@@ -70,4 +70,4 @@ def delete_model(api_key_id: int = None):
     return ctrl_base.delete_model(ApiKey, api_key_id)
 
 
-# End File: cve/src/api/controllers/ctrl_modles/ctrl_api_key.py
+# End File: cve/src/api/controllers/ctrl_models/ctrl_api_key.py

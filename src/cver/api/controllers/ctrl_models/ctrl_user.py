@@ -51,4 +51,4 @@ def delete_model(user_id: int = None):
     return ctrl_base.delete_model(User, user_id)
 
 
-# End File: cve/src/api/controllers/ctrl_modles/ctrl_user.py
+# End File: cve/src/api/controllers/ctrl_models/ctrl_user.py

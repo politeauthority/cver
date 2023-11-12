@@ -6,8 +6,8 @@ nameOverride: "dev"
 
 app:
   runApiOnStart: true
-  logLevel: "DEBUG"
   runMigrations: true
+  logLevel: "DEBUG"
   envName: "dev"
   debug: true
   jwtExpireMinutes: 4320

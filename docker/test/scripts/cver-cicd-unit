@@ -1,0 +1,35 @@
+#!/bin/sh -l
+# Cver Test
+# Cver CICD Unit
+set -e
+echo "Cver Cicd Unit"
+echo "Using Cver branch: ${CVER_BRANCH}"
+rm -rf /cicd
+mkdir -p /cicd
+WORKING_DIR="/cicd"
+TEST_DIR="${WORKING_DIR}/cver/tests"
+mkdir -p $WORKING_DIR
+echo "WORKDIR: ${WORKING_DIR}/cver"
+cd ${WORKING_DIR}
+echo "Cloing Cver"
+git clone https://github.com/politeauthority/cver.git
+cd  cver
+git fetch origin
+git checkout $CVER_BRANCH
+echo "Building Cver"
+cd ${WORKING_DIR}/cver/src
+pip3 install .
+echo "Building Cver Tests"
+cd ${TEST_DIR}
+pip3 install .
+mkdir -p /report
+
+echo "Running tests against code src: ${WORKING_DIR}"
+echo "Using tests from: ${TEST_DIR}/unit"
+
+cd ${TEST_DIR}/unit
+pytest --vcr-record=none -rx -s --md /report/unit-report.md
+pytest --cov=cver --vcr-record=none -rx -s > /report/unit-report-cov.txt
+
+# COVERAGE=$(awk '/---------- coverage: platform linux,/{flag=1} flag' "/report/coverage.txt")
+# COVERAGE=$(awk '/TOTAL/{print $NF}' "/coverage.txt") 

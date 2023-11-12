@@ -1,0 +1,11 @@
+#!/bin/sh -l
+# Cver Test Flake8
+
+SRC_DIR="/current/src"
+TEST_DIR="/current/tests"
+
+# Flake8 Source
+flake8 ${SRC_DIR} --config=${SRC_DIR}/flake8 --count --show-source --statistics
+
+# Flake8 Tests
+flake8 ${TEST_DIR} --config=/${TEST_DIR}/flake8 --count --show-source --statistics

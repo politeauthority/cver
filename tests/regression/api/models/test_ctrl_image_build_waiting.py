@@ -13,8 +13,8 @@ import requests
 from .test_api_base import TestApiBase
 
 CVER_API_URL = os.environ.get("CVER_API_URL")
-CVER_CLIENT_ID = os.environ.get("CVER_TEST_CLIENT_ID")
-CVER_API_KEY = os.environ.get("CVER_TEST_API_KEY")
+CVER_API_KEY = os.environ.get("CVER_API_KEY")
+CVER_CLIENT_ID = os.environ.get("CVER_CLIENT_ID")
 URL_BASE = "/image-build-waiting"
 URL_MODEL = "image-build-waiting"
 
@@ -61,9 +61,15 @@ class TestApiModelImageBuildWaiting(TestApiBase):
         response_json = response.json()
         image_build_waiting_id = response_json["object"]["id"]
 
+        request_args["method"] = "GET"
+        request_args["params"] = {}
+        request_args["params"]["image_build_id"] = TEST_MODEL["image_build_id"]
+        request_args["params"]["image_id"] = TEST_MODEL["image_id"]
+        request_args.pop("data")
+
         # Make another request
         response = requests.request(**request_args)
-        assert 201 == response.status_code
+        assert 200 == response.status_code
         response_json = response.json()
         image_build_waiting_id_2 = response_json["object"]["id"]
         assert image_build_waiting_id == image_build_waiting_id_2

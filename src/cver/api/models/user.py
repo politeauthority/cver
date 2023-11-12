@@ -46,4 +46,4 @@ class User(Base):
         self.build_from_list(raw)
         return True
 
-# End File: cver/src/api/modles/organization.py
+# End File: cver/src/api/models/organization.py

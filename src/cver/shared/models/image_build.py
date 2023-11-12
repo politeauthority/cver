@@ -57,6 +57,12 @@ FIELD_MAP = {
         "type": "list",
         "api_writeable": True
     },
+    "size": {
+        "name": "size",
+        "type": "int",
+        "api_writeable": True,
+        "api_searchable": True,
+    },
     "os_family": {
         "name": "os_family",
         "type": "str",

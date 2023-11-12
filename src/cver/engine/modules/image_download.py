@@ -1,7 +1,7 @@
 """
-    Cver Engine
     Image Download
     Downloads a single Image
+
 """
 import logging
 import subprocess
@@ -39,16 +39,14 @@ class ImageDownload:
         """Run the download process."""
         if not self.preflight_check():
             return self.data
-
-        self.create_task()
-        if self.ibw:
-            self.prep_from_ibw()
         self.data["image"] = self.image
         self.data["ibw"] = self.ibw
         self.data["ib"] = self.ib
+
         if not self.prep_success:
             logging.info("Download prep failed for %s %s" % (self.ibw, self.image))
             return self.data
+
         logging.info("Running Download: %s - %s - %s - %s" % (
             self.image,
             self.ib,
@@ -65,8 +63,13 @@ class ImageDownload:
     def preflight_check(self) -> bool:
         """Checks to make sure we have the information required to start the download process."""
         if not self.ibw and not self.ib:
-            logging.error("Missing required data to perform download.")
+            logging.error("PreFlight: Missing required data to perform download.")
             return False
+        if self.ibw:
+            if not self.prep_from_ibw():
+                logging.error("PreFlight: Couldnt fetch required Image details from Cver Api.")
+                return False
+        self.create_task()
         return True
 
     def create_task(self) -> bool:
@@ -128,6 +131,7 @@ class ImageDownload:
         pull_cmd = ["docker", "pull", image_loc]
         logging.info("Pulling: %s" % image_loc)
         image_pull = self.docker_pull(pull_cmd)
+
         if not image_pull:
             self._handle_error()
             return False
@@ -137,8 +141,15 @@ class ImageDownload:
             logging.info("lets create an ibw")
             self._create_ib_from_pull(image_pull.decode("utf-8"))
 
-        # self.data["status_reason"] = "Succeed downloading"
-        # self._handle_success_pull()
+        if self.image.registry == "docker.io":
+            image_search = self.image.name
+        else:
+            image_search = "%s/%s" % (self.image.registry, self.image.name)
+        self.image_docker_id = docker.get_docker_id(image_search)
+        docker_image_size = docker.get_image_size(self.image_docker_id)
+        if docker_image_size:
+            self.ib.size = docker_image_size
+
         return True
 
     def push_image(self) -> bool:
@@ -148,32 +159,33 @@ class ImageDownload:
             full_og_image_str = self.image.name
         else:
             full_og_image_str = "%s/%s" % (self.image.registry, self.image.name)
-        logging.info("PUSH IMAGE: %s" % full_og_image_str)
-        docker_id = docker.get_docker_id(full_og_image_str)
-        logging.info("DOCKER ID: %s" % docker_id)
-        if not docker_id:
+        logging.info("Atempting to push: %s/%s" % (self.image.registry, self.image.name))
+        if not self.image_docker_id:
             self.data["status_reason"] = "Failed to get Docker ID from locally pulled image"
             self._handle_error()
             return False
+
         image_str = "%s/%s/%s:%s" % (
             glow.registry_info["local"]["url"],
             glow.registry_info["repository_general"],
             self.image.name,
             self.ibw.tag
         )
-        if not docker.tag_image(docker_id, image_str):
+        if not docker.tag_image(self.image_docker_id, image_str):
             logging.error("Failed Tagging")
             self.data["status_reason"] = "Failed tagging after download"
             self._handle_error()
-            docker.delete_image(docker_id)
+            docker.delete_image(self.image_docker_id)
             return False
+        logging.info("PUSH IMAGE: %s -> %s" % (full_og_image_str, image_str))
+        logging.info("DOCKER ID: %s" % self.image_docker_id)
         if not docker.push_image(image_str):
             self.data["status_reason"] = "Failed push to local registry after download"
             logging.error("Failed pushing")
             self._handle_error()
-            docker.delete_image(docker_id)
+            docker.delete_image(self.image_docker_id)
             return False
-        docker.delete_image(docker_id)
+        docker.delete_image(self.image_docker_id)
         return True
 
     def get_docker_pull_url(self) -> str:

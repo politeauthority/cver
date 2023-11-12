@@ -48,4 +48,4 @@ def delete_model(scan_raw_id: int = None):
     return ctrl_base.delete_model(ScanRaw, scan_raw_id)
 
 
-# End File: cve/src/api/controllers/ctrl_modles/ctrl_scan_raw.py
+# End File: cve/src/api/controllers/ctrl_models/ctrl_scan_raw.py

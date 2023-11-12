@@ -20,4 +20,4 @@ class Software(Base):
         self.createable = True
         self.setup()
 
-# End File: cver/src/shared/modles/software.py
+# End File: cver/src/shared/models/software.py

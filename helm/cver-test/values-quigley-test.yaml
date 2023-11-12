@@ -1,4 +1,5 @@
-# Quigely test values for cver-test.
+# Cver Test
+# Quigely Test values
 
 replicaCount: 1
 
@@ -9,6 +10,10 @@ app:
   cverCicd: "true"
   envName: "test"
   debug: true
+  database:
+    name: "cver_dev"
+    host: "cver-mysql.cver.svc.cluster.local"
+    user: "cver"
 
 image:
   repository: harbor.squid-ink.us/cver/cver-test

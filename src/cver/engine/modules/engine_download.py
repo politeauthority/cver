@@ -10,6 +10,7 @@ import logging
 from cver.client.collections.image_builds import ImageBuilds
 from cver.client.collections.image_build_waitings import ImageBuildWaitings
 from cver.client.models.image_build_waiting import ImageBuildWaiting
+from cver.shared.utils import date_utils
 from cver.engine.modules.image_download import ImageDownload
 from cver.engine.utils import glow
 
@@ -17,8 +18,6 @@ from cver.engine.utils import glow
 class EngineDownload:
 
     def __init__(self):
-        # @todo: Make CVER_ENGINE_DOWNLOAD_LIMIT derived from an option value
-        # @todo: Make this pulled through options/ allow non pull throughs
         self.download_limit = glow.engine_info["download_limit"]
         self.process_limit = glow.engine_info["download_process_limit"]
         self.downloaded = 0
@@ -45,7 +44,8 @@ class EngineDownload:
         }
         return ret
 
-    def set_ibws(self):
+    def set_ibws(self) -> bool:
+        """Creating IBWs for ImageBuilds that are ready for the download process."""
         ib_col = ImageBuilds()
         args = {
             "fields": {
@@ -60,7 +60,7 @@ class EngineDownload:
         ibs = ib_col.get(args)
         ibws_created = 0
         for ib in ibs:
-            if ib.sync_last_ts:
+            if date_utils.interval_ready(ib.sync_last_ts, 96):
                 logging.debug("%s: Not flagging image build for sync" % ib)
                 continue
             ibw = ImageBuildWaiting()

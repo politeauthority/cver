@@ -13,7 +13,7 @@ concurrency:
 jobs:
 
   build-cver:
-    uses: ./.github/workflows/build-python.yaml
+    uses: ./.github/workflows/build-cver.yaml
     secrets: inherit 
     permissions:
       pull-requests: read
@@ -56,6 +56,7 @@ jobs:
     uses: ./.github/workflows/unit-tests.yaml
     secrets: inherit 
     with:
+      deployment-name: "stage"
       run-number: ${{ github.run_number }}
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
@@ -129,7 +130,7 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
-  test-ingest:
+  run-ingest:
     needs: [deploy-api, deploy-ingest]
     uses: ./.github/workflows/run-ingest.yaml
     secrets: inherit 
@@ -140,10 +141,9 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
 
-  regression-api:
-    needs: [deploy-api, deploy-test]
-    if: ${{ needs.deploy-api.result == 'success' }}
-    uses: ./.github/workflows/regression-api.yaml
+  run-engine:
+    needs: [deploy-api, deploy-engine, run-ingest]
+    uses: ./.github/workflows/run-engine.yaml
     secrets: inherit 
     with:
       deployment-name: "stage"
@@ -151,21 +151,10 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
-  regression-cli:
+  regression:
     needs: [deploy-api, deploy-test]
     if: ${{ needs.deploy-api.result == 'success' }}
-    uses: ./.github/workflows/regression-cli.yaml
-    secrets: inherit 
-    with:
-      deployment-name: "stage"
-      run-number: ${{ github.run_number }}
-      cicd-version: "${{ vars.CICD_VERSION }}"
-      harbor-user: "${{ vars.HARBOR_USER }}"
-
-  regression-client:
-    needs: [deploy-api, deploy-test]
-    if: ${{ needs.deploy-api.result == 'success' }}
-    uses: ./.github/workflows/regression-client.yaml
+    uses: ./.github/workflows/regression.yaml
     secrets: inherit 
     with:
       deployment-name: "stage"

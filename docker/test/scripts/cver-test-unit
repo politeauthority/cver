@@ -1,19 +1,25 @@
 #!/bin/sh -l
 # Cver Test - Unit
+# Runs unit tests
+# Operations
+#  - Build Cver
+#  - Builds Cver Test Tools
 set -e
 echo "Cver Test Suite Starting"
+NO_BUILD=${1}
+
 WORKING_DIR="/current"
-TEST_DIR="/tests"
+TEST_DIR="/current/tests"
 
-# mkdir /workdir
-# cd /workdir
-# git clone https://github.com/politeauthority/cver.git
-# cd  cver
+if [ "$NO_BUILD" = "no-build" ]; then
+    echo "Not building Cver"
+else
+    /bin/cver-build
+fi
 
-# git fetch origin
-# git checkout origin/cver-test
-
-/bin/cver-build
+cd ${TEST_DIR}
+echo "Building Cver Test Tools"
+pip install .
 
 cd ${TEST_DIR}/unit
-pytest --md report.md --vcr-record=none
+pytest -vvv

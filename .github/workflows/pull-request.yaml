@@ -13,7 +13,7 @@ concurrency:
 jobs: 
   
   build-cver:
-    uses: ./.github/workflows/build-python.yaml
+    uses: ./.github/workflows/build-cver.yaml
     secrets: inherit 
     permissions:
       pull-requests: read
@@ -56,6 +56,7 @@ jobs:
     uses: ./.github/workflows/unit-tests.yaml
     secrets: inherit 
     with:
+      deployment-name: "test"
       run-number: ${{ github.run_number }}
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
@@ -129,32 +130,10 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
-  regression-api:
+  regression:
     needs: [deploy-api, deploy-test]
     if: ${{ needs.deploy-api.result == 'success' }}
-    uses: ./.github/workflows/regression-api.yaml
-    secrets: inherit 
-    with:
-      deployment-name: "test"
-      run-number: ${{ github.run_number }}
-      cicd-version: "${{ vars.CICD_VERSION }}"
-      harbor-user: "${{ vars.HARBOR_USER }}"
-
-  regression-cli:
-    needs: [deploy-api, deploy-test]
-    if: ${{ needs.deploy-api.result == 'success' }}
-    uses: ./.github/workflows/regression-cli.yaml
-    secrets: inherit 
-    with:
-      deployment-name: "test"
-      run-number: ${{ github.run_number }}
-      cicd-version: "${{ vars.CICD_VERSION }}"
-      harbor-user: "${{ vars.HARBOR_USER }}"
-
-  regression-client:
-    needs: [deploy-api, deploy-test]
-    if: ${{ needs.deploy-api.result == 'success' }}
-    uses: ./.github/workflows/regression-client.yaml
+    uses: ./.github/workflows/regression.yaml
     secrets: inherit 
     with:
       deployment-name: "test"
@@ -172,20 +151,19 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
-  # test-engine:
-  #   # needs: [deploy-api, deploy-engine, test-ingest]
-  #   needs: [deploy-api, deploy-engine]
-  #   uses: ./.github/workflows/run-enigne.yaml
-  #   secrets: inherit 
-  #   with:
-  #     deployment-name: "test"
-  #     run-number: ${{ github.run_number }}
-  #     cicd-version: "${{ vars.CICD_VERSION }}"
-  #     harbor-user: "${{ vars.HARBOR_USER }}"
+  run-engine:
+    needs: [deploy-api, deploy-engine, run-ingest]
+    uses: ./.github/workflows/run-engine.yaml
+    secrets: inherit 
+    with:
+      deployment-name: "test"
+      run-number: ${{ github.run_number }}
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
 
   remove-ephem:
     runs-on: self-hosted
-    needs: [deploy-engine, regression-api, regression-cli, run-ingest]
+    needs: [deploy-engine, regression, run-engine]
     container:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
       credentials:
@@ -246,6 +224,5 @@ jobs:
             --namespace=cver-test
 
           echo "Uninstalled Helm deployment cver-test-test-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
-
 
 # End File: cver/.github/workflows/pull-request.yaml

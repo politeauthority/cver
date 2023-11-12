@@ -3,13 +3,20 @@
 replicaCount: 1
 
 app:
-  api_url: "http://cver-api"
-  cverCicd: "false"
+  apiUrl: "http://cver-api"
   branch: "main"
   logLevel: "DEBUG"
   envName: "prod"
   debug: false
   deployedAt: Unknown
+  testDir: "/cicd/cver/tests/"
+  database:
+    name: "cver"
+    host: "mysql"
+    port: 3306
+    user: "mysql-user"
+    passwordSecretName: mysql-password
+    passwordSecretKey: cver-api
 
 image:
   repository: politeauthority/cver-test

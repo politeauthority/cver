@@ -20,14 +20,14 @@ def get(collection) -> dict:
         "object_type": _get_object_type(collection)
     }
     page = 1
-    logging.info("\nREQUEST ARGS:\n%s" % request_args)
+    # logging.info("\nREQUEST ARGS:\n%s" % request_args)
     if "page" in request_args:
         page = request_args["page"]
     field_map = collection().collect_model().field_map
     parsed_body = _parse_body(request_args["clean_args"], field_map)
-    logging.info("\nRaw Args:\n%s" % request_args["raw_args"])
-    logging.info("\nClean Args:\n%s" % request_args["clean_args"])
-    logging.info("\nGET:\n%s" % parsed_body)
+    # logging.info("\nRaw Args:\n%s" % request_args["raw_args"])
+    # logging.info("\nClean Args:\n%s" % request_args["clean_args"])
+    # logging.info("\nGET:\n%s" % parsed_body)
 
     limit = parsed_body["limit"]
     collection_limit = collection().per_page

@@ -47,4 +47,4 @@ def delete_model(software_id: int = None):
     return ctrl_base.delete_model(Software, software_id)
 
 
-# End File: cve/src/api/controllers/ctrl_modles/ctrl_software.py
+# End File: cve/src/api/controllers/ctrl_models/ctrl_software.py

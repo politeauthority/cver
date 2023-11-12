@@ -18,7 +18,8 @@ import json
 import logging
 
 import arrow
-from pymysql.err import ProgrammingError, IntegrityError
+from pymysql.err import ProgrammingError
+# from pymysql.err import ProgrammingError, IntegrityError
 
 from cver.shared.utils import xlate
 from cver.shared.utils import date_utils
@@ -102,25 +103,29 @@ class Base:
         """
         self.setup()
         self.check_required_class_vars()
-
         if self._is_model_json():
             return self.insert()
-        if not self.id:
-            if self.backed_iodku and self.insert_iodku:
+        if self.backed_iodku and self.insert_iodku:
+            if self.id:
                 return self.iodku()
             else:
                 return self.insert()
-        if not self.id:
-            logging.error("Save failed, missing %s.id or where list" % __class__.__name_)
-            raise AttributeError("Save failed, missing %s.id or where list" % __class__.__name_)
-        update_sql = self._gen_update_sql(["id", "created_ts"])
-        try:
-            self.cursor.execute(update_sql)
-        except IntegrityError as e:
-            logging.error("Mysql Integrity Error for %s: %s" % (self, e))
-            return False
-        self.conn.commit()
-        return True
+        else:
+            if self.id:
+                return self.update()
+            else:
+                return self.insert()
+        # if not self.id:
+        #     logging.error("Save failed, missing %s.id or where list" % __class__.__name_)
+        #     raise AttributeError("Save failed, missing %s.id or where list" % __class__.__name_)
+        # update_sql = self._gen_update_sql(["id", "created_ts"])
+        # try:
+        #     self.cursor.execute(update_sql)
+        # except IntegrityError as e:
+        #     logging.error("Mysql Integrity Error for %s: %s" % (self, e))
+        #     return False
+        # self.conn.commit()
+        # return True
 
     def insert(self):
         """Insert a new record of the model.
@@ -128,11 +133,11 @@ class Base:
         """
         sql = self._gen_insert_sql()
         try:
-            logging.info("\n\nINSERT\n%s\n\n" % sql)
+            # logging.info("\n\nINSERT\n%s\n\n" % sql)
             self.cursor.execute(sql)
             self.conn.commit()
         except ProgrammingError as e:
-            logging.critical(sql)
+            # logging.critical(sql)
             logging.critical("Caught ProgrammingError exception:", e)
             exit(1)
         self.id = self.cursor.lastrowid
@@ -148,6 +153,15 @@ class Base:
         self.cursor.execute(sql)
         self.conn.commit()
         self.id = self.cursor.lastrowid
+        return True
+
+    def update(self, skip_fields=["id", "created_ts"]) -> bool:
+        """Update a model.
+        """
+        sql = self._gen_update_sql()
+        # logging.info("\n\nUPDATE\n%s\n\n" % sql)
+        self.cursor.execute(sql)
+        self.conn.commit()
         return True
 
     def delete(self) -> bool:
@@ -191,8 +205,9 @@ class Base:
         """
         if "name" not in self.field_map:
             raise AttributeError('%s does not have a `name` attribute.' % __class__.__name__)
+        if not name:
+            name = self.name
         sql = self._gen_get_by_name_sql(name)
-
         self.cursor.execute(sql)
         raw = self.cursor.fetchone()
         if not raw:
@@ -212,7 +227,7 @@ class Base:
         if not self.field_meta:
             return False
         sql = self._gen_get_by_unique_key_sql(fields)
-        logging.info("\n\n%s\n\n" % sql)
+        # logging.info("\n\n%s\n\n" % sql)
         self.cursor.execute(sql)
         raw = self.cursor.fetchone()
         if not raw:
@@ -230,7 +245,7 @@ class Base:
             "op": "eq"
         }
         sql = self._gen_get_by_field_sql(field=field)
-        # logging.info(sql)
+        # logging(sql)
         self.cursor.execute(sql)
         raw = self.cursor.fetchone()
         if not raw:
@@ -259,7 +274,7 @@ class Base:
             WHERE %s
             LIMIT 1;""" % (self.table_name, sql_fields)
 
-        logging.info("\nGET BY FIELDS\n%s\n" % sql)
+        # logging.info("\nGET BY FIELDS\n%s\n" % sql)
 
         self.cursor.execute(sql)
         run_raw = self.cursor.fetchone()
@@ -386,7 +401,6 @@ class Base:
         """Generate the insert SQL statement.
         :unit-test: TestApiModelBase::test___gen_insert_sql
         """
-        # import ipdb; ipdb.set_trace()
         insert_sql = "INSERT INTO `%s` (%s) VALUES (%s)" % (
             self.table_name,
             self._sql_fields_sanitized(skip_fields=skip_fields),
@@ -423,7 +437,7 @@ class Base:
             raise AttributeError('%s missing Attribute "id"' % self)
         return """DELETE FROM `%s` WHERE `id` = %s;""" % (self.table_name, sql_tools.sql_safe(self.id))
 
-    def _gen_update_sql(self, skip_fields: list) -> tuple:
+    def _gen_update_sql(self, skip_fields: list = ["id", "created_ts"]) -> tuple:
         """Generate the update SQL statement."""
         sql_args = {
             "table_name": self.table_name,
@@ -683,7 +697,6 @@ class Base:
         # Handle converting a bool
         elif field["type"] == "bool":
             value = sql_tools.sql_safe(xlate.convert_bool_to_int(value))
-            # import ipdb; ipdb.set_trace()
 
         elif field["type"] == "str":
             value = str(value)
@@ -701,7 +714,7 @@ class Base:
 
         # Handle converting a json value
         elif field["type"] == "json":
-            logging.info("Creating JSON sql")
+            # logging.info("Creating JSON sql")
             value = json.dumps(value)
             value = f"'{value}'"
 
@@ -738,7 +751,6 @@ class Base:
         :unit-test: TestApiModelBase::test___set_defaults
         """
         self.field_list = []
-        # import ipdb; ipdb.set_trace()
         for field_name, field in self.field_map.items():
             field_name = field['name']
             self.field_list.append(field_name)

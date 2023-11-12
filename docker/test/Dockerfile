@@ -18,7 +18,12 @@ ADD requirements-test.txt /test/requirements-src.txt
 
 ADD scripts/cver-build /bin
 ADD scripts/cver-test-unit /bin
+ADD scripts/cver-test-regression /bin
+ADD scripts/cver-test-flake8 /bin
 ADD scripts/cver-cicd-regression /bin
+ADD scripts/cver-cicd-unit /bin
+ADD scripts/cver-cicd-regression /bin
+ADD scripts/cver-db-destroy /bin
 
 RUN apk add --update --no-cache --virtual .tmp-build-deps \
     gcc libc-dev linux-headers bash curl git vim \
@@ -29,6 +34,5 @@ ENV PS1="cver-test# "
 RUN pip install -r /test/requirements-src.txt && \
     pip install -r /test/requirements-test.txt
 
-# Cver Tests
-ENV CVER_API_URL="http://localhost/"
-ENV CVER_TEST_DIR="/tests/"
+RUN apk add bash curl vim mysql-client
+
