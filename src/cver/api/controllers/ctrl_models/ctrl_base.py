@@ -134,7 +134,7 @@ def post_model(model, entity_id: int = None, generated_data: dict = {}):
         if entity_found:
             logging.info("Found entity: %s through unique keys" % entity)
 
-    logging.info("\nREQUEST:\n%s\n%s" % (request.url, request_data))
+    # logging.info("\nREQUEST:\n%s\n%s" % (request.url, request_data))
     entity = _post_update_entity(entity, request_data, generated_data)
     entity.save()
     data["status"] = "success"
@@ -220,4 +220,4 @@ def _post_update_entity(entity, request_data, generated_data):
             setattr(entity, field_name, field_value)
     return entity
 
-# End File: cver/src/api/controllers/ctrl_modles/ctrl_base.py
+# End File: cver/src/api/controllers/ctrl_models/ctrl_base.py

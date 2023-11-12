@@ -4,9 +4,10 @@ replicaCount: 1
 fullname: "cver-engine"
 
 app:
+  apiUrl: "http://cver-api"
+  envName: "prod"
   logLevel: "INFO"
   debug: false
-  envName: "prod"
   deployedAt: "unknown"
   cron:
     schedule:  "15,45 * * * *"

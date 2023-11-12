@@ -1,7 +1,5 @@
 # Quigely dev values for cver-ingest
 
-replicaCount: 1
-
 nameOverride: "dev"
 
 app:

@@ -19,6 +19,7 @@ class DataTestData:
         opt_str = Option()
         opt_str.type = "str"
         opt_str.name = "test_option_str"
+        opt_str.get_by_name()
         opt_str.acl_write = ["write-all"]
         opt_str.acl_read = ["read-all"]
         opt_str.save()

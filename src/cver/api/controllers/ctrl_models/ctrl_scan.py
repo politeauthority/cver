@@ -47,4 +47,4 @@ def delete_model(scan_id: int = None):
     return ctrl_base.delete_model(Scan, scan_id)
 
 
-# End File: cve/src/api/controllers/ctrl_modles/ctrl_scan.py
+# End File: cve/src/api/controllers/ctrl_models/ctrl_scan.py

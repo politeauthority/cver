@@ -44,11 +44,13 @@ jobs:
           if [ "${{ inputs.deployment-name }}" = "test" ]; then
             RELEASE_NAME="cver-test-test-${{ inputs.run-number }}"
             NAMESPACE="cver-test"
-            CVER_API_URL="http://cver-api-test-${{ inputs.run-number }}"
+            DB_NAME="cver_${{ inputs.run-number }}"
+            API_URL="http://cver-api-test-${{ inputs.run-number }}"
           else
             RELEASE_NAME="cver-test-${{ inputs.deployment-name}}"
             NAMESPACE="cver-${{ inputs.deployment-name}}"
-            CVER_API_URL="cver-api"
+            DB_NAME="cver_${{ inputs.deployment-name}}"
+            API_URL="http://cver-api-${{ inputs.run-number }}"
           fi
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
@@ -56,6 +58,7 @@ jobs:
           chmod 600 ~/.kube/config.yaml
           DEPLOYED_AT=$(date +"%Y-%m-%d %T")
           cd helm/cver-test
+          echo "Cver Api Url: ${API_URL}"
           helm upgrade \
             ${RELEASE_NAME} ./ \
             --namespace=${NAMESPACE} \
@@ -63,8 +66,9 @@ jobs:
             --wait \
             --timeout=300s \
             -f values-quigley-${{ inputs.deployment-name }}.yaml \
-            --set "app.api_url=${CVER_API_URL}" \
+            --set "app.apiUrl=${API_URL}" \
             --set "app.branch=${BRANCH}" \
+            --set "app.database.name=${DB_NAME}" \
             --set "app.deployedAt=${DEPLOYED_AT}"
           echo "# Deployed: Cver-Test" >> $GITHUB_STEP_SUMMARY
           echo "Created Helm deployment: ${RELEASE_NAME}" >> $GITHUB_STEP_SUMMARY

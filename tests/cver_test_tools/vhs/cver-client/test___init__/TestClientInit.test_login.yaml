@@ -19,7 +19,7 @@ interactions:
       x-api-key:
       - dummy
     method: POST
-    uri: http://localhost/auth
+    uri: http://cver-api-dev/auth
   response:
     body:
       string: "{\n  \"message\": \"Authenticated user and minted token\",\n  \"status\":

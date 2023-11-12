@@ -45,18 +45,18 @@ jobs:
               - 'docker/ingest/**'
               - 'src/setup.py'
               - 'src/cver/shared/**'
-              - 'src/cver/cver_client/**'
+              - 'src/cver/client/**'
               - 'src/cver/ingest/**'
               - 'tests/regression/ingest/**'
 
       - name: Decider
         run: |
-          echo "# Docker Build: Ingest" >> $GITHUB_STEP_SUMMARY
+          echo "# Docker Build: Cver Ingest" >> $GITHUB_STEP_SUMMARY
           echo "ALIX DEBUG: CHANGES-OUTPUT: ${{steps.changes.outputs.src}}"
           if [ "${{steps.changes.outputs.src}}" = "false" ]; then
-            echo "Skipping Engine Build. No changes detected." >> $GITHUB_STEP_SUMMARY
+            echo "Skipping Ingest Build. No changes detected." >> $GITHUB_STEP_SUMMARY
           else
-            echo "Running Engine Build" >> $GITHUB_STEP_SUMMARY
+            echo "Running Ingest Build" >> $GITHUB_STEP_SUMMARY
           fi
 
       - uses: docker/login-action@v2

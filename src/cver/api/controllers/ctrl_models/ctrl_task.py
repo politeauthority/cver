@@ -44,4 +44,4 @@ def post_model(task_id: int = None):
     return ctrl_base.post_model(Task, task_id, generated_data=generated_data)
 
 
-# End File: cve/src/api/controllers/ctrl_modles/ctrl_task.py
+# End File: cve/src/api/controllers/ctrl_models/ctrl_task.py

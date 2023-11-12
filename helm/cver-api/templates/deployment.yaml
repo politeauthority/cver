@@ -48,26 +48,72 @@ spec:
               secretKeyRef:
                 key: {{ .Values.app.database.passwordSecretName }}
                 name: {{ .Values.app.database.passwordSecretKey }}
-          - name: CVER_SECRET
-            valueFrom:
-              secretKeyRef:
-                key: cver-secret-key
-                name: cver-api
           - name: CVER_DEPLOYED_AT
             value: "{{ .Values.app.deployedAt }}"
           {{- if .Values.test.test }}
-          - name: CVER_TEST_CLIENT_ID
-            valueFrom:
-              secretKeyRef:
-                key: client-id
-                name: cver-test-creds
-          - name: CVER_TEST_API_KEY
-            valueFrom:
-              secretKeyRef:
-                key: api-key
-                name: cver-test-creds
           - name: CVER_TEST
             value: "true"
+          - name: CVER_API_KEY
+            valueFrom:
+              secretKeyRef:
+                key: admin-api-key
+                name: cver-test-creds
+          - name: CVER_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                key: admin-client-id
+                name: cver-test-creds
+          - name: CVER_TEST_ADMIN_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                key: admin-client-id
+                name: cver-test-creds
+          - name: CVER_TEST_ADMIN_API_KEY
+            valueFrom:
+              secretKeyRef:
+                key: admin-api-key
+                name: cver-test-creds
+          - name: CVER_TEST_INGEST_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                key: ingest-client-id
+                name: cver-test-creds
+          - name: CVER_TEST_INGEST_API_KEY
+            valueFrom:
+              secretKeyRef:
+                key: ingest-api-key
+                name: cver-test-creds
+          - name: CVER_TEST_ENGINE_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                key: engine-client-id
+                name: cver-test-creds
+          - name: CVER_TEST_ENGINE_API_KEY
+            valueFrom:
+              secretKeyRef:
+                key: engine-api-key
+                name: cver-test-creds
+
+          - name: CVER_TEST_OPT_REGISTRY_URL
+            valueFrom:
+              secretKeyRef:
+                key: option-registry-url
+                name: cver-test-creds
+          - name: CVER_TEST_OPT_REGISTRY_USER
+            valueFrom:
+              secretKeyRef:
+                key: option-registry-user
+                name: cver-test-creds
+          - name: CVER_TEST_OPT_REGISTRY_PASS
+            valueFrom:
+              secretKeyRef:
+                key:  option-registry-pass
+                name: cver-test-creds
+          - name: CVER_TEST_OPT_REGISTRY_REPO_GEN
+            valueFrom:
+              secretKeyRef:
+                key:  option-registry-repo-general
+                name: cver-test-creds
           {{- end }}
       {{- end }}
       containers:
@@ -107,28 +153,59 @@ spec:
             - name: CVER_LOG_HEALTH_CHECKS
               value: "{{ .Values.app.logHealthChecks }}"
             {{- if .Values.test.test }}
-            - name: CVER_TEST_CLIENT_ID
-              valueFrom:
-                secretKeyRef:
-                  key: client-id
-                  name: cver-test-creds
-            - name: CVER_CLIENT_ID
-              valueFrom:
-                secretKeyRef:
-                  key: client-id
-                  name: cver-test-creds
-            - name: CVER_TEST_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  key: api-key
-                  name: cver-test-creds
-            - name: CVER_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  key: api-key
-                  name: cver-test-creds
             - name: CVER_TEST
               value: "true"
+            # All of these should be removed eventually, since they're only needed in migrations.
+            - name: CVER_TEST_ADMIN_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  key: admin-client-id
+                  name: cver-test-creds
+            - name: CVER_TEST_ADMIN_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: admin-api-key
+                  name: cver-test-creds
+            - name: CVER_TEST_INGEST_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  key: ingest-client-id
+                  name: cver-test-creds
+            - name: CVER_TEST_INGEST_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: ingest-api-key
+                  name: cver-test-creds
+            - name: CVER_TEST_ENGINE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  key: engine-client-id
+                  name: cver-test-creds
+            - name: CVER_TEST_ENGINE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: engine-api-key
+                  name: cver-test-creds
+            - name: CVER_TEST_OPT_REGISTRY_URL
+              valueFrom:
+                secretKeyRef:
+                  key: option-registry-url
+                  name: cver-test-creds
+            - name: CVER_TEST_OPT_REGISTRY_USER
+              valueFrom:
+                secretKeyRef:
+                  key: option-registry-user
+                  name: cver-test-creds
+            - name: CVER_TEST_OPT_REGISTRY_PASS
+              valueFrom:
+                secretKeyRef:
+                  key:  option-registry-pass
+                  name: cver-test-creds
+            - name: CVER_TEST_OPT_REGISTRY_REPO_GEN
+              valueFrom:
+                secretKeyRef:
+                  key:  option-registry-repo-general
+                  name: cver-test-creds
             {{- end }}
           ports:
             - name: http

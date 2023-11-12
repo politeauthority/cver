@@ -20,4 +20,4 @@ class Cluster(BaseEntityMeta):
         self.setup()
 
 
-# End File: cver/src/api/modles/cluster.py
+# End File: cver/src/api/models/cluster.py

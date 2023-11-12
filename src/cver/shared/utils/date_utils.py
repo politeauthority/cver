@@ -98,9 +98,12 @@ def from_str(the_str: str, parse_fmt: str = None) -> arrow.arrow.Arrow:
 
 
 def interval_ready(last: datetime, interval_hours: int) -> bool:
-    """Determine in a given datetime is older than the interval_hours.
+    """Determine in a given datetime is older than the interval_hours. If we dont have a value for
+    the last time, we'll assume the interval is ready.
     :unit-test: TestSharedUtilsDateUtils.test__interval_ready
     """
+    if not last:
+        return True
     now = arrow.utcnow()
     last = arrow.get(last)
     interval_seconds = 3600 * interval_hours

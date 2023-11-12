@@ -1,16 +1,15 @@
 # Quigely dev values for cver-engine
 
-replicaCount: 1
-
 nameOverride: "dev"
 
 app:
+  apiUrl: "http://cver-api-dev"
   logLevel: "INFO"
   envName: "dev"
-  debug: false
+  debug: true
   cron:
-    schedule:  "45 * * * *"
-    suspend: true
+    schedule:  "20,55 * * * *"
+    suspend: false
 
 test:
   test: true

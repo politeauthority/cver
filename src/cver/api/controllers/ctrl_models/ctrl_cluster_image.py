@@ -52,4 +52,4 @@ def delete_model(cluster_image_id: int = None):
     return ctrl_base.delete_model(ClusterImage, cluster_image_id)
 
 
-# End File: cve/src/api/controllers/ctrl_modles/ctrl_cluster_image.py
+# End File: cve/src/api/controllers/ctrl_models/ctrl_cluster_image.py

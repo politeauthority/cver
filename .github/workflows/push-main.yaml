@@ -54,4 +54,25 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
+  deploy-ingest:
+    needs: build-ingest
+    uses: ./.github/workflows/deploy-ingest.yaml
+    secrets: inherit 
+    with:
+      deployment-name: "stage"
+      run-number: ${{ github.run_number }}
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
+
+  deploy-engine:
+    needs: build-engine
+    uses: ./.github/workflows/deploy-engine.yaml
+    secrets: inherit
+    with:
+      deployment-name: "stage"
+      run-number: ${{ github.run_number }}
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
+
+
 # End File: cver/.github/webserver/push-main.yaml

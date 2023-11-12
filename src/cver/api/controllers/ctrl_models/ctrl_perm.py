@@ -50,4 +50,4 @@ def delete_model(perm_id: int = None):
     return ctrl_base.delete_model(Perm, perm_id)
 
 
-# End File: cve/src/api/controllers/ctrl_modles/ctrl_perm.py
+# End File: cve/src/api/controllers/ctrl_models/ctrl_perm.py

@@ -37,9 +37,10 @@ class Engine:
         self.run_cleanup()
         logging.info("Engine Process Complete")
         msg = "\n\nEngine\n"
-        self._draw_download_report()
-        self._draw_scan_report()
+        msg += self._draw_download_report()
+        msg += self._draw_scan_report()
         logging.info(msg)
+        return True
 
     def preflight(self):
         """Check that have a registry to push/pull to/from."""
@@ -123,7 +124,7 @@ class Engine:
             docker.delete_image(image)
         return True
 
-    def _draw_download_report(self) -> bool:
+    def _draw_download_report(self) -> str:
         """Log out the relevant info from the Engine Download report."""
         if "downloaded" not in self.download_report:
             return True
@@ -133,32 +134,39 @@ class Engine:
             self.download_report["download_limit"]
         )
         msg += "\n\tProcessed: %s" % self.download_report["proccessed_ibws"]
-        if len(self.download_report["downloaded_images_success"]) > 0:
+        if self.download_report["downloaded_images_success"]:
             msg += "\n\tSucessfull Downloads\n"
             for dl_success in self.download_report["downloaded_images_success"]:
                 msg += "\t\t%s" % dl_success
-        else:
-            msg += "\n\tSucessfull Downloads: 0"
 
-        if len(self.download_report["downloaded_images_failed"]) > 0:
+        if self.download_report["downloaded_images_failed"]:
             msg += "\n\tFailed Downloads\n"
             for dl_fail in self.download_report["downloaded_images_failed"]:
-                msg += "\t%s" % dl_fail
+                msg += "\t\t%s" % dl_fail
 
-        logging.info(msg)
-        return True
+        return msg
 
-    def _draw_scan_report(self) -> bool:
+    def _draw_scan_report(self) -> str:
         """Log out the relevant info from the Engine Download report."""
         print(self.scan_report)
-        # if not self.scan_report:
-        #     return True
-        # msg = "\nScanned: %s/%s" % (
-        #     self.scan_report["downloaded"],
-        #     self.scan_report["download_limit"]
-        # )
-        # logging.info(msg)
-        return True
+        if not self.scan_report:
+            return True
+        msg = "\n\n\tScanned: %s/%s" % (
+            self.scan_report["scanned"],
+            self.scan_report["scan_limit"]
+        )
+        msg += "\n\tProcessed: %s" % self.download_report["proccessed_ibws"]
+        if self.scan_report["scanned_images_success"]:
+            print("\tImages")
+            for image in self.scan_report["scanned_images_success"]:
+                msg += "\t\t%s" % image
+
+        if self.scan_report["scanned_images_failed"]:
+            print("ERRORED IMAGE SCANS")
+            for image in self.scan_report["scanned_images_failed"]:
+                msg += "\t\t%s" % image
+        msg += "\n"
+        return msg
 
 
 def parse_args(args):

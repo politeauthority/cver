@@ -15,12 +15,13 @@ from cver.shared.utils import display
 from cver.client.collections.images import Images
 from cver.client.collections.image_builds import ImageBuilds
 from cver.client.collections.image_build_waitings import ImageBuildWaitings
+from cver.client.collections.options import Options
 from cver.client.collections.tasks import Tasks
 from cver.client.models.image import Image
 from cver.client.models.image_build import ImageBuild
 from cver.client.models.image_build_waiting import ImageBuildWaiting
 from cver.client.models.task import Task
-# from cver.cver_client.collections.scans import Scans
+# from cver.client.collections.scans import Scans
 from cver.client import Client as CverClient
 from cver.cli.utils import pretty
 
@@ -53,16 +54,18 @@ class Cver:
     def gets(self):
         if self.args.noun == "info":
             self.get_info()
-        if self.args.noun == "image":
+        elif self.args.noun == "image":
             self.get_image()
-        if self.args.noun == "images":
+        elif self.args.noun == "images":
             self.get_images()
-        if self.args.noun == "image":
+        elif self.args.noun == "image":
             self.get_image()
         elif self.args.noun in ["ib", "image-build"]:
             self.get_image_build()
         elif self.args.noun in ["ibw", "image-build-waiting"]:
             self.get_image_buld_waiting()
+        elif self.args.noun in ["options"]:
+            self.get_options()
         elif self.args.noun in ["tasks"]:
             self.get_tasks()
         elif self.args.noun in ["task"]:
@@ -70,6 +73,7 @@ class Cver:
         else:
             print("Error: Unknown Command")
             exit(1)
+        return True
 
     def get_info(self):
         client = CverClient()
@@ -127,50 +131,22 @@ class Cver:
         }
         console.print("Image", style="bold")
         display.print_dict(image_dict)
-        # if ibs:
-        #     print("")
-        #     print("Image Builds")
-        #     for ib in ibs:
-        #         scans = scans_collect.get_by_image_build_id(ib.id)
-        #         ib_dict = {
-        #             "ID": ib.id,
-        #             "Sha": ib.sha,
-        #             "Registry": ib.registry,
-        #             "Registry Imported": ib.registry_imported,
-        #             "Tags": ", ".join(ib.tags),
-        #             "Scans": len(scans),
-        #         }
-        #         display.print_dict(ib_dict, 2)
-        #     print("")
-        # if ibws:
-        #     print("")
-        #     print("Image Builds Waiting")
-        #     for ibw in ibws:
-        #         ibw_dict = {
-        #             "ID": ibw.id,
-        #             "Sha": ibw.sha,
-        #             "Tag": ibw.tag,
-        #             "Waiting": ibw.waiting,
-        #             "Waiting For": ibw.waiting_for,
-        #             "Status": ibw.status,
-        #         }
-        #         display.print_dict(ibw_dict, 2)
-        # import ipdb; ipdb.set_trace()
 
-    def get_images(self):
+    def get_images(self) -> bool:
         """Get all Images."""
+        # filters = self.args.filters
         image_col = Images()
         images = image_col.get(page=self.args.page)
         response = image_col.response_last
 
         print("Images (%s)" % response["info"]["total_objects"])
+        images_dict = {}
         for image in images:
-            print("\t%s" % image.name)
+            images_dict[image.id] = image.name
 
-        print("\n")
-        print("Info")
-        print("\tPage: %s/%s" % (response["info"]["current_page"], response["info"]["last_page"]))
-        print("\tPer Page: %s" % response["info"]["per_page"])
+        display.print_dict(images_dict, pad=2)
+        display.print_pagination_info(response)
+        return True
 
     def get_image_build(self):
         """Get a single ImageBuild."""
@@ -231,6 +207,23 @@ class Cver:
             print("\t\tTags:               %s" % ", ".join(ib.tags))
             print(f"\t\tRegistry Imported: {ib.registry_imported}")
 
+    def get_options(self):
+        """Get all Options."""
+        entity_col = Options()
+        options = entity_col.get(page=self.args.page)
+        response = entity_col.response_last
+
+        console.print("Options (%s)" % response["info"]["total_objects"], style="bold")
+
+        msg = ""
+        for option in options:
+            msg += "[b]%s[/b]\t%s\n" % (option.name, option.value)
+        console.print(msg)
+        print("\n")
+        print("Info")
+        print("\tPage: %s/%s" % (response["info"]["current_page"], response["info"]["last_page"]))
+        print("\tPer Page: %s" % response["info"]["per_page"])
+
     def get_tasks(self):
         """Get all Tasks."""
         entity_col = Tasks()
@@ -286,6 +279,12 @@ def parse_args():
         default=None,
         help='Item selector (name or id)')
     parser.add_argument('-p', '--page', default=None)
+    parser.add_argument(
+        "filter",
+        nargs='?',
+        default=None,
+        help='Allows filtering of results')
+    parser.add_argument('-f', '--filter', default=None)
     parser.add_argument(
         "o",
         nargs='?',

@@ -3,7 +3,7 @@
     Model - App
 
 """
-from cver.shared.models.app import FIELD_MAP
+from cver.shared.models.software import FIELD_MAP
 from cver.client.models.base import Base
 
 

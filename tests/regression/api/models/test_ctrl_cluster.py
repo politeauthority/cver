@@ -10,13 +10,11 @@ import os
 
 import requests
 
-from cver.shared.utils import misc
-
 from .test_api_base import TestApiBase
 
-CVER_API_URL = misc.add_trailing_slash(os.environ.get("CVER_API_URL"))
-CVER_CLIENT_ID = os.environ.get("CVER_TEST_CLIENT_ID")
-CVER_API_KEY = os.environ.get("CVER_TEST_API_KEY")
+CVER_API_URL = os.environ.get("CVER_API_URL")
+CVER_API_KEY = os.environ.get("CVER_API_KEY")
+CVER_CLIENT_ID = os.environ.get("CVER_CLIENT_ID")
 URL_BASE = "/cluster"
 URL_MODEL = "cluster"
 

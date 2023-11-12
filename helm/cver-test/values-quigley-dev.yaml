@@ -1,19 +1,21 @@
-# Quigely dev values for cver-test.
-
-replicaCount: 1
+# Cver Test
+# Quigely Dev values
 
 nameOverride: "dev"
 
 app:
-  api_url: "http://cver-api-dev"
+  apiUrl: "http://cver-api-dev"
   logLevel: "DEBUG"
-  envName: "test"
+  envName: "dev"
   debug: true
+  database:
+    name: "cver_dev"
+    host: "cver-mysql.cver.svc.cluster.local"
+    user: "cver"
 
 image:
   repository: harbor.squid-ink.us/cver/cver-test
   pullPolicy: Always
-
 
 imagePullSecrets:
   - name: harbor

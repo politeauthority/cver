@@ -3,6 +3,6 @@
 
 """
 
-version = "0.0.4"
+version = "0.0.5"
 
 # End File: cver/src/cver/api/version.py

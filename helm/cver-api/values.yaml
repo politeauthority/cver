@@ -6,14 +6,6 @@ replicaCount: 1
 
 app:
   logLevel: "INFO"
-  database:
-    name: "cver"
-    host: "mysql"
-    port: 3306
-    user: "mysql-user"
-    passwordSecretName: mysql-password
-    passwordSecretKey: cver-api
-
   runMigrations: true
   jwtExpireMinutes: 60
   debug: false
@@ -21,6 +13,13 @@ app:
   deployedAt: "unknown"
   logHealthChecks: true
   runApiOnStart: true
+  database:
+    name: "cver"
+    host: "mysql"
+    port: 3306
+    user: "mysql-user"
+    passwordSecretName: mysql-password
+    passwordSecretKey: cver-api
 
 image:
   repository: politeauthority/cver-api

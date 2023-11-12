@@ -1,14 +1,18 @@
-# Quigely stage values for cver-test.
-
+# Cver Test
+# Quigely Stage values
 replicaCount: 1
 
-nameOverride: "test"
+nameOverride: "stage"
 
 app:
+  apiUrl: "http://cver-api-stage"
   logLevel: "DEBUG"
-  cverCicd: "true"
-  envName: "test"
+  envName: "stage"
   debug: true
+  database:
+    name: "cver_stage"
+    host: "cver-mysql.cver.svc.cluster.local"
+    user: "cver"
 
 image:
   repository: harbor.squid-ink.us/cver/cver-test

@@ -44,20 +44,22 @@ jobs:
               - 'docker/test/**'
               - 'src/requirements.txt'
               - 'tests/requirements.txt'
+
+      - name: Decider
+        run: |
+          echo "# Docker Build: Cver Test" >> $GITHUB_STEP_SUMMARY
+          echo "ALIX DEBUG: CHANGES-OUTPUT: ${{steps.changes.outputs.src}}"
+          if [ "${{steps.changes.outputs.src}}" = "false" ]; then
+            echo "Skipping Cver Test Build. No changes detected." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Running Cver Test Build" >> $GITHUB_STEP_SUMMARY
+          fi
+
       - uses: docker/login-action@v2
         with:
           registry: harbor.squid-ink.us
           username: ${{ inputs.harbor-user }}
           password: ${{ secrets.HARBOR_PASSWORD }}
-      - name: Decider
-        run: |
-          echo "# Docker Build: Test" >> $GITHUB_STEP_SUMMARY
-          echo "ALIX DEBUG: CHANGES-OUTPUT: ${{steps.changes.outputs.src}}"
-          if [ "${{steps.changes.outputs.src}}" = "false" ]; then
-            echo "Skipping Test Build. No changes detected." >> $GITHUB_STEP_SUMMARY
-          else
-            echo "Running Test Build" >> $GITHUB_STEP_SUMMARY
-          fi
 
       - name: Build Container
         if: steps.changes.outputs.src == 'true'

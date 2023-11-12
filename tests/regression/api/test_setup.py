@@ -19,5 +19,4 @@ class TestSetupTests:
         # prepare something ahead of all tests
         # request.addfinalizer(finalizer_function)
 
-
 # End File: cver/tests/regression/api/test_ctrl_index.py

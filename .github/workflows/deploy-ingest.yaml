@@ -46,14 +46,14 @@ jobs:
           DEPLOYED_AT=$(date +"%Y-%m-%d %T")
           echo "RELEASE_NAME: ${RELEASE_NAME}"
           cd helm/cver-ingest
+          echo "Cver Api Url: ${API_URL}"
           helm upgrade ${RELEASE_NAME} ./ \
             --namespace=${NAMESPACE} \
             --install \
             --wait \
-            --timeout=240s \
+            --timeout=300s \
             -f values-quigley-${{ inputs.deployment-name }}.yaml \
             --set "app.apiUrl=${API_URL}"
 
           echo "# Deployed: Cver-Ingest" >> $GITHUB_STEP_SUMMARY
           echo "Created Helm deployment: ${RELEASE_NAME}" >> $GITHUB_STEP_SUMMARY
-
