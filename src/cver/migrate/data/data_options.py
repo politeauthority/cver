@@ -16,7 +16,7 @@ class DataOptions:
         """Create the Options."""
         self.create_registry_options()
         self.create_engine_options()
-        self.create_test_option_values()
+        self.create_registry_option_values()
 
     def create_registry_options(self):
         """Create container registry details."""

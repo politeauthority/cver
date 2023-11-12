@@ -132,22 +132,21 @@ class Cver:
         console.print("Image", style="bold")
         display.print_dict(image_dict)
 
-    def get_images(self):
+    def get_images(self) -> bool:
         """Get all Images."""
         # filters = self.args.filters
-        # import ipdb; ipdb.set_trace()
         image_col = Images()
         images = image_col.get(page=self.args.page)
         response = image_col.response_last
 
         print("Images (%s)" % response["info"]["total_objects"])
+        images_dict = {}
         for image in images:
-            print("\t%s" % image.name)
+            images_dict[image.id] = image.name
 
-        print("\n")
-        print("Info")
-        print("\tPage: %s/%s" % (response["info"]["current_page"], response["info"]["last_page"]))
-        print("\tPer Page: %s" % response["info"]["per_page"])
+        display.print_dict(images_dict, pad=2)
+        display.print_pagination_info(response)
+        return True
 
     def get_image_build(self):
         """Get a single ImageBuild."""
