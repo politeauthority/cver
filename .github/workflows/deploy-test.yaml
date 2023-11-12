@@ -65,7 +65,7 @@ jobs:
             --wait \
             --timeout=300s \
             -f values-quigley-${{ inputs.deployment-name }}.yaml \
-            --set "app.api_url=${CVER_API_URL}" \
+            --set "app.api_url=${API_URL}" \
             --set "app.branch=${BRANCH}" \
             --set "app.database.name=${DB_NAME}" \
             --set "app.deployedAt=${DEPLOYED_AT}"
