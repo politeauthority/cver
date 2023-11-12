@@ -1,5 +1,6 @@
 # Cver Test
 # Quigely Stage values
+replicaCount: 1
 
 nameOverride: "stage"
 
