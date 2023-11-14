@@ -26,6 +26,8 @@ engine_info = {
     "download_process_limit": 0,
     "scan_limit": 0,
     "scan_process_limit": 0,
+    "engine_scan_interval": 0,
+    "engine_download_interval": 0,
 }
 
 # End File: cver/src/engine/utils/glow.py

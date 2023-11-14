@@ -23,7 +23,8 @@ logger.propagate = True
 
 class Engine:
 
-    def __init__(self):
+    def __init__(self, cli_args):
+        self.args = cli_args
         self.download_report = {}
         self.scan_report = {}
 
@@ -32,9 +33,16 @@ class Engine:
         if not self.preflight():
             logging.critical("Pre flight checks failed.")
             exit(1)
-        self.run_downloads()
-        self.run_scans()
-        self.run_cleanup()
+
+        if self.args.process in ["all", "download"]:
+            self.run_downloads()
+
+        if self.args.process in ["all", "scan"]:
+            self.run_scans()
+
+        if self.args.process in ["all", "cleanup"]:
+            self.run_cleanup()
+
         logging.info("Engine Process Complete")
         msg = "\n\nEngine\n"
         msg += self._draw_download_report()
@@ -101,6 +109,20 @@ class Engine:
             logging.error("No scan limit password found on Cver")
             return False
 
+        engine_download_interval = Option()
+        engine_download_interval.get_by_name("engine_download_interval")
+        glow.engine_info["engine_download_interval"] = engine_download_interval.value
+        if not glow.engine_info["engine_download_interval"]:
+            logging.error("No download interval password found on Cver")
+            return False
+
+        engine_scan_interval = Option()
+        engine_scan_interval.get_by_name("engine_scan_interval")
+        glow.engine_info["engine_scan_interval"] = engine_scan_interval.value
+        if not glow.engine_info["engine_scan_interval"]:
+            logging.error("No scan interval password found on Cver")
+            return False
+
         docker.registry_login(
             glow.registry_info["local"]["url"],
             glow.registry_info["local"]["user"],
@@ -127,7 +149,7 @@ class Engine:
     def _draw_download_report(self) -> str:
         """Log out the relevant info from the Engine Download report."""
         if "downloaded" not in self.download_report:
-            return True
+            return ""
 
         msg = "\n\tDownloaded: %s/%s" % (
             self.download_report["downloaded"],
@@ -148,9 +170,8 @@ class Engine:
 
     def _draw_scan_report(self) -> str:
         """Log out the relevant info from the Engine Download report."""
-        print(self.scan_report)
         if not self.scan_report:
-            return True
+            return ""
         msg = "\n\n\tScanned: %s/%s" % (
             self.scan_report["scanned"],
             self.scan_report["scan_limit"]
@@ -162,25 +183,23 @@ class Engine:
                 msg += "\t\t%s" % image
 
         if self.scan_report["scanned_images_failed"]:
-            print("ERRORED IMAGE SCANS")
             for image in self.scan_report["scanned_images_failed"]:
-                msg += "\t\t%s" % image
+                msg += "\t\t%s\t%s" % (image, self.scan_report["task"])
         msg += "\n"
         return msg
 
 
-def parse_args(args):
+def parse_args():
     """Parse CLI args"""
-    parser = argparse.ArgumentParser(description='Process some integers.')
-    parser.add_argument('filename')           # positional argument
-    parser.add_argument('-c', '--count')      # option that takes a value
-    parser.add_argument('-v', '--verbose', action='store_true')  # on/off flag
-    print(args)
-    return parser
+    parser = argparse.ArgumentParser(description='Cver Engine')
+    parser.add_argument("process", type=str, default="all", nargs='?')
+    the_args = parser.parse_args()
+    return the_args
 
 
 if __name__ == "__main__":
-    Engine().run()
+    args = parse_args()
+    Engine(args).run()
 
 
 # End File: cver/src/cver/engine/engine.py

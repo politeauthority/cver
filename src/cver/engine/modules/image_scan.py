@@ -32,11 +32,12 @@ class ImageScan:
             "image": None,
             "ibw": None,
             "ib": None,
+            "task": None,
             "status": False,
             "status_reason": None,
         }
 
-    def run(self, ) -> dict:
+    def run(self) -> dict:
         """Run the download process."""
         if not self.preflight_check():
             return self.data
@@ -49,8 +50,12 @@ class ImageScan:
         self.data["ib"] = self.ib
         if not self.prep_success:
             logging.info("Scan prep failed for %s %s" % (self.ibw, self.image))
+
+            self._handle_error_scan()
             return self.data
-        self.pull_image()
+        if not self.pull_image():
+            self._handle_error_scan()
+            return self.data
         if self.process_completed:
             self._handle_error_scan()
             return self.data
@@ -122,7 +127,11 @@ class ImageScan:
                 self.ibw.tag
             )
         else:
-            logging.critical("Not ready to scan images that are not imported to a general loc")
+            logging.critical(
+                "Not ready to scan images that are not imported to a general loc: %s" %
+                self.ib.registry)
+            sr = "Unable to pull images that are not imported to a general loc"
+            self.data["status_reason"] = sr
             self.process_completed = False
             return False
         logging.info("Docker pull image: %s" % self.image_location)
@@ -197,6 +206,7 @@ class ImageScan:
         self.task.status_reason = self.data["status_reason"]
         self.task.end_ts = date_utils.now()
         self.task.save()
+        self.data["task"] = self.task
 
         self.data["status"] = False
         self.data["status_reason"] = self.data["status_reason"]
@@ -226,6 +236,7 @@ class ImageScan:
         # Handle Task
         self.task.end_ts = date_utils.now()
         self.task.save()
+        self.data["task"] = self.task
         return True
 
     def _parse_scan_vulns(self, vulns: list) -> dict:

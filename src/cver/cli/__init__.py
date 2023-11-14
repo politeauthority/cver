@@ -17,13 +17,16 @@ from cver.client.collections.image_builds import ImageBuilds
 from cver.client.collections.image_build_waitings import ImageBuildWaitings
 from cver.client.collections.options import Options
 from cver.client.collections.tasks import Tasks
+from cver.client.collections.scans import Scans
 from cver.client.models.image import Image
 from cver.client.models.image_build import ImageBuild
 from cver.client.models.image_build_waiting import ImageBuildWaiting
+from cver.client.models.option import Option
 from cver.client.models.task import Task
-# from cver.client.collections.scans import Scans
+from cver.client.models.scan import Scan
 from cver.client import Client as CverClient
 from cver.cli.utils import pretty
+from cver.cli.utils import misc
 
 LOGO = """
    ______
@@ -45,11 +48,19 @@ class Cver:
     def __init__(self, cli_args):
         self.args = cli_args
         self.client = CverClient()
+        if self.args.filter:
+            self.args.filter = misc.get_filters(self.args.filter)
 
     def run(self):
         """Primary entrypoint to the Cver Cli."""
         if self.args.verb == "get":
             self.gets()
+        elif self.args.verb == "edit":
+            self.edits()
+        else:
+            print("Error: Unknown Command")
+            exit(1)
+        return True
 
     def gets(self):
         if self.args.noun == "info":
@@ -62,18 +73,29 @@ class Cver:
             self.get_image()
         elif self.args.noun in ["ib", "image-build"]:
             self.get_image_build()
+        elif self.args.noun in ["ibws", "image-build-waitings"]:
+            self.get_image_build_waitings()
         elif self.args.noun in ["ibw", "image-build-waiting"]:
-            self.get_image_buld_waiting()
+            self.get_image_build_waiting()
         elif self.args.noun in ["options"]:
             self.get_options()
         elif self.args.noun in ["tasks"]:
             self.get_tasks()
         elif self.args.noun in ["task"]:
             self.get_task()
+        elif self.args.noun in ["scans"]:
+            self.get_scans()
+        elif self.args.noun in ["scan"]:
+            self.get_scan()
         else:
             print("Error: Unknown Command")
             exit(1)
         return True
+
+    def edits(self):
+        """Routes different edit options."""
+        if self.args.noun == "option":
+            self.edit_option()
 
     def get_info(self):
         client = CverClient()
@@ -177,7 +199,26 @@ class Cver:
         # print(f"\t\tRegistry: {image.registry}")
         # print("")
 
-    def get_image_buld_waiting(self):
+    def get_image_build_waitings(self):
+        """Get all IBWs."""
+        entity_col = ImageBuildWaitings()
+        request_args = {}
+        if self.args.image_id:
+            request_args["image_id"] = self.args.image_id
+        if self.args.filter:
+            request_args.update(self.args.filter)
+
+        ibws = entity_col.get(request_args=request_args, page=self.args.page)
+        response = entity_col.response_last
+
+        console.print("Image Build Waitings (%s)" % response["info"]["total_objects"], style="bold")
+
+        for ibw in ibws:
+            pretty.entity(ibw, pad=2)
+            print("\n")
+        display.print_pagination_info(response)
+
+    def get_image_build_waiting(self):
         ibw = ImageBuildWaiting()
         ibw.get_by_id(self.args.selector)
         image = Image()
@@ -259,8 +300,64 @@ class Cver:
         if not task.get_by_id(task_search):
             print("Not Found")
             return False
+
         console.print("Task", style="bold")
-        pretty.entity(task)
+        pretty.entity(task, pad=2)
+
+        image = Image()
+        image.get_by_id(task.image_id)
+        console.print("Image", style="bold")
+        pretty.entity(image, pad=2)
+
+        ib = ImageBuild()
+        ib.get_by_id(task.image_build_id)
+        console.print("Image Build", style="bold")
+        pretty.entity(ib, pad=2)
+        return True
+
+    def get_scans(self):
+        entity_col = Scans()
+        scans = entity_col.get(page=self.args.page)
+        response = entity_col.response_last
+        for scan in scans:
+            data = {}
+            data["ID"] = scan.id
+            data["Image ID"] = scan.image_id
+            data["Image Build ID"] = scan.image_build_id
+            data["Critical CVEs"] = scan.cve_critical_int
+            data["High CVEs"] = scan.cve_high_int
+            data["Medium CVEs"] = scan.cve_medium_int
+            data["Low CVEs"] = scan.cve_low_int
+            display.print_dict(data, pad=2)
+            print("\n")
+        display.print_pagination_info(response)
+
+    def get_scan(self) -> bool:
+        scan = Scan()
+        scan_search = self.args.selector
+        if not scan.get_by_id(scan_search):
+            print("Not Found")
+            return False
+        console.print("Scan", style="bold")
+        pretty.entity(scan, pad=2)
+        return True
+
+    def edit_option(self) -> bool:
+        """Edit a single Option's value."""
+        option = Option()
+        option_search = self.args.selector
+        option.get_by_name(option_search)
+        print("Option: %s" % option.name)
+        print("\t%s" % option.value)
+        new_value = input("New value: ")
+        save_value = input("Save new value %s: " % new_value)
+        if save_value in ["y"]:
+            option.value = new_value
+            if option.save():
+                print("Successfully saved option")
+            else:
+                print("Error saving option")
+        return True
 
 
 def parse_args():
@@ -285,6 +382,13 @@ def parse_args():
         default=None,
         help='Allows filtering of results')
     parser.add_argument('-f', '--filter', default=None)
+    parser.add_argument('-c', '--config', default=None)
+    parser.add_argument(
+        "--image-id",
+        nargs='?',
+        default=None,
+        help="Image ID")
+
     parser.add_argument(
         "o",
         nargs='?',

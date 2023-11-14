@@ -55,18 +55,23 @@ class EngineDownload:
                 "field": "sync_last_ts",
                 "direction": "ASC"
             },
-            "limit": 1
+            "limit": 10,
+            "query": True
         }
         ibs = ib_col.get(args)
         ibws_created = 0
         for ib in ibs:
-            if date_utils.interval_ready(ib.sync_last_ts, 96):
+            if not date_utils.interval_ready(ib.sync_last_ts, 96):
                 logging.debug("%s: Not flagging image build for sync" % ib)
                 continue
             ibw = ImageBuildWaiting()
+            ibw.sha = ib.sha
+            if ibw.get_by_sha():
+                logging.info("IBW already exists, not creating: %s ibw")
+                continue
             ibw.image_id = ib.image_id
             ibw.image_build_id = ib.id
-            ibw.sha = ib.sha
+
             if len(ib.tags) > 0:
                 ibw.tag = ib.tags[0]
             ibw.waiting_for = "download"
@@ -74,6 +79,8 @@ class EngineDownload:
             if ibw.save():
                 logging.info("%s: Saved" % ibw)
                 ibws_created += 0
+                # @todo: pull this out when done developing
+                break
             else:
                 logging.error("%s: Failed to save" % ibw)
 
@@ -121,7 +128,13 @@ class EngineDownload:
         the_args = {
             "query": True,
             "fields": {
-                "waiting_for": "download"
+                "waiting_for": {
+                    "field": "download",
+                },
+                "fail_count": {
+                    "value": 2,
+                    "op": "lt"
+                }
             },
             "order_by": {
                 "field": "created_ts",

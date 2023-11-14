@@ -170,7 +170,7 @@ ACL = {
     "/task": {
         "GET": ["read-all"],
         "POST": ["write-all"],
-        "DELETE": ["write-all"],
+        "DELETE": ["delete-all"],
     },
     "/tasks": {
         "GET": ["read-all"],
