@@ -168,6 +168,11 @@ class Cver:
         }
         console.print("ImageBuild", style="bold")
         display.print_dict(ib_build)
+        pretty.entity(ib)
+
+        console.print("Image", style="bold")
+        pretty.entity(image)
+
 
         # print("Scans: %s" % len(scans))
         # print("")

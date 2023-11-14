@@ -167,7 +167,7 @@ class ImageScan:
         vulns = scan_result["Results"][0]["Vulnerabilities"]
         vuln_data = self._parse_scan_vulns(vulns)
         scan.cve_critical_int = vuln_data["cve_critical_int"]
-        scan.cve_crticial_nums = vuln_data["cve_high_nums"]
+        scan.cve_crticial_nums = vuln_data["cve_critical_nums"]
         scan.cve_high_int = vuln_data["cve_high_int"]
         scan.cve_high_nums = vuln_data["cve_high_nums"]
         scan.cve_medium_int = vuln_data["cve_medium_int"]

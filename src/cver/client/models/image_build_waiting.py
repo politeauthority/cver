@@ -20,6 +20,9 @@ class ImageBuildWaiting(Base):
         """Get an ImageBuildWaiting by its container sha hash."""
         if sha:
             self.sha = sha
-        return self.get_by_field("sha", self.sha)
+        payload = {
+            "sha": self.sha
+        }
+        return self.get_by_fields(payload)
 
 # End File: cver/src/cver_client/models/image_build_waiting.py

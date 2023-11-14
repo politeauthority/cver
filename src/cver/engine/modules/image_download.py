@@ -231,6 +231,7 @@ class ImageDownload:
             self.ibw.fail_count = 1
         else:
             self.ibw.fail_count += 1
+        self.ibw.waiting_for = "download"
         self.ibw.status = False
         self.ibw.status_reason = self.data["status_reason"]
 
