@@ -172,8 +172,6 @@ class Cver:
 
         console.print("Image", style="bold")
         pretty.entity(image)
-
-
         # print("Scans: %s" % len(scans))
         # print("")
         # print("Image")
