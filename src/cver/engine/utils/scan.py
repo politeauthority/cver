@@ -50,7 +50,6 @@ def parse_trivy(scan_result: dict) -> dict:
     }
     vulns = misc.get_dict_path(scan_result, "Results.0.Vulnerabilities")
     if not vulns:
-        import ipdb; ipdb.set_trace()
         logging.error("Unable to read vulnerability data from scan.")
         return False
     # vulns = scan_result["Results"][0]["Vulnerabilities"]
