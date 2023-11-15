@@ -142,6 +142,21 @@ CREATE TABLE IF NOT EXISTS organizations (
 );
 
 ---
+--- Create registries
+---
+CREATE TABLE IF NOT EXISTS registries (
+    `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
+    `created_ts` DATETIME,
+    `updated_ts` DATETIME,
+    `name` VARCHAR(200),
+    `url` VARCHAR(200),
+    `maintained` TINYINT(1),
+    `daily_limit` INTEGER,
+    `public` TINYINT(1)
+);
+
+
+---
 --- Create roles
 ---
 CREATE TABLE IF NOT EXISTS roles (
@@ -267,7 +282,8 @@ CREATE TABLE IF NOT EXISTS tasks (
     `status` TINYINT(1),
     `status_reason` VARCHAR(200),
     `start_ts` DATETIME,
-    `end_ts` DATETIME
+    `end_ts` DATETIME,
+    `registry_id` INTEGER
 );
 
 
