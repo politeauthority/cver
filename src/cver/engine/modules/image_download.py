@@ -124,6 +124,8 @@ class ImageDownload:
             logging.info("Image is from local registry, no need to pull, marking as success.")
             self.data["status_reason"] = "Image exists in local registry"
             self.process_completed = True
+            self.data["status_reason"] = "Image from local repository"
+            self._handle_success_download()
             return True
 
         logging.info("Starting download of: %s" % self.image.name)
@@ -231,6 +233,7 @@ class ImageDownload:
             self.ibw.fail_count = 1
         else:
             self.ibw.fail_count += 1
+        self.ibw.waiting_for = "download"
         self.ibw.status = False
         self.ibw.status_reason = self.data["status_reason"]
 
