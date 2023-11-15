@@ -13,7 +13,6 @@ from cver.client.models.scan import Scan
 from cver.shared.utils import date_utils
 from cver.shared.utils import docker
 from cver.engine.utils import scan as scan_util
-# from cver.engine.utils import glow
 
 
 class ImageScan:
@@ -126,8 +125,12 @@ class ImageScan:
             self.process_completed = False
             return False
         logging.info("Docker pull image: %s" % self.image_location)
+        image_pull = docker.pull_image(self.image_location)
+        if not image_pull:
+            self.data["status_reason"] = "Failed to pull image: %s " % self.image_location
+            self._handle_error_scan()
+            return False
 
-        print(docker.pull_image(self.image_location))
         return True
 
     def execute_scan(self):
@@ -135,12 +138,16 @@ class ImageScan:
         logging.info("Starting scan of: %s" % self.image_location)
         scan_result = scan_util.run_trivy(self.image_location)
         if not scan_result:
-            logging.error("Scan failed for: %s" % self.image)
+            self.data["status_reason"] = "Failed to run scan"
+            self._handle_error_scan()
+            return False
+        scan_parsed = scan_util.parse_trivy(scan_result)
+        if not scan_parsed:
+            self.data["status_reason"] = "Failed to parse scan"
             self._handle_error_scan()
             return False
         logging.info("Successfully scanned: %s" % self.image)
         self.save_scan(scan_result)
-
         self._handle_success_scan()
         return True
 

@@ -134,7 +134,8 @@ class Engine:
         if "downloaded" not in self.download_report:
             return ""
 
-        msg = "\n\tDownloaded: %s/%s" % (
+        msg = "Engine Download"
+        msg += "\n\tDownloaded: %s/%s" % (
             self.download_report["downloaded"],
             self.download_report["download_limit"]
         )
@@ -156,20 +157,21 @@ class Engine:
         print(self.scan_report)
         if not self.scan_report:
             return ""
-        msg = "\n\n\tScanned: %s/%s" % (
+        msg = "Engine Scan"
+        msg += "\n\tScanned: %s/%s" % (
             self.scan_report["scanned"],
             self.scan_report["scan_limit"]
         )
-        msg += "\n\tProcessed: %s" % self.download_report["proccessed_ibws"]
+        msg += "\n\tProcessed: %s\n" % self.download_report["proccessed_ibws"]
         if self.scan_report["scanned_images_success"]:
-            print("\tImages")
+            msg += "\tSuccessful Scans\n"
             for image in self.scan_report["scanned_images_success"]:
-                msg += "\t\t%s" % image
+                msg += "\t\t%s\n" % image
 
         if self.scan_report["scanned_images_failed"]:
-            print("ERRORED IMAGE SCANS")
+            msg += "\tFailed Scans\n"
             for image in self.scan_report["scanned_images_failed"]:
-                msg += "\t\t%s" % image
+                msg += "\t\t%s\n" % image
         msg += "\n"
         return msg
 

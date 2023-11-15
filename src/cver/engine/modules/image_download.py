@@ -124,6 +124,8 @@ class ImageDownload:
             logging.info("Image is from local registry, no need to pull, marking as success.")
             self.data["status_reason"] = "Image exists in local registry"
             self.process_completed = True
+            self.data["status_reason"] = "Image from local repository"
+            self._handle_success_download()
             return True
 
         logging.info("Starting download of: %s" % self.image.name)
