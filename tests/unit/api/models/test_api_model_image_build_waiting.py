@@ -46,7 +46,7 @@ class TestImageBuildWaiting:
         """
         cursor = db.Cursor()
         cursor.result_to_return = [
-            5, datetime.now(), datetime.now(), 10, 11,
+            5, datetime.now(), datetime.now(), 10, 11, 1,
             "6937967453147ea7b89333fc2f67f18a19b597d5d62b4d3c22918e7a5b1292f8",
             "a-fake-tag", 1, "download", 1, datetime.now(), "Success", None]
         model = ImageBuildWaiting(db.Conn(), cursor)

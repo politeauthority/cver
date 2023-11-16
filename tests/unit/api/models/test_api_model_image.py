@@ -34,7 +34,7 @@ class TestImage:
         """
         cursor = db.Cursor()
         cursor.result_to_return = [
-            5, datetime.now(), datetime.now(), "politeauthority/cver-api", "docker.io", 1]
+            5, datetime.now(), datetime.now(), "politeauthority/cver-api", 1, "docker.io", 1]
         model = Image(db.Conn(), cursor)
         assert model.get_by_registry_and_name("docker.io", "politeauthority/cver-api")
         assert 5 == model.id

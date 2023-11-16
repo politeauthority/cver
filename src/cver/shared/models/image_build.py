@@ -46,6 +46,12 @@ FIELD_MAP = {
         "api_writeable": True,
         "api_searchable": True,
     },
+    "registry_id": {
+        "name": "registry_id",
+        "type": "int",
+        "api_writeable": True,
+        "api_searchable": True
+    },
     "registry_imported": {
         "name": "registry_imported",
         "type": "str",
