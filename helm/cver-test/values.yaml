@@ -21,7 +21,7 @@ app:
 image:
   repository: politeauthority/cver-test
   pullPolicy: IfNotPresent
-  tag: "0.0.4"
+  tag: "0.0.5"
 
 imagePullSecrets: []
 nameOverride: ""

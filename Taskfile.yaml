@@ -373,6 +373,18 @@ tasks:
     cmds:
       - mysql -h 127.0.0.1 -u root --password=$MYSQL_PWD
 
+  test-helm-uninstall:
+    args:
+      - gha_run
+    cmds:
+      - |
+        helm uninstall -n cver-test cver-test-test-{{.CLI_ARGS}}
+        helm uninstall -n cver-test cver-api-test-{{.CLI_ARGS}}
+        helm uninstall -n cver-test cver-ingest-test-{{.CLI_ARGS}}
+        helm uninstall -n cver-test cver-engine-test-{{.CLI_ARGS}}
+
+
+
   cver-build:
     cmds:
       - |

@@ -8,6 +8,7 @@ app:
   logLevel: "DEBUG"
   envName: "dev"
   debug: true
+  testDir: "/current/tests"
   database:
     name: "cver_dev"
     host: "cver-mysql.cver.svc.cluster.local"
