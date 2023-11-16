@@ -29,19 +29,19 @@ def entity(entity, fields: list = [], pad: int = 0) -> bool:
     return True
 
 
-def entity_table(entity) -> bool:
-    """Print a singl Cver Client entity in a table format."""
-    r = entity.response_last
-    import ipdb; ipdb.set_trace()
-    table = Table(title="%s (%s)" % (
-        response["object_type"].titlecase(), response["info"]["total_objects"]))
-    table.add_column("Field", justify="right", style="cyan", no_wrap=True)
-    table.add_column("Value", justify="right", style="green")
-    for field_name, field_info in entity.field_map.items():
-        table.add_row(field_name, getattr(entity, field_name))
-        console = Console()
-        console.print(table)
-    return True
+# def entity_table(entity) -> bool:
+#     """Print a singl Cver Client entity in a table format."""
+#     r = entity.response_last
+#     import ipdb; ipdb.set_trace()
+#     table = Table(title="%s (%s)" % (
+#         response["object_type"].titlecase(), response["info"]["total_objects"]))
+#     table.add_column("Field", justify="right", style="cyan", no_wrap=True)
+#     table.add_column("Value", justify="right", style="green")
+#     for field_name, field_info in entity.field_map.items():
+#         table.add_row(field_name, getattr(entity, field_name))
+#         console = Console()
+#         console.print(table)
+#     return True
 
 
 def entities(entities: list, fields: list = [], pad: int = 0) -> bool:
