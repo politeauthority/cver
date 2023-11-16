@@ -355,6 +355,15 @@ tasks:
   test-pods:
     cmds:
       - kubectl get pods -n cver-test -w
+  
+  test-helm-uninstall:
+    cmds: 
+      - |
+        helm -n cver-test ls | tail -n +2 | while read -r line; do
+            name=$(echo "$line" | awk '{print $1}')
+            echo "Uninstalling: $name"
+            helm uninstall -n cver-test $name
+        done
 
   stage-pods:
     cmds:
