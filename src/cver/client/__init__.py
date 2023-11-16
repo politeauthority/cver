@@ -140,6 +140,7 @@ class Client:
         except requests.exceptions.JSONDecodeError:
             logging.error("Could not get json from response.\n%s" % response.text)
             return False
+        self.response_last = response
         return response_json
 
     def info(self):
