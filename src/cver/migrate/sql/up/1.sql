@@ -65,6 +65,7 @@ CREATE TABLE IF NOT EXISTS images (
     `updated_ts` DATETIME,
     `name` VARCHAR(200) NOT NULL,
     `registry` VARCHAR(200) NOT NULL,
+    `registry_id` INTEGER,
     `maintained` TINYINT(1) DEFAULT True,
     UNIQUE KEY `ux_registry_image` (`name`, `registry`)
 );
@@ -80,6 +81,7 @@ CREATE TABLE IF NOT EXISTS image_builds (
     `sha_imported` VARCHAR(200) UNIQUE,
     `image_id` INTEGER NOT NULL,
     `registry` VARCHAR(200) NOT NULL,
+    `registry_id` INTEGER,
     `registry_imported` VARCHAR(200),
     `tags` TEXT,
     `size` INTEGER,
@@ -103,6 +105,7 @@ CREATE TABLE IF NOT EXISTS image_build_waitings (
     `updated_ts` DATETIME,
     `image_id` INTEGER NOT NULL,
     `image_build_id` INTEGER,
+    `registry_id` INTEGER,
     `sha` VARCHAR(200) UNIQUE,
     `tag` TEXT,
     `waiting` TINYINT(1) DEFAULT True,
