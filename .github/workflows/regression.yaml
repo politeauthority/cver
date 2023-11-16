@@ -18,7 +18,7 @@ on:
 
 jobs:
 
-  api:
+  regression:
     runs-on: self-hosted
     container:
       image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ inputs.cicd-version }}
@@ -39,61 +39,7 @@ jobs:
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
           export KUBECONFIG=~/.kube/config.yaml
           TEST_POD=$(kubectl get -n ${NAMESPACE} pods -l app.kubernetes.io/instance=${POD_SEARCH} --no-headers | cut -d' ' -f1)
-          kubectl exec -n ${NAMESPACE} -it ${TEST_POD} -- cver-cicd-regression api
-          REPORT=$(kubectl exec -n ${NAMESPACE} -it ${TEST_POD} -- cat /report/regression-report-api.md)
-          echo "$REPORT"
-          echo "${REPORT}" >> $GITHUB_STEP_SUMMARY
-
-  cli:
-    runs-on: self-hosted
-    needs: api
-    container:
-      image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ inputs.cicd-version }}
-      credentials:
-        username: ${{ inputs.harbor-user }}
-        password: ${{ secrets.HARBOR_PASSWORD }}
-    steps:
-      - name: Execute Cli Tests
-        run: |
-          if [ "${{ inputs.deployment-name }}" = "test" ]; then
-            NAMESPACE="cver-test"
-            POD_SEARCH="cver-test-${{ inputs.deployment-name }}-${{ inputs.run-number }}"
-          else  
-            NAMESPACE="cver-stage"
-            POD_SEARCH="cver-test-stage"
-          fi
-          mkdir ~/.kube
-          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
-          export KUBECONFIG=~/.kube/config.yaml
-          TEST_POD=$(kubectl get -n ${NAMESPACE} pods -l app.kubernetes.io/instance=${POD_SEARCH} --no-headers | cut -d' ' -f1)
-          kubectl exec -n ${NAMESPACE} -it ${TEST_POD} -- cver-cicd-regression cli
-          REPORT=$(kubectl exec -n ${NAMESPACE} -it ${TEST_POD} -- cat /report/regression-report-cli.md)
-          echo "$REPORT"
-          echo "${REPORT}" >> $GITHUB_STEP_SUMMARY
-
-  client:
-    runs-on: self-hosted
-    needs: cli
-    container:
-      image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ inputs.cicd-version }}
-      credentials:
-        username: ${{ inputs.harbor-user }}
-        password: ${{ secrets.HARBOR_PASSWORD }}
-    steps:
-      - name: Execute Client Tests
-        run: |
-          if [ "${{ inputs.deployment-name }}" = "test" ]; then
-            NAMESPACE="cver-test"
-            POD_SEARCH="cver-test-${{ inputs.deployment-name }}-${{ inputs.run-number }}"
-          else  
-            NAMESPACE="cver-stage"
-            POD_SEARCH="cver-test-stage"
-          fi
-          mkdir ~/.kube
-          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
-          export KUBECONFIG=~/.kube/config.yaml
-          TEST_POD=$(kubectl get -n ${NAMESPACE} pods -l app.kubernetes.io/instance=${POD_SEARCH} --no-headers | cut -d' ' -f1)
-          kubectl exec -n ${NAMESPACE} -it ${TEST_POD} -- cver-cicd-regression client
-          REPORT=$(kubectl exec -n ${NAMESPACE} -it ${TEST_POD} -- cat /report/regression-report-client.md)
+          kubectl exec -n ${NAMESPACE} -it ${TEST_POD} -- cver-cicd-regression all
+          REPORT=$(kubectl exec -n ${NAMESPACE} -it ${TEST_POD} -- cat /regression-report-all.md)
           echo "$REPORT"
           echo "${REPORT}" >> $GITHUB_STEP_SUMMARY

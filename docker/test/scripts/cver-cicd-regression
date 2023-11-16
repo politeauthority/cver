@@ -52,6 +52,6 @@ cd  $TEST_DIR/regression
 if [ "$CVER_TEST_MODULE" = "all" ]; then
     pytest -vvv . --md /report/regression-report.md
 else
-    pytest -vvv ${CVER_TEST_MODULE} --md /report/regression-report-${CVER_TEST_MODULE}.md
+    pytest -vvv ${CVER_TEST_MODULE} --md /regression-report-${CVER_TEST_MODULE}.md
 fi
 
