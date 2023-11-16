@@ -5,8 +5,9 @@
 
 """
 import logging
-from rich.console import Console
-from rich.table import Table
+# from rich.console import Console
+# from rich.table import Table
+
 
 def entity(entity, fields: list = [], pad: int = 0) -> bool:
     """Formats a dict so it can be printed pretty.
