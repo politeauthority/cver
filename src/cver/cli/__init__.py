@@ -8,6 +8,8 @@ import logging
 import logging.config
 
 from rich.console import Console
+from rich.table import Table
+
 
 from cver.api.version import version as cver_version
 from cver.shared.utils.log_config import log_config
@@ -20,10 +22,12 @@ from cver.client.collections.tasks import Tasks
 from cver.client.models.image import Image
 from cver.client.models.image_build import ImageBuild
 from cver.client.models.image_build_waiting import ImageBuildWaiting
+from cver.client.models.option import Option
 from cver.client.models.task import Task
 # from cver.client.collections.scans import Scans
 from cver.client import Client as CverClient
 from cver.cli.utils import pretty
+
 
 LOGO = """
    ______
@@ -50,6 +54,11 @@ class Cver:
         """Primary entrypoint to the Cver Cli."""
         if self.args.verb == "get":
             self.gets()
+        elif self.args.verb == "edit":
+            self.edits()
+        else:
+            print("Error: Unknown Command")
+            exit(1)
 
     def gets(self):
         if self.args.noun == "info":
@@ -74,6 +83,14 @@ class Cver:
             print("Error: Unknown Command")
             exit(1)
         return True
+
+    def edits(self):
+        """Edit actions router."""
+        if self.args.noun in ["option"]:
+            self.edit_option()
+        else:
+            print("Error: Unknown Command")
+            exit(1)
 
     def get_info(self):
         client = CverClient()
@@ -183,49 +200,58 @@ class Cver:
     def get_image_buld_waiting(self):
         ibw = ImageBuildWaiting()
         ibw.get_by_id(self.args.selector)
-        image = Image()
-        image.get_by_id(ibw.image_id)
-        has_ib = False
-        if ibw.image_build_id:
-            ib = ImageBuild()
-            has_ib = ib.get_by_id(ibw.image_build_id)
-        print("ImageBuildWaiting")
-        print("ID:\t\t%s" % ibw.id)
-        print("Created:\t%s" % ibw.created_ts)
-        print("Updated:\t%s" % ibw.updated_ts)
-        print("Image ID:\t%s" % ibw.image_id)
-        print("Image Build ID:\t%s" % ibw.image_build_id)
-        print("Waiting:\t%s" % ibw.waiting)
-        print("Waiting For:\t%s" % ibw.waiting_for)
-        print("")
-        print("Image")
-        print(f"\t\tID:       {image.id}")
-        print(f"\t\tName:     {image.name}")
-        print(f"\t\tRegistry: {image.registry}")
-        print("")
-        if has_ib:
-            print("Image Build")
-            print(f"\t\tID:\t{ib.id}")
-            print(f"\t\tSha:                {ib.sha}")
-            print("\t\tTags:               %s" % ", ".join(ib.tags))
-            print(f"\t\tRegistry Imported: {ib.registry_imported}")
+        print(self.args.selector)
+        # image = Image()
+        # image.get_by_id(ibw.response_last)
+        # has_ib = False
+        # if ibw.image_build_id:
+        #     ib = ImageBuild()
+        #     has_ib = ib.get_by_id(ibw.image_build_id)
+        pretty.entity_table(ibw)
+        # print("ImageBuildWaiting")
+        # print("ID:\t\t%s" % ibw.id)
+        # print("Created:\t%s" % ibw.created_ts)
+        # print("Updated:\t%s" % ibw.updated_ts)
+        # print("Image ID:\t%s" % ibw.image_id)
+        # print("Image Build ID:\t%s" % ibw.image_build_id)
+        # print("Waiting:\t%s" % ibw.waiting)
+        # print("Waiting For:\t%s" % ibw.waiting_for)
+        # print("")
+        # print("Image")
+        # print(f"\t\tID:       {image.id}")
+        # print(f"\t\tName:     {image.name}")
+        # print(f"\t\tRegistry: {image.registry}")
+        # print("")
+        # if has_ib:
+        #     print("Image Build")
+        #     print(f"\t\tID:\t{ib.id}")
+        #     print(f"\t\tSha:                {ib.sha}")
+        #     print("\t\tTags:               %s" % ", ".join(ib.tags))
+        #     print(f"\t\tRegistry Imported: {ib.registry_imported}")
+        return True
 
-    def get_options(self):
+    def get_options(self) -> bool:
         """Get all Options."""
         entity_col = Options()
         options = entity_col.get(page=self.args.page)
         response = entity_col.response_last
+        # if response:
+        #     print("Error: Could not fetch options")
+        #     return False
 
-        console.print("Options (%s)" % response["info"]["total_objects"], style="bold")
-
-        msg = ""
+        table = Table(title="Options  (%s)" % response["info"]["total_objects"])
+        table.add_column("Name", justify="right", style="cyan", no_wrap=True)
+        table.add_column("Value", justify="right", style="green")
         for option in options:
-            msg += "[b]%s[/b]\t%s\n" % (option.name, option.value)
-        console.print(msg)
+            table.add_row(option.name, str(option.value))
+
+        console = Console()
+        console.print(table)
         print("\n")
         print("Info")
         print("\tPage: %s/%s" % (response["info"]["current_page"], response["info"]["last_page"]))
         print("\tPer Page: %s" % response["info"]["per_page"])
+        return True
 
     def get_tasks(self):
         """Get all Tasks."""
@@ -264,6 +290,31 @@ class Cver:
             return False
         console.print("Task", style="bold")
         pretty.entity(task)
+
+    def edit_option(self) -> bool:
+        """Edit an Option.
+        @note: Currently only works with the selector as a name value.
+        """
+        print("This hasnt been built yet")
+        option = Option()
+        option_search = self.args.selector
+        if not option.get_by_name(option_search):
+            print("Error: Could not find option: %s" % option_search)
+            return False
+        print("Option: %s")
+        print("\tCurrent Value:\t%s" % option.value)
+        new_value = input("\tNew Value:\t")
+        validate = input("Save?\t")
+        if validate in ["y", "yes"]:
+            option.value = new_value
+            if option.save():
+                print("Saved: %s" % option)
+            else:
+                print("Error Saving: %s" % option)
+                return False
+        else:
+            print("Not saving")
+        return True
 
 
 def parse_args():

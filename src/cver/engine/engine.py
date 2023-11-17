@@ -131,7 +131,7 @@ class Engine:
 
     def _draw_download_report(self) -> str:
         """Log out the relevant info from the Engine Download report."""
-        if "downloaded" not in self.download_report:
+        if not self.download_report:
             return ""
 
         msg = "Engine Download"
@@ -162,7 +162,7 @@ class Engine:
             self.scan_report["scanned"],
             self.scan_report["scan_limit"]
         )
-        msg += "\n\tProcessed: %s\n" % self.download_report["proccessed_ibws"]
+        msg += "\n\tProcessed: %s\n" % self.scan_report["proccessed_ibws"]
         if self.scan_report["scanned_images_success"]:
             msg += "\tSuccessful Scans\n"
             for image in self.scan_report["scanned_images_success"]:

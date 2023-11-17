@@ -38,15 +38,15 @@ def parse_trivy(scan_result: dict) -> dict:
     """
     ret = {
         "cve_critical_int": 0,
-        "cve_critical_num": [],
+        "cve_critical_nums": [],
         "cve_high_int": 0,
-        "cve_high_num": [],
+        "cve_high_nums": [],
         "cve_medium_int": 0,
-        "cve_medium_num": [],
+        "cve_medium_nums": [],
         "cve_low_int": 0,
-        "cve_low_num": [],
+        "cve_low_nums": [],
         "cve_unknown_int": 0,
-        "cve_unknown_num": [],
+        "cve_unknown_nums": [],
     }
     vulns = misc.get_dict_path(scan_result, "Results.0.Vulnerabilities")
     if not vulns:

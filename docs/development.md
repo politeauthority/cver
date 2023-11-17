@@ -20,6 +20,7 @@
     drop table options;
     drop table organizations;
     drop table perms;
+    drop table registries;
     drop table role_perms;
     drop table roles;
     drop table scans;

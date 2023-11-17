@@ -20,7 +20,6 @@ class Base(CverClient):
         super().__init__()
         self.entity_name = None
         self.field_map = {}
-        self.response_last = None
 
     def __repr__(self):
         """Base model representation."""
