@@ -140,7 +140,6 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
-
   run-engine:
     needs: [deploy-api, deploy-engine, run-ingest]
     uses: ./.github/workflows/run-engine.yaml

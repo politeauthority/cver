@@ -50,7 +50,7 @@ jobs:
             RELEASE_NAME="cver-test-${{ inputs.deployment-name}}"
             NAMESPACE="cver-${{ inputs.deployment-name}}"
             DB_NAME="cver_${{ inputs.deployment-name}}"
-            API_URL="http://cver-api-${{ inputs.run-number }}"
+            API_URL="http://cver-api-${{ inputs.deployment-name }}"
           fi
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
