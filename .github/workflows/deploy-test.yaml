@@ -61,7 +61,11 @@ jobs:
           if [ "${{ inputs.image-built }}" = "true" ]; then
             IMAGE_TAG="git-sha-${{ inputs.git-sha }}"
           else
-            IMAGE_TAG="${{ inputs.deployment-name }}-latest"
+            if [ "${{ inputs.deployment-name }}" = "test" ]; then
+              IMAGE_TAG="dev-latest"
+            else
+              IMAGE_TAG="${{ inputs.deployment-name }}-latest"
+            fi
           fi
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
