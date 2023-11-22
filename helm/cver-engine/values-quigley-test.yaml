@@ -2,7 +2,7 @@
 
 replicaCount: 1
 
-nameOverride: "dev"
+nameOverride: "test"
 
 app:
   logLevel: "DEBUG"
