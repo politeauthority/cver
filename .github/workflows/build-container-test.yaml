@@ -30,7 +30,6 @@ jobs:
       fail-fast: true
     outputs:
       image-built: ${{ steps.Decider.outputs.test }}
-      output2: ${{ steps.step2.outputs.test }}
     steps:
       - uses: actions/checkout@v3
         with:
