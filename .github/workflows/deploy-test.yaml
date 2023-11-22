@@ -9,6 +9,9 @@ on:
       git-sha:
         required: true
         type: string
+      image-built:
+        required: true
+        type: bool
       run-number:
         required: true
         type: string
