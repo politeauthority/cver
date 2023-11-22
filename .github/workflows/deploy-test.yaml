@@ -58,6 +58,11 @@ jobs:
             DB_NAME="cver_${{ inputs.deployment-name}}"
             API_URL="http://cver-api-${{ inputs.deployment-name }}"
           fi
+          if [ "${{ inputs.image-built }}" = "true" ]; then
+            IMAGE_TAG="git-sha-${{ inputs.git-sha }}"
+          else
+            IMAGE_TAG="${{ inputs.deployment-name }}-latest"
+          fi
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
           export KUBECONFIG=~/.kube/config.yaml
@@ -76,6 +81,6 @@ jobs:
             --set "app.branch=${BRANCH}" \
             --set "app.database.name=${DB_NAME}" \
             --set "app.deployedAt=${DEPLOYED_AT}" \
-            --set "image.tag=git-sha-${{ inputs.git-sha }}"
+            --set "image.tag=${IMAGE_TAG}"
           echo "# Deployed: Cver-Test" >> $GITHUB_STEP_SUMMARY
           echo "Created Helm deployment: ${RELEASE_NAME}" >> $GITHUB_STEP_SUMMARY
