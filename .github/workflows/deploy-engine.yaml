@@ -6,6 +6,9 @@ on:
       deployment-name:
         required: true
         type: string
+      git-sha:
+        required: true
+        type: string
       run-number:
         required: true
         type: string
@@ -55,6 +58,7 @@ jobs:
             --set "app.apiUrl=${API_URL}" \
             --set "app.dbName=${DB_NAME}" \
             --set "fullnameOverride=${RELEASE_NAME}" \
-            --set "app.deployedAt=${DEPLOYED_AT}" 
+            --set "app.deployedAt=${DEPLOYED_AT}" \
+            --set "image.tag=git-sha-${{ inputs.git-sha }}"
           echo "# Deployed: Cver-Engine" >> $GITHUB_STEP_SUMMARY
           echo "Created Helm deployment: ${RELEASE_NAME}" >> $GITHUB_STEP_SUMMARY
