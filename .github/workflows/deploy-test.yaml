@@ -73,6 +73,6 @@ jobs:
             --set "app.branch=${BRANCH}" \
             --set "app.database.name=${DB_NAME}" \
             --set "app.deployedAt=${DEPLOYED_AT}" \
-            --set "image.tag=${{ inputs.git-sha }}"
+            --set "image.tag=git-sha-${{ inputs.git-sha }}"
           echo "# Deployed: Cver-Test" >> $GITHUB_STEP_SUMMARY
           echo "Created Helm deployment: ${RELEASE_NAME}" >> $GITHUB_STEP_SUMMARY
