@@ -73,7 +73,6 @@ jobs:
     with:
       tag-prefix: "dev"
       git-sha: "${{ github.sha }}"
-      image-built: ${{ needs.build-api.outputs.image-built }}
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
