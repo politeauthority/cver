@@ -11,7 +11,7 @@ app:
   debug: false
   cron:
     schedule:  "22 * * * *"
-    suspend: true
+    suspend: false
 
 test:
   test: true

@@ -56,6 +56,8 @@ class Cver:
             self.gets()
         elif self.args.verb == "edit":
             self.edits()
+        elif self.args.verb == "delete":
+            self.deletes()
         else:
             print("Error: Unknown Command")
             exit(1)
@@ -71,6 +73,8 @@ class Cver:
             self.get_image()
         elif self.args.noun in ["ib", "image-build"]:
             self.get_image_build()
+        elif self.args.noun in ["ibws", "image-build-waitings"]:
+            self.get_image_build_waitings()
         elif self.args.noun in ["ibw", "image-build-waiting"]:
             self.get_image_buld_waiting()
         elif self.args.noun in ["options"]:
@@ -84,41 +88,53 @@ class Cver:
             exit(1)
         return True
 
-    def edits(self):
+    def edits(self) -> bool:
         """Edit actions router."""
         if self.args.noun in ["option"]:
             self.edit_option()
         else:
             print("Error: Unknown Command")
             exit(1)
+        return True
 
-    def get_info(self):
+    def deletes(self) -> bool:
+        """Delete actions router."""
+        if self.args.noun in ["task"]:
+            self.delete_task()
+        else:
+            print("Error: Unknown Command")
+            exit(1)
+        return True
+
+    def get_info(self) -> bool:
+        """Get Cver info
+        :cmd: cver-cli get info
+        """
         client = CverClient()
         info = client.info()
-        info_base = {
-            "env": info["env"],
-            "migration": info["migration"],
-        }
-        info_totals = {
-            "api-keys": info["model_totals"]["api-keys"],
-            "apps": info["model_totals"]["apps"],
-            "cluster-images": info["model_totals"]["cluster-images"],
-            "image-build-waitings": info["model_totals"]["image-build-waitings"],
-            "image-builds": info["model_totals"]["image-builds"],
-            "images": info["model_totals"]["images"],
-            "migrations": info["model_totals"]["migrations"],
-            "options": info["model_totals"]["options"],
-            "perms": info["model_totals"]["perms"],
-            "role_perms": info["model_totals"]["role_perms"],
-            "roles": info["model_totals"]["roles"],
-            "scanners": info["model_totals"]["scanners"],
-            "scans": info["model_totals"]["scans"],
-            "tasks": info["model_totals"]["tasks"],
-            "users": info["model_totals"]["users"],
-        }
-        display.print_dict(info_base)
-        print("Totals")
-        display.print_dict(info_totals, pad=2)
+        table = Table(title="Totals")
+        table.add_column("Model", justify="right", style="cyan", no_wrap=True)
+        table.add_column("Total", justify="right", style="green")
+
+        table.add_row("Api Keys", str(info["model_totals"]["api-keys"]))
+        table.add_row("Apps", str(info["model_totals"]["apps"]))
+        table.add_row("Cluster Images", str(info["model_totals"]["cluster-images"]))
+        table.add_row("Images", str(info["model_totals"]["images"]))
+        table.add_row("Image Builds", str(info["model_totals"]["image-builds"]))
+        table.add_row("Image Build Waitings", str(info["model_totals"]["image-build-waitings"]))
+        table.add_row("Migrations", str(info["model_totals"]["migrations"]))
+        table.add_row("Options", str(info["model_totals"]["options"]))
+        table.add_row("Perms", str(info["model_totals"]["perms"]))
+        table.add_row("Role Perms", str(info["model_totals"]["role_perms"]))
+        table.add_row("Roles", str(info["model_totals"]["roles"]))
+        table.add_row("Scanners", str(info["model_totals"]["scanners"]))
+        table.add_row("Scans", str(info["model_totals"]["scans"]))
+        table.add_row("Tasks", str(info["model_totals"]["tasks"]))
+        table.add_row("Users", str(info["model_totals"]["users"]))
+
+        console = Console()
+        console.print(table)
+
         return True
 
     def get_image(self) -> bool:
@@ -197,6 +213,31 @@ class Cver:
         # print(f"\t\tRegistry: {image.registry}")
         # print("")
 
+    def get_image_build_waitings(self):
+        """Get all ImageBuildWaitings."""
+        entity_col = ImageBuildWaitings()
+        ibws = entity_col.get(page=self.args.page)
+        response = entity_col.response_last
+
+        table = Table(title="Image Build Waitings (%s)" % response["info"]["total_objects"])
+        table.add_column("ID", justify="right", style="cyan", no_wrap=True)
+        table.add_column("Image", justify="right", style="green")
+
+        for task in ibws:
+            image = Image()
+            image.get_by_id(task.image_id)
+            table.add_row(
+                str(task.id),
+                image.name
+            )
+
+        console = Console()
+        console.print(table)
+        print("\n")
+        print("Info")
+        print("\tPage: %s/%s" % (response["info"]["current_page"], response["info"]["last_page"]))
+        print("\tPer Page: %s" % response["info"]["per_page"])
+
     def get_image_buld_waiting(self):
         ibw = ImageBuildWaiting()
         ibw.get_by_id(self.args.selector)
@@ -259,23 +300,34 @@ class Cver:
         tasks = entity_col.get(page=self.args.page)
         response = entity_col.response_last
 
-        console.print("Tasks (%s)" % response["info"]["total_objects"], style="bold")
+        table = Table(title="Tasks (%s)" % response["info"]["total_objects"])
+        table.add_column("ID", justify="right", style="cyan", no_wrap=True)
+        table.add_column("Task", justify="right", style="green")
+        table.add_column("Image", justify="right", style="green")
 
         for task in tasks:
-            data = {
-                "ID": task.id,
-                "Created": pretty.date_display(task.created_ts),
-                "Updated": task.updated_ts,
-                "Name": task.name,
-                "Image ID": task.image_id,
-                "Image Build ID": task.image_build_id,
-                "Image Build Waiting ID": task.image_build_waiting_id,
-                "Status": task.status,
-                "Status Reason": task.status_reason
-            }
-            display.print_dict(data, pad=2)
-            print("\n")
-
+            image = Image()
+            image.get_by_id(task.image_id)
+            table.add_row(
+                str(task.id),
+                task.name,
+                image.name
+            )
+            # data = {
+            #     "ID": task.id,
+            #     "Created": pretty.date_display(task.created_ts),
+            #     "Updated": task.updated_ts,
+            #     "Name": task.name,
+            #     "Image ID": task.image_id,
+            #     "Image Build ID": task.image_build_id,
+            #     "Image Build Waiting ID": task.image_build_waiting_id,
+            #     "Status": task.status,
+            #     "Status Reason": task.status_reason
+            # }
+            # display.print_dict(data, pad=2)
+            # print("\n")
+        console = Console()
+        console.print(table)
         print("\n")
         print("Info")
         print("\tPage: %s/%s" % (response["info"]["current_page"], response["info"]["last_page"]))
@@ -290,6 +342,7 @@ class Cver:
             return False
         console.print("Task", style="bold")
         pretty.entity(task)
+        return True
 
     def edit_option(self) -> bool:
         """Edit an Option.
@@ -315,6 +368,24 @@ class Cver:
         else:
             print("Not saving")
         return True
+
+    def delete_task(self) -> bool:
+        task = Task()
+        task_search = self.args.selector
+        if not task.get_by_id(task_search):
+            print("Not Found")
+            return False
+        console.print("Task", style="bold")
+        pretty.entity(task)
+        validate = input("Delete?\t")
+        if validate in ["y", "yes"]:
+            if task.delete():
+                print("Deleted: %s" % task)
+            else:
+                print("Error Saving: %s" % task)
+                return False
+        else:
+            print("Not saving")
 
 
 def parse_args():
