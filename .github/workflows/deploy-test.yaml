@@ -11,7 +11,7 @@ on:
         type: string
       image-built:
         required: true
-        type: bool
+        type: string
       run-number:
         required: true
         type: string
