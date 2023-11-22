@@ -61,7 +61,7 @@ jobs:
           DEPLOYED_AT=$(date +"%Y-%m-%d %T")
           helm dependency build helm/cver-api
           cd helm/cver-api
-          echo "Cver-Api Image Tag: ${IMAGE_TAG}""
+          echo "Cver-Api Image Tag: ${IMAGE_TAG}"
           helm upgrade \
             ${RELEASE_NAME} ./ \
             --namespace=${NAMESPACE} \
