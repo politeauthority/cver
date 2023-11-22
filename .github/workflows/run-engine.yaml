@@ -31,7 +31,7 @@ jobs:
         run: |
           if [ "${{ inputs.deployment-name }}" = "test" ]; then
             NAMESPACE="cver-test"
-            CRON_JOB="cver-engine-test-${{ inputs.run-number }}-dev"
+            CRON_JOB="cver-engine-test-${{ inputs.run-number }}"
             JOB_NAME="cver-engine-test-${{ inputs.run-number }}"
           else  
             NAMESPACE="cver-stage"
