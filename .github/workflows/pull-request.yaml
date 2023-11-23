@@ -47,6 +47,8 @@ jobs:
     secrets: inherit 
     with:
       deployment-name: "test"
+      git-sha: "${{ github.sha }}"
+      image-built: ${{ needs.build-test.outputs.image-built }}
       run-number: ${{ github.run_number }}
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
@@ -106,6 +108,8 @@ jobs:
     secrets: inherit 
     with:
       deployment-name: "test"
+      git-sha: "${{ github.sha }}"
+      image-built: ${{ needs.build-api.outputs.image-built }}
       run-number: ${{ github.run_number }}
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
@@ -116,6 +120,8 @@ jobs:
     secrets: inherit 
     with:
       deployment-name: "test"
+      git-sha: "${{ github.sha }}"
+      image-built: ${{ needs.build-ingest.outputs.image-built }}
       run-number: ${{ github.run_number }}
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
@@ -126,6 +132,8 @@ jobs:
     secrets: inherit 
     with:
       deployment-name: "test"
+      git-sha: "${{ github.sha }}"
+      image-built: ${{ needs.build-engine.outputs.image-built }}
       run-number: ${{ github.run_number }}
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"

@@ -6,6 +6,12 @@ on:
       deployment-name:
         required: true
         type: string
+      git-sha:
+        required: true
+        type: string
+      image-built:
+        required: true
+        type: string
       run-number:
         required: true
         type: string
@@ -39,6 +45,15 @@ jobs:
             DB_NAME="cver_${{ inputs.deployment-name}}"
             NAMESPACE="cver-${{ inputs.deployment-name}}"
           fi
+          if [ "${{ inputs.image-built }}" = "true" ]; then
+            IMAGE_TAG="git-sha-${{ inputs.git-sha }}"
+          else
+            if [ "${{ inputs.deployment-name }}" = "test" ]; then
+              IMAGE_TAG="dev-latest"
+            else
+              IMAGE_TAG="${{ inputs.deployment-name }}-latest"
+            fi
+          fi
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
           export KUBECONFIG=~/.kube/config.yaml
@@ -46,6 +61,7 @@ jobs:
           DEPLOYED_AT=$(date +"%Y-%m-%d %T")
           helm dependency build helm/cver-api
           cd helm/cver-api
+          echo "Cver-Api Image Tag: ${IMAGE_TAG}"
           helm upgrade \
             ${RELEASE_NAME} ./ \
             --namespace=${NAMESPACE} \
@@ -54,6 +70,7 @@ jobs:
             --timeout=300s \
             -f values-quigley-${{ inputs.deployment-name }}.yaml \
             --set "app.database.name=${DB_NAME}" \
-            --set "app.deployedAt=${DEPLOYED_AT}"
+            --set "app.deployedAt=${DEPLOYED_AT}" \
+            --set "image.tag=${IMAGE_TAG}"
           echo "# Deployed: Cver-Api" >> $GITHUB_STEP_SUMMARY
           echo "Created Helm deployment: ${RELEASE_NAME}" >> $GITHUB_STEP_SUMMARY

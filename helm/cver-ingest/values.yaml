@@ -12,7 +12,7 @@ app:
   apiUrl: "http://cver-api"
   cron:
     suspend: false
-    schedule:  "10,45 * * * *"
+    schedule:  "10,40 * * * *"
 
 image:
   repository: politeauthority/cver-ingest
