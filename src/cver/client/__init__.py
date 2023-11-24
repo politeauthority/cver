@@ -49,7 +49,7 @@ class Client:
     def login(self, skip_local_token: bool = False) -> bool:
         """Login to the Cver API."""
         if self.login_attempts >= self.max_login_attempts:
-            logging.crticial("Reached max loging attempts (%s), quitting")
+            logging.critical("Reached max loging attempts (%s), quitting")
             return False
         logging.debug("Logging into Cver Api: %s" % self.api_url)
         if not skip_local_token and self._open_valid_token():
@@ -140,12 +140,12 @@ class Client:
         except requests.exceptions.JSONDecodeError:
             logging.error("Could not get json from response.\n%s" % response.text)
             return False
+        self.response_last = response
         return response_json
 
     def info(self):
         """Get Cver Api Info"""
         response = self.make_request("info")
-        self.response_last = response
         return response
 
     def submit_scan(self, image_id: int, image_build_id: int, raw_scan: dict):

@@ -9,8 +9,8 @@ app:
   envName: "prod"
   logHealthChecks: false
   database:
-    name: "cver"
-    host: "cver-mysql.cver-prod.svc.cluster.local"
+    name: "cver_prod"
+    host: "cver-mysql.cver.svc.cluster.local"
     user: "cver"
 
 image:
@@ -22,7 +22,7 @@ imagePullSecrets:
   - name: harbor
 
 ingress:
-  enabled: false
+  enabled: true
   className: nginx-public
   hosts:
     - host: cver.squid-ink.us

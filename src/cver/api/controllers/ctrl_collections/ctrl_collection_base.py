@@ -25,9 +25,9 @@ def get(collection) -> dict:
         page = request_args["page"]
     field_map = collection().collect_model().field_map
     parsed_body = _parse_body(request_args["clean_args"], field_map)
-    # logging.info("\nRaw Args:\n%s" % request_args["raw_args"])
-    # logging.info("\nClean Args:\n%s" % request_args["clean_args"])
-    # logging.info("\nGET:\n%s" % parsed_body)
+    logging.debug("\nRaw Args:\n%s" % request_args["raw_args"])
+    logging.debug("\nClean Args:\n%s" % request_args["clean_args"])
+    logging.debug("\nGET:\n%s" % parsed_body)
 
     limit = parsed_body["limit"]
     collection_limit = collection().per_page

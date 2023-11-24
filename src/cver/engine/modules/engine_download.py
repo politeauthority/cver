@@ -55,18 +55,24 @@ class EngineDownload:
                 "field": "sync_last_ts",
                 "direction": "ASC"
             },
-            "limit": 1
+            "limit": 20
         }
         ibs = ib_col.get(args)
+        logging.info("Found %s potential ImageBuilds to create IBWs from" % len(ibs))
         ibws_created = 0
         for ib in ibs:
-            if date_utils.interval_ready(ib.sync_last_ts, 96):
-                logging.debug("%s: Not flagging image build for sync" % ib)
+            if not date_utils.interval_ready(ib.sync_last_ts, 96):
+                logging.info("%s: Not flagging image build for sync" % ib)
                 continue
+
             ibw = ImageBuildWaiting()
+            ibw.sha = ib.sha
+            if ibw.get_by_sha():
+                logging.info("IBW already exists, not creating. %s" % ibw)
+                continue
+
             ibw.image_id = ib.image_id
             ibw.image_build_id = ib.id
-            ibw.sha = ib.sha
             if len(ib.tags) > 0:
                 ibw.tag = ib.tags[0]
             ibw.waiting_for = "download"
@@ -89,8 +95,15 @@ class EngineDownload:
         if self.processed == self.process_limit:
             logging.info("Hit max ammount of IBW processing.")
             return True
+        fail_threshold = 1
 
         for ibw in ibws:
+            if ibw.fail_count and ibw.fail_count > fail_threshold:
+                logging.info("Skipping IBW: %s, fail count (%s) above threshold (%s)." % (
+                    ibw,
+                    ibw.fail_count,
+                    fail_threshold))
+                continue
             self.processed += 1
             if self.processed > self.process_limit:
                 logging.info("Hit max ammount of IBW processing.")

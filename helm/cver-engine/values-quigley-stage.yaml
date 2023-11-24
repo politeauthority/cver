@@ -10,8 +10,8 @@ app:
   envName: "stage"
   debug: false
   cron:
-    schedule:  "22 * * * *"
-    suspend: true
+    schedule: "22 * * * *"
+    suspend: false
 
 test:
   test: true

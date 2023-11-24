@@ -48,7 +48,7 @@ class TestImageBuild:
             5, datetime.now(), datetime.now(),
             "6937967453147ea7b89333fc2f67f18a19b597d5d62b4d3c22918e7a5b1292f8",
             "6937967453147ea7b89333fc2f67f18a19b597d5d62b4d3c22918e7a5b1292f8",
-            10, "docker.io", "harbor.squid-ink.us/cver-general", "tag_1,tag_2", 54123, "Linux",
+            10, "docker.io", 1, "harbor.squid-ink.us/cver-general", "tag_1,tag_2", 54123, "Linux",
             "Alpine", 1, 1, 1, datetime.now(), 1, 1, datetime.now()]
         model = ImageBuild(db.Conn(), cursor)
         model.sha = "6937967453147ea7b89333fc2f67f18a19b597d5d62b4d3c22918e7a5b1292f8"
