@@ -369,7 +369,12 @@ tasks:
     cmds:
       - |
         CVER_API_HELM=$(helm ls | grep "cver-api-test" | awk '{print $1}' | sort -n | tail -n 1)
+        if [ -z "$CVER_API_HELM" ]; then
+          echo "Release does not exist: cver-api-test"
+          exit 1
+        fi
         POD=$(kubectl -n cver-test get pods | grep ${CVER_API_HELM} | awk '{print $1}')
+        echo "POD: $POD"
         stern ${POD} -n cver-test
     silent: true
 
