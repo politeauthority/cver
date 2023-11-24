@@ -50,6 +50,7 @@ jobs:
     with:
       deployment-name: "prod"
       run-number: ${{ github.run_number }}
+      image-built: ${{ needs.build-test.outputs.image-built }}
       git-sha: "${{ github.sha }}"
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
@@ -61,6 +62,7 @@ jobs:
     with:
       deployment-name: "stage"
       git-sha: "${{ github.sha }}"
+      image-built: ${{ needs.build-test.outputs.image-built }}
       run-number: ${{ github.run_number }}
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
@@ -72,6 +74,7 @@ jobs:
     with:
       deployment-name: "stage"
       git-sha: "${{ github.sha }}"
+      image-built: ${{ needs.build-test.outputs.image-built }}
       run-number: ${{ github.run_number }}
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
