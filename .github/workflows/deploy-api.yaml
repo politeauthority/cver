@@ -61,7 +61,6 @@ jobs:
           DEPLOYED_AT=$(date +"%Y-%m-%d %T")
           helm dependency build helm/cver-api
           cd helm/cver-api
-          
           helm upgrade \
             ${RELEASE_NAME} ./ \
             --namespace=${NAMESPACE} \
