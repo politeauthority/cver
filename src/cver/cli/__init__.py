@@ -8,6 +8,8 @@ import logging
 import logging.config
 
 from rich.console import Console
+from rich.table import Table
+
 
 from cver.api.version import version as cver_version
 from cver.shared.utils.log_config import log_config
@@ -20,10 +22,12 @@ from cver.client.collections.tasks import Tasks
 from cver.client.models.image import Image
 from cver.client.models.image_build import ImageBuild
 from cver.client.models.image_build_waiting import ImageBuildWaiting
+from cver.client.models.option import Option
 from cver.client.models.task import Task
 # from cver.client.collections.scans import Scans
 from cver.client import Client as CverClient
 from cver.cli.utils import pretty
+
 
 LOGO = """
    ______
@@ -50,6 +54,13 @@ class Cver:
         """Primary entrypoint to the Cver Cli."""
         if self.args.verb == "get":
             self.gets()
+        elif self.args.verb == "edit":
+            self.edits()
+        elif self.args.verb == "delete":
+            self.deletes()
+        else:
+            print("Error: Unknown Command")
+            exit(1)
 
     def gets(self):
         if self.args.noun == "info":
@@ -62,6 +73,8 @@ class Cver:
             self.get_image()
         elif self.args.noun in ["ib", "image-build"]:
             self.get_image_build()
+        elif self.args.noun in ["ibws", "image-build-waitings"]:
+            self.get_image_build_waitings()
         elif self.args.noun in ["ibw", "image-build-waiting"]:
             self.get_image_buld_waiting()
         elif self.args.noun in ["options"]:
@@ -75,33 +88,53 @@ class Cver:
             exit(1)
         return True
 
-    def get_info(self):
+    def edits(self) -> bool:
+        """Edit actions router."""
+        if self.args.noun in ["option"]:
+            self.edit_option()
+        else:
+            print("Error: Unknown Command")
+            exit(1)
+        return True
+
+    def deletes(self) -> bool:
+        """Delete actions router."""
+        if self.args.noun in ["task"]:
+            self.delete_task()
+        else:
+            print("Error: Unknown Command")
+            exit(1)
+        return True
+
+    def get_info(self) -> bool:
+        """Get Cver info
+        :cmd: cver-cli get info
+        """
         client = CverClient()
         info = client.info()
-        info_base = {
-            "env": info["env"],
-            "migration": info["migration"],
-        }
-        info_totals = {
-            "api-keys": info["model_totals"]["api-keys"],
-            "apps": info["model_totals"]["apps"],
-            "cluster-images": info["model_totals"]["cluster-images"],
-            "image-build-waitings": info["model_totals"]["image-build-waitings"],
-            "image-builds": info["model_totals"]["image-builds"],
-            "images": info["model_totals"]["images"],
-            "migrations": info["model_totals"]["migrations"],
-            "options": info["model_totals"]["options"],
-            "perms": info["model_totals"]["perms"],
-            "role_perms": info["model_totals"]["role_perms"],
-            "roles": info["model_totals"]["roles"],
-            "scanners": info["model_totals"]["scanners"],
-            "scans": info["model_totals"]["scans"],
-            "tasks": info["model_totals"]["tasks"],
-            "users": info["model_totals"]["users"],
-        }
-        display.print_dict(info_base)
-        print("Totals")
-        display.print_dict(info_totals, pad=2)
+        table = Table(title="Totals")
+        table.add_column("Model", justify="right", style="cyan", no_wrap=True)
+        table.add_column("Total", justify="right", style="green")
+
+        table.add_row("Api Keys", str(info["model_totals"]["api-keys"]))
+        table.add_row("Apps", str(info["model_totals"]["apps"]))
+        table.add_row("Cluster Images", str(info["model_totals"]["cluster-images"]))
+        table.add_row("Images", str(info["model_totals"]["images"]))
+        table.add_row("Image Builds", str(info["model_totals"]["image-builds"]))
+        table.add_row("Image Build Waitings", str(info["model_totals"]["image-build-waitings"]))
+        table.add_row("Migrations", str(info["model_totals"]["migrations"]))
+        table.add_row("Options", str(info["model_totals"]["options"]))
+        table.add_row("Perms", str(info["model_totals"]["perms"]))
+        table.add_row("Role Perms", str(info["model_totals"]["role_perms"]))
+        table.add_row("Roles", str(info["model_totals"]["roles"]))
+        table.add_row("Scanners", str(info["model_totals"]["scanners"]))
+        table.add_row("Scans", str(info["model_totals"]["scans"]))
+        table.add_row("Tasks", str(info["model_totals"]["tasks"]))
+        table.add_row("Users", str(info["model_totals"]["users"]))
+
+        console = Console()
+        console.print(table)
+
         return True
 
     def get_image(self) -> bool:
@@ -168,7 +201,10 @@ class Cver:
         }
         console.print("ImageBuild", style="bold")
         display.print_dict(ib_build)
+        pretty.entity(ib)
 
+        console.print("Image", style="bold")
+        pretty.entity(image)
         # print("Scans: %s" % len(scans))
         # print("")
         # print("Image")
@@ -177,52 +213,86 @@ class Cver:
         # print(f"\t\tRegistry: {image.registry}")
         # print("")
 
-    def get_image_buld_waiting(self):
-        ibw = ImageBuildWaiting()
-        ibw.get_by_id(self.args.selector)
-        image = Image()
-        image.get_by_id(ibw.image_id)
-        has_ib = False
-        if ibw.image_build_id:
-            ib = ImageBuild()
-            has_ib = ib.get_by_id(ibw.image_build_id)
-        print("ImageBuildWaiting")
-        print("ID:\t\t%s" % ibw.id)
-        print("Created:\t%s" % ibw.created_ts)
-        print("Updated:\t%s" % ibw.updated_ts)
-        print("Image ID:\t%s" % ibw.image_id)
-        print("Image Build ID:\t%s" % ibw.image_build_id)
-        print("Waiting:\t%s" % ibw.waiting)
-        print("Waiting For:\t%s" % ibw.waiting_for)
-        print("")
-        print("Image")
-        print(f"\t\tID:       {image.id}")
-        print(f"\t\tName:     {image.name}")
-        print(f"\t\tRegistry: {image.registry}")
-        print("")
-        if has_ib:
-            print("Image Build")
-            print(f"\t\tID:\t{ib.id}")
-            print(f"\t\tSha:                {ib.sha}")
-            print("\t\tTags:               %s" % ", ".join(ib.tags))
-            print(f"\t\tRegistry Imported: {ib.registry_imported}")
-
-    def get_options(self):
-        """Get all Options."""
-        entity_col = Options()
-        options = entity_col.get(page=self.args.page)
+    def get_image_build_waitings(self):
+        """Get all ImageBuildWaitings."""
+        entity_col = ImageBuildWaitings()
+        ibws = entity_col.get(page=self.args.page)
         response = entity_col.response_last
 
-        console.print("Options (%s)" % response["info"]["total_objects"], style="bold")
+        table = Table(title="Image Build Waitings (%s)" % response["info"]["total_objects"])
+        table.add_column("ID", justify="right", style="cyan", no_wrap=True)
+        table.add_column("Image", justify="right", style="green")
 
-        msg = ""
-        for option in options:
-            msg += "[b]%s[/b]\t%s\n" % (option.name, option.value)
-        console.print(msg)
+        for task in ibws:
+            image = Image()
+            image.get_by_id(task.image_id)
+            table.add_row(
+                str(task.id),
+                image.name
+            )
+
+        console = Console()
+        console.print(table)
         print("\n")
         print("Info")
         print("\tPage: %s/%s" % (response["info"]["current_page"], response["info"]["last_page"]))
         print("\tPer Page: %s" % response["info"]["per_page"])
+
+    def get_image_buld_waiting(self):
+        ibw = ImageBuildWaiting()
+        ibw.get_by_id(self.args.selector)
+        print(self.args.selector)
+        # image = Image()
+        # image.get_by_id(ibw.response_last)
+        # has_ib = False
+        # if ibw.image_build_id:
+        #     ib = ImageBuild()
+        #     has_ib = ib.get_by_id(ibw.image_build_id)
+        pretty.entity_table(ibw)
+        # print("ImageBuildWaiting")
+        # print("ID:\t\t%s" % ibw.id)
+        # print("Created:\t%s" % ibw.created_ts)
+        # print("Updated:\t%s" % ibw.updated_ts)
+        # print("Image ID:\t%s" % ibw.image_id)
+        # print("Image Build ID:\t%s" % ibw.image_build_id)
+        # print("Waiting:\t%s" % ibw.waiting)
+        # print("Waiting For:\t%s" % ibw.waiting_for)
+        # print("")
+        # print("Image")
+        # print(f"\t\tID:       {image.id}")
+        # print(f"\t\tName:     {image.name}")
+        # print(f"\t\tRegistry: {image.registry}")
+        # print("")
+        # if has_ib:
+        #     print("Image Build")
+        #     print(f"\t\tID:\t{ib.id}")
+        #     print(f"\t\tSha:                {ib.sha}")
+        #     print("\t\tTags:               %s" % ", ".join(ib.tags))
+        #     print(f"\t\tRegistry Imported: {ib.registry_imported}")
+        return True
+
+    def get_options(self) -> bool:
+        """Get all Options."""
+        entity_col = Options()
+        options = entity_col.get(page=self.args.page)
+        response = entity_col.response_last
+        # if response:
+        #     print("Error: Could not fetch options")
+        #     return False
+
+        table = Table(title="Options  (%s)" % response["info"]["total_objects"])
+        table.add_column("Name", justify="right", style="cyan", no_wrap=True)
+        table.add_column("Value", justify="right", style="green")
+        for option in options:
+            table.add_row(option.name, str(option.value))
+
+        console = Console()
+        console.print(table)
+        print("\n")
+        print("Info")
+        print("\tPage: %s/%s" % (response["info"]["current_page"], response["info"]["last_page"]))
+        print("\tPer Page: %s" % response["info"]["per_page"])
+        return True
 
     def get_tasks(self):
         """Get all Tasks."""
@@ -230,23 +300,34 @@ class Cver:
         tasks = entity_col.get(page=self.args.page)
         response = entity_col.response_last
 
-        console.print("Tasks (%s)" % response["info"]["total_objects"], style="bold")
+        table = Table(title="Tasks (%s)" % response["info"]["total_objects"])
+        table.add_column("ID", justify="right", style="cyan", no_wrap=True)
+        table.add_column("Task", justify="right", style="green")
+        table.add_column("Image", justify="right", style="green")
 
         for task in tasks:
-            data = {
-                "ID": task.id,
-                "Created": pretty.date_display(task.created_ts),
-                "Updated": task.updated_ts,
-                "Name": task.name,
-                "Image ID": task.image_id,
-                "Image Build ID": task.image_build_id,
-                "Image Build Waiting ID": task.image_build_waiting_id,
-                "Status": task.status,
-                "Status Reason": task.status_reason
-            }
-            display.print_dict(data, pad=2)
-            print("\n")
-
+            image = Image()
+            image.get_by_id(task.image_id)
+            table.add_row(
+                str(task.id),
+                task.name,
+                image.name
+            )
+            # data = {
+            #     "ID": task.id,
+            #     "Created": pretty.date_display(task.created_ts),
+            #     "Updated": task.updated_ts,
+            #     "Name": task.name,
+            #     "Image ID": task.image_id,
+            #     "Image Build ID": task.image_build_id,
+            #     "Image Build Waiting ID": task.image_build_waiting_id,
+            #     "Status": task.status,
+            #     "Status Reason": task.status_reason
+            # }
+            # display.print_dict(data, pad=2)
+            # print("\n")
+        console = Console()
+        console.print(table)
         print("\n")
         print("Info")
         print("\tPage: %s/%s" % (response["info"]["current_page"], response["info"]["last_page"]))
@@ -261,6 +342,50 @@ class Cver:
             return False
         console.print("Task", style="bold")
         pretty.entity(task)
+        return True
+
+    def edit_option(self) -> bool:
+        """Edit an Option.
+        @note: Currently only works with the selector as a name value.
+        """
+        print("This hasnt been built yet")
+        option = Option()
+        option_search = self.args.selector
+        if not option.get_by_name(option_search):
+            print("Error: Could not find option: %s" % option_search)
+            return False
+        print("Option: %s")
+        print("\tCurrent Value:\t%s" % option.value)
+        new_value = input("\tNew Value:\t")
+        validate = input("Save?\t")
+        if validate in ["y", "yes"]:
+            option.value = new_value
+            if option.save():
+                print("Saved: %s" % option)
+            else:
+                print("Error Saving: %s" % option)
+                return False
+        else:
+            print("Not saving")
+        return True
+
+    def delete_task(self) -> bool:
+        task = Task()
+        task_search = self.args.selector
+        if not task.get_by_id(task_search):
+            print("Not Found")
+            return False
+        console.print("Task", style="bold")
+        pretty.entity(task)
+        validate = input("Delete?\t")
+        if validate in ["y", "yes"]:
+            if task.delete():
+                print("Deleted: %s" % task)
+            else:
+                print("Error Saving: %s" % task)
+                return False
+        else:
+            print("Not saving")
 
 
 def parse_args():

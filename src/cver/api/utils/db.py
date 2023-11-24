@@ -66,7 +66,11 @@ def close() -> bool:
     if isinstance(glow.db["conn"], str):
         logging.error("Canot close database connection, it doesnt exist.")
         return False
-    glow.db["conn"].close()
+    try:
+        glow.db["conn"].close()
+    except MySqlError as e:
+        logging.error("Could not close connection: %s" % e)
+        return False
     return True
 
 # End File: cver/src/api/utils/db.py

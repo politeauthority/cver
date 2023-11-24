@@ -65,6 +65,7 @@ CREATE TABLE IF NOT EXISTS images (
     `updated_ts` DATETIME,
     `name` VARCHAR(200) NOT NULL,
     `registry` VARCHAR(200) NOT NULL,
+    `registry_id` INTEGER,
     `maintained` TINYINT(1) DEFAULT True,
     UNIQUE KEY `ux_registry_image` (`name`, `registry`)
 );
@@ -80,6 +81,7 @@ CREATE TABLE IF NOT EXISTS image_builds (
     `sha_imported` VARCHAR(200) UNIQUE,
     `image_id` INTEGER NOT NULL,
     `registry` VARCHAR(200) NOT NULL,
+    `registry_id` INTEGER,
     `registry_imported` VARCHAR(200),
     `tags` TEXT,
     `size` INTEGER,
@@ -103,6 +105,7 @@ CREATE TABLE IF NOT EXISTS image_build_waitings (
     `updated_ts` DATETIME,
     `image_id` INTEGER NOT NULL,
     `image_build_id` INTEGER,
+    `registry_id` INTEGER,
     `sha` VARCHAR(200) UNIQUE,
     `tag` TEXT,
     `waiting` TINYINT(1) DEFAULT True,
@@ -140,6 +143,21 @@ CREATE TABLE IF NOT EXISTS organizations (
     `email` VARCHAR(200) UNIQUE,
     `last_access` DATETIME
 );
+
+---
+--- Create registries
+---
+CREATE TABLE IF NOT EXISTS registries (
+    `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
+    `created_ts` DATETIME,
+    `updated_ts` DATETIME,
+    `name` VARCHAR(200),
+    `url` VARCHAR(200),
+    `maintained` TINYINT(1),
+    `daily_limit` INTEGER,
+    `public` TINYINT(1)
+);
+
 
 ---
 --- Create roles
@@ -267,7 +285,8 @@ CREATE TABLE IF NOT EXISTS tasks (
     `status` TINYINT(1),
     `status_reason` VARCHAR(200),
     `start_ts` DATETIME,
-    `end_ts` DATETIME
+    `end_ts` DATETIME,
+    `registry_id` INTEGER
 );
 
 

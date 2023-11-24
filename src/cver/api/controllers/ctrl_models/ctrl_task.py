@@ -4,6 +4,7 @@
     Task
 
 """
+import logging
 
 from flask import Blueprint, jsonify, Response
 
@@ -42,6 +43,16 @@ def post_model(task_id: int = None):
         "org_id": glow.user["user_id"],
     }
     return ctrl_base.post_model(Task, task_id, generated_data=generated_data)
+
+
+@ctrl_task.route("/<task_id>", methods=["DELETE"])
+@auth.auth_request
+def delete_model(task_id: int = None):
+    """DELETE operation for a Task model.
+    DELETE /task
+    """
+    logging.debug("DELETE task")
+    return ctrl_base.delete_model(Task, task_id)
 
 
 # End File: cve/src/api/controllers/ctrl_models/ctrl_task.py

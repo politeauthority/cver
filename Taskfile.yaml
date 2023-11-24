@@ -355,10 +355,47 @@ tasks:
   test-pods:
     cmds:
       - kubectl get pods -n cver-test -w
+  
+  test-helm-uninstall:
+    cmds: 
+      - |
+        helm -n cver-test ls | tail -n +2 | while read -r line; do
+            name=$(echo "$line" | awk '{print $1}')
+            echo "Uninstalling: $name"
+            helm uninstall -n cver-test $name
+        done
+
+  test-logs-api:
+    cmds:
+      - |
+        CVER_API_HELM=$(helm ls | grep "cver-api-test" | awk '{print $1}' | sort -n | tail -n 1)
+        if [ -z "$CVER_API_HELM" ]; then
+          echo "Release does not exist: cver-api-test"
+          exit 1
+        fi
+        POD=$(kubectl -n cver-test get pods | grep ${CVER_API_HELM} | awk '{print $1}')
+        echo "POD: $POD"
+        stern ${POD} -n cver-test
+    silent: true
+
+  test-logs-engine:
+    cmds:
+      - |
+        CVER_ENGINE_HELM=$(helm ls | grep "cver-api-test" | awk '{print $1}' | sort -n | tail -n 1)
+        POD=$(kubectl -n cver-test get pods | grep ${CVER_ENGINE_HELM} | awk '{print $1}')
+        stern ${POD} -n cver-test
+    silent: true
 
   stage-pods:
     cmds:
       - kubectl get pods -n cver-stage -w
+
+  stage-logs-api:
+    cmds:
+      - |
+        POD=$(kubectl get pods -n cver-stage -l app.kubernetes.io/instance=cver-api-stage --no-headers | cut -d' ' -f1)
+        stern ${POD} -n cver-stage
+    silent: true
 
   dev-mysql:
     cmds:

@@ -19,4 +19,4 @@ class Tasks(Base):
         self.field_map = self.collect_model().field_map
         self.per_page = 20
 
-# End File: cve/src/api/collects/task.py
+# End File: cve/src/api/collects/tasks.py

@@ -38,7 +38,6 @@ def get_all_images() -> list:
 
 def pull_image(image_loc: str, pull_through_registry: str = None) -> bool:
     """Download the docker image.
-    @note: For now we'll assume we always have a pull through cache like Harbor available.
     """
     if pull_through_registry:
         image_pull_loc = "%s/%s" % (pull_through_registry, image_loc)
@@ -46,7 +45,11 @@ def pull_image(image_loc: str, pull_through_registry: str = None) -> bool:
         image_pull_loc = image_loc
 
     pull_cmd = ["docker", "pull", image_loc]
-    image_pull = subprocess.check_output(pull_cmd).decode("utf-8")
+    try:
+        image_pull = subprocess.check_output(pull_cmd).decode("utf-8")
+    except subprocess.CalledProcessError as e:
+        logging.error("Encounted docker error trying to pull image: %s" % e)
+        return False
     pull_status = image_pull[image_pull.find("Status:"):]
     logging.info("Pull status for %s: %s" % (image_pull_loc, pull_status))
     return True

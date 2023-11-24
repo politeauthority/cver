@@ -12,7 +12,9 @@ from cver.api.collects.image_builds import ImageBuilds
 from cver.api.collects.image_build_waitings import ImageBuildWaitings
 from cver.api.collects.migrations import Migrations
 from cver.api.collects.options import Options
+from cver.api.collects.organizations import Organizations
 from cver.api.collects.perms import Perms
+from cver.api.collects.registries import Registries
 from cver.api.collects.role_perms import RolePerms
 from cver.api.collects.roles import Roles
 from cver.api.collects.users import Users
@@ -33,7 +35,9 @@ def get_model_totals():
         "image-build-waitings": ImageBuildWaitings().get_count_total(),
         "migrations": Migrations().get_count_total(),
         "options": Options().get_count_total(),
+        "organizations": Organizations().get_count_total(),
         "perms": Perms().get_count_total(),
+        "registries": Registries().get_count_total(),
         "role_perms": RolePerms().get_count_total(),
         "roles": Roles().get_count_total(),
         "users": Users().get_count_total(),

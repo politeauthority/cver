@@ -12,7 +12,7 @@ app:
   debug: false
   cron:
     schedule:  "45 * * * *"
-    suspend: true
+    suspend: false
 
 test:
   test: true

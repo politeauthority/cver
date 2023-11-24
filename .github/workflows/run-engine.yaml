@@ -31,18 +31,19 @@ jobs:
         run: |
           if [ "${{ inputs.deployment-name }}" = "test" ]; then
             NAMESPACE="cver-test"
-            # @todo: FIX THE -dev suffix!
-            CRON_JOB="cver-engine-test-${{ inputs.run-number }}-dev"
+            CRON_JOB="cver-engine-test-${{ inputs.run-number }}"
+            JOB_NAME="cver-engine-test-${{ inputs.run-number }}"
           else  
             NAMESPACE="cver-stage"
             CRON_JOB="cver-engine-stage"
+            JOB_NAME="cver-engine-stage-${{ inputs.run-number }}"
           fi
           mkdir ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config.yaml
           export KUBECONFIG=~/.kube/config.yaml
 
           echo "Creating job: ${CRON_JOB}"
-          kubectl create job -n ${NAMESPACE} --from=cronjob/${CRON_JOB} ${CRON_JOB}
+          kubectl create job -n ${NAMESPACE} --from=cronjob/${CRON_JOB} ${JOB_NAME}
           elapsed_time=0
           # Loop until the elapsed time reaches 300 seconds
           while [ $elapsed_time -lt 300 ]; do

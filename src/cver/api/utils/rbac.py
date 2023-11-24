@@ -108,6 +108,16 @@ ACL = {
         "POST": ["write-all"],
         "DELETE": ["write-all"],
     },
+    "/registry": {
+        "GET": ["read-all"],
+        "POST": ["write-all"],
+        "DELETE": ["write-all"],
+    },
+    "/registries": {
+        "GET": ["read-all"],
+        "POST": ["write-all"],
+        "DELETE": ["write-all"],
+    },
     "/role": {
         "GET": ["read-all"],
         "POST": ["write-all"],
@@ -170,7 +180,7 @@ ACL = {
     "/task": {
         "GET": ["read-all"],
         "POST": ["write-all"],
-        "DELETE": ["write-all"],
+        "DELETE": ["delete-all"],
     },
     "/tasks": {
         "GET": ["read-all"],
