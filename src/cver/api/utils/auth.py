@@ -50,8 +50,8 @@ def auth_request(f):
                 data["message"] = "Invalid token"
                 return make_response(jsonify(data), 401)
             if not rbac.check_role_uri_access(jwt_value["role_perms"], request):
-                msg = "User: %s attempted to access a resource they do not have authorization for"
-                logging.warning(msg)
+                msg = "User ID: %s attempted to access a resource they do not have authorization for"
+                logging.warning(msg % glow.user["user_id"])
                 data["message"] = "Access Forbidden"
                 return make_response(jsonify(data), 403)
             return f(*args, **kwargs)

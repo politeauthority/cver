@@ -156,7 +156,7 @@ ACL = {
     "/scans": {
         "GET": ["read-all"],
         "POST": ["write-all"],
-        "DELETE": ["write-all"],
+        "DELETE": ["delete-all"],
     },
     "/scanner": {
         "GET": ["read-all"],
@@ -203,6 +203,7 @@ ACL = {
 def check_role_uri_access(user_role_perms: list, request) -> bool:
     """Checks a list of user role perms against the ACL list, checking to see if they line up.
     @todo: Unit test this, it's BRITTLE AF
+    :unit-test: TestApiUtilsRbac::test__check_role_uri_access
     """
     rp_og = request.path
     if rp_og.count("/") > 1:
@@ -215,12 +216,14 @@ def check_role_uri_access(user_role_perms: list, request) -> bool:
         return False
     acl_route = ACL[rp]
     rm = request.method
-    if request.method not in acl_route:
+
+    if rm not in acl_route:
         logging.warning("Request method: %s not in ACL path: %s" % (rm, rp))
         return False
     acl_route_method = acl_route[rm]
-    # print("has %s:" % user_role_perms)
-    # print("needs %s:" % acl_route_method)
+    print("has %s:" % user_role_perms)
+    print("needs %s:" % acl_route_method)
+
     for perm in acl_route_method:
         if perm in user_role_perms:
             return True
