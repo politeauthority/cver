@@ -145,7 +145,7 @@ class Engine:
             for dl_success in self.download_report["downloaded_images_success"]:
                 msg += "\t\t%s\n" % dl_success
 
-        if self.download_report["downloaded_images_failed"]:
+        if len(self.download_report["downloaded_images_failed"]) > 0:
             msg += "\n\tFailed Downloads\n"
             for dl_fail in self.download_report["downloaded_images_failed"]:
                 msg += "\t\t%s\n" % dl_fail

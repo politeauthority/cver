@@ -37,10 +37,12 @@ class DataRbac:
         # Create the Perms
         perm_write_all = self.create_perm("Write All", "write-all")
         perm_read_all = self.create_perm("Read All", "read-all")
+        perm_delete_all = self.create_perm("Delete All", "delete-all")
 
         # Create RolePerms
         self.create_role_perm(role, perm_write_all)
         self.create_role_perm(role, perm_read_all)
+        self.create_role_perm(role, perm_delete_all)
         return role.id
 
     def create_reader_rbac(self) -> int:

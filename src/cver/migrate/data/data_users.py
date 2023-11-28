@@ -59,19 +59,25 @@ class DataUsers:
         return True
 
     def create_test_users(self) -> bool:
+        """Create the test users for Ingestion and Engine."""
         if not glow.general["CVER_TEST"]:
             logging.info("Not creating test users")
             return True
 
         logging.info("Creating Test Users")
-
         client_id = os.environ.get("CVER_TEST_INGEST_CLIENT_ID")
+        if not client_id:
+            logging.warning("Missing CVER_TEST_INGEST_CLIENT_ID env var, skipping user creation.")
+            return False
         api_key = os.environ.get("CVER_TEST_INGEST_API_KEY")
         roles_id = self.roles["ingestor"].id
         self.create_user("test-ingest", "ingest@example.com", roles_id, client_id, api_key)
 
         # Create User: test-engine
         client_id = os.environ.get("CVER_TEST_ENGINE_CLIENT_ID")
+        if not client_id:
+            logging.warning("Missing CVER_TEST_ENGINE_CLIENT_ID env var, skipping user creation.")
+            return False
         api_key = os.environ.get("CVER_TEST_ENGINE_API_KEY")
         roles_id = self.roles["engineer"].id
         self.create_user("test-engine", "engine@example.com", roles_id, client_id, api_key)

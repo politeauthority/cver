@@ -15,7 +15,7 @@ from cver.api.version import version as cver_version
 from cver.shared.utils.log_config import log_config
 from cver.shared.utils import display
 from cver.client.collections.images import Images
-from cver.client.collections.image_builds import ImageBuilds
+# from cver.client.collections.image_builds import ImageBuilds
 from cver.client.collections.image_build_waitings import ImageBuildWaitings
 from cver.client.collections.options import Options
 from cver.client.collections.tasks import Tasks
@@ -24,9 +24,11 @@ from cver.client.models.image_build import ImageBuild
 from cver.client.models.image_build_waiting import ImageBuildWaiting
 from cver.client.models.option import Option
 from cver.client.models.task import Task
-# from cver.client.collections.scans import Scans
+from cver.client.models.scan import Scan
+from cver.client.collections.scans import Scans
 from cver.client import Client as CverClient
 from cver.cli.utils import pretty
+from cver.cli.utils import misc
 
 
 LOGO = """
@@ -83,6 +85,8 @@ class Cver:
             self.get_tasks()
         elif self.args.noun in ["task"]:
             self.get_task()
+        elif self.args.noun in ["scans"]:
+            self.get_scans()
         else:
             print("Error: Unknown Command")
             exit(1)
@@ -101,6 +105,8 @@ class Cver:
         """Delete actions router."""
         if self.args.noun in ["task"]:
             self.delete_task()
+        elif self.args.noun in ["scan"]:
+            self.delete_scan()
         else:
             print("Error: Unknown Command")
             exit(1)
@@ -149,21 +155,23 @@ class Cver:
             if not image.get_by_name(image_search):
                 print("Not Found")
                 return False
-        ibs_collect = ImageBuilds()
-        # scans_collect = Scans()
-        ibs = ibs_collect.get_by_image_id(image.id)
-        ibws = ImageBuildWaitings().get_by_image_id(image.id)
-        # scans = Scans().get({"image_id": image_id})
-        image_dict = {
-            "ID": image.id,
-            "Created": image.created_ts,
-            "Name": image.name,
-            "Registry": image.registry,
-            "Image Builds": len(ibs),
-            "Image Builds Waiting": len(ibws)
-        }
+        # ibs_collect = ImageBuilds()
+        # # scans_collect = Scans()
+        # ibs = ibs_collect.get_by_image_id(image.id)
+        # ibws = ImageBuildWaitings().get_by_image_id(image.id)
+        # # scans = Scans().get({"image_id": image_id})
+        # image_dict = {
+        #     "ID": image.id,
+        #     "Created": image.created_ts,
+        #     "Name": image.name,
+        #     "Registry": image.registry,
+        #     "Image Builds": len(ibs),
+        #     "Image Builds Waiting": len(ibws)
+        # }
+        # console.print("Image", style="bold")
+        # display.print_dict(image_dict)
         console.print("Image", style="bold")
-        display.print_dict(image_dict)
+        pretty.entity(image)
 
     def get_images(self) -> bool:
         """Get all Images."""
@@ -304,6 +312,7 @@ class Cver:
         table.add_column("ID", justify="right", style="cyan", no_wrap=True)
         table.add_column("Task", justify="right", style="green")
         table.add_column("Image", justify="right", style="green")
+        table.add_column("Created", justify="right", style="green")
 
         for task in tasks:
             image = Image()
@@ -311,21 +320,9 @@ class Cver:
             table.add_row(
                 str(task.id),
                 task.name,
-                image.name
+                image.name,
+                pretty.date_display(task.created_ts)
             )
-            # data = {
-            #     "ID": task.id,
-            #     "Created": pretty.date_display(task.created_ts),
-            #     "Updated": task.updated_ts,
-            #     "Name": task.name,
-            #     "Image ID": task.image_id,
-            #     "Image Build ID": task.image_build_id,
-            #     "Image Build Waiting ID": task.image_build_waiting_id,
-            #     "Status": task.status,
-            #     "Status Reason": task.status_reason
-            # }
-            # display.print_dict(data, pad=2)
-            # print("\n")
         console = Console()
         console.print(table)
         print("\n")
@@ -342,6 +339,42 @@ class Cver:
             return False
         console.print("Task", style="bold")
         pretty.entity(task)
+        return True
+
+    def get_scans(self) -> bool:
+        """Get all Scans."""
+        entity_col = Scans()
+        collect_args = misc.collect_args(self.args)
+        collect_args["query"] = True
+        collect_args["limit"] = 5
+        scans = entity_col.get(collect_args)
+        response = entity_col.response_last
+
+        table = Table(title="Scans (%s)" % response["info"]["total_objects"])
+        table.add_column("ID", justify="right", style="cyan", no_wrap=True)
+        table.add_column("Image", justify="left", style="green")
+        table.add_column("Critical CVEs", justify="right", style="red")
+        table.add_column("High CVEs", justify="right", style="red")
+        table.add_column("Medium CVEs", justify="right", style="yellow")
+        table.add_column("Low CVEs", justify="right", style="black")
+
+        for scan in scans:
+            image = Image()
+            image.get_by_id(scan.image_id)
+            table.add_row(
+                str(scan.id),
+                image.name,
+                str(scan.cve_critical_int),
+                str(scan.cve_high_int),
+                str(scan.cve_medium_int),
+                str(scan.cve_low_int),
+            )
+        console = Console()
+        console.print(table)
+        print("\n")
+        print("Info")
+        print("\tPage: %s/%s" % (response["info"]["current_page"], response["info"]["last_page"]))
+        print("\tPer Page: %s" % response["info"]["per_page"])
         return True
 
     def edit_option(self) -> bool:
@@ -387,6 +420,24 @@ class Cver:
         else:
             print("Not saving")
 
+    def delete_scan(self):
+        entity = Scan()
+        entity_search = self.args.selector
+        if not entity.get_by_id(entity_search):
+            print("Not Found")
+            return False
+        console.print("Scan", style="bold")
+        pretty.entity(entity)
+        validate = input("Delete?\t")
+        if validate in ["y", "yes"]:
+            if entity.delete():
+                print("Deleted: %s" % entity)
+            else:
+                print("Error Saving: %s" % entity)
+                return False
+        else:
+            print("Not saving")
+
 
 def parse_args():
     """Parse the CLI arguments."""
@@ -416,6 +467,8 @@ def parse_args():
         default=None,
         help="Output")
     parser.add_argument('-o', '--output', default=None)
+    parser.add_argument('--order', default=None)
+    # parser.add_argument('--delete-token', default=None)
     the_args = parser.parse_args()
     return the_args
 

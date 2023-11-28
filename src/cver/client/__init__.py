@@ -43,13 +43,13 @@ class Client:
         temp_dir = tempfile.gettempdir()
         self.token_file = os.path.join(temp_dir, "cver-token")
         self.login_attempts = 0
-        self.max_login_attempts = 2
+        self.max_login_attempts = 3
         self.response_last = None
 
     def login(self, skip_local_token: bool = False) -> bool:
         """Login to the Cver API."""
         if self.login_attempts >= self.max_login_attempts:
-            logging.critical("Reached max loging attempts (%s), quitting")
+            logging.critical("Reached max loging attempts (%s), quitting" % self.max_login_attempts)
             return False
         logging.debug("Logging into Cver Api: %s" % self.api_url)
         if not skip_local_token and self._open_valid_token():
@@ -67,7 +67,7 @@ class Client:
             "url": f"{self.api_url}/auth",
         }
         request_args["headers"].update(self.headers)
-        logging.info("Making auth request")
+        logging.info("Making auth request, attempt %s" % self.login_attempts)
         response = requests.request(**request_args)
         if response.status_code == 401:
             logging.warning("Received unauthorized status code 401 logging in")
