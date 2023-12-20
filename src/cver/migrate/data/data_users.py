@@ -73,7 +73,7 @@ class DataUsers:
         return True
 
     def create_first_test_user(self) -> bool:
-        """Create the first admin level user for a test environment, but only if one doesn't 
+        """Create the first admin level user for a test environment, but only if one doesn't
         already exist.
         """
         logging.info("Creating First Admin User")
