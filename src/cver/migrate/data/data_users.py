@@ -3,8 +3,11 @@
     Data - Rbac
 
 """
+from datetime import datetime
 import logging
 import os
+
+import arrow
 
 from cver.api.utils import glow
 from cver.api.collects.roles import Roles
@@ -31,8 +34,12 @@ class DataUsers:
     def create(self) -> bool:
         """Create the first user, and test users if this is a test environment."""
         self.create_first_org()
-        self.create_first_user()
-        self.create_test_users()
+        if not glow.general["CVER_TEST"]:
+            logging.info("")
+            self.create_first_admin()
+        else:
+            self.create_first_test_user()
+            self.create_test_users()
 
     def create_first_org(self) -> bool:
         """Create the first Organization
@@ -50,8 +57,25 @@ class DataUsers:
         self.org_id = org.id
         return True
 
-    def create_first_user(self) -> bool:
+    def create_first_admin(self) -> bool:
         """Create the first admin level user, but only if one doesn't already exist."""
+        logging.info("Creating First Admin User")
+        client_id = auth.generate_client_id()
+        api_key = auth.generate_api_key()
+        expire_at = (arrow.utcnow().shift(hours=4)).datetime
+        self.create_user(
+            "admin",
+            "admin@example.com",
+            self.roles["admin"].id,
+            client_id,
+            api_key,
+            expire_at)
+        return True
+
+    def create_first_test_user(self) -> bool:
+        """Create the first admin level user for a test environment, but only if one doesn't 
+        already exist.
+        """
         logging.info("Creating First Admin User")
         client_id = os.environ.get("CVER_TEST_ADMIN_CLIENT_ID")
         api_key = os.environ.get("CVER_TEST_ADMIN_API_KEY")
@@ -88,7 +112,8 @@ class DataUsers:
             user_email: str,
             role_id: int,
             client_id: str,
-            api_key_str: str
+            api_key_str: str,
+            expiration_date: datetime = None
     ) -> bool:
         user = User()
         if user.get_by_email(user_email):
@@ -108,6 +133,8 @@ class DataUsers:
         api_key = ApiKey()
         api_key.user_id = user.id
         api_key.client_id = client_id
+        if expiration_date:
+            api_key.expiration_date = expiration_date
         if api_key.get_by_field(field="client_id", value=client_id):
             msg = "Not creating ApiKey client_id for user: %s, client id: %s already exists" % (
                 user,
@@ -120,8 +147,10 @@ class DataUsers:
         api_key.save()
         print("Created")
         print("\t%s" % user)
-        print("\t Client ID: %s" % client_id)
-        print("\t Api Key: %s" % api_key_str)
+        print("\tClient ID: %s" % client_id)
+        print("\tApi Key: %s" % api_key_str)
+        if expiration_date:
+            print("\tKey will expire in 4 hours!")
         return True
 
 # End File: cver/src/migrate/data/data_rbac.py

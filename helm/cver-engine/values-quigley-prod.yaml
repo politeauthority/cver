@@ -2,9 +2,6 @@
 
 replicaCount: 1
 
-nameOverride: "prod"
-
-
 app:
   apiUrl: "http://cver-api-stage"
   logLevel: "INFO"
