@@ -135,7 +135,7 @@ class ImageDownload:
             self.ib = ImageBuild()
             self.ib.get_by_id(self.ibw.image_build_id)
             logging.debug("Loaded: %s" % self.ib)
-        
+
         if self.ibw.registry_id not in glow.registry_info["registries"]:
             logging.error("Cannot find IBW %s registry" % self.ibw)
             return False
@@ -281,7 +281,7 @@ class ImageDownload:
         # Handle IB Pull
         if stage == "image pull":
             self.ib_pull.status = False
-            
+
         if self.pull_time_elapsed:
             self.ib_pull.status = True
             self.ib_pull.pull_time_elapsed = self.pull_time_elapsed
