@@ -45,6 +45,7 @@ class Client:
         self.login_attempts = 0
         self.max_login_attempts = 3
         self.response_last = None
+        self.response_last_json = None
 
     def login(self, skip_local_token: bool = False) -> bool:
         """Login to the Cver API."""
@@ -141,6 +142,7 @@ class Client:
             logging.error("Could not get json from response.\n%s" % response.text)
             return False
         self.response_last = response
+        self.response_last_json = response_json
         return response_json
 
     def info(self):

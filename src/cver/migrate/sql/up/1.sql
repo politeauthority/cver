@@ -64,10 +64,9 @@ CREATE TABLE IF NOT EXISTS images (
     `created_ts` DATETIME,
     `updated_ts` DATETIME,
     `name` VARCHAR(200) NOT NULL,
-    `registry` VARCHAR(200) NOT NULL,
-    `registry_id` INTEGER,
+    `registry_id` INTEGER NOT NULL,
     `maintained` TINYINT(1) DEFAULT True,
-    UNIQUE KEY `ux_registry_image` (`name`, `registry`)
+    UNIQUE KEY `ux_registry_image` (`name`, `registry_id`)
 );
 
 --- 
@@ -80,8 +79,7 @@ CREATE TABLE IF NOT EXISTS image_builds (
     `sha` VARCHAR(200) UNIQUE,
     `sha_imported` VARCHAR(200) UNIQUE,
     `image_id` INTEGER NOT NULL,
-    `registry` VARCHAR(200) NOT NULL,
-    `registry_id` INTEGER,
+    `registry_id` INTEGER NOT NULL,
     `registry_imported` VARCHAR(200),
     `tags` TEXT,
     `size` INTEGER,
@@ -106,8 +104,12 @@ CREATE TABLE IF NOT EXISTS image_build_pulls (
     `image_id` INTEGER NOT NULL,
     `image_build_id` INTEGER NOT NULL,
     `registry_id` INTEGER NOT NULL,
+    `task_id` INTEGER NOT NULL,
+    `job` VARCHAR(200),
     `status` TINYINT(1),
-    `pull_time` INTEGER
+    `status_reason` VARCHAR(200),
+    `pull_time_elapsed` INTEGER,
+    `push_time_elapsed` INTEGER
 );
 
 --- 
@@ -229,7 +231,8 @@ CREATE TABLE IF NOT EXISTS scans (
     `cve_low_nums` TEXT,
     `cve_unknown_int` INTEGER,
     `cve_unknown_nums` TEXT,
-    `pending_parse` TINYINT(1) DEFAULT True
+    `pending_parse` TINYINT(1) DEFAULT True,
+    `time_elapsed` INTEGER
 );
 
 ---

@@ -15,6 +15,7 @@ from cver.api.models.cluster_image import ClusterImage
 from cver.api.models.image_build import ImageBuild
 from cver.api.models.image_build_waiting import ImageBuildWaiting
 from cver.api.models.image import Image
+from cver.api.models.registry import Registry
 from cver.shared.utils import misc
 from cver.shared.utils import date_utils
 
@@ -50,15 +51,19 @@ def post_submit_image():
         data["status"] = "error"
         return make_response(json.dumps(data), 400)
 
-    # Handle Image
     image_map = misc.container_url(request_json["image"])
+
+    # Handle Registry
+    registry_id = _handle_registry(image_map)
+
+    # Handle Image
     if image_map["sha"]:
         return jsonify(data), 200
     if not image_map["sha"] and request_json["sha"]:
         image_map["sha"] = request_json["sha"]
     image = Image()
-    if not image.get_by_registry_and_name(image_map["registry"], image_map["image"]):
-        image.registry = image_map["registry"]
+    if not image.get_by_registry_id_and_name(registry_id, image_map["image"]):
+        image.registry_id = registry_id
         image.name = image_map["image"]
         image.save()
         data["wrote"]["image"] = image.json()
@@ -73,6 +78,19 @@ def post_submit_image():
         data["wrote"]["image-cluster"] = ic.json()
 
     return jsonify(data), 201
+
+
+def _handle_registry(image_map: dict) -> int:
+    """Check to see if we already have the Registry, if we don't we create it. Returning the
+    Registry ID.
+    """
+    registry = Registry()
+    if registry.get_by_url(image_map["registry"]):
+        return registry.id
+    registry.name = image_map["registry"]
+    registry.url = image_map["registry"]
+    registry.save()
+    return registry.id
 
 
 def _handle_image_build(image: Image, image_map: dict) -> ImageBuildWaiting:
@@ -90,6 +108,7 @@ def _handle_image_build(image: Image, image_map: dict) -> ImageBuildWaiting:
         if not found:
             ib.image_id = image.id
             ib.registry = image_map["registry"]
+            ib.registry_id = image.registry_id
             ib.sync_enabled = True
             ib.sync_flag = True
             ib.scan_enabled = True

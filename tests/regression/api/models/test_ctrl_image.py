@@ -20,7 +20,7 @@ URL_MODEL = "image"
 
 TEST_MODEL = {
     "name": "not-real",
-    "registry": "https://github.com/example/example"
+    "registry_id": 1
 }
 
 
@@ -52,8 +52,7 @@ class TestApiModelImage(TestApiBase):
             "url": "%s%s" % (CVER_API_URL, URL_BASE),
             "data": {
                 "name": "not-real",
-                "registry": "https://github.com/example/example",
-                "url_marketing": "https://example.com/"
+                "registry_id": 1,
             }
         }
         request_args["data"] = json.dumps(request_args["data"])
@@ -95,6 +94,7 @@ class TestApiModelImage(TestApiBase):
         }
         response_get = requests.request(**request_args)
         response_get_json = response_get.json()
+        assert response_get.status_code == 200
 
         # Delete the Image by ID
         image_id = response_get_json["object"]["id"]

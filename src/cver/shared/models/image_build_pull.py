@@ -40,15 +40,39 @@ FIELD_MAP = {
         "api_writeable": True,
         "api_searchable": True
     },
-    "status": {
-        "name": "status",
-        "type": "bool",
-        "default": True,
+    "task_id": {
+        "name": "task_id",
+        "type": "int",
+        "extra": "NOT NULL",
         "api_writeable": True,
         "api_searchable": True
     },
-    "pull_time": {
-        "name": "pull_time",
+    "job": {
+        "name": "job",
+        "type": "str",
+        "api_writeable": True,
+        "api_searchable": True
+    },
+    "status": {
+        "name": "status",
+        "type": "bool",
+        "api_writeable": True,
+        "api_searchable": True
+    },
+    "status_reason": {
+        "name": "status_reason",
+        "type": "str",
+        "api_writeable": True,
+        "api_searchable": True
+    },
+    "pull_time_elapsed": {
+        "name": "pull_time_elapsed",
+        "type": "int",
+        "api_writeable": True,
+        "api_searchable": True
+    },
+    "push_time_elapsed": {
+        "name": "push_time_elapsed",
         "type": "int",
         "api_writeable": True,
         "api_searchable": True

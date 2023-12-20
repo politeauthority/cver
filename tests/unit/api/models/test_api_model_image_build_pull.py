@@ -22,7 +22,9 @@ class TestImageBuildPull:
         assert hasattr(model, "image_build_id")
         assert hasattr(model, "registry_id")
         assert hasattr(model, "status")
-        assert hasattr(model, "pull_time")
+        assert hasattr(model, "status_reason")
+        assert hasattr(model, "pull_time_elapsed")
+        assert hasattr(model, "push_time_elapsed")
 
     def test____repr__(self):
         """Test the model's representation.
