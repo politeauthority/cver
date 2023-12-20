@@ -10,6 +10,7 @@ from cver.shared.utils import date_utils
 from cver.shared.utils import docker
 from cver.client.models.image import Image
 from cver.client.models.image_build import ImageBuild
+from cver.client.models.image_build_pull import ImageBuildPull
 from cver.client.models.task import Task
 from cver.engine.utils import glow
 
@@ -17,13 +18,18 @@ from cver.engine.utils import glow
 class ImageDownload:
 
     def __init__(self, **kwargs):
+        """Setup vars that will be used through out the download process."""
         self.image = None
         self.ib = None
         self.ibw = None
         if "ibw" in kwargs:
             self.ibw = kwargs["ibw"]
         self.task = None
+        self.registry = None
+        self.ib_pull = None
         self.prep_success = False
+        self.pull_time_elapsed = None
+        self.push_time_elapsed = None
         self.data = {
             "image": None,
             "ibw": None,
@@ -69,7 +75,12 @@ class ImageDownload:
             if not self.prep_from_ibw():
                 logging.error("PreFlight: Couldnt fetch required Image details from Cver Api.")
                 return False
-        self.create_task()
+        if not self.create_task():
+            logging.error("Failed to create download Task")
+            return False
+        if not self.create_ib_pull():
+            logging.error("Failed to create Image Build Pull")
+            return False
         return True
 
     def create_task(self) -> bool:
@@ -80,10 +91,25 @@ class ImageDownload:
         self.task.image_build_id = self.ibw.image_build_id
         self.task.image_build_waiting_id = self.ibw.id
         self.task.start_ts = date_utils.now()
-        self.task.status = True
-        self.task.status_reason = "downloaded"
+        self.task.status = None
+        self.task.status_reason = "progressing"
         if self.task.save():
             logging.info("Task created: %s" % self.task)
+            return True
+        else:
+            return False
+
+    def create_ib_pull(self) -> bool:
+        """Create an ImageBuildPull for the download job."""
+        self.ib_pull = ImageBuildPull()
+        self.ib_pull.image_id = self.ibw.image_id
+        self.ib_pull.image_build_id = self.ibw.id
+        self.ib_pull.registry_id = self.registry.id
+        self.ib_pull.task_id = self.task.id
+        self.ib_pull.job = "download"
+
+        if self.ib_pull.save():
+            logging.info("Image Build Pull created: %s" % self.ib_pull)
             return True
         else:
             return False
@@ -109,6 +135,13 @@ class ImageDownload:
             self.ib = ImageBuild()
             self.ib.get_by_id(self.ibw.image_build_id)
             logging.debug("Loaded: %s" % self.ib)
+        
+        if self.ibw.registry_id not in glow.registry_info["registries"]:
+            logging.error("Cannot find IBW %s registry" % self.ibw)
+            return False
+        self.registry = glow.registry_info["registries"][self.ibw.registry_id]
+
+        logging.info("Using registry: %s" % self.registry)
 
         # if self.image.registry in glow.registry_info["pull_thrus"]:
         #     self.registry_pullthru_use = True
@@ -120,7 +153,8 @@ class ImageDownload:
 
     def execute_download(self) -> bool:
         """Gets the download location for the image and executes the download."""
-        if self.image.registry == glow.registry_info["local"]["url"]:
+        # Check if the IBW's registry is the local registry, so we can skip caching it.
+        if self.registry.url == glow.registry_info["local"]["url"]:
             logging.info("Image is from local registry, no need to pull, marking as success.")
             self.data["status_reason"] = "Image exists in local registry"
             self.process_completed = True
@@ -132,36 +166,35 @@ class ImageDownload:
         image_loc = self.get_docker_pull_url()
         pull_cmd = ["docker", "pull", image_loc]
         logging.info("Pulling: %s" % image_loc)
+        pull_start_time = date_utils.now()
         image_pull = self.docker_pull(pull_cmd)
 
         if not image_pull:
-            self._handle_error()
+            self._handle_error(stage="image pull")
             return False
-
+        pull_end_time = date_utils.now()
         logging.info("Successfully downloaded: %s" % self.image)
-        if not self.ib:
-            logging.info("lets create an ibw")
-            self._create_ib_from_pull(image_pull.decode("utf-8"))
 
-        if self.image.registry == "docker.io":
+        if self.registry.url == "docker.io":
             image_search = self.image.name
         else:
-            image_search = "%s/%s" % (self.image.registry, self.image.name)
+            image_search = "%s/%s" % (self.registry.url, self.image.name)
         self.image_docker_id = docker.get_docker_id(image_search)
         docker_image_size = docker.get_image_size(self.image_docker_id)
         if docker_image_size:
             self.ib.size = docker_image_size
 
+        self.pull_time_elapsed = (pull_end_time - pull_start_time).seconds
         return True
 
     def push_image(self) -> bool:
         """Push an image to a Cver registry that has been downloaded loacally."""
         logging.info("Starting push of %s - %s" % (self.image, self.ib))
-        if self.image.registry == "docker.io":
+        if self.registry.url == "docker.io":
             full_og_image_str = self.image.name
         else:
-            full_og_image_str = "%s/%s" % (self.image.registry, self.image.name)
-        logging.info("Atempting to push: %s/%s" % (self.image.registry, self.image.name))
+            full_og_image_str = "%s/%s" % (self.registry.url, self.image.name)
+        logging.info("Atempting to push: %s/%s" % (self.registry.url, self.image.name))
         if not self.image_docker_id:
             self.data["status_reason"] = "Failed to get Docker ID from locally pulled image"
             self._handle_error()
@@ -181,12 +214,16 @@ class ImageDownload:
             return False
         logging.info("PUSH IMAGE: %s -> %s" % (full_og_image_str, image_str))
         logging.info("DOCKER ID: %s" % self.image_docker_id)
+
+        push_start_time = date_utils.now()
         if not docker.push_image(image_str):
             self.data["status_reason"] = "Failed push to local registry after download"
             logging.error("Failed pushing")
             self._handle_error()
             docker.delete_image(self.image_docker_id)
             return False
+        push_end_time = date_utils.now()
+        self.push_time_elapsed = (push_end_time - push_start_time).seconds
         docker.delete_image(self.image_docker_id)
         return True
 
@@ -200,8 +237,8 @@ class ImageDownload:
                 self.registry_pullthru_loc,
                 self.image.name)
         else:
-            image_loc = "%s/%s" % (self.image.registry, self.image.name)
-            logging.warning("No pull through location set for registry: %s" % self.image.registry)
+            image_loc = "%s/%s" % (self.registry.url, self.image.name)
+            logging.warning("No pull through location set for registry: %s" % self.registry.url)
 
         if self.ibw.tag:
             image_loc += ":%s" % self.ibw.tag
@@ -221,7 +258,7 @@ class ImageDownload:
             logging.error(msg)
             return False
 
-    def _handle_error(self) -> bool:
+    def _handle_error(self, stage: str = None) -> bool:
         """Handle an error pulling an image."""
         logging.info("Saving Download Error: %s - %s - %s - %s" % (
             self.image, self.ib, self.ibw, self.task))
@@ -240,6 +277,16 @@ class ImageDownload:
         self.task.status = False
         self.task.status_reason = self.data["status_reason"]
         self.task.end_ts = date_utils.now()
+
+        # Handle IB Pull
+        if stage == "image pull":
+            self.ib_pull.status = False
+            
+        if self.pull_time_elapsed:
+            self.ib_pull.status = True
+            self.ib_pull.pull_time_elapsed = self.pull_time_elapsed
+
+        self.ib_pull.save()
 
         self.data["status"] = False
         self.data["status_reason"] = self.data["status_reason"]
@@ -272,6 +319,14 @@ class ImageDownload:
         self.task.status = True
         self.task.status_reason = self.data["status_reason"]
         self.task.end_ts = date_utils.now()
+
+        # Handle IB Pull
+        self.ib_pull.status = True
+        self.ib_pull.status_reason = "Successful pull"
+        self.ib_pull.pull_time_elapsed = self.pull_time_elapsed
+        self.ib_pull.push_time_elapsed = self.push_time_elapsed
+        self.ib_pull.save()
+        logging.info("Saved IB Pull: %s" % self.ib_pull)
 
         self.process_completed = True
         return self._handle_entity_saves()

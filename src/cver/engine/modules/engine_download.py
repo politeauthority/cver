@@ -7,6 +7,7 @@
 """
 import logging
 
+from cver.client.models.image_build import ImageBuild
 from cver.client.collections.image_builds import ImageBuilds
 from cver.client.collections.image_build_waitings import ImageBuildWaitings
 from cver.client.models.image_build_waiting import ImageBuildWaiting
@@ -28,8 +29,7 @@ class EngineDownload:
         self.downloaded_images_failed = []
 
     def run(self):
-        """Primary entrypoint for Cver Egnine Download.
-        """
+        """Primary entrypoint for Cver Egnine Download."""
         logging.info("Running Engine Download")
         self.set_ibws()
         self.handle_downloads()
@@ -45,44 +45,35 @@ class EngineDownload:
         return ret
 
     def set_ibws(self) -> bool:
-        """Creating IBWs for ImageBuilds that are ready for the download process."""
-        ib_col = ImageBuilds()
+        """Creating IBWs for ImageBuilds that are ready for the download process. Here we will
+        create as many IBWs as possible, even though it's likely we'll be restricting the download
+        ammount.
+        """
+        ib_collect = ImageBuilds()
         args = {
-            "fields": {
-                "sync_enabled": True
-            },
+            "query": True,
             "order_by": {
                 "field": "sync_last_ts",
                 "direction": "ASC"
             },
-            "limit": 20
+            "page": 1
         }
-        ibs = ib_col.get(args)
+        ibs = ib_collect.get(args)
+        response_json = ib_collect.response_last_json
+        current_page = response_json["info"]["current_page"]
+        last_page = response_json["info"]["last_page"]
+        ibws_created = 0
         logging.info("Found %s potential ImageBuilds to create IBWs from" % len(ibs))
         ibws_created = 0
-        for ib in ibs:
-            if not date_utils.interval_ready(ib.sync_last_ts, 96):
-                logging.info("%s: Not flagging image build for sync" % ib)
-                continue
+        while current_page <= last_page:
+            logging.info("Working on page %s of %s Image Builds" % (current_page, last_page))
+            args["page"] = current_page
+            ibs = ib_collect.get(args)
+            created = self._handle_ibws_create(ibs)
+            ibws_created = ibws_created + created
+            current_page += 1
 
-            ibw = ImageBuildWaiting()
-            ibw.sha = ib.sha
-            if ibw.get_by_sha():
-                logging.info("IBW already exists, not creating. %s" % ibw)
-                continue
-
-            ibw.image_id = ib.image_id
-            ibw.image_build_id = ib.id
-            if len(ib.tags) > 0:
-                ibw.tag = ib.tags[0]
-            ibw.waiting_for = "download"
-            ibw.waiting = True
-            if ibw.save():
-                logging.info("%s: Saved" % ibw)
-                ibws_created += 0
-            else:
-                logging.error("%s: Failed to save" % ibw)
-
+        logging.info("Completed IBW create")
         logging.info("Created %s IBWs" % ibws_created)
         return True
 
@@ -143,7 +134,8 @@ class EngineDownload:
             "page": self.api_ibws_current_page
         }
         ibws = ibw_collect.get(the_args)
-        self.api_ibws = ibw_collect.response_last["info"]
+
+        self.api_ibws = ibw_collect.response_last_json["info"]
         if self.api_ibws_current_page == 1:
             logging.info("Found %s Image Builds waiting for download" % (
                 self.api_ibws["total_objects"]))
@@ -153,5 +145,41 @@ class EngineDownload:
                 self.api_ibws["last_page"]))
         return ibws
 
+    def _handle_ibws_create(self, ibs: list) -> int:
+        """Handles the cration of ImageBuildWaitings from a list of ImageBuilds.
+        """
+        ibws_created = 0
+        for ib in ibs:
+            if self._handle_ibw_create(ib):
+                ibws_created += 1
+        return ibws_created
+
+    def _handle_ibw_create(self, ib: ImageBuild) -> bool:
+        """Handles the creation of a single ImageBuildWaiting, as well as Registry records that
+        need to be created.
+        """
+        if not date_utils.interval_ready(ib.sync_last_ts, 96):
+            logging.info("%s: Not flagging image build for sync" % ib)
+            return False
+
+        ibw = ImageBuildWaiting()
+        ibw.sha = ib.sha
+        if ibw.get_by_sha():
+            logging.debug("IBW already exists, not creating. %s" % ibw)
+            return False
+
+        ibw.image_id = ib.image_id
+        ibw.image_build_id = ib.id
+        ibw.registry_id = ib.registry_id
+        if len(ib.tags) > 0:
+            ibw.tag = ib.tags[0]
+        ibw.waiting_for = "download"
+        ibw.waiting = True
+        if ibw.save():
+            logging.info("%s: Saved" % ibw)
+            return True
+        else:
+            logging.error("%s: Failed to save" % ibw)
+            return False
 
 # End File: cver/src/cver/engine/modules/engine-download.py

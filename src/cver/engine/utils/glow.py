@@ -17,7 +17,8 @@ registry_info = {
         "quay.io": "cver-quay",
         "ghcr.io": "cver-ghcr"
     },
-    "repository_general": ""
+    "repository_general": "",
+    "registries": {}
 }
 
 global engine_info
