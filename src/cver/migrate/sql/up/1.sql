@@ -97,6 +97,20 @@ CREATE TABLE IF NOT EXISTS image_builds (
 );
 
 --- 
+--- Create image_build_pulls
+---
+CREATE TABLE IF NOT EXISTS image_build_pulls (
+    `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
+    `created_ts` DATETIME,
+    `updated_ts` DATETIME,
+    `image_id` INTEGER NOT NULL,
+    `image_build_id` INTEGER NOT NULL,
+    `registry_id` INTEGER NOT NULL,
+    `status` TINYINT(1),
+    `pull_time` INTEGER
+);
+
+--- 
 --- Create image_builds_waiting
 ---
 CREATE TABLE IF NOT EXISTS image_build_waitings (
@@ -153,6 +167,7 @@ CREATE TABLE IF NOT EXISTS registries (
     `updated_ts` DATETIME,
     `name` VARCHAR(200),
     `url` VARCHAR(200),
+    `url_pull_thru` VARCHAR(200),
     `maintained` TINYINT(1),
     `daily_limit` INTEGER,
     `public` TINYINT(1)

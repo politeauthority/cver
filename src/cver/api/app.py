@@ -23,6 +23,8 @@ from cver.api.controllers.ctrl_index import ctrl_index
 from cver.api.controllers.ctrl_models.ctrl_image import ctrl_image
 from cver.api.controllers.ctrl_collections.ctrl_images import ctrl_images
 from cver.api.controllers.ctrl_models.ctrl_image_build import ctrl_image_build
+from cver.api.controllers.ctrl_models.ctrl_image_build_pull import ctrl_image_build_pull
+from cver.api.controllers.ctrl_collections.ctrl_image_build_pulls import ctrl_image_build_pulls
 from cver.api.controllers.ctrl_collections.ctrl_image_build_waitings import (
     ctrl_image_build_waitings)
 from cver.api.controllers.ctrl_models.ctrl_image_build_waiting import ctrl_image_build_waiting
@@ -75,6 +77,8 @@ def register_blueprints(app: Flask) -> bool:
     app.register_blueprint(ctrl_images)
     app.register_blueprint(ctrl_image_build)
     app.register_blueprint(ctrl_image_builds)
+    app.register_blueprint(ctrl_image_build_pull)
+    app.register_blueprint(ctrl_image_build_pulls)
     app.register_blueprint(ctrl_image_build_waiting)
     app.register_blueprint(ctrl_image_build_waitings)
     app.register_blueprint(ctrl_migrations)
