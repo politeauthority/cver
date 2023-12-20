@@ -28,14 +28,16 @@ class DataOptions:
         logging.info("Registry options create successful")
         return True
 
-    def create_engine_options(self):
-        """Create engine download scan and limit option details."""
+    def create_engine_options(self) -> bool:
+        """Create engine download scan and limit option details, with the built in defaults."""
         self._make_option("engine_download_limit", "int", 1)
         self._make_option("engine_download_process_limit", "int", 1)
         self._make_option("engine_download_interval", "int", 168)
+        self._make_option("engine_download_fail_threshold", "int", 2)
         self._make_option("engine_scan_limit", "int", 1)
         self._make_option("engine_scan_process_limit", "int", 1)
         self._make_option("engine_scan_interval", "int", 168)
+        self._make_option("engine_scan_fail_threshold", "int", 2)
         logging.info("Engine options create successful")
         return True
 

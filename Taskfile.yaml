@@ -123,8 +123,8 @@ tasks:
           -e CVER_DB_HOST="mysql" \
           -e CVER_DB_USER="root" \
           -e CVER_DB_PASS="${CVER_DB_PASS}" \
-          -e CVER_TEST_CLIENT_ID="${CVER_TEST_CLIENT_ID}" \
-          -e CVER_TEST_API_KEY="${CVER_TEST_API_KEY}" \
+          -e CVER_TEST_ADMIN_CLIENT_ID="${CVER_TEST_CLIENT_ID}" \
+          -e CVER_TEST_ADMIN_API_KEY="${CVER_TEST_API_KEY}" \
           -e CVER_CLIENT_ID="${CVER_TEST_CLIENT_ID}" \
           -e CVER_API_KEY="${CVER_TEST_API_KEY}" \
           -e CVER_API_URL="http://localhost/" \

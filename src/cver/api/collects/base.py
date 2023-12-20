@@ -146,9 +146,9 @@ class Base:
         if limit == 0:
             limit = per_page
         sql = self._generate_paginated_sql(page, where_and, order_by, limit)
-        # logging.info("\nPAGINATIED SQL\n")
-        # logging.info("WHERE AND: %s" % where_and)
-        # logging.info("%s\n\n" % sql)
+        logging.debug("\nPAGINATIED SQL\n")
+        logging.debug("WHERE AND: %s" % where_and)
+        logging.debug("%s\n\n" % sql)
         self.cursor.execute(sql)
         raw = self.cursor.fetchall()
         prestines = []

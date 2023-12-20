@@ -1,7 +1,7 @@
 """
     Cver Shared
     Model
-    Registry
+    Image Build Pull
 
 """
 
@@ -21,46 +21,38 @@ FIELD_MAP = {
         "name": "updated_ts",
         "type": "datetime",
     },
-    "name": {
-        "name": "name",
-        "type": "str",
-        "extra": "NOT NULL",
+    "image_id": {
+        "name": "image_id",
+        "type": "int",
         "api_searchable": True,
         "api_writeable": True
     },
-    "url": {
-        "name": "url",
-        "type": "str",
+    "image_build_id": {
+        "name": "image_build_id",
+        "type": "int",
+        "api_writeable": True,
+        "api_searchable": True
+    },
+    "registry_id": {
+        "name": "registry_id",
+        "type": "int",
         "extra": "NOT NULL",
         "api_writeable": True,
         "api_searchable": True
     },
-    "url_pull_thru": {
-        "name": "url_pull_thru",
-        "type": "str",
-        "extra": "NOT NULL",
-        "api_writeable": True,
-        "api_searchable": True
-    },
-    "maintained": {
-        "name": "maintained",
+    "status": {
+        "name": "status",
         "type": "bool",
         "default": True,
         "api_writeable": True,
         "api_searchable": True
     },
-    "daily_limit": {
-        "name": "daily_limit",
+    "pull_time": {
+        "name": "pull_time",
         "type": "int",
-        "api_writeable": True,
-        "api_searchable": True
-    },
-    "public": {
-        "name": "public",
-        "type": "bool",
         "api_writeable": True,
         "api_searchable": True
     },
 }
 
-# End File: cver/src/shared/models/registry.py
+# End File: cver/src/shared/models/image_build_pull.py
