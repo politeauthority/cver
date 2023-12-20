@@ -4,7 +4,7 @@
     Image Build Pull
 
 """
-from cver.shared.models.image import FIELD_MAP, FIELD_META
+from cver.shared.models.image_build_pull import FIELD_MAP
 from cver.api.models.base_entity_meta import BaseEntityMeta
 
 
@@ -17,7 +17,6 @@ class ImageBuildPull(BaseEntityMeta):
         super(ImageBuildPull, self).__init__(conn, cursor)
         self.table_name = "image_build_pulls"
         self.field_map = FIELD_MAP
-        self.field_meta = FIELD_META
         self.createable = True
         self.setup()
 
