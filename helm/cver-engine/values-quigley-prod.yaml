@@ -17,7 +17,7 @@ test:
 image:
   repository: harbor.squid-ink.us/cver/cver-engine
   pullPolicy: Always
-  tag: "prod-latest"
+  tag: "dev-latest"
 
 imagePullSecrets:
   - name: harbor
