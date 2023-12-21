@@ -76,6 +76,27 @@ class TestApiIndex:
         assert "model_totals" in response_json
         assert "migration" in response_json
 
+    def test__who_am_i_get(self):
+        """Tests the Cver who-am-i through the Cver Api. This test requires a valid JWT.
+        GET /who-am-i
+        """
+        assert self.login()
+        request_args = {
+            "headers": {
+                "token": self.token,
+                "content-type": "application/json"
+            },
+            "method": "GET",
+            "url": "%s%s/who-am-i" % (CVER_API_URL, URL_BASE),
+        }
+
+        response = requests.request(**request_args)
+        assert response.status_code == 200
+        response_json = response.json()
+        assert "token" in response_json
+        assert "user" in response_json
+        assert "status" in response_json
+
     def test__healthz_get(self):
         """Tests the Cver Api healthz endpoint that Kubernetes uses.
         GET /healthz

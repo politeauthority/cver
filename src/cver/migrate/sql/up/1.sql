@@ -281,8 +281,8 @@ CREATE TABLE IF NOT EXISTS users (
     `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
     `created_ts` DATETIME,
     `updated_ts` DATETIME,
-    `name` VARCHAR(200),
-    `email` VARCHAR(200),
+    `name` VARCHAR(200) UNIQUE,
+    `email` VARCHAR(200) UNIQUE,
     `role_id` INTEGER,
     `org_id` INTEGER,
     `last_access` DATETIME
