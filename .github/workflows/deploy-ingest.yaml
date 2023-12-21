@@ -44,7 +44,7 @@ jobs:
             RELEASE_NAME="cver-api"
             DB_NAME="cver_prod"
             NAMESPACE="cver-prod"
-            API_URL="http://cver-api
+            API_URL="http://cver-api"
           else
             RELEASE_NAME="cver-ingest-${{ inputs.deployment-name}}"
             NAMESPACE="cver-${{ inputs.deployment-name}}"
