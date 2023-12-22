@@ -51,7 +51,6 @@ class TestImageBuild:
             "6937967453147ea7b89333fc2f67f18a19b597d5d62b4d3c22918e7a5b1292f8",
                                                     # sha
             "6937967453147ea7b89333fc2f67f18a19b597d5d62b4d3c22918e7a5b1292f8",
-                                                    # sha_imported
             10,                                     # image_id
             5,                                      # registry_id
             "harbor.squid-ink.us/cver-general",     # registry_imported
@@ -67,6 +66,7 @@ class TestImageBuild:
             1,                                      # scan_enabled
             datetime.now()                          # scan_last
         ]
+
         model = ImageBuild(db.Conn(), cursor)
         model.sha = "6937967453147ea7b89333fc2f67f18a19b597d5d62b4d3c22918e7a5b1292f8"
         assert model.get_by_sha("a-fake-client-id")

@@ -31,6 +31,7 @@ from cver.cli.utils import pretty
 from cver.cli.utils import misc
 
 
+
 LOGO = """
    ______
   / ____/   _____  _____
@@ -323,6 +324,7 @@ class Cver:
                 image.name,
                 pretty.date_display(task.created_ts)
             )
+
         console = Console()
         console.print(table)
         print("\n")

@@ -89,9 +89,9 @@ class EngineScan:
         if self.processed == self.process_limit:
             logging.info("Hit max ammount of IBW processing.")
             return True
+        fail_threshold = 1
 
         for ibw in ibws:
-
             if ibw.fail_count and ibw.fail_count > self.fail_threshold:
                 logging.info("Skipping IBW: %s, fail count (%s) above threshold (%s)." % (
                     ibw,
