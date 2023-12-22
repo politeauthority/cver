@@ -172,7 +172,8 @@ def verify_api_key(client_id: str, raw_api_key: str) -> bool:
 
 
 def generate_client_id():
-    """Generates a client id to be used in api authentication."""
+    """Generates a client id to be used in api authentication.
+    """
     length = 10
     characters = "abcdefghijklmnopqrstuvwxyz1234567890"
     client_id = ""
