@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "cver-api.fullname" . }}
+  name: cver-api
   labels:
     {{- include "cver-api.labels" . | nindent 4 }}
 spec:

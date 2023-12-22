@@ -45,6 +45,7 @@ def auth_request(f):
             glow.user["user_id"] = jwt_value["user_id"]
             glow.user["org_id"] = jwt_value["org_id"]
             glow.user["role_perms"] = jwt_value["role_perms"]
+            record_last_access_user(glow.user["user_id"])
             # Check if user has access to this resource
             if "role_perms" not in jwt_value:
                 data["message"] = "Invalid token"
@@ -127,9 +128,21 @@ def record_last_access(user: User, api_key: ApiKey) -> bool:
     user.save()
 
     api_key.last_access = date_utils.now()
+    api_key.save()
     logging.debug("Updating apikey last access.")
 
-    api_key.save()
+    return True
+
+
+def record_last_access_user(user_id: int) -> bool:
+    """Update the users last access record."""
+    sql = """
+        UPDATE `users`
+        SET `last_access`="%s"
+        WHERE id = %s;
+    """ % (date_utils.now(), user_id)
+    glow.db["cursor"].execute(sql)
+    glow.db["conn"].commit()
     return True
 
 
@@ -169,6 +182,8 @@ def generate_client_id():
 
 
 def generate_api_key():
+    """Creates an api-key.
+    """
     password_length = 19
     characters = "abcdefghijklmnopqrstuvwxyz1234567890"
     api_key = ""
