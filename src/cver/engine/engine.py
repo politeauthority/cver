@@ -12,6 +12,7 @@ import logging.config
 from cver.shared.utils.log_config import log_config
 from cver.shared.utils import docker
 from cver.client.models.option import Option
+from cver.client.collections.registries import Registries
 from cver.engine.modules.engine_download import EngineDownload
 from cver.engine.modules.engine_scan import EngineScan
 from cver.engine.utils import glow
@@ -49,6 +50,8 @@ class Engine:
 
     def preflight(self):
         """Check that have a registry to push/pull to/from."""
+        self._get_registries()
+
         reg_url = Option()
         reg_url.get_by_name("registry_url")
         glow.registry_info["local"]["url"] = reg_url.value
@@ -92,13 +95,6 @@ class Engine:
             logging.error("No scan limit password found on Cver")
             return False
 
-        engine_scan_limit = Option()
-        engine_scan_limit.get_by_name("engine_scan_limit")
-        glow.engine_info["scan_limit"] = engine_scan_limit.value
-        if not glow.engine_info["scan_limit"]:
-            logging.error("No scan limit password found on Cver")
-            return False
-
         download_process_limit = Option()
         download_process_limit.get_by_name("engine_scan_process_limit")
         glow.engine_info["scan_process_limit"] = download_process_limit.value
@@ -106,6 +102,21 @@ class Engine:
             logging.error("No scan limit password found on Cver")
             return False
 
+        engine_scan_limit = Option()
+        engine_scan_limit.get_by_name("engine_scan_limit")
+        glow.engine_info["scan_limit"] = engine_scan_limit.value
+        if not glow.engine_info["scan_limit"]:
+            logging.error("No scan limit password found on Cver")
+            return False
+
+        engine_scan_fail_threshold = Option()
+        engine_scan_fail_threshold.get_by_name("engine_scan_fail_threshold")
+        glow.engine_info["scan_fail_threshold"] = engine_scan_limit.value
+        if not glow.engine_info["scan_fail_threshold"]:
+            logging.error("No scan engine threshold limit found.")
+            return False
+
+        # Log in to the local registry
         docker.registry_login(
             glow.registry_info["local"]["url"],
             glow.registry_info["local"]["user"],
@@ -129,6 +140,13 @@ class Engine:
             docker.delete_image(image)
         return True
 
+    def _get_registries(self) -> bool:
+        """Get all registries we currently know about and store them in glow."""
+        registries = Registries().get_all()
+        for reg in registries:
+            glow.registry_info["registries"][reg.id] = reg
+        return True
+
     def _draw_download_report(self) -> str:
         """Log out the relevant info from the Engine Download report."""
         if not self.download_report:
@@ -145,7 +163,7 @@ class Engine:
             for dl_success in self.download_report["downloaded_images_success"]:
                 msg += "\t\t%s\n" % dl_success
 
-        if self.download_report["downloaded_images_failed"]:
+        if len(self.download_report["downloaded_images_failed"]) > 0:
             msg += "\n\tFailed Downloads\n"
             for dl_fail in self.download_report["downloaded_images_failed"]:
                 msg += "\t\t%s\n" % dl_fail

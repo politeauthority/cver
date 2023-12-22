@@ -38,6 +38,7 @@ def get_params() -> dict:
         ret_args["clean_args"]["fields"] = _post_search_field_args(query)
         ret_args["clean_args"]["order_by"] = _post_search_order_args(query)
         ret_args["clean_args"]["limit"] = _post_search_limit_args(query)
+
         return ret_args
 
     if not request.data:

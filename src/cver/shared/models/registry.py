@@ -35,6 +35,13 @@ FIELD_MAP = {
         "api_writeable": True,
         "api_searchable": True
     },
+    "url_pull_thru": {
+        "name": "url_pull_thru",
+        "type": "str",
+        "extra": "NOT NULL",
+        "api_writeable": True,
+        "api_searchable": True
+    },
     "maintained": {
         "name": "maintained",
         "type": "bool",

@@ -77,13 +77,13 @@ jobs:
         id: extract_branch
 
       - name: Build Container
-        if: steps.changes.outputs.src == 'true'
+        if: steps.changes.outputs.src == 'true' || inputs.tag-prefix == 'prod'
         run: |
           echo "Run Task: Build"
           task build-api
 
       - name: Push Container
-        if: steps.changes.outputs.src == 'true'
+        if: steps.changes.outputs.src == 'true'  || inputs.tag-prefix == 'prod'
         run: |
           BRANCH="${{ steps.extract_branch.outputs.branch }}"
           MAKE_BRANCH_TAG="false"
@@ -101,6 +101,7 @@ jobs:
           IMAGE_ID=$(docker images --filter "reference=cver/cver-api" --format "{{.ID}}")
           docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-api:git-sha-${{ inputs.git-sha}}
           docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-api:${{ inputs.tag-prefix }}-latest
+
 
           # Docker Push
           docker push harbor.squid-ink.us/cver/cver-api:git-sha-${{ inputs.git-sha }}
@@ -123,4 +124,17 @@ jobs:
             docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-api:${VERSION}
             docker push harbor.squid-ink.us/cver/cver-api:${VERSION}
             echo "**Built:** harbor.squid-ink.us/cver/cver-api:${VERSION}" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Make latest and vesion number tags
+          if [ "${{ inputs.tag-prefix }}" = "prod" ]; then
+
+            VERSION=$(grep -o 'version = "[^"]*"' src/cver/api/version.py | cut -d '"' -f 2)
+            docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-api:${VERSION}
+            docker push harbor.squid-ink.us/cver/cver-api:${VERSION}
+            echo "**Built:** harbor.squid-ink.us/cver/cver-api:${VERSION}" >> $GITHUB_STEP_SUMMARY
+
+            docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-api:latest
+            docker push harbor.squid-ink.us/cver/cver-api:latest
+            echo "**Built:** harbor.squid-ink.us/cver/cver-api:latest" >> $GITHUB_STEP_SUMMARY
           fi

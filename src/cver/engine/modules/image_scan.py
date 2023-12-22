@@ -10,9 +10,11 @@ from cver.client.models.image import Image
 from cver.client.models.image_build import ImageBuild
 from cver.client.models.task import Task
 from cver.client.models.scan import Scan
+from cver.client.models.image_build_pull import ImageBuildPull
 from cver.shared.utils import date_utils
 from cver.shared.utils import docker
 from cver.engine.utils import scan as scan_util
+from cver.engine.utils import glow
 
 
 class ImageScan:
@@ -25,6 +27,9 @@ class ImageScan:
         if "ibw" in kwargs:
             self.ibw = kwargs["ibw"]
         self.task = None
+        self.registry = None
+        self.ib_pull = None
+        self.scan_time_elapsed = None
         self.prep_success = False
         self.image_location = ""
         self.data = {
@@ -43,6 +48,7 @@ class ImageScan:
         self.create_task()
         if self.ibw:
             self.prep_from_ibw()
+        self.create_ib_pull()
         self.data["image"] = self.image
         self.data["ibw"] = self.ibw
         self.data["ib"] = self.ib
@@ -58,7 +64,7 @@ class ImageScan:
             self._handle_error_scan()
             return self.data
         self.clean_up()
-        logging.info("Competed entire scan process")
+        logging.info("Competed image scan process for %s" % self.image)
         return self.data
 
     def preflight_check(self) -> bool:
@@ -84,8 +90,24 @@ class ImageScan:
         else:
             return False
 
+    def create_ib_pull(self) -> bool:
+        """Create an ImageBuildPull for the scan job."""
+        self.ib_pull = ImageBuildPull()
+        self.ib_pull.image_id = self.ibw.image_id
+        self.ib_pull.image_build_id = self.ibw.id
+        self.ib_pull.registry_id = self.registry.id
+        self.ib_pull.task_id = self.task.id
+        self.ib_pull.job = "scan"
+        if self.ib_pull.save():
+            logging.info("Image Build Pull created: %s" % self.ib_pull)
+            return True
+        else:
+            return False
+
     def prep_from_ibw(self) -> bool:
-        """Prepare a download process from an ImageBuildWaiting."""
+        """Prepare a download process from an ImageBuildWaiting.
+        @todo: Merge this with image_download's version of this.
+        """
         self.image = Image()
         if not self.image.get_by_id(self.ibw.image_id):
             logging.warning("Cant get Image from ID: %s for %s" % (self.ibw.image_id, self.ibw))
@@ -106,6 +128,9 @@ class ImageScan:
             self.ib.get_by_id(self.ibw.image_build_id)
             logging.debug("Loaded: %s" % self.ib)
 
+        self.registry = glow.registry_info["registries"][self.ibw.registry_id]
+        logging.info("Using registry: %s" % self.registry)
+
         self.prep_success = True
 
         return True
@@ -113,7 +138,14 @@ class ImageScan:
     def pull_image(self) -> bool:
         """Pull the Docker image to the Engine pod so that we can scan it.
         """
-        if self.ib.registry_imported:
+        if self.registry.url == glow.registry_info["local"]["url"]:
+            logging.debug("Image appears to be from local registry")
+            logging.warning("Using tag to pull image for scan, and not sha")
+            self.image_location = "%s/%s:%s" % (
+                self.registry.url,
+                self.image.name,
+                self.ibw.tag)
+        elif self.ib.registry_imported:
             logging.warning("Using tag to pull image for scan, and not sha")
             self.image_location = "%s/%s:%s" % (
                 self.ib.registry_imported,
@@ -136,6 +168,7 @@ class ImageScan:
     def execute_scan(self):
         """Gets the download location for the image and executes the download."""
         logging.info("Starting scan of: %s" % self.image_location)
+        scan_start = date_utils.now()
         scan_result = scan_util.run_trivy(self.image_location)
         if not scan_result:
             self.data["status_reason"] = "Failed to run scan"
@@ -146,6 +179,8 @@ class ImageScan:
             self.data["status_reason"] = "Failed to parse scan"
             self._handle_error_scan()
             return False
+        scan_end = date_utils.now()
+        self.scan_time_elapsed = (scan_end - scan_start).seconds
         logging.info("Successfully scanned: %s" % self.image)
         self.save_scan(scan_result)
         self._handle_success_scan()
@@ -183,6 +218,7 @@ class ImageScan:
         scan.cve_low_nums = vuln_data["cve_low_nums"]
         scan.cve_unknown_int = vuln_data["cve_unknown_int"]
         scan.cve_unknown_nums = vuln_data["cve_unknown_nums"]
+        scan.time_elapsed = self.scan_time_elapsed
         if scan.save():
             logging.info("Saved Scan results successfully")
             return True

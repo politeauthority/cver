@@ -109,6 +109,13 @@ FIELD_MAP = {
     "pending_parse": {
         "name": "pending_parse",
         "type": "bool",
+        "api_searchable": True,
+        "api_writeable": True,
+    },
+    "time_elapsed": {
+        "name": "time_elapsed",
+        "type": "int",
+        "api_searchable": True,
         "api_writeable": True,
     }
 }

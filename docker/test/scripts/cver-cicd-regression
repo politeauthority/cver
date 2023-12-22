@@ -2,13 +2,10 @@
 # Cver Test
 # Cver CICD Regression
 set -e
-if [ -z "$CVER_CICD" ]; then
-    CVER_CICD="false"
-fi
 
 echo "Using Cver branch: ${CVER_BRANCH}"
 echo "Primary Client ID: ${CVER_CLIENT_ID}"
-echo "Admin itClient ID: ${CVER_CLIENT_ID}"
+echo "Admin Client ID: ${CVER_CLIENT_ID}"
 
 
 CVER_TEST_MODULE="$1"
@@ -33,16 +30,22 @@ if [ ! -d "$WORKING_DIR/cver" ]; then
     cd  cver
     git fetch origin
     git checkout $CVER_BRANCH
-    echo "Building Cver"
-    cd ${WORKING_DIR}/cver/src
-    pip3 install .
-    echo "Building Cver Tests"
-    cd ${TEST_DIR}
-    pip3 install .
-    mkdir -p /report
 else
-    echo "Cver already exsits, skipping clone"
+    echo "Cver already exsits, pulling latest from branch: ${BRANCH}"
+    cd ${WORKING_DIR}/cver
+    git fetch origin
+    git checkout $CVER_BRANCH
+    git pull origin $CVER_BRANCH
 fi
+
+echo "Building Cver"
+cd ${WORKING_DIR}/cver/src
+pip3 install .
+echo "Building Cver Tests"
+cd ${TEST_DIR}
+pip3 install .
+mkdir -p /report
+
 
 echo "Running tests against code src: ${WORKING_DIR}"
 echo "Using tests from: ${TEST_DIR}"

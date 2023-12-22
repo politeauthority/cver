@@ -123,8 +123,8 @@ tasks:
           -e CVER_DB_HOST="mysql" \
           -e CVER_DB_USER="root" \
           -e CVER_DB_PASS="${CVER_DB_PASS}" \
-          -e CVER_TEST_CLIENT_ID="${CVER_TEST_CLIENT_ID}" \
-          -e CVER_TEST_API_KEY="${CVER_TEST_API_KEY}" \
+          -e CVER_TEST_ADMIN_CLIENT_ID="${CVER_TEST_CLIENT_ID}" \
+          -e CVER_TEST_ADMIN_API_KEY="${CVER_TEST_API_KEY}" \
           -e CVER_CLIENT_ID="${CVER_TEST_CLIENT_ID}" \
           -e CVER_API_KEY="${CVER_TEST_API_KEY}" \
           -e CVER_API_URL="http://localhost/" \
@@ -352,6 +352,10 @@ tasks:
     cmds:
       - kubectl get pods -n cver-dev -w
 
+  dev-mysql:
+    cmds:
+      - mysql -h 127.0.0.1 -u root --password=$MYSQL_PWD
+
   test-pods:
     cmds:
       - kubectl get pods -n cver-test -w
@@ -397,9 +401,21 @@ tasks:
         stern ${POD} -n cver-stage
     silent: true
 
-  dev-mysql:
+  stage-exec-api:
     cmds:
-      - mysql -h 127.0.0.1 -u root --password=$MYSQL_PWD
+      - |
+        POD=$(kubectl get pods -n cver-stage -l app.kubernetes.io/instance=cver-api-stage --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
+        echo "Logging into to pod: ${POD}"
+        kubectl exec -n cver-stage -it ${POD} -c cver-api -- bash
+    silent: True
+
+  stage-exec-test:
+    cmds:
+      - |
+        POD=$(kubectl get pods -n cver-stage -l app.kubernetes.io/instance=cver-test-stage --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
+        echo "Logging into to pod: ${POD}"
+        kubectl exec -n cver-stage -it ${POD} -- bash
+    silent: True
 
   cver-build:
     cmds:

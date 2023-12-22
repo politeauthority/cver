@@ -23,11 +23,17 @@ logger.propagate = True
 
 class Client:
 
-    def __init__(self, client_id=None, api_key=None, api_url=None):
+    def __init__(
+            self,
+            client_id: str = None,
+            api_key: str = None,
+            api_url: str = None,
+            config: str = None
+    ):
         """Initialize the CverClient with the client_id, api_key and/or api_url. If not supplied
         environmental vars will be attempted.
         """
-        self.config = Config().get(client_id, api_key, api_url)
+        self.config = Config().get(client_id, api_key, api_url, config)
         self.api_url = self.config["api_url"]
         self.client_id = self.config["client_id"]
         self.api_key = self.config["api_key"]
@@ -43,13 +49,14 @@ class Client:
         temp_dir = tempfile.gettempdir()
         self.token_file = os.path.join(temp_dir, "cver-token")
         self.login_attempts = 0
-        self.max_login_attempts = 2
+        self.max_login_attempts = 3
         self.response_last = None
+        self.response_last_json = None
 
     def login(self, skip_local_token: bool = False) -> bool:
         """Login to the Cver API."""
         if self.login_attempts >= self.max_login_attempts:
-            logging.critical("Reached max loging attempts (%s), quitting")
+            logging.critical("Reached max loging attempts (%s), quitting" % self.max_login_attempts)
             return False
         logging.debug("Logging into Cver Api: %s" % self.api_url)
         if not skip_local_token and self._open_valid_token():
@@ -65,9 +72,10 @@ class Client:
             },
             "method": "POST",
             "url": f"{self.api_url}/auth",
+            "verify": False     # @todo fix
         }
         request_args["headers"].update(self.headers)
-        logging.info("Making auth request")
+        logging.info("Making auth request, attempt %s" % self.login_attempts)
         response = requests.request(**request_args)
         if response.status_code == 401:
             logging.warning("Received unauthorized status code 401 logging in")
@@ -116,11 +124,13 @@ class Client:
                 if "id" in payload:
                     request_args["url"] += "/%s" % payload["id"]
                     payload.pop("id")
+        request_args["verify"] = False     # @todo fix
         # debug
-        # logging.info("\n\n%s - %s\n%s" % (
-        #     request_args["method"],
-        #     request_args["url"],
-        #     request_args))
+        logging.info("\n\n%s - %s\n%s" % (
+            request_args["method"],
+            request_args["url"],
+            request_args))
+
         response = requests.request(**request_args)
 
         # If our token has expired, attempt to get a new one, skipping using the current one.
@@ -141,11 +151,17 @@ class Client:
             logging.error("Could not get json from response.\n%s" % response.text)
             return False
         self.response_last = response
+        self.response_last_json = response_json
         return response_json
 
     def info(self):
         """Get Cver Api Info"""
         response = self.make_request("info")
+        return response
+
+    def who_am_i(self):
+        """Get token and current user info."""
+        response = self.make_request("who-am-i")
         return response
 
     def submit_scan(self, image_id: int, image_build_id: int, raw_scan: dict):

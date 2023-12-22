@@ -28,16 +28,10 @@ FIELD_MAP = {
         "api_searchable": True,
         "api_writeable": True
     },
-    "registry": {
-        "name": "registry",
-        "type": "str",
-        "extra": "NOT NULL",
-        "api_writeable": True,
-        "api_searchable": True
-    },
     "registry_id": {
         "name": "registry_id",
         "type": "int",
+        "extra": "NOT NULL",
         "api_writeable": True,
         "api_searchable": True
     },
@@ -51,7 +45,7 @@ FIELD_MAP = {
 }
 
 FIELD_META = {
-    "unique_key": ["name", "reposistory"]
+    "unique_key": ["name", "registry_id"]
 }
 
 # End File: cver/src/shared/models/image.py

@@ -40,6 +40,11 @@ jobs:
             RELEASE_NAME="cver-ingest-test-${{ inputs.run-number }}"
             NAMESPACE="cver-test"
             API_URL="http://cver-api-test-${{ inputs.run-number }}"
+          elif [ "${{ inputs.deployment-name }}" = "prod" ]; then
+            RELEASE_NAME="cver-api"
+            DB_NAME="cver_prod"
+            NAMESPACE="cver-prod"
+            API_URL="http://cver-api"
           else
             RELEASE_NAME="cver-ingest-${{ inputs.deployment-name}}"
             NAMESPACE="cver-${{ inputs.deployment-name}}"
@@ -47,6 +52,8 @@ jobs:
           fi
           if [ "${{ inputs.image-built }}" = "true" ]; then
             IMAGE_TAG="git-sha-${{ inputs.git-sha }}"
+          elif [ "${{ inputs.deployment-name }}" = "prod" ]; then
+            IMAGE_TAG=$(grep -o 'version = "[^"]*"' src/cver/api/version.py | cut -d '"' -f 2)
           else
             if [ "${{ inputs.deployment-name }}" = "test" ]; then
               IMAGE_TAG="dev-latest"

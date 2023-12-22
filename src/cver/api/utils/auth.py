@@ -45,13 +45,14 @@ def auth_request(f):
             glow.user["user_id"] = jwt_value["user_id"]
             glow.user["org_id"] = jwt_value["org_id"]
             glow.user["role_perms"] = jwt_value["role_perms"]
+            record_last_access_user(glow.user["user_id"])
             # Check if user has access to this resource
             if "role_perms" not in jwt_value:
                 data["message"] = "Invalid token"
                 return make_response(jsonify(data), 401)
             if not rbac.check_role_uri_access(jwt_value["role_perms"], request):
-                msg = "User: %s attempted to access a resource they do not have authorization for"
-                logging.warning(msg)
+                msg = "User ID: %s attempted to access a resource they do not have authorization for"
+                logging.warning(msg % glow.user["user_id"])
                 data["message"] = "Access Forbidden"
                 return make_response(jsonify(data), 403)
             return f(*args, **kwargs)
@@ -127,9 +128,21 @@ def record_last_access(user: User, api_key: ApiKey) -> bool:
     user.save()
 
     api_key.last_access = date_utils.now()
+    api_key.save()
     logging.debug("Updating apikey last access.")
 
-    api_key.save()
+    return True
+
+
+def record_last_access_user(user_id: int) -> bool:
+    """Update the users last access record."""
+    sql = """
+        UPDATE `users`
+        SET `last_access`="%s"
+        WHERE id = %s;
+    """ % (date_utils.now(), user_id)
+    glow.db["cursor"].execute(sql)
+    glow.db["conn"].commit()
     return True
 
 
@@ -159,7 +172,8 @@ def verify_api_key(client_id: str, raw_api_key: str) -> bool:
 
 
 def generate_client_id():
-    """Generates a client id to be used in api authentication."""
+    """Generates a client id to be used in api authentication.
+    """
     length = 10
     characters = "abcdefghijklmnopqrstuvwxyz1234567890"
     client_id = ""
@@ -169,6 +183,8 @@ def generate_client_id():
 
 
 def generate_api_key():
+    """Creates an api-key.
+    """
     password_length = 19
     characters = "abcdefghijklmnopqrstuvwxyz1234567890"
     api_key = ""

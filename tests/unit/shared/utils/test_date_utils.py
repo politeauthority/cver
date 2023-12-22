@@ -58,7 +58,8 @@ class TestSharedUtilsDateUtils:
         assert isinstance(date_utils.date_from_json(date_str), arrow.arrow.Arrow)
 
     def test__interval_ready(self):
-        """
+        """Test that we get the correct bool value from a datetime that is passed the interval
+        setting.
         :method: date_util.interval_ready()
         """
         five_hours_ago = arrow.utcnow()
@@ -66,5 +67,10 @@ class TestSharedUtilsDateUtils:
         assert date_utils.interval_ready(five_hours_ago.datetime, 2)
         assert not date_utils.interval_ready(five_hours_ago.datetime, 10)
 
+    def test__from_epoch(self):
+        """Test that we can get an Arrow object from an epoch time.
+        :method: date_util.from_epoch()
+        """
+        assert isinstance(date_utils.from_epoch(1703347823), arrow.arrow.Arrow)
 
 # End File: cver/tests/unit/shared/utils/test_date_utils.py

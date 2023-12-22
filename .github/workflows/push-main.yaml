@@ -1,13 +1,39 @@
-# Cver Api - Merge Main
-
-name: Cver-Api-Push-Main
+name: Cver Api Deploy Prod
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "test-cicd"]
 
 jobs:
+  build-cver:
+    uses: ./.github/workflows/build-cver.yaml
+    secrets: inherit 
+    permissions:
+      pull-requests: read
+      contents: read
+
+  lint:
+    uses: ./.github/workflows/lint.yaml
+    secrets: inherit
+    permissions:
+      pull-requests: read
+      contents: read
+    with:
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
+
+  unit-tests:
+    needs: [build-cver]
+    uses: ./.github/workflows/unit-tests.yaml
+    secrets: inherit 
+    with:
+      deployment-name: "prod"
+      run-number: ${{ github.run_number }}
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
+
   build-api:
+    needs: [unit-tests]
     uses: ./.github/workflows/build-container-api.yaml
     secrets: inherit
     permissions:
@@ -19,19 +45,8 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
-  build-ingest:
-    uses: ./.github/workflows/build-container-ingest.yaml
-    secrets: inherit 
-    permissions:
-      pull-requests: read
-      contents: read
-    with:
-      tag-prefix: "prod"
-      git-sha: "${{ github.sha }}"
-      cicd-version: "${{ vars.CICD_VERSION }}"
-      harbor-user: "${{ vars.HARBOR_USER }}"
-
   build-engine:
+    needs: [unit-tests]
     uses: ./.github/workflows/build-container-engine.yaml
     secrets: inherit 
     permissions:
@@ -43,8 +58,21 @@ jobs:
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
+  build-ingest:
+    needs: [unit-tests]
+    uses: ./.github/workflows/build-container-ingest.yaml
+    secrets: inherit 
+    permissions:
+      pull-requests: read
+      contents: read
+    with:
+      tag-prefix: "stage"
+      git-sha: "${{ github.sha }}"
+      cicd-version: "${{ vars.CICD_VERSION }}"
+      harbor-user: "${{ vars.HARBOR_USER }}"
+
   deploy-api:
-    needs: build-api
+    needs: [build-api]
     uses: ./.github/workflows/deploy-api.yaml
     secrets: inherit 
     with:
@@ -52,30 +80,32 @@ jobs:
       run-number: ${{ github.run_number }}
       image-built: ${{ needs.build-test.outputs.image-built }}
       git-sha: "${{ github.sha }}"
+      run-number: ${{ github.run_number }}
+      image-built: ${{ needs.build-api.outputs.image-built }}
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   deploy-ingest:
-    needs: build-ingest
+    needs: [build-ingest, deploy-api]
     uses: ./.github/workflows/deploy-ingest.yaml
     secrets: inherit 
     with:
-      deployment-name: "stage"
+      deployment-name: "prod"
       git-sha: "${{ github.sha }}"
-      image-built: ${{ needs.build-test.outputs.image-built }}
       run-number: ${{ github.run_number }}
+      image-built: ${{ needs.build-ingest.outputs.image-built }}
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   deploy-engine:
-    needs: build-engine
+    needs: [build-engine, deploy-api]
     uses: ./.github/workflows/deploy-engine.yaml
     secrets: inherit
     with:
-      deployment-name: "stage"
+      deployment-name: "prod"
       git-sha: "${{ github.sha }}"
-      image-built: ${{ needs.build-test.outputs.image-built }}
       run-number: ${{ github.run_number }}
+      image-built: ${{ needs.build-engine.outputs.image-built }}
       cicd-version: "${{ vars.CICD_VERSION }}"
       harbor-user: "${{ vars.HARBOR_USER }}"
 

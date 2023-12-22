@@ -35,18 +35,25 @@ jobs:
       - uses: actions/checkout@v3
       - name: Deploy
         run: |
-          IMAGE_TAG="${{ inputs.deployment-name }}-latest"
           if [ "${{ inputs.deployment-name }}" = "test" ]; then
             RELEASE_NAME="cver-api-test-${{ inputs.run-number }}"
             DB_NAME="cver_${{ inputs.run-number }}"
             NAMESPACE="cver-test"
+          elif [ "${{ inputs.deployment-name }}" = "prod" ]; then
+            RELEASE_NAME="cver-api"
+            DB_NAME="cver_prod"
+            NAMESPACE="cver-prod"
           else
             RELEASE_NAME="cver-api-${{ inputs.deployment-name}}"
             DB_NAME="cver_${{ inputs.deployment-name}}"
             NAMESPACE="cver-${{ inputs.deployment-name}}"
           fi
+          
+          # Set the Image Tag
           if [ "${{ inputs.image-built }}" = "true" ]; then
             IMAGE_TAG="git-sha-${{ inputs.git-sha }}"
+          elif [ "${{ inputs.deployment-name }}" = "prod" ]; then
+            IMAGE_TAG=$(grep -o 'version = "[^"]*"' src/cver/api/version.py | cut -d '"' -f 2)
           else
             if [ "${{ inputs.deployment-name }}" = "test" ]; then
               IMAGE_TAG="dev-latest"
