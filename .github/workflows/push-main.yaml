@@ -77,6 +77,8 @@ jobs:
     secrets: inherit 
     with:
       deployment-name: "prod"
+      run-number: ${{ github.run_number }}
+      image-built: ${{ needs.build-test.outputs.image-built }}
       git-sha: "${{ github.sha }}"
       run-number: ${{ github.run_number }}
       image-built: ${{ needs.build-api.outputs.image-built }}
