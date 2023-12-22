@@ -50,7 +50,7 @@ class Cver:
 
     def __init__(self, cli_args):
         self.args = cli_args
-        self.client = CverClient()
+        self.client = CverClient(config=self.args.config)
 
     def run(self):
         """Primary entrypoint to the Cver Cli."""
@@ -437,6 +437,7 @@ def parse_args():
         nargs='?',
         default=None,
         help='Allows filtering of results')
+    parser.add_argument('-c', '--config', default=None)
     parser.add_argument('-f', '--filter', default=None)
     parser.add_argument(
         "o",
