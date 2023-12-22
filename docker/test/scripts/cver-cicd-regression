@@ -2,13 +2,10 @@
 # Cver Test
 # Cver CICD Regression
 set -e
-if [ -z "$CVER_CICD" ]; then
-    CVER_CICD="false"
-fi
 
 echo "Using Cver branch: ${CVER_BRANCH}"
 echo "Primary Client ID: ${CVER_CLIENT_ID}"
-echo "Admin itClient ID: ${CVER_CLIENT_ID}"
+echo "Admin Client ID: ${CVER_CLIENT_ID}"
 
 
 CVER_TEST_MODULE="$1"

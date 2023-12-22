@@ -50,7 +50,8 @@ class Cver:
 
     def __init__(self, cli_args):
         self.args = cli_args
-        self.client = CverClient(config=self.args.config)
+        # self.client = CverClient(config=self.args.config)
+        self.client = CverClient()
 
     def run(self):
         """Primary entrypoint to the Cver Cli."""
