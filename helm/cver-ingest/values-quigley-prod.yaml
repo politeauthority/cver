@@ -9,8 +9,8 @@ app:
   debug: true
   apiUrl: "http://cver-api-prod"
   cron:
-    schedule:  "37 * * * *"
-    suspend: true
+    schedule:  "40 * * * *"
+    suspend: false
 
 test:
   test: false
@@ -18,7 +18,7 @@ test:
 image:
   repository: harbor.squid-ink.us/cver/cver-ingest
   pullPolicy: Always
-  tag: "prod-latest"
+  tag: "dev-latest"
 
 imagePullSecrets:
   - name: harbor

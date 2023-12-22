@@ -55,6 +55,17 @@ spec:
                     name: cver-test-creds
               - name: CVER_TEST
                 value: "true"
+              {{- else }}
+              - name: CVER_CLIENT_ID
+                valueFrom:
+                  secretKeyRef:
+                    key: client-id
+                    name: cver-engineer-creds
+              - name: CVER_API_KEY
+                valueFrom:
+                  secretKeyRef:
+                    key: api-key
+                    name: cver-engineer-creds
               {{- end }}
             volumeMounts:
             - name: docker-config-json

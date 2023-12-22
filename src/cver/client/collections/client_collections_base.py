@@ -18,7 +18,6 @@ class ClientCollectionsBase(CverClient):
         self.field_map = {}
         self.model = None
         self.collection_name = None
-        self.response_last = None
 
     def get(self, request_args: dict = {}, page: int = 1) -> list:
         """Get a paginated list of entities."""
@@ -34,11 +33,16 @@ class ClientCollectionsBase(CverClient):
         elif request_args:
             payload = self._prepare_search(request_args)
         response = self.make_request(self.collection_name, payload=payload)
-        self.response_last = response
         if response["status"] == "success":
             return self.build_list_of_dicts(response["object_type"], response["objects"])
         else:
             return False
+
+    def get_all(self, request_args: dict = {}) -> list:
+        """Get all entities returned as a list, cycling through all the pages of the entity.
+        @todo: Finish this method
+        """
+        return self.get(request_args, page=1)
 
     def build_list_of_dicts(self, object_type: str, objs: list) -> list:
         """Builds a list of dictionaries."""

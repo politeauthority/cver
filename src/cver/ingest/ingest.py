@@ -62,6 +62,10 @@ class Ingest:
             for container in pod["spec"]["containers"]:
                 if container["image"] not in images:
                     image["name"] = container["image"]
+                    if "containerStatuses" not in pod["status"]:
+                        msg = "Cannot find container status for %s. Pod is likely errored."
+                        logging.error(msg % pod["metadata"]["name"])
+                        continue
                     image["sha"] = pod["status"]["containerStatuses"][container_number]["imageID"]
                     image_map = misc.container_url(image["sha"])
                     sha = image_map["sha"]

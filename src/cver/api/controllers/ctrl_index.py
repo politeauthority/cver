@@ -7,6 +7,7 @@ import logging
 
 from flask import Blueprint, jsonify, request
 
+from cver.shared.utils import date_utils
 from cver.api.stats import totals
 from cver.api.stats import tasks as tasks_stats
 from cver.api.utils import auth
@@ -72,7 +73,8 @@ def authenticate():
 
 @ctrl_index.route("/info")
 @auth.auth_request
-def info():
+def info() -> dict:
+    """Get information on model totals and task success reports."""
     model_totals = totals.get_model_totals()
     task_totals = tasks_stats.get_task_totals()
     data = {
@@ -85,6 +87,25 @@ def info():
         "tasks": task_totals,
         "model_totals": model_totals,
         "deployed_at": glow.general["CVER_DEPLOYED_AT"]
+    }
+    return jsonify(data)
+
+
+@ctrl_index.route("/who-am-i")
+@auth.auth_request
+def who_am_i():
+    """Tells a user what User Cver Api believes them to be."""
+    token_details = auth.validate_jwt(request.headers["token"])
+    token_details["expiration_date"] = date_utils.json_date_out(
+        date_utils.from_epoch(token_details["exp"]))
+    token_details["issue_date"] = date_utils.json_date_out(
+        date_utils.from_epoch(token_details["iat"]))
+    user = User()
+    user.get_by_id(token_details["user_id"])
+    data = {
+        "status": "success",
+        "token": token_details,
+        "user": user.json()
     }
     return jsonify(data)
 

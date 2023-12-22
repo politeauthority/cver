@@ -21,6 +21,7 @@ class Config:
         """
         self.config_file = "/Users/alix/.cver/config"
         self.use_local_config = False
+        self.local_config_name = None
         self.local_config = {}
         self.config = {
             "api_url": None,
@@ -29,13 +30,21 @@ class Config:
             "api_host_name": None
         }
 
-    def get(self, client_id: str = None, api_key: str = None, api_url: str = None) -> dict:
+    def get(
+            self,
+            client_id: str = None,
+            api_key: str = None,
+            api_url: str = None,
+            config: str = None
+    ) -> dict:
         """Get the configuration to use.
         The current priority:
             - manual args sent to the cleint
             - a configuration yaml file
             - environment vars
         """
+        if config:
+            self.local_config_name = config
         if self.get_manual_arg_config(client_id, api_key, api_url):
             pass
         elif self.read_local_config():
@@ -82,8 +91,12 @@ class Config:
         self.use_local_config = misc.get_dict_path(self.local_config, "cver-api.use-config-file")
         return self.use_local_config
 
-    def get_local_server_config(self):
-        server_config_name = misc.get_dict_path(self.local_config, "cver-api.default-server")
+    def get_local_server_config(self) -> dict:
+        """Get the server configuration from the yaml config file."""
+        if self.local_config_name:
+            server_config_name = self.local_config_name
+        else:
+            server_config_name = misc.get_dict_path(self.local_config, "cver-api.default-server")
         if not server_config_name:
             self.use_config = False
             return False

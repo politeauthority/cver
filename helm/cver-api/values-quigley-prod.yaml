@@ -16,7 +16,7 @@ app:
 image:
   repository: harbor.squid-ink.us/cver/cver-api
   pullPolicy: IfNotPresent
-  tag: "stage-latest"
+  tag: "dev-latest"
 
 imagePullSecrets:
   - name: harbor
@@ -25,13 +25,13 @@ ingress:
   enabled: true
   className: nginx-public
   hosts:
-    - host: cver.squid-ink.us
+    - host: cver.alix.lol
       paths:
         - path: /
           pathType: Prefix
   tls:
   - hosts:
-    - cver.squid-ink.us
+    - cver.alix.lol
     secretName: cver-prod-tls
 
 mysql:

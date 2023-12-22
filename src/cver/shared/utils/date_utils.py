@@ -114,4 +114,11 @@ def interval_ready(last: datetime, interval_hours: int) -> bool:
         return False
 
 
+def from_epoch(epoch_time: int) -> arrow.arrow.Arrow:
+    """Get an Arrow date from an epoch time.
+    :unit-test:
+    """
+    return arrow.get(datetime.fromtimestamp(epoch_time))
+
+
 # End File: cver/src/share/utils/date_utils.py

@@ -4,7 +4,6 @@ replicaCount: 1
 
 nameOverride: "prod"
 
-
 app:
   apiUrl: "http://cver-api-stage"
   logLevel: "INFO"
@@ -20,7 +19,7 @@ test:
 image:
   repository: harbor.squid-ink.us/cver/cver-engine
   pullPolicy: Always
-  tag: "prod-latest"
+  tag: "dev-latest"
 
 imagePullSecrets:
   - name: harbor

@@ -71,14 +71,14 @@ jobs:
           password: ${{ secrets.HARBOR_PASSWORD }}
 
       - name: Build Container
-        if: steps.changes.outputs.src == 'true'
+        if: steps.changes.outputs.src == 'true' || inputs.tag-prefix == 'prod'
         run: |
           echo "Run Task: Build"
           export CVER_ENGINE_TAG="${{ github.sha }}"
           task build-engine
 
       - name: Push Container
-        if: steps.changes.outputs.src == 'true'
+        if: steps.changes.outputs.src == 'true' || inputs.tag-prefix == 'prod'
         run: |
           IMAGE_ID=$(docker images --filter "reference=cver/cver-engine" --format "{{.ID}}")
           docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-engine:${{ inputs.tag-prefix }}-latest
@@ -89,3 +89,18 @@ jobs:
 
           echo "**Built:** harbor.squid-ink.us/cver/cver-engine:git-sha-${{ inputs.git-sha }}" >> $GITHUB_STEP_SUMMARY
           echo "**Built:** harbor.squid-ink.us/cver/cver-engine:${{ inputs.tag-prefix }}-latest" >> $GITHUB_STEP_SUMMARY
+
+          # Make Latest Tag
+          if [ "${{ inputs.tag-prefix }}" = "prod" ]; then
+
+            VERSION=$(grep -o 'version = "[^"]*"' src/cver/api/version.py | cut -d '"' -f 2)
+            docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-engine:${VERSION}
+            docker push harbor.squid-ink.us/cver/cver-engine:${VERSION}
+            echo "**Built:** harbor.squid-ink.us/cver/cver-engine:${VERSION}" >> $GITHUB_STEP_SUMMARY
+
+            docker tag ${IMAGE_ID} harbor.squid-ink.us/cver/cver-engine:latest
+            docker push harbor.squid-ink.us/cver/cver-engine:latest
+            echo "**Built:** harbor.squid-ink.us/cver/cver-engine:latest" >> $GITHUB_STEP_SUMMARY
+          fi
+
+
