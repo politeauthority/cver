@@ -119,6 +119,9 @@ class DataUsers:
         if user.get_by_email(user_email):
             logging.info("Not Creating user arelady exists: %s" % user)
             return False
+        if user.get_by_name(user_name):
+            logging.info("Not Creating user arelady exists: %s" % user)
+            return False
 
         if not role_id:
             logging.error("User is missing Role.id, cannot create.")

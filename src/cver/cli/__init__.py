@@ -31,7 +31,6 @@ from cver.cli.utils import pretty
 from cver.cli.utils import misc
 
 
-
 LOGO = """
    ______
   / ____/   _____  _____
@@ -156,23 +155,8 @@ class Cver:
             if not image.get_by_name(image_search):
                 print("Not Found")
                 return False
-        # ibs_collect = ImageBuilds()
-        # # scans_collect = Scans()
-        # ibs = ibs_collect.get_by_image_id(image.id)
-        # ibws = ImageBuildWaitings().get_by_image_id(image.id)
-        # # scans = Scans().get({"image_id": image_id})
-        # image_dict = {
-        #     "ID": image.id,
-        #     "Created": image.created_ts,
-        #     "Name": image.name,
-        #     "Registry": image.registry,
-        #     "Image Builds": len(ibs),
-        #     "Image Builds Waiting": len(ibws)
-        # }
-        # console.print("Image", style="bold")
-        # display.print_dict(image_dict)
-        console.print("Image", style="bold")
-        pretty.entity(image)
+        pretty.entity_table(image)
+        return True
 
     def get_images(self) -> bool:
         """Get all Images."""
@@ -180,72 +164,58 @@ class Cver:
         image_col = Images()
         images = image_col.get(page=self.args.page)
         response = image_col.response_last
+        rj = response.json()
+        if response.status_code != 200:
+            print("Error making request")
+            exit(1)
 
-        print("Images (%s)" % response["info"]["total_objects"])
+        print("Images (%s)" % rj["info"]["total_objects"])
         images_dict = {}
         for image in images:
             images_dict[image.id] = image.name
 
         display.print_dict(images_dict, pad=2)
-        display.print_pagination_info(response)
+        display.print_pagination_info(rj)
         return True
 
-    def get_image_build(self):
+    def get_image_build(self) -> bool:
         """Get a single ImageBuild."""
         ib = ImageBuild()
         ib.get_by_id(self.args.selector)
         image = Image()
         image.get_by_id(ib.image_id)
-        # scans_collect = Scans()
-        # scans = scans_collect.get_by_image_build_id(ib.id)
-        ib_build = {
-            "ID": ib.id,
-            "Created": ib.created_ts,
-            "Updated": ib.updated_ts,
-            "Sha": ib.sha,
-            "Sha Imported": ib.sha_imported,
-            "Image ID": ib.image_id,
-            "Reg": ib.registry,
-            "Reg Imported": ib.registry_imported
-        }
-        console.print("ImageBuild", style="bold")
-        display.print_dict(ib_build)
-        pretty.entity(ib)
+        pretty.entity_table(ib)
+        return True
 
-        console.print("Image", style="bold")
-        pretty.entity(image)
-        # print("Scans: %s" % len(scans))
-        # print("")
-        # print("Image")
-        # print(f"\t\tID:       {image.id}")
-        # print(f"\t\tName:     {image.name}")
-        # print(f"\t\tRegistry: {image.registry}")
-        # print("")
-
-    def get_image_build_waitings(self):
+    def get_image_build_waitings(self) -> bool:
         """Get all ImageBuildWaitings."""
         entity_col = ImageBuildWaitings()
         ibws = entity_col.get(page=self.args.page)
         response = entity_col.response_last
+        rj = response.json()
 
-        table = Table(title="Image Build Waitings (%s)" % response["info"]["total_objects"])
+        table = Table(title="Image Build Waitings (%s)" % rj["info"]["total_objects"])
         table.add_column("ID", justify="right", style="cyan", no_wrap=True)
-        table.add_column("Image", justify="right", style="green")
+        table.add_column("Image", justify="left", style="green")
+        table.add_column("Image Build ID", justify="left", style="green")
+        table.add_column("Waiting for", justify="right", style="green")
+        table.add_column("Created", justify="right", style="green")
 
-        for task in ibws:
+        for ibw in ibws:
             image = Image()
-            image.get_by_id(task.image_id)
+            image.get_by_id(ibw.image_id)
             table.add_row(
-                str(task.id),
-                image.name
+                str(ibw.id),
+                image.name,
+                str(ibw.image_build_id),
+                ibw.waiting_for,
+                pretty.date_display(ibw.created_ts)
             )
 
         console = Console()
         console.print(table)
-        print("\n")
-        print("Info")
-        print("\tPage: %s/%s" % (response["info"]["current_page"], response["info"]["last_page"]))
-        print("\tPer Page: %s" % response["info"]["per_page"])
+        pretty.print_pagination(rj["info"])
+        return True
 
     def get_image_buld_waiting(self):
         ibw = ImageBuildWaiting()
@@ -284,12 +254,12 @@ class Cver:
         """Get all Options."""
         entity_col = Options()
         options = entity_col.get(page=self.args.page)
-        response = entity_col.response_last
+        rj = entity_col.response_last_json
         # if response:
         #     print("Error: Could not fetch options")
         #     return False
 
-        table = Table(title="Options  (%s)" % response["info"]["total_objects"])
+        table = Table(title="Options  (%s)" % rj["info"]["total_objects"])
         table.add_column("Name", justify="right", style="cyan", no_wrap=True)
         table.add_column("Value", justify="right", style="green")
         for option in options:
@@ -299,21 +269,23 @@ class Cver:
         console.print(table)
         print("\n")
         print("Info")
-        print("\tPage: %s/%s" % (response["info"]["current_page"], response["info"]["last_page"]))
-        print("\tPer Page: %s" % response["info"]["per_page"])
+        print("\tPage: %s/%s" % (rj["info"]["current_page"], rj["info"]["last_page"]))
+        print("\tPer Page: %s" % rj["info"]["per_page"])
         return True
 
-    def get_tasks(self):
+    def get_tasks(self) -> bool:
         """Get all Tasks."""
         entity_col = Tasks()
         tasks = entity_col.get(page=self.args.page)
-        response = entity_col.response_last
+        rj = entity_col.response_last_json
 
-        table = Table(title="Tasks (%s)" % response["info"]["total_objects"])
+        table = Table(title="Tasks (%s)" % rj["info"]["total_objects"])
         table.add_column("ID", justify="right", style="cyan", no_wrap=True)
         table.add_column("Task", justify="right", style="green")
         table.add_column("Image", justify="right", style="green")
         table.add_column("Created", justify="right", style="green")
+        table.add_column("Status", justify="right", style="green")
+        table.add_column("Status Reason", justify="right", style="green")
 
         for task in tasks:
             image = Image()
@@ -322,15 +294,15 @@ class Cver:
                 str(task.id),
                 task.name,
                 image.name,
-                pretty.date_display(task.created_ts)
+                pretty.date_display(task.created_ts),
+                str(task.status),
+                task.status_reason,
             )
 
         console = Console()
         console.print(table)
-        print("\n")
-        print("Info")
-        print("\tPage: %s/%s" % (response["info"]["current_page"], response["info"]["last_page"]))
-        print("\tPer Page: %s" % response["info"]["per_page"])
+        pretty.print_pagination(rj["info"])
+        return True
 
     def get_task(self) -> bool:
         """Get a single Task."""
@@ -339,8 +311,14 @@ class Cver:
         if not task.get_by_id(task_search):
             print("Not Found")
             return False
+        image = Image()
+        image.get_by_id(task.image_id)
+        ib = ImageBuild()
+        ib.get_by_id(task.image_build_id)
         console.print("Task", style="bold")
-        pretty.entity(task)
+        pretty.entity_table(task)
+        pretty.entity_table(image)
+        pretty.entity_table(ib)
         return True
 
     def get_scans(self) -> bool:
@@ -350,9 +328,9 @@ class Cver:
         collect_args["query"] = True
         collect_args["limit"] = 5
         scans = entity_col.get(collect_args)
-        response = entity_col.response_last
+        rj = entity_col.response_last_json
 
-        table = Table(title="Scans (%s)" % response["info"]["total_objects"])
+        table = Table(title="Scans (%s)" % rj["info"]["total_objects"])
         table.add_column("ID", justify="right", style="cyan", no_wrap=True)
         table.add_column("Image", justify="left", style="green")
         table.add_column("Critical CVEs", justify="right", style="red")
@@ -373,10 +351,7 @@ class Cver:
             )
         console = Console()
         console.print(table)
-        print("\n")
-        print("Info")
-        print("\tPage: %s/%s" % (response["info"]["current_page"], response["info"]["last_page"]))
-        print("\tPer Page: %s" % response["info"]["per_page"])
+        pretty.print_pagination(rj["info"])
         return True
 
     def edit_option(self) -> bool:
