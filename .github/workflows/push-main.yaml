@@ -86,7 +86,7 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   deploy-ingest:
-    needs: [build-ingest]
+    needs: [build-ingest, deploy-api]
     uses: ./.github/workflows/deploy-ingest.yaml
     secrets: inherit 
     with:
@@ -98,7 +98,7 @@ jobs:
       harbor-user: "${{ vars.HARBOR_USER }}"
 
   deploy-engine:
-    needs: [build-engine]
+    needs: [build-engine, deploy-api]
     uses: ./.github/workflows/deploy-engine.yaml
     secrets: inherit
     with:
