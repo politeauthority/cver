@@ -23,11 +23,17 @@ logger.propagate = True
 
 class Client:
 
-    def __init__(self, client_id=None, api_key=None, api_url=None):
+    def __init__(
+            self,
+            client_id: str = None,
+            api_key: str = None,
+            api_url: str = None,
+            config: str = None
+    ):
         """Initialize the CverClient with the client_id, api_key and/or api_url. If not supplied
         environmental vars will be attempted.
         """
-        self.config = Config().get(client_id, api_key, api_url)
+        self.config = Config().get(client_id, api_key, api_url, config)
         self.api_url = self.config["api_url"]
         self.client_id = self.config["client_id"]
         self.api_key = self.config["api_key"]
@@ -120,10 +126,11 @@ class Client:
                     payload.pop("id")
         request_args["verify"] = False     # @todo fix
         # debug
-        # logging.info("\n\n%s - %s\n%s" % (
-        #     request_args["method"],
-        #     request_args["url"],
-        #     request_args))
+        logging.info("\n\n%s - %s\n%s" % (
+            request_args["method"],
+            request_args["url"],
+            request_args))
+
         response = requests.request(**request_args)
 
         # If our token has expired, attempt to get a new one, skipping using the current one.
