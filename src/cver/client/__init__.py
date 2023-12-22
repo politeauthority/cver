@@ -66,6 +66,7 @@ class Client:
             },
             "method": "POST",
             "url": f"{self.api_url}/auth",
+            "verify": False     # @todo fix
         }
         request_args["headers"].update(self.headers)
         logging.info("Making auth request, attempt %s" % self.login_attempts)
@@ -117,6 +118,7 @@ class Client:
                 if "id" in payload:
                     request_args["url"] += "/%s" % payload["id"]
                     payload.pop("id")
+        request_args["verify"] = False     # @todo fix
         # debug
         # logging.info("\n\n%s - %s\n%s" % (
         #     request_args["method"],
@@ -148,6 +150,11 @@ class Client:
     def info(self):
         """Get Cver Api Info"""
         response = self.make_request("info")
+        return response
+
+    def who_am_i(self):
+        """Get token and current user info."""
+        response = self.make_request("who-am-i")
         return response
 
     def submit_scan(self, image_id: int, image_build_id: int, raw_scan: dict):

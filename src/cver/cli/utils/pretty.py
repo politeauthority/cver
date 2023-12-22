@@ -32,15 +32,18 @@ def entity(entity, fields: list = [], pad: int = 0) -> bool:
 
 def entity_table(entity, fields: list = []) -> bool:
     """Print a single Cver Client entity in a table format."""
-    r = entity.response_last
-    table = Table(title="%s (%s)" % (
-        r["object_type"].titlecase(), r["info"]["total_objects"]))
+    rj = entity.response_last_json
+    table = Table(title=rj["object_type"].title())
     table.add_column("Field", justify="right", style="cyan", no_wrap=True)
     table.add_column("Value", justify="right", style="green")
     for field_name, field_info in entity.field_map.items():
-        table.add_row(field_name, getattr(entity, field_name))
-        console = Console()
-        console.print(table)
+        value = getattr(entity, field_name)
+        if field_info["type"] == "datetime":
+            table.add_row(field_name, date_display(value))
+        else:
+            table.add_row(field_name, str(value))
+    console = Console()
+    console.print(table)
     return True
 
 
@@ -55,12 +58,23 @@ def entities(entities: list, fields: list = [], pad: int = 0) -> bool:
     return None
 
 
-def date_display(the_date) -> bool:
+def date_display(the_date) -> str:
     """Formats a dict so it can be printed pretty.
     """
+    if not the_date:
+        return ""
     local = the_date.to("US/Mountain")
     pretty_display = "%s (%s)" % (local.format("hh:mm:ss A"), the_date.humanize())
     return pretty_display
+
+
+def print_pagination(page_info: dict) -> bool:
+    print("\n")
+    print("Info")
+    print("\tTotal: %s" % page_info["total_objects"])
+    print("\tPage: %s/%s" % (page_info["current_page"], page_info["last_page"]))
+    print("\tPer Page: %s" % page_info["per_page"])
+    return True
 
 
 def _get_longest_key(display_fields: list) -> int:
