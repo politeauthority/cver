@@ -92,6 +92,16 @@ spec:
                 secretKeyRef:
                   key: engine-api-key
                   name: cver-test-creds
+            - name: CVER_TEST_EXPIRED_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  key: expired-client-id
+                  name: cver-test-creds
+            - name: CVER_TEST_EXPIRED_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: expired-api-key
+                  name: cver-test-creds
             - name: CVER_BRANCH
               value: "{{ .Values.app.branch }}"
             - name: CVER_TEST_DIR

@@ -93,7 +93,16 @@ spec:
               secretKeyRef:
                 key: engine-api-key
                 name: cver-test-creds
-
+          - name: CVER_TEST_EXPIRED_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                key: expired-client-id
+                name: cver-test-creds
+          - name: CVER_TEST_EXPIRED_API_KEY
+            valueFrom:
+              secretKeyRef:
+                key: expired-api-key
+                name: cver-test-creds
           - name: CVER_TEST_OPT_REGISTRY_URL
             valueFrom:
               secretKeyRef:
@@ -222,7 +231,7 @@ spec:
               path: /healthz
               port: http
             initialDelaySeconds: 10
-            periodSeconds: 30
+            periodSeconds: 240
           {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
