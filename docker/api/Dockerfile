@@ -29,8 +29,9 @@ RUN apk add --update --no-cache --virtual .tmp-build-deps \
     && apk add libffi-dev
 
 # Install Polite-Lub
-ADD scripts/polite-lib-build /bin
+ADD scripts/polite-lib-build /bin/polite-lib-build
 ENV POLITE_LIB_BRANCH="main"
+ENV POLITE_LIB_METHOD="zip"
 RUN /bin/polite-lib-build
 
 # Install Cver

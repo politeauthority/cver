@@ -9,7 +9,6 @@ CLEANUP=true
 
 # Determine Download Space
 INSTALL_DIR=""
-INSTALL_ROOT_DIR=""
 if [ -z "$LIB_DIR" ]; then
     INSTALL_DIR=$(pwd)
 else
