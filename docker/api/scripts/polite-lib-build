@@ -1,5 +1,5 @@
 #!/bin/bash
-# Install Polite Lib v0.0.2
+# Install Polite Lib v0.0.3
 # Pull and install the Polite-Lib python library.
 # This is mostly setup for Docker installations.
 # Before using this script set a "LIB_DIR"
