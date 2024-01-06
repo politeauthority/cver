@@ -28,6 +28,11 @@ RUN apk add --update --no-cache --virtual .tmp-build-deps \
     gcc libc-dev linux-headers postgresql-dev \
     && apk add libffi-dev
 
+# Install Polite-Lub
+ADD scripts/polite-lib-build /bin
+ENV POLITE_LIB_BRANCH="main"
+RUN polite-lib-build
+
 # Install Cver
 RUN pip install --upgrade pip 
 RUN cd /app && pip install -r /app/requirements.txt
