@@ -31,7 +31,7 @@ RUN apk add --update --no-cache --virtual .tmp-build-deps \
 # Install Polite-Lub
 ADD scripts/polite-lib-build /bin
 ENV POLITE_LIB_BRANCH="main"
-RUN polite-lib-build
+RUN /bin/polite-lib-build
 
 # Install Cver
 RUN pip install --upgrade pip 
