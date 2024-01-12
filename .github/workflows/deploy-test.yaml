@@ -50,11 +50,13 @@ jobs:
           if [ "${{ inputs.deployment-name }}" = "test" ]; then
             RELEASE_NAME="cver-test-test-${{ inputs.run-number }}"
             NAMESPACE="cver-test"
+            SECRET_NAME="cver-test-creds-${{ inputs.run-number }}"
             DB_NAME="cver_${{ inputs.run-number }}"
             API_URL="http://cver-api-test-${{ inputs.run-number }}"
           else
             RELEASE_NAME="cver-test-${{ inputs.deployment-name}}"
             NAMESPACE="cver-${{ inputs.deployment-name}}"
+            SECRET_NAME="cver-test-creds"
             DB_NAME="cver_${{ inputs.deployment-name}}"
             API_URL="http://cver-api-${{ inputs.deployment-name }}"
           fi
@@ -86,6 +88,7 @@ jobs:
             --set "app.branch=${BRANCH}" \
             --set "app.database.name=${DB_NAME}" \
             --set "app.deployedAt=${DEPLOYED_AT}" \
+            --set "app.cverTestCredsSecret=${SECRET_NAME}" \
             --set "image.tag=${IMAGE_TAG}"
           echo "# Deployed: Cver-Test" >> $GITHUB_STEP_SUMMARY
           echo "Created Helm deployment: ${RELEASE_NAME}" >> $GITHUB_STEP_SUMMARY

@@ -1,9 +1,7 @@
 apiVersion: bitnami.com/v1alpha1
 kind: SealedSecret
 metadata:
-  creationTimestamp: null
-  name: cver-test-creds
-  namespace: cver-dev
+  name: {{ .Values.app.cverTestCredsSecret }}
 spec:
   encryptedData:
     admin-api-key: AgAiT9yvBvQvuxFpuCYnmY29oqbIjQ5lbDjgFPE3BkzE+fxR9KHH/c4aIvghpgPH2c9hK9u9Yd/Xkso2JZdhLGs04aIjYLSezTbKGqayiiKqMPWFDKicvBbBTPN63AsE6I+dLEm0u/scBUFeEPSuUNp7BnJGXG1mhWC4UqnH27fQiUnRSSnLakmc6dmMTtPpzsMT98aCLcVO5oL7G5O3UKFrAUsEqiV5kIht7QCpmdW+lODNhjbVJAsrcYx2eoqA6g3rDM/VRxgQ6GYBviK+UwjnMbV2f8AqRkloabf7jatHqop5x7rf7R29VIQLhrHvPnf8JuD49pStvN/Dl/3cXf59+gBVr5+gcGwgz4TW58Vuupn7FZ88d7rNyHzBSKxdoJeI6Ont5OQBBGjJG3pTQy2OmGSYUbKodLqfEBJZwi4mQO5/mZx0fN1Py9txGdeyQbBypAIyLflOQx1IgUcRNKrRnrtwkOpbzRBn03xO4evBjJDc3Jv7VbaHiHP0WtCm+gn6yNGsNfKtvUaQqcYGUwyJp7vGUNVYxD1/i94LsuSQf8W8KIXd93/4IB2nwF5Z4zHwK5ykwB4bitHgSZtHEMBbWYxHK921aYaAgVg4V/MMLny89JgjZkw9SedZo0yViq1M8miK2jVIV1EVSXaglY6bWz7boRkrWxcN9SQ8gWPSUqfiJ/29MKUYg9NPrteArN6qJXrtyq7CnRA1FUhG5n3jBw6h
@@ -22,8 +20,6 @@ spec:
     metadata:
       annotations:
         sealedsecrets.bitnami.com/managed: "true"
-      creationTimestamp: null
-      name: cver-test-creds
-      namespace: cver-dev
+      name: {{ .Values.app.cverTestCredsSecret }}
     type: Opaque
 

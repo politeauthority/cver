@@ -10,6 +10,7 @@ app:
   debug: false
   deployedAt: Unknown
   testDir: "/cicd/cver/tests/"
+  cverTestCredsSecret: "cver-test-creds"
   database:
     name: "cver"
     host: "mysql"
