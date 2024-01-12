@@ -13,7 +13,10 @@ from cver.client.models.scan import Scan
 from cver.client.models.image_build_pull import ImageBuildPull
 from cver.shared.utils import date_utils
 from cver.shared.utils import docker
+import logging
 from cver.engine.utils import scan as scan_util
+import logging
+import logging
 from cver.engine.utils import glow
 
 
@@ -53,7 +56,7 @@ class ImageScan:
         self.data["ibw"] = self.ibw
         self.data["ib"] = self.ib
         if not self.prep_success:
-            logging.info("Scan prep failed for %s %s" % (self.ibw, self.image))
+            logging.error("Scan prep failed for %s %s" % (self.ibw, self.image))
             return self.data
         self.pull_image()
         if self.process_completed:
@@ -64,7 +67,7 @@ class ImageScan:
             self._handle_error_scan()
             return self.data
         self.clean_up()
-        logging.info("Competed image scan process for %s" % self.image)
+        logging.error("Competed image scan process for %s" % self.image)
         return self.data
 
     def preflight_check(self) -> bool:
@@ -315,4 +318,4 @@ class ImageScan:
         return data
 
 
-# End File: cver/src/cver/engine/modules/image_scan.py
+# End File: cver/src/cver/engine/modules/image_scan, ImageScan.py
