@@ -22,4 +22,3 @@ spec:
         sealedsecrets.bitnami.com/managed: "true"
       name: {{ .Values.app.cverTestCredsSecret }}
     type: Opaque
-

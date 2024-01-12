@@ -77,6 +77,7 @@ jobs:
           cd helm/cver-test
           echo "Cver Api Url: ${API_URL}"
           echo "Cver-Test Image Tag: ${IMAGE_TAG}"
+          echo "Cver-Test secret: ${SECRET_NAME}"
           helm upgrade \
             ${RELEASE_NAME} ./ \
             --namespace=${NAMESPACE} \
