@@ -159,16 +159,21 @@ def verify_api_key(client_id: str, raw_api_key: str) -> bool:
         return False
 
     # Check that the Api Key matches
-    if security.check_password_hash(api_key.key, raw_api_key):
-        logging.info("Verified Api Key: %s" % api_key)
-        data = {
-            "api_key": api_key,
-            "user_id": api_key.user_id
-        }
-        return data
-    else:
+    if not security.check_password_hash(api_key.key, raw_api_key):
         logging.warning("Api key doesn't match client_id: %s" % client_id)
         return False
+    # Check Api Key expiration
+    if api_key.expiration_date:
+        if date_utils.now() > api_key.expiration_date:
+            logging.warning("Key as expired")
+            return False
+
+    logging.info("Verified Api Key: %s" % api_key)
+    data = {
+        "api_key": api_key,
+        "user_id": api_key.user_id
+    }
+    return data
 
 
 def generate_client_id():

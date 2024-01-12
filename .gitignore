@@ -1,5 +1,6 @@
 # Temp Ignores
 helm/cver-api/values-quigley-dev.yaml
+helm/cver-test/templates/secret-cver-test-creds.yaml
 ./debug*
 
 # Cver
