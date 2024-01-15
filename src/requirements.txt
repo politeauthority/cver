@@ -1,6 +1,6 @@
 # Cver Api
-arrow==1.2.2
-Flask==2.3.2
+arrow>=1.2.2
+Flask==3.0.0
 glom==20.11.0
 gunicorn==20.0.4
 PyJWT==2.7.0
