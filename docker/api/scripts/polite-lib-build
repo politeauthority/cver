@@ -1,0 +1,60 @@
+#!/bin/bash
+# Install Polite Lib v0.0.3
+# Pull and install the Polite-Lib python library.
+# This is mostly setup for Docker installations.
+# Before using this script set a "LIB_DIR"
+
+set -e
+CLEANUP=true
+
+# Determine Download Space
+INSTALL_DIR=""
+if [ -z "$LIB_DIR" ]; then
+    INSTALL_DIR=$(pwd)
+else
+    mkdir -p ${LIB_DIR}
+    cd ${LIB_DIR}
+    INSTALL_DIR="${LIB_DIR}"
+fi
+POLITE_LIB_METHOD="zip"
+echo "Downloading to: ${INSTALL_DIR}"
+if [ -z "$POLITE_LIB_METHOD" ]; then
+	POLITE_LIB_METHOD="zip"
+fi
+
+# Determine Download Method
+echo "Mehtod: ${POLITE_LIB_METHOD}"
+# Handle sourcing through GIT
+if [ "$POLITE_LIB_METHOD" == "git" ]; then
+    if [ -z "$POLITE_LIB_BRANCH" ]; then
+	    POLITE_LIB_BRANCH="main"
+    fi
+    if [ ! -d ${INSTALL_DIR} ]; then
+        git clone https://github.com/politeauthority/polite-lib.git
+    fi
+    git checkout ${POLITE_LIB_BRANCH}
+    git pull origin ${POLITE_LIB_BRANCH}
+
+# Handle Installing from Github through a ZIP
+elif [ "$POLITE_LIB_METHOD" == "zip" ]; then
+    POLITE_LIB_BRANCH="main"
+    echo "Downloading ZIP"
+    wget https://codeload.github.com/politeauthority/polite-lib/zip/refs/heads/main -O polite-lib.zip
+    unzip polite-lib.zip
+    cd polite-lib-main/src
+fi
+
+
+pip3 install -r requirements.txt
+python3 setup.py build
+python3 setup.py install
+echo "Installed successfully"
+
+if [ "$POLITE_LIB_METHOD" == "zip" ]; then
+    echo "Uninstalling"
+    echo $POLITE_LIB_BRANCH
+    echo $INSTALL_DIR
+    rm -rf $INSTALL_DIR/polite-lib.zip
+    rm -rf $INSTALL_DIR/polite-lib-$POLITE_LIB_BRANCH
+    echo "Pip Lib Cleanup Run successfully"
+fi
