@@ -221,6 +221,7 @@ tasks:
   dev-exec-api:
     cmds:
       - |
+        NS="cver-dev"
         POD=$(kubectl get pods -n cver-dev -l app.kubernetes.io/instance=cver-api-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
         echo "Logging into to pod: ${POD}"
         kubectl exec -n cver-dev -it ${POD} -c cver-api -- bash
@@ -273,12 +274,17 @@ tasks:
             cver-api-dev \
             ./ \
             --namespace=cver-dev \
-            --set app.runApionStart=false \
-            --set app.runMigrations=false \
-            --set "app.deployedAt=${DEPLOYED_AT}" \
             -f values.yaml \
-            -f values-quigley-dev.yaml
+            -f values-quigley-dev.yaml \
+            --set app.runApiOnStart=false \
+            --set app.runMigrations=false \
+            --set "app.deployedAt=${DEPLOYED_AT}"
     slient: True
+
+  dev-helm-api-kill:
+    cmds:
+      - |
+        helm -n cver-dev uninstall cver-api-dev
 
   dev-helm-engine:
     cmds:

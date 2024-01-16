@@ -46,8 +46,12 @@ def get_model_totals():
         "scans": Scans().get_count_total(),
         "scan_raw": Scans().get_count_total(),
         "scanners": Scanners().get_count_total(),
-        "tasks": Tasks().get_count_total()
+        "tasks": Tasks().get_count_total(),
     }
+    total_totals = 0
+    for key, value in ret.items():
+        total_totals += value
+    ret["total_totals"] = total_totals
     return ret
 
 
