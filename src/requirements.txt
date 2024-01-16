@@ -7,7 +7,7 @@ PyJWT==2.7.0
 PyMySQL==1.0.2
 PyYAML==6.0.1
 mysql-connector-python==8.0.27
-rich==10.11.0
+rich==13.7.0
 sqlescapy==1.0.1
 validators==0.18.2
 
@@ -18,4 +18,4 @@ requests==2.31.0
 tldextract==3.6.0
 
 # Cver cli
-rich==10.11.0
+rich==13.7.0
