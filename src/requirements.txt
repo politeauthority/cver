@@ -15,7 +15,7 @@ validators==0.18.2
 requests==2.31.0
 
 # Cver Shared
-tldextract==3.6.0
+tldextract==5.1.1
 
 # Cver cli
 rich==10.11.0
