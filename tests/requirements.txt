@@ -1,4 +1,4 @@
-flake8==6.0.0
+flake8==7.0.0
 ipdb==0.13.13
 pytest==7.3.0
 pytest-dependency==0.5.1
