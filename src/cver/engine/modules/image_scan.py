@@ -116,6 +116,10 @@ class ImageScan:
         if not self.image.get_by_id(self.ibw.image_id):
             logging.warning("Cant get Image from ID: %s for %s" % (self.ibw.image_id, self.ibw))
             return False
+        
+        if self.ibw.status == "Failed":
+            self._handle_error_scan()
+            return False
 
         if self.ibw.status == "Failed":
             self.task.status = False
