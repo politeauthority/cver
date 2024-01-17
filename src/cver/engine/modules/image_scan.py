@@ -77,7 +77,7 @@ new line(s) to replace
             self.task.status_reason = "failed to download"
             self.task.end_ts = date_utils.json_date_now()
             self.task.save()
-            logging.warning(
+            logging.error(
                 "Skipping: %s %s, image has already experienced download failures" % (
                     self.ibw, self.image))
             return False
@@ -116,8 +116,12 @@ new line(s) to replace
         scan.scanner_id = 1
         if "Vulnerabilities" not in scan_result["Results"][0]:
             logging.warning("No vulnerabilities found in: %s" % self.ib)
-            scan.save()
+            if scan.save():
+            logging.info("Saved Scan results successfully")
             return True
+        else:
+            logging.error("Failed to save scan for %s" % self.ib)
+            return False
 
         vulns = scan_result["Results"][0]["Vulnerabilities"]
         vuln_data = self._parse_scan_vulns(vulns)
@@ -137,6 +141,8 @@ new line(s) to replace
             return True
         else:
             logging.warning("Failed to save scan for %s" % self.ib)
+            logging.warning("Failed to save scan for %s" % self.ib)
+            logging.error("Failed to save scan for %s" % self.ib)
             return False
 
     def execute_scan(self):
