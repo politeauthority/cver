@@ -40,9 +40,18 @@ class ClientCollectionsBase(CverClient):
 
     def get_all(self, request_args: dict = {}) -> list:
         """Get all entities returned as a list, cycling through all the pages of the entity.
-        @todo: Finish this method
+        @todo: Make a regression test for this.
         """
-        return self.get(request_args, page=1)
+        ret_entities = []
+        data = self.get(request_args)
+        ret_entities = ret_entities + data
+        current_page = self.response_last_json["info"]["current_page"]
+        last_page = self.response_last_json["info"]["last_page"]
+        while current_page != last_page:
+            current_page = current_page + 1
+            data = self.get(request_args, page=current_page)
+            ret_entities = ret_entities + data
+        return ret_entities
 
     def build_list_of_dicts(self, object_type: str, objs: list) -> list:
         """Builds a list of dictionaries."""

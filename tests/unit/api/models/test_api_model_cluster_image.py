@@ -34,7 +34,7 @@ class TestApiModelClusterImage:
         """
         cursor = db.Cursor()
         cursor.result_to_return = [
-            5, datetime.now(), datetime.now(), 10, 1, datetime.now(), datetime.now()]
+            5, datetime.now(), datetime.now(), 10, 1, datetime.now(), datetime.now(), True]
         model = ClusterImage(db.Conn(), cursor)
         assert model.get_by_cluster_and_image_id(1, 10)
         assert 5 == model.id

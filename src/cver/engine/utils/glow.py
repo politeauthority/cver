@@ -23,6 +23,7 @@ registry_info = {
 
 global engine_info
 engine_info = {
+    "cluster_presence_hours": None,
     "download_limit": 0,
     "download_process_limit": 0,
     "scan_limit": 0,

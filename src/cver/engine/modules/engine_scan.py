@@ -1,6 +1,7 @@
 """
     Cver Engine
     Scan
+    Collect all the Images that we're going to scan, and setup each scan for image_scan.py
 
 """
 import logging

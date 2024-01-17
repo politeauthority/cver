@@ -41,10 +41,10 @@ def auth_request(f):
         jwt_value = validate_jwt(token)
         if jwt_value:
             # User has valid JWT
-            logging.info("Authenticated User")
             glow.user["user_id"] = jwt_value["user_id"]
             glow.user["org_id"] = jwt_value["org_id"]
             glow.user["role_perms"] = jwt_value["role_perms"]
+            logging.info("Authenticated JWT for User ID: %s" % glow.user["user_id"])
             record_last_access_user(glow.user["user_id"])
             # Check if user has access to this resource
             if "role_perms" not in jwt_value:
