@@ -18,7 +18,7 @@ def debug(message: str, **kwargs):
     :unit-test: test__debug
     """
     _handle_log("DEBUG", message, **kwargs)
-    return True
+    return {'message': message, **kwargs}
 
 
 def info(message: str, **kwargs):
@@ -140,8 +140,8 @@ def _diplay_log(the_log) -> bool:
 
 def _handle_stdout_display(the_log: dict) -> bool:
     """Handle the log display if the script is being run manually."""
-    # log_keys = ["filename", "image"]
-    log_keys = ["image/build"]
+    log_keys = ["image", "build", "scan"]
+    log_keys = ["image", "build", "scan"]
 
     level = _get_level_color(the_log["level"])
     if the_log["level"] == "WARNING":
