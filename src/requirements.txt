@@ -4,7 +4,7 @@ Flask==3.0.0
 glom==20.11.0
 gunicorn==20.0.4
 PyJWT==2.7.0
-PyMySQL==1.0.2
+PyMySQL==1.1.0
 PyYAML==6.0.1
 mysql-connector-python==8.0.27
 rich==10.11.0
