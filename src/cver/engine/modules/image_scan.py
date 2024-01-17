@@ -40,56 +40,7 @@ class ImageScan:
             "status_reason": None,
         }
 
-    def run(self, ) -> dict:
-        """Run the download process."""
-        if not self.preflight_check():
-            logging.error("Preflight check failed for scan process")
-            self.data["status"] = False
-            self.data["status_reason"] = "Preflight check failed"
-            return self.data
-            return self.data
-
-        self.create_task()
-        if self.ibw:
-            self.prep_from_ibw()
-        self.create_ib_pull()
-        self.data["image"] = self.image
-        self.data["ibw"] = self.ibw
-        self.data["ib"] = self.ib
-        if not self.prep_success:
-            logging.info("Scan prep failed for %s %s" % (self.ibw, self.image))
-            return self.data
-        self.pull_image()
-        if self.process_completed:
-            self._handle_error_scan()
-            return self.data
-        self.execute_scan()
-        if self.process_completed:
-            self._handle_error_scan()
-            return self.data
-        self.clean_up()
-        logging.info("Competed image scan process for %s" % self.image)
-        return self.data
-
-    def preflight_check(self) -> bool:
-        """Checks to make sure we have the information required to start the download process."""
-        if not self.ibw and not self.ib:
-            logging.error("Missing required data to perform download.")
-            return False
-        return True
-
-    def create_task(self) -> bool:
-        """Create a Task for the download job."""
-        self.task = Task()
-        self.task.name = "engine-scan"
-        self.task.image_id = self.ibw.image_id
-        self.task.image_build_id = self.ibw.image_build_id
-        self.task.image_build_waiting_id = self.ibw.id
-        self.task.start_ts = date_utils.now()
-        self.task.status = True
-        self.task.status_reason = "scanned"
-        if self.task.save():
-            logging.info("Task created: %s" % self.task)
+new line(s) to replace
             return True
         else:
             return False
@@ -143,55 +94,7 @@ class ImageScan:
 
         return True
 
-    def pull_image(self) -> bool:
-        """Pull the Docker image to the Engine pod so that we can scan it.
-        """
-        if self.registry.url == glow.registry_info["local"]["url"]:
-            logging.debug("Image appears to be from local registry")
-            logging.warning("Using tag to pull image for scan, and not sha")
-            self.image_location = "%s/%s:%s" % (
-                self.registry.url,
-                self.image.name,
-                self.ibw.tag)
-        elif self.ib.registry_imported:
-            logging.warning("Using tag to pull image for scan, and not sha")
-            self.image_location = "%s/%s:%s" % (
-                self.ib.registry_imported,
-                self.image.name,
-                self.ibw.tag
-            )
-        else:
-            logging.critical("Not ready to scan images that are not imported to a general loc")
-            self.process_completed = False
-            return False
-        logging.info("Docker pull image: %s" % self.image_location)
-        image_pull = docker.pull_image(self.image_location)
-        if not image_pull:
-            self.data["status_reason"] = "Failed to pull image: %s " % self.image_location
-            self._handle_error_scan()
-            return False
-
-        return True
-
-    def execute_scan(self):
-        """Gets the download location for the image and executes the download."""
-        logging.info("Starting scan of: %s" % self.image_location)
-        scan_start = date_utils.now()
-        scan_result = scan_util.run_trivy(self.image_location)
-        if not scan_result:
-            self.data["status_reason"] = "Failed to run scan"
-            self._handle_error_scan()
-            return False
-        scan_parsed = scan_util.parse_trivy(scan_result)
-        if not scan_parsed:
-            self.data["status_reason"] = "Failed to parse scan"
-            self._handle_error_scan()
-            return False
-        scan_end = date_utils.now()
-        self.scan_time_elapsed = (scan_end - scan_start).seconds
-        logging.info("Successfully scanned: %s" % self.image)
-        self.save_scan(scan_result)
-        self._handle_success_scan()
+new line(s) to replace
         return True
 
     def clean_up(self):
