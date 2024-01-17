@@ -18,6 +18,7 @@ import requests
 from cver.shared.utils.log_config import log_config
 from cver.shared.utils import misc
 from cver.client.ingest.ingest_k8s import IngestK8s
+from cver.client import Client as CverClient
 
 
 logging.config.dictConfig(log_config)
@@ -32,8 +33,24 @@ class Ingest:
         self.pod_images = []
 
     def run(self):
+        if not self.preflight_check():
+            logging.error("Failed Pre flight checks, exiting.")
+            exit(1)
         images = self.get_pod_images()
         self.submit_pod_images(images)
+        logging.info("Completed Ingest successfully")
+
+    def preflight_check(self) -> bool:
+        """Preflight checks for ingest job run.
+        @todo: Add check for kubernetes api access.
+        """
+        cver = CverClient()
+        if cver.login():
+            logging.info("Successfully authed to Cver Api: %s" % cver.api_url)
+            return True
+        else:
+            logging.critical("Failed to auth to Cver Api: %s" % cver.api_url)
+            return False
 
     def get_pod_images(self):
         """Get the names of all the unique images from the local Kubernetes api."""
@@ -88,6 +105,7 @@ class Ingest:
         """Submit the pod images to Cver."""
         logging.info("Submmiting %s Images for Cluster %s" % (
             len(images), self.cluster_id))
+        logging.warning("Using hardcoded Cluster ID 1")
         for image in images:
             response = IngestK8s().image(self.cluster_id, image["name"], image["sha"])
             logging.info("Submitted: %s" % image)
