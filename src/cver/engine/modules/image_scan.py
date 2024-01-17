@@ -137,67 +137,25 @@ new line(s) to replace
             logging.warning("Failed to save scan for %s" % self.ib)
             return False
 
-    def _handle_error_scan(self) -> bool:
-        """Handle an error pulling an image."""
-        self.ib.scan_last = date_utils.now()
-        self.ibw.status = False
-        self.ibw.status_ts = date_utils.json_date_now()
-        if not self.ibw.fail_count:
-            self.ibw.fail_count = 1
-        else:
-            self.ibw.fail_count += 1
-        self.ibw.status_reason = self.data["status_reason"]
-
-        self.task.status_reason = self.data["status_reason"]
-        self.task.end_ts = date_utils.now()
-        self.task.save()
-
-        self.data["status"] = False
-        self.data["status_reason"] = self.data["status_reason"]
-
-        self.ib.save()
-
-        if self.ibw.save():
-            logging.info("Saved ibw failed download status")
-            return True
-        else:
-            logging.error("Could not save ibw failed status")
+    def execute_scan(self):
+        """Gets the download location for the image and executes the download."""
+        logging.info("Starting scan of: %s" % self.image_location)
+        scan_start = date_utils.now()
+        scan_result = scan_util.run_trivy(self.image_location)
+        if not scan_result:
+            self.data["status_reason"] = "Failed to run scan"
+            self._handle_error_scan()
             return False
-
-    def _handle_success_scan(self) -> bool:
-        """Handle a success scanning an image."""
-        # Handle class data
-        self.data["status"] = True
-        self.data["status_reason"] = "Succeed scanning"
-
-        # Handle IBW
-        self.ibw.delete()
-
-        # Handle IB
-        self.ib.scan_last_ts = date_utils.json_date_now()
-        self.ib.save()
-
-        # Handle Task
-        self.task.end_ts = date_utils.now()
-        self.task.save()
-        return True
-
-    def _parse_scan_vulns(self, vulns: list) -> dict:
-        """Parses the scan results for vulnerabilities and hydrates a dict to be used for saving
-        them.
-        """
-        data = {
-            "cve_critical_int": 0,
-            "cve_critical_nums": [],
-            "cve_high_int": 0,
-            "cve_high_nums": [],
-            "cve_medium_int": 0,
-            "cve_medium_nums": [],
-            "cve_low_int": 0,
-            "cve_low_nums": [],
-            "cve_unknown_int": 0,
-            "cve_unknown_nums": [],
-        }
+        scan_parsed = scan_util.parse_trivy(scan_result)
+        if not scan_parsed:
+            self.data["status_reason"] = "Failed to parse scan"
+            self._handle_error_scan()
+            return False
+        scan_end = date_utils.now()
+        self.scan_time_elapsed = (scan_end - scan_start).seconds
+        logging.info("Successfully scanned: %s" % self.image)
+        self.save_scan(scan_result)
+        self._handle_success_scan()
         for vuln in vulns:
             cve_num = vuln["VulnerabilityID"]
             cve_sev = vuln["Severity"]
