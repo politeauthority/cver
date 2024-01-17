@@ -102,7 +102,9 @@ new line(s) to replace
         @todo: remove the docker image from the local machine
         @todo: remove the ibw form cver-api
         """
-        print("Lets cleanup")
+        # Add necessary cleanup steps, such as removing the Docker image from the local machine and removing the image build waiting from the cver-api.
+        # @todo: remove the docker image from the local machine
+        # @todo: remove the ibw form cver-api
 
     def save_scan(self, scan_result: dict) -> bool:
         """Parse and save a scan to the Cver api."""
