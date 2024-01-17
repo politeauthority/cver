@@ -43,6 +43,10 @@ class ImageScan:
     def run(self, ) -> dict:
         """Run the download process."""
         if not self.preflight_check():
+            logging.error("Preflight check failed for scan process")
+            self.data["status"] = False
+            self.data["status_reason"] = "Preflight check failed"
+            return self.data
             return self.data
 
         self.create_task()
