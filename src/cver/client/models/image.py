@@ -1,6 +1,7 @@
 """
     Cver Client
-    Model - Image
+    Model
+    Image
 
 """
 from cver.shared.models.image import FIELD_MAP
@@ -24,4 +25,4 @@ class Image(Base):
             return "<%s: %s>" % (self.__class__.__name__, self.id)
         return "<%s>" % self.__class__.__name__
 
-# End File: cver/src/cver_client/models/image.py
+# End File: cver/src/client/models/image.py

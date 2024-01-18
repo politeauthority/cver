@@ -1,8 +1,10 @@
 """
     Cver Engine
     Engine
-    Primary entrypoint to the Cver Engine utility.
+    Primary entrypoint to the Cver Engine job.
     This service is intended to run as a cronjob on the Kubernetes system.
+    It's responsibilities are
+    -
 
 """
 import logging

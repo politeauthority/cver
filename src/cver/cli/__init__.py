@@ -19,6 +19,7 @@ from cver.client.collections.images import Images
 from cver.client.collections.image_build_waitings import ImageBuildWaitings
 from cver.client.collections.options import Options
 from cver.client.collections.tasks import Tasks
+from cver.client.collections.users import Users
 from cver.client.models.image import Image
 from cver.client.models.image_build import ImageBuild
 from cver.client.models.image_build_waiting import ImageBuildWaiting
@@ -82,12 +83,14 @@ class Cver:
             self.get_image_buld_waiting()
         elif self.args.noun in ["options"]:
             self.get_options()
+        elif self.args.noun in ["scans"]:
+            self.get_scans()
         elif self.args.noun in ["tasks"]:
             self.get_tasks()
         elif self.args.noun in ["task"]:
             self.get_task()
-        elif self.args.noun in ["scans"]:
-            self.get_scans()
+        elif self.args.noun in ["users"]:
+            self.get_users()
         else:
             print("Error: Unknown Command")
             exit(1)
@@ -415,6 +418,26 @@ class Cver:
                 return False
         else:
             print("Not saving")
+
+    def get_users(self):
+        col = Users()
+        users = col.get(page=self.args.page)
+        response = col.response_last
+        rj = response.json()
+        if response.status_code != 200:
+            print("Error making request")
+            exit(1)
+
+        # import ipdb; ipdb.set_trace()
+
+        print("Users (%s)" % rj["info"]["total_objects"])
+        the_dict = {}
+        for user in users:
+            the_dict[user.id] = user.name
+
+        display.print_dict(the_dict, pad=2)
+        display.print_pagination_info(rj)
+        return True
 
 
 def parse_args():

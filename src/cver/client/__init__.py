@@ -126,10 +126,10 @@ class Client:
                     payload.pop("id")
         request_args["verify"] = False     # @todo fix
         # debug
-        logging.info("\n\n%s - %s\n%s" % (
-            request_args["method"],
-            request_args["url"],
-            request_args))
+        # logging.info("\n\n%s - %s\n%s" % (
+        #     request_args["method"],
+        #     request_args["url"],
+        #     request_args))
 
         response = requests.request(**request_args)
 

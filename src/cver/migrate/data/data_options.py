@@ -17,6 +17,7 @@ class DataOptions:
         self.create_registry_options()
         self.create_engine_options()
         self.create_registry_option_values()
+        self._make_option("cluster_presence_hours", "int", 72)
 
     def create_registry_options(self):
         """Create container registry details."""
@@ -72,17 +73,21 @@ class DataOptions:
         logging.info("Saved registry Option values")
 
     def _make_option(self, option_name, option_type: str, option_value=None, ) -> bool:
+        """Create an Option."""
         opt = Option()
         opt.name = option_name
-        if not opt.get_by_name():
-            opt.type = option_type
-            opt.acl_write = ["write-all"]
-            opt.acl_read = ["read-all"]
-            if option_value:
-                opt.value = option_value
-            if not opt.save():
-                logging.error("Could not create option: %s" % option_name)
-                return False
+        if opt.get_by_name():
+            logging.debug("Option %s already exists, skipping." % option_name)
+            return True
+        opt.type = option_type
+        opt.acl_write = ["write-all"]
+        opt.acl_read = ["read-all"]
+        if option_value:
+            opt.value = option_value
+        if not opt.save():
+            logging.error("Could not create option: %s" % option_name)
+            return False
+        logging.debug("Saved option: %s" % option_name)
         return True
 
 

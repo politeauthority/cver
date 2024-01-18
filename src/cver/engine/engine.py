@@ -13,6 +13,7 @@ from cver.shared.utils.log_config import log_config
 from cver.shared.utils import docker
 from cver.client.models.option import Option
 from cver.client.collections.registries import Registries
+from cver.engine.modules.cluster_presence import ClusterPresence
 from cver.engine.modules.engine_download import EngineDownload
 from cver.engine.modules.engine_scan import EngineScan
 from cver.engine.utils import glow
@@ -34,6 +35,8 @@ class Engine:
         if not self.preflight():
             logging.critical("Pre flight checks failed.")
             exit(1)
+
+        self.run_cluster_presence()
 
         if self.args.action in ["all", "download"]:
             self.run_downloads()
@@ -81,6 +84,14 @@ class Engine:
             return False
 
         # Get engine options
+
+        cluster_presence_hours = Option()
+        cluster_presence_hours.get_by_name("cluster_presence_hours")
+        glow.engine_info["cluster_presence_hours"] = cluster_presence_hours.value
+        if not glow.engine_info["cluster_presence_hours"]:
+            logging.error("No cluster_presence_hours found.")
+            return False
+
         engine_download_limit = Option()
         engine_download_limit.get_by_name("engine_download_limit")
         glow.engine_info["download_limit"] = engine_download_limit.value
@@ -106,7 +117,7 @@ class Engine:
         engine_scan_limit.get_by_name("engine_scan_limit")
         glow.engine_info["scan_limit"] = engine_scan_limit.value
         if not glow.engine_info["scan_limit"]:
-            logging.error("No scan limit password found on Cver")
+            logging.error("No scan limit found on Cver")
             return False
 
         engine_scan_fail_threshold = Option()
@@ -123,6 +134,9 @@ class Engine:
             glow.registry_info["local"]["pass"])
 
         return True
+
+    def run_cluster_presence(self):
+        self.presence_report = ClusterPresence().run()
 
     def run_downloads(self):
         """Engine Download runner. Here we'll download images waiting to be pulled down."""
@@ -142,7 +156,7 @@ class Engine:
 
     def _get_registries(self) -> bool:
         """Get all registries we currently know about and store them in glow."""
-        registries = Registries().get_all()
+        registries = Registries().get()
         for reg in registries:
             glow.registry_info["registries"][reg.id] = reg
         return True

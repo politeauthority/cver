@@ -5,7 +5,7 @@ replicaCount: 1
 nameOverride: "dev"
 
 app:
-  runApiOnStart: true
+  runApiOnStart: false
   runMigrations: true
   logLevel: "DEBUG"
   envName: "dev"
@@ -22,7 +22,7 @@ test:
 image:
   repository: harbor.squid-ink.us/cver/cver-api
   pullPolicy: Always
-  tag: "dev-latest"
+  tag: "stage-latest"
 
 imagePullSecrets:
   - name: harbor
