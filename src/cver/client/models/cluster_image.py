@@ -13,7 +13,7 @@ class ClusterImage(Base):
         """Create the instance."""
         super(ClusterImage, self).__init__()
         self.field_map = FIELD_MAP
-        self.model_name = "cluster_iamge"
+        self.model_name = "cluster-image"
         self.setup()
 
 # End File: cver/src/cver_client/models/cluster_image.py

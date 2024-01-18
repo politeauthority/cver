@@ -251,6 +251,16 @@ tasks:
         kubectl exec -n cver-dev -it ${POD} -- bash
     silent: True
 
+  dev-test-regression:
+    cmds:
+      - |
+        POD=$(kubectl get pods -n cver-dev  -l app.kubernetes.io/instance=cver-test-dev --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
+        echo $POD
+        kubectl cp -n cver-dev {{ .CVER_DIR }}/ ${POD}:/current/
+        kubectl exec -it -n cver-dev ${POD} -- cver-build
+        kubectl exec -it -n cver-dev ${POD} -- cver-test-regression
+    silent: True
+
   dev-helm-api:
     cmds:
       - |

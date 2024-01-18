@@ -39,7 +39,24 @@ CREATE TABLE IF NOT EXISTS cluster_images (
     `cluster_id` INTEGER NOT NULL,
     `first_seen` DATETIME,
     `last_seen` DATETIME,
+    `present` TINYINT(1),
     UNIQUE KEY `ux_cluster_image` (`image_id`, `cluster_id`)
+);
+
+---
+--- Create cluster_image_builds
+---
+CREATE TABLE IF NOT EXISTS cluster_image_builds (
+    `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
+    `created_ts` DATETIME,
+    `updated_ts` DATETIME,
+    `image_id` INTEGER NOT NULL,
+    `image_build_id` INTEGER NOT NULL,
+    `cluster_id` INTEGER NOT NULL,
+    `first_seen` DATETIME,
+    `last_seen` DATETIME,
+    `present` TINYINT(1),
+    UNIQUE KEY `ux_cluster_image` (`image_build_id`, `cluster_id`)
 );
 
 ---

@@ -12,6 +12,7 @@ from flask import Blueprint, request, make_response, jsonify
 from cver.api.utils import auth
 from cver.api.models.cluster import Cluster
 from cver.api.models.cluster_image import ClusterImage
+from cver.api.models.cluster_image_build import ClusterImageBuild
 from cver.api.models.image_build import ImageBuild
 from cver.api.models.image_build_waiting import ImageBuildWaiting
 from cver.api.models.image import Image
@@ -73,9 +74,9 @@ def post_submit_image():
         data["wrote"]["image-build"] = ibx["image-build"].json()
 
     # Handle Cluster Image
-    ic = _handle_cluster_image(cluster_id, image.id)
-    if ic:
-        data["wrote"]["image-cluster"] = ic.json()
+    _handle_cluster_image(cluster_id, image.id, ibx)
+    # if ic:
+    #     data["wrote"]["image-cluster"] = ic.json()
 
     return jsonify(data), 201
 
@@ -156,17 +157,40 @@ def _handle_image_build(image: Image, image_map: dict) -> ImageBuildWaiting:
     return ret
 
 
-def _handle_cluster_image(cluster_id: int, image_id: int) -> bool:
+def _handle_cluster_image(cluster_id: int, image_id: int, ibx: dict) -> dict:
     """Check if the Cluster Image relationship already exists, if not create it, then update the
     last seen date.
     """
+    ret = {
+        "cluster_image": None,
+        "cluster_image_build": None
+    }
     cluster_image = ClusterImage()
     if not cluster_image.get_by_cluster_and_image_id(cluster_id, image_id):
         cluster_image.cluster_id = cluster_id
         cluster_image.image_id = image_id
         cluster_image.first_seen = date_utils.now()
     cluster_image.last_seen = date_utils.now()
+    cluster_image.present = True
     cluster_image.save()
-    return cluster_image
+    ret["cluster_image"] = cluster_image
+
+    if "image-build" in ibx and ibx["image-build"]:
+        ib = ibx["image-build"]
+        cib = ClusterImageBuild()
+        if not cib.get_by_cluster_and_image_build_id(cluster_id, ib.id):
+            cib.image_id = image_id
+            cib.image_build_id = ib.id
+            cib.cluster_id = cluster_id
+            cib.first_seen = date_utils.now()
+        cib.last_seen = date_utils.now()
+        cib.present = True
+        print("\nSET CLUSTER_IMAGE BUILD PRESENT: %s\n" % cib.present)
+        cib.save()
+        logging.info("Saved: %s" % cib)
+        ret["cluster_image_build"] = cib
+    else:
+        logging.warning("Missing ImageBuild for Image ID: %s" % image_id)
+    return ret
 
 # End File: cve/src/api/controllers/ctrl_ingest_k8s.py
