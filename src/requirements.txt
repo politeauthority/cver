@@ -1,7 +1,7 @@
 # Cver Api
 arrow>=1.2.2
 Flask==3.0.0
-glom==20.11.0
+glom==23.5.0
 gunicorn==20.0.4
 PyJWT==2.7.0
 PyMySQL==1.0.2
