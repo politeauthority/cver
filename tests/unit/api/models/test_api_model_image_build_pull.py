@@ -21,8 +21,10 @@ class TestImageBuildPull:
         assert hasattr(model, "image_id")
         assert hasattr(model, "image_build_id")
         assert hasattr(model, "registry_id")
-        assert hasattr(model, "status")
-        assert hasattr(model, "status_reason")
+        assert hasattr(model, "status_download")
+        assert hasattr(model, "status_download_reason")
+        assert hasattr(model, "status_push")
+        assert hasattr(model, "status_push_reason")
         assert hasattr(model, "pull_time_elapsed")
         assert hasattr(model, "push_time_elapsed")
 

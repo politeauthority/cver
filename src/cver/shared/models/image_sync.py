@@ -1,7 +1,7 @@
 """
     Cver Shared
     Model
-    Task
+    Image Sync
 
 """
 
@@ -10,75 +10,58 @@ FIELD_MAP = {
         "name": "id",
         "type": "int",
         "primary": True,
+        "api_searchable": True,
     },
     "created_ts": {
         "name": "created_ts",
         "type": "datetime",
+        "api_searchable": True,
     },
     "updated_ts": {
         "name": "updated_ts",
         "type": "datetime",
-    },
-    "user_id": {
-        "name": "user_id",
-        "type": "int",
-        "api_writeable": True,
         "api_searchable": True,
     },
-    "name": {
+    "registry_id": {
         "name": "name",
-        "type": "str",
-        "api_writeable": True,
+        "type": "registry_id",
+        "extra": "NOT NULL",
         "api_searchable": True,
+        "api_writeable": True
     },
     "image_id": {
         "name": "image_id",
         "type": "int",
+        "extra": "NOT NULL",
         "api_writeable": True,
-        "api_searchable": True,
+        "api_searchable": True
     },
     "image_build_id": {
         "name": "image_build_id",
         "type": "int",
         "extra": "NOT NULL",
         "api_writeable": True,
-        "api_searchable": True,
+        "api_searchable": True
     },
-    "task_job_id": {
-        "name": "task_job_id",
-        "type": "int",
+    "local_url": {
+        "name": "local_url",
+        "type": "str",
+        "default": True,
         "api_writeable": True,
-        "api_searchable": True,
+        "api_searchable": True
     },
-    "status": {
-        "name": "status",
+    "success_download": {
+        "name": "success_download",
         "type": "bool",
         "api_writeable": True,
-        "api_searchable": True,
-    },
-    "status_reason": {
-        "name": "status_reason",
-        "type": "str",
-        "api_writeable": True
-    },
-    "start_ts": {
-        "name": "start_ts",
-        "type": "datetime",
-        "api_writeable": True,
         "api_searchable": True
     },
-    "end_ts": {
-        "name": "end_ts",
-        "type": "datetime",
-        "api_writeable": True,
-        "api_searchable": True
-    },
-    "registry_id": {
-        "name": "registry_id",
-        "type": "int",
+    "success_push": {
+        "name": "success_push",
+        "type": "bool",
         "api_writeable": True,
         "api_searchable": True
     },
 }
 
-# End File: cver/src/shared/models/task.py
+# End File: cver/src/shared/models/image_sync.py

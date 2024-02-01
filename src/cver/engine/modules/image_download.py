@@ -14,6 +14,8 @@ from cver.client.models.image_build_pull import ImageBuildPull
 from cver.client.models.task import Task
 from cver.engine.utils import glow
 
+logger = logging.getLogger(__name__)
+
 
 class ImageDownload:
 
@@ -21,9 +23,10 @@ class ImageDownload:
         """Setup vars that will be used through out the download process."""
         self.image = None
         self.ib = None
-        self.ibw = None
-        if "ibw" in kwargs:
-            self.ibw = kwargs["ibw"]
+        self.ibp = None
+        # self.ibw = None
+        if "ib" in kwargs:
+            self.ib = kwargs["ib"]
         self.task = None
         self.registry = None
         self.ib_pull = None
@@ -40,23 +43,23 @@ class ImageDownload:
         self.process_completed = False
         self.registry_pullthru_use = False
         self.registry_pullthru_loc = ""
+        self.registries = glow.registry_info["registries"]
 
-    def run(self, ) -> dict:
+    def run(self) -> dict:
         """Run the download process."""
         if not self.preflight_check():
             return self.data
         self.data["image"] = self.image
-        self.data["ibw"] = self.ibw
         self.data["ib"] = self.ib
 
         if not self.prep_success:
-            logging.info("Download prep failed for %s %s" % (self.ibw, self.image))
+            logger.info("Download prep failed for %s %s" % (self.ibp, self.image))
             return self.data
-
-        logging.info("Running Download: %s - %s - %s - %s" % (
+        
+        logger.info("Running Download: %s - %s - %s - %s" % (
             self.image,
             self.ib,
-            self.ibw,
+            self.ibp,
             self.task))
         self.execute_download()
         if self.process_completed:
@@ -68,104 +71,88 @@ class ImageDownload:
 
     def preflight_check(self) -> bool:
         """Checks to make sure we have the information required to start the download process."""
-        if not self.ibw and not self.ib:
-            logging.error("PreFlight: Missing required data to perform download.")
+        if not self.ib:
+            logger.error("PreFlight: Missing required data to perform download.")
             return False
-        if self.ibw:
-            if not self.prep_from_ibw():
-                logging.error("PreFlight: Couldnt fetch required Image details from Cver Api.")
+        if self.ib:
+            if not self.prep_from_ib():
+                logger.error("PreFlight: Couldnt fetch required Image details from Cver Api.")
                 return False
-        if not self.create_task():
-            logging.error("Failed to create download Task")
-            return False
         if not self.create_ib_pull():
-            logging.error("Failed to create Image Build Pull")
+            logger.error("Failed to create Image Build Pull")
+        if not self.create_task():
+            logger.error("Failed to create download Task")
             return False
         return True
+
+    def create_ib_pull(self) -> bool:
+        """Create an ImageBuildPull for the download job."""
+        self.ibp = ImageBuildPull()
+        self.ibp.image_id = self.ib.image_id
+        self.ibp.image_build_id = self.ib.id
+        self.ibp.registry_id = self.registry.id
+        # self.ib_pull.task_id = self.task.id
+
+        if self.ibp.save():
+            logger.info("Image Build Pull created: %s" % self.ib_pull)
+            return True
+        else:
+            return False
 
     def create_task(self) -> bool:
         """Create a Task for the download job."""
         self.task = Task()
         self.task.name = "engine-download"
-        self.task.image_id = self.ibw.image_id
-        self.task.image_build_id = self.ibw.image_build_id
-        self.task.image_build_waiting_id = self.ibw.id
-        self.task.start_ts = date_utils.now()
+        self.task.image_id = self.ib.image_id
+        self.task.image_build_id = self.ib.id
+        self.task.task_job_id = self.ibp.id
+        # self.task.start_ts = date_utils.now()
         self.task.status = None
         self.task.status_reason = "progressing"
         if self.task.save():
-            logging.info("Task created: %s" % self.task)
+            logger.info("Task created: %s" % self.task)
             return True
         else:
             return False
 
-    def create_ib_pull(self) -> bool:
-        """Create an ImageBuildPull for the download job."""
-        self.ib_pull = ImageBuildPull()
-        self.ib_pull.image_id = self.ibw.image_id
-        self.ib_pull.image_build_id = self.ibw.id
-        self.ib_pull.registry_id = self.registry.id
-        self.ib_pull.task_id = self.task.id
-        self.ib_pull.job = "download"
-
-        if self.ib_pull.save():
-            logging.info("Image Build Pull created: %s" % self.ib_pull)
-            return True
-        else:
-            return False
-
-    def prep_from_ibw(self) -> bool:
-        """Prepare a download process from an ImageBuildWaiting."""
+    def prep_from_ib(self) -> bool:
+        """Prepare a download process from an ImageBuild."""
         self.image = Image()
-        if not self.image.get_by_id(self.ibw.image_id):
-            logging.warning("Cant get Image from ID: %s for %s" % (self.ibw.image_id, self.ibw))
+        if not self.image.get_by_id(self.ib.image_id):
+            logger.warning("Cant get Image from ID: %s for %s" % (self.ib.image_id, self.ib))
             return False
 
-        if self.ibw.status == "Failed":
-            self.task.status = False
-            self.task.status_reason = "failed to download"
-            self.task.end_ts = date_utils.json_date_now()
-            self.task.save()
-            logging.warning(
-                "Skipping: %s %s, image has already experienced download failures" % (
-                    self.ibw, self.image))
+        if self.ib.registry_id not in self.registries:
+            logger.error("Cannot find IB %s registry" % self.ibp)
             return False
-
-        if self.ibw.image_build_id:
-            self.ib = ImageBuild()
-            self.ib.get_by_id(self.ibw.image_build_id)
-            logging.debug("Loaded: %s" % self.ib)
-
-        if self.ibw.registry_id not in glow.registry_info["registries"]:
-            logging.error("Cannot find IBW %s registry" % self.ibw)
-            return False
-        self.registry = glow.registry_info["registries"][self.ibw.registry_id]
-
-        logging.info("Using registry: %s" % self.registry)
-
-        # if self.image.registry in glow.registry_info["pull_thrus"]:
-        #     self.registry_pullthru_use = True
-        #     self.registry_pullthru_loc = glow.registry_info["pull_thrus"][self.image.registry]
-
+        self.registry = self.registries[self.ib.registry_id]
+        logger.info("Using registry: %s" % self.registry)
         self.prep_success = True
 
         return True
 
     def execute_download(self) -> bool:
         """Gets the download location for the image and executes the download."""
-        # Check if the IBW's registry is the local registry, so we can skip caching it.
+        # Check if the Image Build's registry is the local registry, so we can skip caching it.
+        self.download_start = date_utils.now()
         if self.registry.url == glow.registry_info["local"]["url"]:
-            logging.info("Image is from local registry, no need to pull, marking as success.")
-            self.data["status_reason"] = "Image exists in local registry"
+            logger.info("Image is from local registry, no need to pull, marking as success.")
+            self.data["status_download"] = True
+            self.data["status_download_reason"] = "Image exists in local registry"
+            self.data["status_push"] = None
+            self.data["status_push_reason"] = "Image exists in local registry"
             self.process_completed = True
-            self.data["status_reason"] = "Image from local repository"
+            self.download_end = date_utils.now()
             self._handle_success_download()
             return True
+        else:
+            print("UNHANDLED")
+            exit()
 
-        logging.info("Starting download of: %s" % self.image.name)
+        logger.info("Starting download of: %s" % self.image.name)
         image_loc = self.get_docker_pull_url()
         pull_cmd = ["docker", "pull", image_loc]
-        logging.info("Pulling: %s" % image_loc)
+        logger.info("Pulling: %s" % image_loc)
         pull_start_time = date_utils.now()
         image_pull = self.docker_pull(pull_cmd)
 
@@ -173,7 +160,7 @@ class ImageDownload:
             self._handle_error(stage="image pull")
             return False
         pull_end_time = date_utils.now()
-        logging.info("Successfully downloaded: %s" % self.image)
+        logger.info("Successfully downloaded: %s" % self.image)
 
         if self.registry.url == "docker.io":
             image_search = self.image.name
@@ -204,7 +191,7 @@ class ImageDownload:
             glow.registry_info["local"]["url"],
             glow.registry_info["repository_general"],
             self.image.name,
-            self.ibw.tag
+            self.ib.tag
         )
         if not docker.tag_image(self.image_docker_id, image_str):
             logging.error("Failed Tagging")
@@ -308,25 +295,29 @@ class ImageDownload:
             glow.registry_info["repository_general"],
         )
 
-        # Handle IBW
-        self.ibw.status = True
-        self.ibw.status_reason = self.data["status_reason"]
-        self.ibw.status_ts = date_utils.json_date_now()
-        self.ibw.waiting_for = "scan"
-        self.ibw.fail_count = 0
+        # Handle Image Build Pull
+        self.ibp.task_id = self.task.id
+        self.ibp.status_download = self.data["status_download"]
+        self.ibp.status_download_reason = self.data["status_download_reason"]
 
+        self.ibp.status_push = self.data["status_push"]
+        self.ibp.status_push_reason = self.data["status_push_reason"]
+        if not self.ibp.save():
+            logger.critical("Could not save IBP: %s" % self.ibp)
+            return False
+        
         # Handle Task
         self.task.status = True
         self.task.status_reason = self.data["status_reason"]
-        self.task.end_ts = date_utils.now()
+        self.task.end_ts = self.download_end
 
         # Handle IB Pull
-        self.ib_pull.status = True
-        self.ib_pull.status_reason = "Successful pull"
-        self.ib_pull.pull_time_elapsed = self.pull_time_elapsed
-        self.ib_pull.push_time_elapsed = self.push_time_elapsed
-        self.ib_pull.save()
-        logging.info("Saved IB Pull: %s" % self.ib_pull)
+        self.ibp.status = True
+        self.ibp.status_reason = "Successful pull"
+        self.ibp.pull_time_elapsed = self.pull_time_elapsed
+        self.ibp.push_time_elapsed = self.push_time_elapsed
+        self.ibp.save()
+        logger.info("Saved IB Pull: %s" % self.ibp)
 
         self.process_completed = True
         return self._handle_entity_saves()
@@ -345,10 +336,10 @@ class ImageDownload:
             return_success = False
 
         # Save the ImageBuildWaiting
-        if self.ibw.save():
-            logging.info("Saved IBW: %s" % self.ibw)
+        if self.ibp.save():
+            logging.info("Saved IBP: %s" % self.ibp)
         else:
-            logging.error("Failed saving IBW: %s" % self.ibw)
+            logging.error("Failed saving IBP: %s" % self.ibp)
             return_success = False
 
         # Save the Task

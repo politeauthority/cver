@@ -15,6 +15,7 @@ import arrow
 
 from cver.api.utils import sql_tools
 from cver.shared.utils import log
+from cver.shared.utils import xlate
 
 from cver.api.utils import glow
 
@@ -417,19 +418,10 @@ class Base:
             raise AttributeError("Model %s does not have field: %s" % (
                 self,
                 where_a["field"]))
-        # field = self.collect_model().field_map[where_a["field"]]
-        # if field["type"] == "bool":
-
         if field_info["type"] == "str":
             where_a["value"] = '"%s"' % sql_tools.sql_safe(where_a["value"])
         elif field_info["type"] == "bool":
-            value = where_a["value"]
-            if value == True:
-                value = 1
-            elif value == False:
-                value = 0
-            else:
-                value = 0
+            value = xlate.convert_any_to_bool(where_a["value"])
             where_a["value"] = '%s' % sql_tools.sql_safe(value)
         where_and_sql += '`%s` %s %s AND ' % (
             sql_tools.sql_safe(where_a['field']),

@@ -20,15 +20,12 @@ from cver.engine.modules.engine_scan import EngineScan
 from cver.engine.utils import glow
 
 
-# create logger with 'spam_application'
 logger = logging.getLogger("cver")
 logger.setLevel(logging.DEBUG)
 fmt = '%(asctime)s | %(levelname)8s | %(message)s'
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
-
 ch.setFormatter(CustomFormatter(fmt))
-
 logger.addHandler(ch)
 
 
@@ -48,7 +45,6 @@ class Engine:
         self.run_cluster_presence()
 
         if self.args.action in ["all", "download"]:
-            self.create_priority(the_phase="download")
             self.run_downloads()
         if self.args.action in ["all", "scan"]:
             self.run_scans()
@@ -94,7 +90,6 @@ class Engine:
             return False
 
         # Get engine options
-
         cluster_presence_hours = Option()
         cluster_presence_hours.get_by_name("cluster_presence_hours")
         glow.engine_info["cluster_presence_hours"] = cluster_presence_hours.value
@@ -152,16 +147,29 @@ class Engine:
             return False
         return True
 
-    def create_priority(self, the_phase: str):
-        self.engine_priorty = EnginePriority().run(phase=the_phase)
+    def create_priority(self, the_phase: str) -> bool:
+        # self.engine_priorty = EnginePriority().run(phase=the_phase)
+        if the_phase == "download":
+            priority = EnginePriority().run(phase=the_phase)
+            glow.image_build_priority["download"] = priority["download"]
+        elif the_phase == "scan":
+            priority = EnginePriority().run(phase=the_phase)
+            glow.image_build_priority["scan"] = priority["scan"]
+        return True
 
     def run_downloads(self):
         """Engine Download runner. Here we'll download images waiting to be pulled down."""
+        self.create_priority(the_phase="download")
         self.download_report = EngineDownload().run()
 
-    def run_scans(self):
+    def run_scans(self) -> bool:
+        """Engine Scan runner."""
         logger.info("Running Engine Scan")
+        self.create_priority(the_phase="scan")
+        print(self.priority)
+        import ipdb; ipdb.set_trace()
         self.scan_report = EngineScan().run()
+        return True
 
     def run_cleanup(self):
         docker_images = docker.get_all_images()
@@ -169,13 +177,6 @@ class Engine:
             return True
         for image in docker_images:
             docker.delete_image(image)
-        return True
-
-    def _get_registries(self) -> bool:
-        """Get all registries we currently know about and store them in glow."""
-        registries = Registries().get()
-        for reg in registries:
-            glow.registry_info["registries"][reg.id] = reg
         return True
 
     def _draw_download_report(self) -> str:
@@ -223,6 +224,12 @@ class Engine:
                 msg += "\t\t%s\n" % image
         msg += "\n"
         return msg
+
+    def _get_registries(self):
+        registries = Registries().get_all()
+        for registry in registries:
+            glow.registry_info["registries"][registry.id] = registry
+        return True
 
 
 def parse_args():

@@ -24,7 +24,7 @@ class TestClientModelTask:
         assert hasattr(task, "name")
         assert hasattr(task, "image_id")
         assert hasattr(task, "image_build_id")
-        assert hasattr(task, "image_build_waiting_id")
+        assert hasattr(task, "task_job_id")
         assert hasattr(task, "status")
         assert hasattr(task, "status_reason")
         assert hasattr(task, "start_ts")

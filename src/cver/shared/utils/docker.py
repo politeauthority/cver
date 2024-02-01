@@ -8,6 +8,8 @@
 import logging
 import subprocess
 
+logger = logging.getLogger(__name__)  # Get a logger for this module
+
 
 def registry_login(registry_url: str, registry_user: str, registry_pass: str) -> bool:
     """Login to the registry Cver has been instructed to use."""
@@ -17,9 +19,9 @@ def registry_login(registry_url: str, registry_user: str, registry_pass: str) ->
     ]
     result = subprocess.check_output(cmd)
     if not result:
-        logging.error("Error connecting to registry: %s" % registry_url)
+        logger.error("Error connecting to registry: %s" % registry_url)
         return False
-    logging.info("Authenticated to registry: %s" % registry_url)
+    logger.info("Authenticated to registry: %s" % registry_url)
     return True
 
 
@@ -28,7 +30,7 @@ def get_all_images() -> list:
     cmd = ["docker", "images", "-q"]
     local_images_res = subprocess.check_output(cmd)
     if not local_images_res:
-        logging.error("Failed to get local docker images")
+        logger.error("Failed to get local docker images")
         return False
 
     local_images_res = local_images_res.decode("utf-8")
@@ -48,10 +50,10 @@ def pull_image(image_loc: str, pull_through_registry: str = None) -> bool:
     try:
         image_pull = subprocess.check_output(pull_cmd).decode("utf-8")
     except subprocess.CalledProcessError as e:
-        logging.error("Encounted docker error trying to pull image: %s" % e)
+        logger.error("Encounted docker error trying to pull image: %s" % e)
         return False
     pull_status = image_pull[image_pull.find("Status:"):]
-    logging.info("Pull status for %s: %s" % (image_pull_loc, pull_status))
+    logger.info("Pull status for %s: %s" % (image_pull_loc, pull_status))
     return True
 
 
@@ -60,10 +62,10 @@ def push_image(full_image_str: str) -> bool:
     cmd = ["docker", "push", full_image_str]
     pushed_image = subprocess.check_output(cmd)
     if pushed_image:
-        logging.debug("Succesfully retaged Image: %s" % full_image_str)
+        logger.debug("Succesfully retaged Image: %s" % full_image_str)
         return True
     else:
-        logging.error("Failed to retag Image: %s" % full_image_str)
+        logger.error("Failed to retag Image: %s" % full_image_str)
         return False
 
 
@@ -72,10 +74,10 @@ def delete_image(docker_id: str) -> bool:
     cmd = ["docker", "rmi", "-f", docker_id]
     deleted_image = subprocess.check_output(cmd)
     if deleted_image:
-        logging.info("Succesfully deleted local container: %s" % docker_id)
+        logger.info("Succesfully deleted local container: %s" % docker_id)
         return True
     else:
-        logging.error("Failed to delete local container: %s" % docker_id)
+        logger.error("Failed to delete local container: %s" % docker_id)
         return False
 
 
@@ -83,7 +85,7 @@ def tag_image(docker_image_id: str, full_image_str: str):
     """Tag a docker image."""
     cmd = ["docker", "tag", docker_image_id, full_image_str]
     subprocess.check_output(cmd)
-    logging.debug("Succesfully retaged Image: %s" % full_image_str)
+    logger.debug("Succesfully retaged Image: %s" % full_image_str)
     return True
 
 
