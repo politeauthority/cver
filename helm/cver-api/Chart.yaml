@@ -5,8 +5,8 @@ type: application
 version: 0.0.1
 appVersion: "0.0.6"
 
-dependencies:
-- name: mysql
-  condition: mysql.enabled
-  repository: oci://registry-1.docker.io/bitnamicharts
-  version: 9.10.5
+# dependencies:
+# - name: mysql
+#   condition: mysql.enabled
+#   repository: oci://registry-1.docker.io/bitnamicharts
+#   version: 9.10.5
