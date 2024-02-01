@@ -15,7 +15,6 @@ from cver.client.models.option import Option
 from cver.client.collections.registries import Registries
 <<<<<<< HEAD
 
-from cver.engine.modules.engine_priority import EnginePriority
 =======
 >>>>>>> origin/stage
 from cver.engine.modules.cluster_presence import ClusterPresence
@@ -42,7 +41,6 @@ class Engine:
             exit(1)
 
         self.run_cluster_presence()
-
         if self.args.action in ["all", "download"]:
             self.create_priority(the_phase="download")
             self.run_downloads()
