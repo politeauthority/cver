@@ -142,7 +142,7 @@ class Base:
             logging.critical("Caught ProgrammingError exception:", e)
             exit(1)
         except pymysql.err.IntegrityError as e:
-            logging.critical("Caught Integrety error: %s" % e)    
+            logging.critical("Caught Integrety error: %s" % e)
 
         self.id = self.cursor.lastrowid
         return True

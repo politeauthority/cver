@@ -9,7 +9,6 @@ import subprocess
 from cver.shared.utils import date_utils
 from cver.shared.utils import docker
 from cver.client.models.image import Image
-from cver.client.models.image_build import ImageBuild
 from cver.client.models.image_build_pull import ImageBuildPull
 from cver.client.models.task import Task
 from cver.engine.utils import glow
@@ -55,7 +54,7 @@ class ImageDownload:
         if not self.prep_success:
             logger.info("Download prep failed for %s %s" % (self.ibp, self.image))
             return self.data
-        
+
         logger.info("Running Download: %s - %s - %s - %s" % (
             self.image,
             self.ib,
@@ -305,7 +304,7 @@ class ImageDownload:
         if not self.ibp.save():
             logger.critical("Could not save IBP: %s" % self.ibp)
             return False
-        
+
         # Handle Task
         self.task.status = True
         self.task.status_reason = self.data["status_reason"]

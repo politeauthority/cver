@@ -167,7 +167,7 @@ class Engine:
         logger.info("Running Engine Scan")
         self.create_priority(the_phase="scan")
         print(self.priority)
-        import ipdb; ipdb.set_trace()
+        return False
         self.scan_report = EngineScan().run()
         return True
 

@@ -53,14 +53,15 @@ class EnginePriority:
         self.data["download"] = sorted_by_score
         # import ipdb; ipdb.set_trace()
         return True
-    
+
     def get_scan_priority(self) -> bool:
         """Create the Engine Scan priorty list based off the most recent information.
         """
-        import ipdb; ipdb.set_trace()
+        print("hiya")
+        # import ipdb; ipdb.set_trace()
         # self.get_image_builds()
         # self.get_cluster_image_builds()
- 
+
         return True
 
     def get_image_builds(self) -> bool:
