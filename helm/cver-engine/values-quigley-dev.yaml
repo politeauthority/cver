@@ -4,6 +4,7 @@ nameOverride: "dev"
 
 app:
   apiUrl: "http://cver-api-dev"
+  appTest: "debug"
   logLevel: "INFO"
   envName: "dev"
   debug: true
@@ -11,6 +12,7 @@ app:
     schedule:  "20,55 * * * *"
     suspend: false
     jobs: "cluster-presence"
+
 test:
   test: true
 

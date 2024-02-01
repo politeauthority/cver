@@ -6,7 +6,8 @@ nameOverride: "stage"
 
 app:
   apiUrl: "http://cver-api-stage"
-  logLevel: "DEBUG"
+  appTest: "debug"
+  logLevel: "INFO"
   envName: "stage"
   debug: false
   cron:

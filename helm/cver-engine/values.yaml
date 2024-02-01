@@ -11,7 +11,7 @@ app:
   deployedAt: "unknown"
   cron:
     schedule:  "15,45 * * * *"
-    suspend: true
+    suspend: false
     timeoutSeconds: 1200
     engineDownloadLimit: 1
     engineScanLimit: 1

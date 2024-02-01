@@ -8,3 +8,5 @@ echo "Alix - Docker Started"
 echo "Starting Engine"
 echo $@
 /usr/bin/timeout ${TIMEOUT_SECONDS} python3 /app/cver/engine/engine.py $@
+
+# End File: cver/docker/cver-engine/scripts/entrypoint.sh
