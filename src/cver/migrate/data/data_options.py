@@ -17,7 +17,8 @@ class DataOptions:
         self.create_registry_options()
         self.create_engine_options()
         self.create_registry_option_values()
-        self._make_option("cluster_presence_hours", "int", 72)
+        # Todo: Come up with better generic cluster_presence
+        self._make_option("cluster_presence_hours", "int", 1)
 
     def create_registry_options(self):
         """Create container registry details."""

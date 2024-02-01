@@ -14,7 +14,7 @@ spec:
         spec:
           restartPolicy: "Never"
           imagePullSecrets:
-            - name: harbor
+            - name: harbor-registry
           containers:
           - name: {{ .Chart.Name }}
             securityContext:
@@ -79,5 +79,5 @@ spec:
             secret:
               secretName: docker-config-json
               items:
-                - key: config.json
+                - key: .dockerconfigjson
                   path: config.json

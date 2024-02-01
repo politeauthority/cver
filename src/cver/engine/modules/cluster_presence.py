@@ -30,7 +30,7 @@ class ClusterPresence:
         clusters = self.get_clusters()
         for cluster in clusters:
             self.handle_cluster(cluster)
-        logger.info("Ran clusrter presence successfully")
+        logger.info("Ran cluster presence successfully")
         return self.data
 
     def get_clusters(self):
