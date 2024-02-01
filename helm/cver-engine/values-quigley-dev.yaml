@@ -9,8 +9,8 @@ app:
   debug: true
   cron:
     schedule:  "20,55 * * * *"
-    suspend: true
-
+    suspend: false
+    jobs: "cluster-presence"
 test:
   test: true
 

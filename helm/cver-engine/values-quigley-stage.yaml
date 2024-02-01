@@ -12,6 +12,7 @@ app:
   cron:
     schedule: "22 * * * *"
     suspend: false
+    jobs: "cluster-presence"
 
 test:
   test: true

@@ -414,6 +414,49 @@ tasks:
     cmds:
       - kubectl get pods -n cver-stage -w
 
+  stage-helm-api:
+    cmds:
+      - |
+        cd helm/cver-api
+        DEPLOYED_AT=$(date +"%Y-%m-%d %T")
+        helm upgrade --install \
+            cver-api-stage \
+            ./ \
+            --namespace=cver-stage \
+            -f values.yaml \
+            -f values-quigley-stage.yaml \
+            --set "app.deployedAt=${DEPLOYED_AT}"
+    slient: True
+  
+  stage-helm-ingest:
+    cmds:
+      - |
+        cd helm/cver-ingest
+        DEPLOYED_AT=$(date +"%Y-%m-%d %T")
+        helm upgrade --install \
+            cver-ingest-stage \
+            ./ \
+            --namespace=cver-stage \
+            -f values.yaml \
+            -f values-quigley-stage.yaml \
+            --set "app.deployedAt=${DEPLOYED_AT}"
+    slient: True
+
+  stage-helm-engine:
+    cmds:
+      - |
+        cd helm/cver-engine
+        DEPLOYED_AT=$(date +"%Y-%m-%d %T")
+        helm upgrade --install \
+            cver-engine-stage \
+            ./ \
+            --namespace=cver-stage \
+            -f values.yaml \
+            -f values-quigley-stage.yaml \
+            --set "app.deployedAt=${DEPLOYED_AT}"
+    slient: True
+
+
   stage-logs-api:
     cmds:
       - |

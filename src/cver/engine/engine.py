@@ -42,8 +42,8 @@ class Engine:
             logger.critical("Pre flight checks failed.")
             exit(1)
 
-        self.run_cluster_presence()
-
+        if self.args.action in ["all", "cluster-presence"]:
+            self.run_cluster_presence()
         if self.args.action in ["all", "download"]:
             self.run_downloads()
         if self.args.action in ["all", "scan"]:

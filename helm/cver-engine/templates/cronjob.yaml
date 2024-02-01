@@ -21,6 +21,7 @@ spec:
               privileged: true
             image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
             imagePullPolicy: {{ .Values.image.pullPolicy }}
+            command: ["sh", "-c", /entrypoint.sh", "{{.Values.app.cron.jobs}}"]
             env:
               - name: CVER_ENV
                 value: "{{ .Values.app.envName }}"
