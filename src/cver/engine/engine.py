@@ -12,8 +12,11 @@ from cver.shared.utils import docker
 from cver.shared.utils.custom_formatter import CustomFormatter
 from cver.client.models.option import Option
 from cver.client.collections.registries import Registries
+<<<<<<< HEAD
 
 from cver.engine.modules.engine_priority import EnginePriority
+=======
+>>>>>>> origin/stage
 from cver.engine.modules.cluster_presence import ClusterPresence
 from cver.engine.modules.engine_download import EngineDownload
 from cver.engine.modules.engine_scan import EngineScan
@@ -145,6 +148,7 @@ class Engine:
 
         return True
 
+<<<<<<< HEAD
     def run_cluster_presence(self) -> bool:
         self.presence_report = ClusterPresence().run()
         if not self.presence_report:
@@ -154,6 +158,10 @@ class Engine:
 
     def create_priority(self, the_phase: str):
         self.engine_priorty = EnginePriority().run(phase=the_phase)
+=======
+    def run_cluster_presence(self):
+        self.presence_report = ClusterPresence().run()
+>>>>>>> origin/stage
 
     def run_downloads(self):
         """Engine Download runner. Here we'll download images waiting to be pulled down."""
