@@ -32,7 +32,7 @@ def get_model_totals():
         "apps": Softwares().get_count_total(),
         "clusters": Clusters().get_count_total(),
         "cluster-images": ClusterImages().get_count_total(),
-        "cluster-image_builds": ClusterImageBuilds().get_count_total(),
+        "cluster-image-builds": ClusterImageBuilds().get_count_total(),
         "images": Images().get_count_total(),
         "image-builds": ImageBuilds().get_count_total(),
         "image-build-pulls": ImageBuildPulls().get_count_total(),

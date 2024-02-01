@@ -26,7 +26,7 @@ tasks:
           TARGET=$CLI_ARGS
         fi
         echo "Building Target: ${TARGET}"
-        DOCKER_REGISTRY="harbor.squid-ink.us/cver-docker-hub"
+        DOCKER_REGISTRY="harbor.squid-ink.us/docker-hub"
         # DOCKER_REGISTRY="docker.io"
         docker build \
           -t cver/cver-api:${CVER_API_TAG} \
@@ -50,7 +50,7 @@ tasks:
         if [ -z ${CVER_ENGINE_TAG} ]; then
           CVER_ENGINE_TAG="dev"
         fi
-        DOCKER_REGISTRY="harbor.squid-ink.us/cver-docker-hub"
+        DOCKER_REGISTRY="harbor.squid-ink.us/docker-hub"
         # DOCKER_REGISTRY="docker.io"
         docker build \
           -t cver/cver-engine:${CVER_ENGINE_TAG} \
@@ -80,7 +80,7 @@ tasks:
         else
           TARGET=$CLI_ARGS
         fi
-        DOCKER_REGISTRY="harbor.squid-ink.us/cver-docker-hub"
+        DOCKER_REGISTRY="harbor.squid-ink.us/docker-hub"
         # DOCKER_REGISTRY="docker.io"
         echo "Building Target: ${TARGET}"
         docker build \
@@ -293,8 +293,7 @@ tasks:
 
   dev-helm-api-kill:
     cmds:
-      - |
-        helm -n cver-dev uninstall cver-api-dev
+      - helm -n cver-dev uninstall cver-api-dev
 
   dev-helm-engine:
     cmds:
@@ -309,6 +308,11 @@ tasks:
             -f values-quigley-dev.yaml \
             --set "app.deployedAt=${DEPLOYED_AT}"
     silent: True
+
+  dev-helm-engine-kill:
+    cmds:
+      - helm -n cver-dev uninstall cver-engine-dev
+
 
   dev-helm-ingest:
     cmds:
