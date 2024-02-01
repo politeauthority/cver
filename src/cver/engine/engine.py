@@ -188,6 +188,18 @@ class Engine:
 
     def _draw_download_report(self) -> str:
         """Log out the relevant info from the Engine Download report."""
+        cluster_presence_hours = Option()
+        cluster_presence_hours.get_by_name("cluster_presence_hours")
+        glow.engine_info["cluster_presence_hours"] = cluster_presence_hours.value
+        if not glow.engine_info["cluster_presence_hours"]:
+            logging.error("No cluster_presence_hours found.")
+            return False
+        cluster_presence_hours = Option()
+        cluster_presence_hours.get_by_name("cluster_presence_hours")
+        glow.engine_info["cluster_presence_hours"] = cluster_presence_hours.value
+        if not glow.engine_info["cluster_presence_hours"]:
+            logging.error("No cluster_presence_hours found.")
+            return False
         if not self.download_report:
             return ""
 
