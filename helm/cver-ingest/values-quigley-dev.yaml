@@ -19,4 +19,4 @@ image:
   tag: "dev-latest"
 
 imagePullSecrets:
-  - name: harbor
+  - name: harbor-registry

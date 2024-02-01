@@ -8,6 +8,7 @@
 
 """
 import logging
+# import logging_config
 
 from cver.client.models.image_build import ImageBuild
 from cver.client.collections.image_builds import ImageBuilds
@@ -16,6 +17,10 @@ from cver.client.models.image_build_waiting import ImageBuildWaiting
 from cver.shared.utils import date_utils
 from cver.engine.modules.image_download import ImageDownload
 from cver.engine.utils import glow
+
+
+logger = logging.getLogger(__name__)  # Get a logger for this module
+logger.info("This log will use the custom formatter")
 
 
 class EngineDownload:
@@ -32,10 +37,10 @@ class EngineDownload:
 
     def run(self):
         """Primary entrypoint for Cver Egnine Download."""
-        logging.info("Running Engine Download")
+        logger.info("Running Engine Download")
         self.set_ibws()
         self.handle_downloads()
-        logging.info("Download process complete!")
+        logger.info("Download process complete!")
         ret = {
             "downloaded": self.downloaded,
             "download_limit": self.download_limit,
@@ -65,18 +70,18 @@ class EngineDownload:
         current_page = response_json["info"]["current_page"]
         last_page = response_json["info"]["last_page"]
         ibws_created = 0
-        logging.info("Found %s potential ImageBuilds to create IBWs from" % len(ibs))
+        logger.info("Found %s potential ImageBuilds to create IBWs from" % len(ibs))
         ibws_created = 0
         while current_page <= last_page:
-            logging.info("Working on page %s of %s Image Builds" % (current_page, last_page))
+            logger.info("Working on page %s of %s Image Builds" % (current_page, last_page))
             args["page"] = current_page
             ibs = ib_collect.get(args)
             created = self._handle_ibws_create(ibs)
             ibws_created = ibws_created + created
             current_page += 1
 
-        logging.info("Completed IBW create")
-        logging.info("Created %s IBWs" % ibws_created)
+        logger.info("Completed IBW create")
+        logger.info("Created %s IBWs" % ibws_created)
         return True
 
     def handle_downloads(self):
@@ -86,23 +91,23 @@ class EngineDownload:
         ibws = self.get_image_build_waitings()
 
         if self.processed == self.process_limit:
-            logging.info("Hit max ammount of IBW processing.")
+            logger.info("Hit max ammount of IBW processing.")
             return True
         fail_threshold = 1
 
         for ibw in ibws:
             if ibw.fail_count and ibw.fail_count > fail_threshold:
-                logging.info("Skipping IBW: %s, fail count (%s) above threshold (%s)." % (
+                logger.info("Skipping IBW: %s, fail count (%s) above threshold (%s)." % (
                     ibw,
                     ibw.fail_count,
                     fail_threshold))
                 continue
             self.processed += 1
             if self.processed > self.process_limit:
-                logging.info("Hit max ammount of IBW processing.")
+                logger.info("Hit max ammount of IBW processing.")
                 self.processed = self.processed - 1
                 return True
-            logging.info("Processing %s of %s" % (self.processed, self.process_limit))
+            logger.info("Processing %s of %s" % (self.processed, self.process_limit))
             image_download = ImageDownload(ibw=ibw).run()
             if image_download["status"]:
                 self.downloaded += 1
@@ -111,7 +116,7 @@ class EngineDownload:
                 self.downloaded_images_failed.append(image_download["image"])
 
             if self.downloaded >= self.download_limit:
-                logging.info("Completed %s of %s downloads" % (
+                logger.info("Completed %s of %s downloads" % (
                     self.downloaded,
                     self.download_limit))
                 break
@@ -139,10 +144,10 @@ class EngineDownload:
 
         self.api_ibws = ibw_collect.response_last_json["info"]
         if self.api_ibws_current_page == 1:
-            logging.info("Found %s Image Builds waiting for download" % (
+            logger.info("Found %s Image Builds waiting for download" % (
                 self.api_ibws["total_objects"]))
         else:
-            logging.info("Got page %s of %s of ImageBuilds waiting for download" % (
+            logger.info("Got page %s of %s of ImageBuilds waiting for download" % (
                 self.api_ibws_current_page,
                 self.api_ibws["last_page"]))
         return ibws
@@ -161,13 +166,13 @@ class EngineDownload:
         need to be created.
         """
         if not date_utils.interval_ready(ib.sync_last_ts, 96):
-            logging.info("%s: Not flagging image build for sync" % ib)
+            logger.info("%s: Not flagging image build for sync" % ib)
             return False
 
         ibw = ImageBuildWaiting()
         ibw.sha = ib.sha
         if ibw.get_by_sha():
-            logging.debug("IBW already exists, not creating. %s" % ibw)
+            logger.debug("IBW already exists, not creating. %s" % ibw)
             return False
 
         ibw.image_id = ib.image_id
@@ -178,10 +183,10 @@ class EngineDownload:
         ibw.waiting_for = "download"
         ibw.waiting = True
         if ibw.save():
-            logging.info("%s: Saved" % ibw)
+            logger.info("%s: Saved" % ibw)
             return True
         else:
-            logging.error("%s: Failed to save" % ibw)
+            logger.error("%s: Failed to save" % ibw)
             return False
 
 # End File: cver/src/cver/engine/modules/engine-download.py

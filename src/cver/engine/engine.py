@@ -7,10 +7,9 @@
 """
 import argparse
 import logging
-import logging.config
 
-from cver.shared.utils.log_config import log_config
 from cver.shared.utils import docker
+from cver.shared.utils.custom_formatter import CustomFormatter
 from cver.client.models.option import Option
 from cver.client.collections.registries import Registries
 
@@ -20,9 +19,17 @@ from cver.engine.modules.engine_download import EngineDownload
 from cver.engine.modules.engine_scan import EngineScan
 from cver.engine.utils import glow
 
-logging.config.dictConfig(log_config)
-logger = logging.getLogger(__name__)
-logger.propagate = True
+
+# create logger with 'spam_application'
+logger = logging.getLogger("cver")
+logger.setLevel(logging.DEBUG)
+fmt = '%(asctime)s | %(levelname)8s | %(message)s'
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+
+ch.setFormatter(CustomFormatter(fmt))
+
+logger.addHandler(ch)
 
 
 class Engine:
@@ -33,9 +40,9 @@ class Engine:
         self.scan_report = {}
 
     def run(self):
-        logging.info("Starting Cver Engine")
+        logger.info("Starting Cver Engine x")
         if not self.preflight():
-            logging.critical("Pre flight checks failed.")
+            logger.critical("Pre flight checks failed.")
             exit(1)
 
         self.run_cluster_presence()
@@ -47,11 +54,11 @@ class Engine:
             self.run_scans()
         if self.args.action in ["all"]:
             self.run_cleanup()
-        logging.info("Engine Process Complete")
+        logger.info("Engine Process Complete")
         msg = "\n\nEngine\n"
         msg += self._draw_download_report()
         msg += self._draw_scan_report()
-        logging.info(msg)
+        logger.info(msg)
         return True
 
     def preflight(self):
@@ -141,7 +148,7 @@ class Engine:
     def run_cluster_presence(self) -> bool:
         self.presence_report = ClusterPresence().run()
         if not self.presence_report:
-            logging.error("Failed to run cluster image presence")
+            logger.error("Failed to run cluster image presence")
             return False
         return True
 
@@ -153,7 +160,7 @@ class Engine:
         self.download_report = EngineDownload().run()
 
     def run_scans(self):
-        logging.info("Running Engine Scan")
+        logger.info("Running Engine Scan")
         self.scan_report = EngineScan().run()
 
     def run_cleanup(self):

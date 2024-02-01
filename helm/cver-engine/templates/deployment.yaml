@@ -79,7 +79,7 @@ spec:
         secret:
           secretName: docker-config-json
           items:
-            - key: config.json
+            - key: .dockerconfigjson
               path: config.json
       {{- with .Values.nodeSelector }}
       nodeSelector:
