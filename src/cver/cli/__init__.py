@@ -16,7 +16,7 @@ from cver.shared.utils.log_config import log_config
 from cver.shared.utils import display
 from cver.client.collections.images import Images
 # from cver.client.collections.image_builds import ImageBuilds
-from cver.client.collections.image_build_waitings import ImageBuildWaitings
+from cver.client.collections.image_build_pulls import ImageBuildPulls
 from cver.client.collections.options import Options
 from cver.client.collections.registries import Registries
 from cver.client.collections.tasks import Tasks
@@ -78,10 +78,10 @@ class Cver:
             self.get_image()
         elif self.args.noun in ["ib", "image-build"]:
             self.get_image_build()
-        elif self.args.noun in ["ibws", "image-build-waitings"]:
-            self.get_image_build_waitings()
-        elif self.args.noun in ["ibw", "image-build-waiting"]:
-            self.get_image_buld_waiting()
+        elif self.args.noun in ["ibps", "image-build-pulls"]:
+            self.get_image_build_pulls()
+        elif self.args.noun in ["ibp", "image-build-pull"]:
+            self.get_image_build_pull()
         elif self.args.noun in ["options"]:
             self.get_options()
         elif self.args.noun in ["registries"]:
@@ -195,28 +195,26 @@ class Cver:
         pretty.entity_table(image)
         return True
 
-    def get_image_build_waitings(self) -> bool:
-        """Get all ImageBuildWaitings."""
-        entity_col = ImageBuildWaitings()
-        ibws = entity_col.get(page=self.args.page)
+    def get_image_build_pulls(self) -> bool:
+        """Get all ImageBuildPulls."""
+        entity_col = ImageBuildPulls()
+        ibps = entity_col.get(page=self.args.page)
         response = entity_col.response_last
         rj = response.json()
 
-        table = Table(title="Image Build Waitings (%s)" % rj["info"]["total_objects"])
+        table = Table(title="Image Build Pulls (%s)" % rj["info"]["total_objects"])
         table.add_column("ID", justify="right", style="cyan", no_wrap=True)
         table.add_column("Image", justify="left", style="green")
         table.add_column("Image Build ID", justify="left", style="green")
-        table.add_column("Waiting for", justify="right", style="green")
         table.add_column("Created", justify="right", style="green")
 
-        for ibw in ibws:
+        for ibw in ibps:
             image = Image()
             image.get_by_id(ibw.image_id)
             table.add_row(
                 str(ibw.id),
                 image.name,
                 str(ibw.image_build_id),
-                ibw.waiting_for,
                 pretty.date_display(ibw.created_ts)
             )
 
@@ -299,7 +297,7 @@ class Cver:
         console = Console()
         console.print(table)
         pretty.print_pagination(rj["info"])
-        return True    
+        return True
 
     def get_tasks(self) -> bool:
         """Get all Tasks."""
