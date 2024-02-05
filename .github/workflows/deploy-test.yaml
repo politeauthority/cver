@@ -67,6 +67,8 @@ jobs:
           else
             if [ "${{ inputs.deployment-name }}" = "test" ]; then
               IMAGE_TAG="dev-latest"
+              IMAGE_TAG="0.0.6"
+              # this is a hack above, fix when ready
             else
               IMAGE_TAG="${{ inputs.deployment-name }}-latest"
             fi

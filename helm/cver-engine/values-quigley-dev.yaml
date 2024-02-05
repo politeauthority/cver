@@ -4,7 +4,7 @@ nameOverride: "dev"
 
 app:
   apiUrl: "http://cver-api-dev"
-  appTest: "debug"
+  static: true
   logLevel: "INFO"
   envName: "dev"
   debug: true

@@ -394,7 +394,7 @@ tasks:
       - |
         CVER_API_HELM=$(helm ls | grep "cver-api-test" | awk '{print $1}' | sort -n | tail -n 1)
         if [ -z "$CVER_API_HELM" ]; then
-          echo "Release does not exist: cver-api-test"
+          echo "Release does not exist: cver-api-api"
           exit 1
         fi
         POD=$(kubectl -n cver-test get pods | grep ${CVER_API_HELM} | awk '{print $1}')
@@ -427,7 +427,7 @@ tasks:
             -f values-quigley-stage.yaml \
             --set "app.deployedAt=${DEPLOYED_AT}"
     slient: True
-  
+
   stage-helm-ingest:
     cmds:
       - |
@@ -472,10 +472,18 @@ tasks:
         kubectl exec -n cver-stage -it ${POD} -c cver-api -- bash
     silent: True
 
+  # stage-exec-engine:
+  #   cmds:
+  #     - |
+  #       POD=$(kubectl get pods -n cver-stage -l app.kubernetes.io/instance=cver-engine-stage --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
+  #       echo "Logging into to pod: ${POD}"
+  #       kubectl exec -n cver-stage -it ${POD} -c cver-api -- bash
+  #   silent: True
+
   stage-exec-test:
     cmds:
       - |
-        POD=$(kubectl get pods -n cver-stage -l app.kubernetes.io/instance=cver-test-stage --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
+        POD=$(kubectl get pods -n cver-stage -l app.kubernetes.io/instance=cver-engine-stage --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
         echo "Logging into to pod: ${POD}"
         kubectl exec -n cver-stage -it ${POD} -- bash
     silent: True

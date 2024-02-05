@@ -1,4 +1,4 @@
-{{- if eq .Values.app.appTest "debug" }}
+{{- if .Values.app.static }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:

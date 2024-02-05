@@ -6,7 +6,7 @@ nameOverride: "stage"
 
 app:
   apiUrl: "http://cver-api-stage"
-  appTest: "debug"
+  static: true
   logLevel: "INFO"
   envName: "stage"
   debug: false
