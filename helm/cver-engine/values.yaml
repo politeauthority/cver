@@ -9,12 +9,15 @@ app:
   logLevel: "INFO"
   debug: false
   deployedAt: "unknown"
+  static: false
   cron:
     schedule:  "15,45 * * * *"
-    suspend: true
+    suspend: false
     timeoutSeconds: 1200
     engineDownloadLimit: 1
     engineScanLimit: 1
+    jobs:
+    - all
 
 image:
   repository: politeauthority/cver-engine

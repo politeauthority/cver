@@ -10,6 +10,8 @@ from cver.shared.utils import xlate
 from cver.client import Client as CverClient
 from cver.client.utils import misc
 
+logger = logging.getLogger("cver")
+
 
 class ClientCollectionsBase(CverClient):
 
@@ -32,6 +34,7 @@ class ClientCollectionsBase(CverClient):
             }
         elif request_args:
             payload = self._prepare_search(request_args)
+        logging.debug("Payload: %s" % payload)
         response = self.make_request(self.collection_name, payload=payload)
         if response["status"] == "success":
             return self.build_list_of_dicts(response["object_type"], response["objects"])

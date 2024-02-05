@@ -1,4 +1,4 @@
-{{- if eq .Values.app.envName "dev" }}
+{{- if .Values.app.static }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -79,7 +79,7 @@ spec:
         secret:
           secretName: docker-config-json
           items:
-            - key: config.json
+            - key: .dockerconfigjson
               path: config.json
       {{- with .Values.nodeSelector }}
       nodeSelector:

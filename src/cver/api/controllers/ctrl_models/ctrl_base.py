@@ -27,6 +27,8 @@ def get_model(model, entity_id: int = None) -> dict:
     query = {}
     if "query" in r_args:
         query = xlate.url_decode_json_flask(r_args["query"])
+    # if "order_by" in r_args:
+    #     import ipdb; ipdb.set_trace()
 
     # Search for model base on searchable fields
     search_fields = []

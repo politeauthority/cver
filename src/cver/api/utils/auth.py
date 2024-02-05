@@ -176,8 +176,9 @@ def verify_api_key(client_id: str, raw_api_key: str) -> bool:
     return data
 
 
-def generate_client_id():
+def generate_client_id() -> str:
     """Generates a client id to be used in api authentication.
+    Example: k3ce2mfomq
     """
     length = 10
     characters = "abcdefghijklmnopqrstuvwxyz1234567890"
@@ -189,6 +190,7 @@ def generate_client_id():
 
 def generate_api_key():
     """Creates an api-key.
+    Example: kgtm-xtsx-xzku-iahc
     """
     password_length = 19
     characters = "abcdefghijklmnopqrstuvwxyz1234567890"

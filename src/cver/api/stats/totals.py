@@ -7,10 +7,10 @@
 from cver.api.collects.api_keys import ApiKeys
 from cver.api.collects.clusters import Clusters
 from cver.api.collects.cluster_images import ClusterImages
+from cver.api.collects.cluster_image_builds import ClusterImageBuilds
 from cver.api.collects.images import Images
 from cver.api.collects.image_builds import ImageBuilds
 from cver.api.collects.image_build_pulls import ImageBuildPulls
-from cver.api.collects.image_build_waitings import ImageBuildWaitings
 from cver.api.collects.migrations import Migrations
 from cver.api.collects.options import Options
 from cver.api.collects.organizations import Organizations
@@ -31,10 +31,11 @@ def get_model_totals():
         "apps": Softwares().get_count_total(),
         "clusters": Clusters().get_count_total(),
         "cluster-images": ClusterImages().get_count_total(),
+        "cluster-image-builds": ClusterImageBuilds().get_count_total(),
         "images": Images().get_count_total(),
         "image-builds": ImageBuilds().get_count_total(),
         "image-build-pulls": ImageBuildPulls().get_count_total(),
-        "image-build-waitings": ImageBuildWaitings().get_count_total(),
+        # "image-build-waitings": ImageBuildWaitings().get_count_total(),
         "migrations": Migrations().get_count_total(),
         "options": Options().get_count_total(),
         "organizations": Organizations().get_count_total(),

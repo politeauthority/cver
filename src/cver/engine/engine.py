@@ -7,20 +7,26 @@
 """
 import argparse
 import logging
-import logging.config
 
-from cver.shared.utils.log_config import log_config
 from cver.shared.utils import docker
+from cver.shared.utils.custom_formatter import CustomFormatter
 from cver.client.models.option import Option
 from cver.client.collections.registries import Registries
+
+from cver.engine.modules.engine_priority import EnginePriority
 from cver.engine.modules.cluster_presence import ClusterPresence
 from cver.engine.modules.engine_download import EngineDownload
 from cver.engine.modules.engine_scan import EngineScan
 from cver.engine.utils import glow
 
-logging.config.dictConfig(log_config)
-logger = logging.getLogger(__name__)
-logger.propagate = True
+
+logger = logging.getLogger("cver")
+logger.setLevel(logging.DEBUG)
+fmt = '%(asctime)s | %(levelname)8s | %(message)s'
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+ch.setFormatter(CustomFormatter(fmt))
+logger.addHandler(ch)
 
 
 class Engine:
@@ -31,24 +37,24 @@ class Engine:
         self.scan_report = {}
 
     def run(self):
-        logging.info("Starting Cver Engine")
+        logger.info("Starting Cver Engine x")
         if not self.preflight():
-            logging.critical("Pre flight checks failed.")
+            logger.critical("Pre flight checks failed.")
             exit(1)
 
-        self.run_cluster_presence()
-
+        if self.args.action in ["all", "cluster-presence"]:
+            self.run_cluster_presence()
         if self.args.action in ["all", "download"]:
             self.run_downloads()
         if self.args.action in ["all", "scan"]:
             self.run_scans()
         if self.args.action in ["all"]:
             self.run_cleanup()
-        logging.info("Engine Process Complete")
+        logger.info("Engine Process Complete")
         msg = "\n\nEngine\n"
         msg += self._draw_download_report()
         msg += self._draw_scan_report()
-        logging.info(msg)
+        logger.info(msg)
         return True
 
     def preflight(self):
@@ -84,7 +90,6 @@ class Engine:
             return False
 
         # Get engine options
-
         cluster_presence_hours = Option()
         cluster_presence_hours.get_by_name("cluster_presence_hours")
         glow.engine_info["cluster_presence_hours"] = cluster_presence_hours.value
@@ -135,16 +140,36 @@ class Engine:
 
         return True
 
-    def run_cluster_presence(self):
+    def run_cluster_presence(self) -> bool:
         self.presence_report = ClusterPresence().run()
+        if not self.presence_report:
+            logger.error("Failed to run cluster image presence")
+            return False
+        return True
+
+    def create_priority(self, the_phase: str) -> bool:
+        # self.engine_priorty = EnginePriority().run(phase=the_phase)
+        if the_phase == "download":
+            priority = EnginePriority().run(phase=the_phase)
+            glow.image_build_priority["download"] = priority["download"]
+        elif the_phase == "scan":
+            priority = EnginePriority().run(phase=the_phase)
+            glow.image_build_priority["scan"] = priority["scan"]
+        return True
 
     def run_downloads(self):
         """Engine Download runner. Here we'll download images waiting to be pulled down."""
+        self.create_priority(the_phase="download")
         self.download_report = EngineDownload().run()
 
-    def run_scans(self):
-        logging.info("Running Engine Scan")
+    def run_scans(self) -> bool:
+        """Engine Scan runner."""
+        logger.info("Running Engine Scan")
+        self.create_priority(the_phase="scan")
+        print(self.priority)
+        return False
         self.scan_report = EngineScan().run()
+        return True
 
     def run_cleanup(self):
         docker_images = docker.get_all_images()
@@ -152,13 +177,6 @@ class Engine:
             return True
         for image in docker_images:
             docker.delete_image(image)
-        return True
-
-    def _get_registries(self) -> bool:
-        """Get all registries we currently know about and store them in glow."""
-        registries = Registries().get()
-        for reg in registries:
-            glow.registry_info["registries"][reg.id] = reg
         return True
 
     def _draw_download_report(self) -> str:
@@ -206,6 +224,12 @@ class Engine:
                 msg += "\t\t%s\n" % image
         msg += "\n"
         return msg
+
+    def _get_registries(self):
+        registries = Registries().get_all()
+        for registry in registries:
+            glow.registry_info["registries"][registry.id] = registry
+        return True
 
 
 def parse_args():

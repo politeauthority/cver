@@ -53,14 +53,26 @@ FIELD_MAP = {
         "api_writeable": True,
         "api_searchable": True
     },
-    "status": {
-        "name": "status",
+    "status_download": {
+        "name": "status_download",
         "type": "bool",
         "api_writeable": True,
         "api_searchable": True
     },
-    "status_reason": {
-        "name": "status_reason",
+    "status_download_reason": {
+        "name": "status_download_reason",
+        "type": "str",
+        "api_writeable": True,
+        "api_searchable": True
+    },
+    "status_push": {
+        "name": "status_push",
+        "type": "bool",
+        "api_writeable": True,
+        "api_searchable": True
+    },
+    "status_push_reason": {
+        "name": "status_push_reason",
         "type": "str",
         "api_writeable": True,
         "api_searchable": True

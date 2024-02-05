@@ -20,4 +20,4 @@ image:
   tag: "stage-latest"
 
 imagePullSecrets:
-  - name: harbor
+  - name: harbor-registry

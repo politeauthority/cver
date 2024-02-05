@@ -26,7 +26,7 @@ tasks:
           TARGET=$CLI_ARGS
         fi
         echo "Building Target: ${TARGET}"
-        DOCKER_REGISTRY="harbor.squid-ink.us/cver-docker-hub"
+        DOCKER_REGISTRY="harbor.squid-ink.us/docker-hub"
         # DOCKER_REGISTRY="docker.io"
         docker build \
           -t cver/cver-api:${CVER_API_TAG} \
@@ -50,7 +50,7 @@ tasks:
         if [ -z ${CVER_ENGINE_TAG} ]; then
           CVER_ENGINE_TAG="dev"
         fi
-        DOCKER_REGISTRY="harbor.squid-ink.us/cver-docker-hub"
+        DOCKER_REGISTRY="harbor.squid-ink.us/docker-hub"
         # DOCKER_REGISTRY="docker.io"
         docker build \
           -t cver/cver-engine:${CVER_ENGINE_TAG} \
@@ -80,7 +80,7 @@ tasks:
         else
           TARGET=$CLI_ARGS
         fi
-        DOCKER_REGISTRY="harbor.squid-ink.us/cver-docker-hub"
+        DOCKER_REGISTRY="harbor.squid-ink.us/docker-hub"
         # DOCKER_REGISTRY="docker.io"
         echo "Building Target: ${TARGET}"
         docker build \
@@ -293,8 +293,7 @@ tasks:
 
   dev-helm-api-kill:
     cmds:
-      - |
-        helm -n cver-dev uninstall cver-api-dev
+      - helm -n cver-dev uninstall cver-api-dev
 
   dev-helm-engine:
     cmds:
@@ -309,6 +308,11 @@ tasks:
             -f values-quigley-dev.yaml \
             --set "app.deployedAt=${DEPLOYED_AT}"
     silent: True
+
+  dev-helm-engine-kill:
+    cmds:
+      - helm -n cver-dev uninstall cver-engine-dev
+
 
   dev-helm-ingest:
     cmds:
@@ -390,7 +394,7 @@ tasks:
       - |
         CVER_API_HELM=$(helm ls | grep "cver-api-test" | awk '{print $1}' | sort -n | tail -n 1)
         if [ -z "$CVER_API_HELM" ]; then
-          echo "Release does not exist: cver-api-test"
+          echo "Release does not exist: cver-api-api"
           exit 1
         fi
         POD=$(kubectl -n cver-test get pods | grep ${CVER_API_HELM} | awk '{print $1}')
@@ -410,6 +414,49 @@ tasks:
     cmds:
       - kubectl get pods -n cver-stage -w
 
+  stage-helm-api:
+    cmds:
+      - |
+        cd helm/cver-api
+        DEPLOYED_AT=$(date +"%Y-%m-%d %T")
+        helm upgrade --install \
+            cver-api-stage \
+            ./ \
+            --namespace=cver-stage \
+            -f values.yaml \
+            -f values-quigley-stage.yaml \
+            --set "app.deployedAt=${DEPLOYED_AT}"
+    slient: True
+
+  stage-helm-ingest:
+    cmds:
+      - |
+        cd helm/cver-ingest
+        DEPLOYED_AT=$(date +"%Y-%m-%d %T")
+        helm upgrade --install \
+            cver-ingest-stage \
+            ./ \
+            --namespace=cver-stage \
+            -f values.yaml \
+            -f values-quigley-stage.yaml \
+            --set "app.deployedAt=${DEPLOYED_AT}"
+    slient: True
+
+  stage-helm-engine:
+    cmds:
+      - |
+        cd helm/cver-engine
+        DEPLOYED_AT=$(date +"%Y-%m-%d %T")
+        helm upgrade --install \
+            cver-engine-stage \
+            ./ \
+            --namespace=cver-stage \
+            -f values.yaml \
+            -f values-quigley-stage.yaml \
+            --set "app.deployedAt=${DEPLOYED_AT}"
+    slient: True
+
+
   stage-logs-api:
     cmds:
       - |
@@ -425,10 +472,18 @@ tasks:
         kubectl exec -n cver-stage -it ${POD} -c cver-api -- bash
     silent: True
 
+  # stage-exec-engine:
+  #   cmds:
+  #     - |
+  #       POD=$(kubectl get pods -n cver-stage -l app.kubernetes.io/instance=cver-engine-stage --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
+  #       echo "Logging into to pod: ${POD}"
+  #       kubectl exec -n cver-stage -it ${POD} -c cver-api -- bash
+  #   silent: True
+
   stage-exec-test:
     cmds:
       - |
-        POD=$(kubectl get pods -n cver-stage -l app.kubernetes.io/instance=cver-test-stage --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
+        POD=$(kubectl get pods -n cver-stage -l app.kubernetes.io/instance=cver-engine-stage --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
         echo "Logging into to pod: ${POD}"
         kubectl exec -n cver-stage -it ${POD} -- bash
     silent: True

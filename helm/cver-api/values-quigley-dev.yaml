@@ -22,10 +22,10 @@ test:
 image:
   repository: harbor.squid-ink.us/cver/cver-api
   pullPolicy: Always
-  tag: "stage-latest"
+  tag: "dev-latest"
 
 imagePullSecrets:
-  - name: harbor
+  - name: harbor-registry
 
 ingress:
   enabled: true

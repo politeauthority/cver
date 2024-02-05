@@ -5,7 +5,6 @@
 """
 
 global registry_info
-
 registry_info = {
     "local": {
         "url": None,
@@ -30,5 +29,20 @@ engine_info = {
     "scan_process_limit": 0,
     "scan_fail_threshold": 0,
 }
+
+
+global image_build_priority
+image_build_priority = {
+    "download": {},
+    "scan": {}
+}
+
+
+global engine_results
+engine_results = {
+    "download": {},
+    "scan": {}
+}
+
 
 # End File: cver/src/engine/utils/glow.py

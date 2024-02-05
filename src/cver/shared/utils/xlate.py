@@ -162,22 +162,6 @@ def convert_int_to_bool(value: int) -> bool:
         return False
 
 
-def convert_list_to_str(value: list) -> str:
-    """Convert a list into a str. Typically used for storing lists as a TEXT field in SQL.
-    :unit-test: TestXlate::test__convert_bool_to_int
-    """
-    if not value:
-        return None
-    if isinstance(value, str):
-        value = [value]
-
-    clean_values = []
-    for item in value:
-        clean_values.append(str(item))
-
-    return ",".join(clean_values)
-
-
 def convert_str_to_bool(value: str) -> bool:
     """Convert a string value to a bool value if one can be derrived.
     :unit-test: TestXlate::test__convert_str_to_bool
@@ -199,6 +183,42 @@ def convert_str_to_bool(value: str) -> bool:
         'Cannot convert "%s" of type "%s" to bool.' % (
             value,
             type(value)))
+
+
+def convert_any_to_bool(value: str) -> bool:
+    """Attempt to convert any data into a bool
+    :unit-test: TestXlate::test__convert_any_to_bool
+    """
+    if not value:
+        return False
+    if isinstance(value, bool):
+        return value
+    elif isinstance(value, str):
+        return convert_str_to_bool(value)
+    elif isinstance(value, int()):
+        return convert_int_to_bool(value)
+        return value
+    else:
+        raise AttributeError(
+            'Cannot convert "%s" of type "%s" to bool.' % (
+                value,
+                type(value)))
+
+
+def convert_list_to_str(value: list) -> str:
+    """Convert a list into a str. Typically used for storing lists as a TEXT field in SQL.
+    :unit-test: TestXlate::test__convert_bool_to_int
+    """
+    if not value:
+        return None
+    if isinstance(value, str):
+        value = [value]
+
+    clean_values = []
+    for item in value:
+        clean_values.append(str(item))
+
+    return ",".join(clean_values)
 
 
 def get_digest(image_str: str):

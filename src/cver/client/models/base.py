@@ -75,7 +75,25 @@ class Base(CverClient):
         else:
             return False
 
-    def get_by_fields(self, fields: dict = {}):
+    def get_by_field(self, field_name: str, field_value) -> bool:
+        """ Get an entity by any single api_searchable field."""
+        payload = {}
+        if "api_searchable" not in self.field_map[field_name]:
+            msg = "Cannot search for %s with field: %s" % (self, field_name)
+            logging.critical(msg)
+            raise AttributeError(msg)
+        elif not self.field_map[field_name]["api_searchable"]:
+            msg = "Cannot search for %s with field: %s" % (self, field_name)
+            logging.critical(msg)
+            raise AttributeError(msg)
+        payload[field_name] = field_value
+        response = self.make_request(self.model_name, payload=payload)
+        if response["status"] == "success":
+            return self.build(response["object"])
+        else:
+            return False
+
+    def get_by_fields(self, fields: dict = {}, order_by: dict = {}) -> bool:
         """ Get an entity by any api searchable fields."""
         payload = {}
         for field_name, field_value in fields.items():

@@ -6,12 +6,14 @@ nameOverride: "stage"
 
 app:
   apiUrl: "http://cver-api-stage"
-  logLevel: "DEBUG"
+  static: true
+  logLevel: "INFO"
   envName: "stage"
   debug: false
   cron:
     schedule: "22 * * * *"
     suspend: false
+    jobs: "cluster-presence"
 
 test:
   test: true
@@ -22,4 +24,4 @@ image:
   tag: "stage-latest"
 
 imagePullSecrets:
-  - name: harbor
+  - name: harbor-registry

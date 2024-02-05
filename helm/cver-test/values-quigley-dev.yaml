@@ -19,4 +19,4 @@ image:
   pullPolicy: Always
 
 imagePullSecrets:
-  - name: harbor
+  - name: harbor-registry

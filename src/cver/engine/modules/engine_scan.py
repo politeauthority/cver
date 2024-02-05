@@ -15,6 +15,7 @@ from cver.engine.utils import glow
 class EngineScan:
 
     def __init__(self):
+        self.priority = glow.image_build_priority["scan"]
         self.scan_limit = glow.engine_info["scan_limit"]
         self.process_limit = glow.engine_info["scan_process_limit"]
         self.fail_threshold = glow.engine_info["scan_fail_threshold"]
